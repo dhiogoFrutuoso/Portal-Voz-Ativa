@@ -1,0 +1,183 @@
+<section class="py-5 bg-light">
+    <div class="container px-5">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb bg-white p-3 rounded-4 shadow-sm">
+                <li class="breadcrumb-item"><a href="/categories/denuncias_sigilosas/hub" class="text-decoration-none text-danger fw-bold">Hub de Segurança</a></li>
+                <li class="breadcrumb-item active fw-semibold">Protocolo de Ocorrência</li>
+            </ol>
+        </nav>
+
+        <div class="row gx-5">
+            <div class="col-lg-8">
+                <div class="card shadow-lg border-0 rounded-4 overflow-hidden mb-4 bg-white">
+                    {{#if denuncia.imagens.length}}
+                        <div id="carouselDenuncia" class="carousel slide bg-dark" data-bs-ride="carousel">
+                            <div class="carousel-inner">
+                                {{#each denuncia.imagens}}
+                                <div class="carousel-item {{#if @first}}active{{/if}} text-center">
+                                    <img src="/img_chamados/{{this}}" class="img-fluid" style="max-height: 550px; width: 100%; object-fit: cover;">
+                                </div>
+                                {{/each}}
+                            </div>
+                            {{#if (gt denuncia.imagens.length 1)}}
+                                <button class="carousel-control-prev" type="button" data-bs-target="#carouselDenuncia" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#carouselDenuncia" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                </button>
+                            {{/if}}
+                        </div>
+                    {{else}}
+                        <div class="bg-dark text-white text-center py-5">
+                            <i class="bi bi-shield-slash fs-1 opacity-50"></i>
+                            <p class="mt-2">Sem evidências visuais registradas</p>
+                        </div>
+                    {{/if}}
+
+                    <div class="card-body p-4 p-md-5">
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="badge bg-danger px-3 py-2 rounded-pill me-3">{{denuncia.tipoOcorrencia}}</span>
+                            <small class="text-muted"><i class="bi bi-calendar3 me-1"></i> {{formatDate denuncia.dataCriacao}}</small>
+                        </div>
+                        
+                        <h1 class="fw-bold text-dark display-6 mb-3">{{denuncia.titulo}}</h1>
+                        <p class="lead text-secondary mb-4" style="line-height: 1.8;">{{denuncia.descricao}}</p>
+                        
+                            {{#if denuncia.video}}
+                            <div class="mb-4">
+                                <h6 class="fw-bold text-dark mb-3"><i class="bi bi-play-circle-fill me-2 text-danger"></i>Vídeo da Ocorrência</h6>
+                                <video controls preload="metadata" class="rounded-4 w-100 shadow-sm" style="max-height: 400px; background: #000;">
+                                    <source src="/videos/{{denuncia.video}}" type="video/mp4">
+                                    Seu navegador não suporta vídeos.
+                                </video>
+                            </div>
+                            {{/if}}
+
+                        <div class="mb-4">
+                            <h6 class="fw-bold text-dark mb-3"><i class="bi bi-map-fill me-2 text-danger"></i>Localização do Incidente</h6>
+                            <div id="mapDetails" class="rounded-4 border shadow-sm mb-3" style="height: 300px; width: 100%;"></div>
+                            <div class="p-3 bg-light rounded-4 border-start border-danger border-4">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-geo-alt-fill text-danger fs-4 me-3"></i>
+                                    <div>
+                                        <p class="small text-muted mb-0">Endereço Aproximado</p>
+                                        <span class="fw-bold text-dark">{{denuncia.localizacao}}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
+                    <h6 class="text-uppercase fw-bold text-muted small mb-3">Status do Protocolo</h6>
+                    <div class="mb-3">
+                        <label class="d-block small text-muted">Prioridade:</label>
+                        <span class="badge bg-danger-soft text-danger rounded-pill fw-bold">Urgente</span>
+                    </div>
+                    <div>
+                        <label class="d-block small text-muted">Situação Atual:</label>
+                        <span class="text-primary fw-bold"><i class="bi bi-info-circle me-1"></i>{{denuncia.status}}</span>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm rounded-4 p-3 mb-4 text-center bg-white">
+                    <form action="/categories/denuncias_sigilosas/like/{{denuncia._id}}" method="POST">
+                        {{#if jaCurtiu}} 
+                            <button type="submit" class="btn btn-danger w-100 rounded-pill fw-bold py-2 shadow-sm transition-base">
+                                <i class="bi bi-heart-fill me-2"></i> Você apoiou isto ({{denuncia.curtidas.length}})
+                            </button>
+                        {{else}}
+                            <button type="submit" class="btn btn-outline-secondary w-100 rounded-pill fw-bold py-2 transition-base">
+                                <i class="bi bi-heart me-2"></i> Apoiar Denúncia ({{denuncia.curtidas.length}})
+                            </button>
+                        {{/if}}
+                    </form>
+                </div>
+
+                <div id="comentarios" class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+                    <div class="p-4 border-bottom bg-white">
+                        <h6 class="fw-bold mb-0">Comentários <span class="badge bg-light text-dark ms-2">{{denuncia.comentarios.length}}</span></h6>
+                    </div>
+                    <div class="p-4 overflow-auto" style="max-height: 450px; background-color: #fafafa;">
+                        {{#each denuncia.comentarios}}
+                            <div class="d-flex align-items-start mb-3">
+                                <a href="/users/perfil/{{this.usuario._id}}" class="me-3">
+                                    <img src="{{this.usuario.profileImage}}" 
+                                        alt="{{this.usuario.name}}" 
+                                        class="rounded-circle shadow-sm" 
+                                        style="width: 45px; height: 45px; object-fit: cover; border: 2px solid #13315c; transition: 0.3s;">
+                                </a>
+                                
+                                <div class="bg-light p-3 rounded-3 shadow-sm w-100 col-1">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <a href="/users/perfil/{{this.usuario._id}}" class="text-decoration-none">
+                                            <h6 class="fw-bold mb-0 hover-blue" style="color: #13315c; font-size: 0.9rem;">
+                                                {{this.usuario.name}}
+                                            </h6>
+                                        </a>
+                                        <small class="text-muted" style="font-size: 0.75rem;">
+                                            {{formatDate this.createdAt}}
+                                        </small>
+                                    </div>
+                                    <p class="mb-0 small text-dark">{{this.texto}}</p>
+                                </div>
+                            </div>
+                        {{/each}}
+                    </div>
+
+
+                    <div class="p-3 bg-white border-top">
+                        <form action="/categories/denuncias_sigilosas/comentar/{{denuncia._id}}" method="POST">
+                            <div class="input-group">
+                                <input type="text" name="texto" class="form-control border-0 bg-light rounded-pill ps-4" placeholder="Adicionar nota..." required>
+                                <button class="btn btn-danger rounded-circle ms-2" type="submit" style="width: 40px; height: 40px;">
+                                    <i class="bi bi-send-fill"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <a href="/categories/denuncias_sigilosas/hub" class="btn btn-link w-100 text-decoration-none mt-4 text-muted small fw-bold">
+                    <i class="bi bi-arrow-left me-1"></i> Voltar para a lista
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const lat = parseFloat("{{denuncia.latitude}}");
+        const lng = parseFloat("{{denuncia.longitude}}");
+        
+        if (!isNaN(lat) && !isNaN(lng)) {
+            // Inicializa o mapa
+            const map = L.map('mapDetails').setView([lat, lng], 16);
+            
+            // URL CORRIGIDA ABAIXO
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            L.marker([lat, lng]).addTo(map)
+                .bindPopup("<b>Local da Ocorrência</b>").openPopup();
+            
+            // Correção para o bug de renderização do Leaflet em containers dinâmicos
+            setTimeout(() => { 
+                map.invalidateSize(); 
+            }, 200);
+        } else {
+            document.getElementById('mapDetails').innerHTML = "<div class='d-flex h-100 align-items-center justify-content-center'><p class='text-muted'>Localização não disponível</p></div>";
+        }
+    });
+</script>
+
+<style>
+    .hover-blue:hover { color: #0056b3 !important; text-decoration: underline; }
+    .me-3 img:hover { transform: scale(1.1); }
+</style>

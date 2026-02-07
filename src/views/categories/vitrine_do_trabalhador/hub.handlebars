@@ -1,0 +1,395 @@
+<header class="py-5 text-white shadow-lg" style="background: linear-gradient(145deg, #0d1b2a 0%, #13315c 100%); position: relative; overflow: hidden; border-bottom: 5px solid #28a745;">
+    <div style="position: absolute; top: -20%; left: -10%; width: 400px; height: 400px; background: rgba(40, 167, 69, 0.05); border-radius: 50%; filter: blur(80px);"></div>
+    
+    <div class="container px-5">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <div class="d-flex align-items-center mb-3">
+                    <span class="badge bg-success text-white px-3 py-2 rounded-pill fw-bold shadow-sm me-3">
+                        <i class="bi bi-briefcase-fill me-1"></i> HUB DE OPORTUNIDADES
+                    </span>
+                    <span class="text-white-50 fw-light">Cariús, Ceará - Desenvolvimento Local</span>
+                </div>
+                <h1 class="display-3 fw-bolder mb-3 text-shadow">Vitrine do Trabalhador</h1>
+                <p class="lead mb-4 opacity-75 fw-light" style="max-width: 600px;">
+                    Conectando talentos locais à economia do município. O <strong>Hub de Gestão</strong> transforma a visibilidade de serviços e produtos em crescimento real para nossa comunidade.
+                </p>
+            </div>
+            <div class="col-lg-4 d-none d-lg-block">
+                <div class="glass-card p-4 text-center floating-img">
+                    <h6 class="text-success text-uppercase small mb-3">Impacto Econômico</h6>
+                    <div class="display-6 fw-bold mb-1">+ Mercado</div>
+                    <div class="small opacity-75">Fomento à Mão de Obra Local</div>
+                    <hr class="bg-white opacity-25">
+                    <div class="d-flex align-items-center justify-content-center">
+                        <span class="status-dot-green me-2"></span> 
+                        <span class="small fw-bold">ECONOMIA ATIVA</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<section class="py-5 bg-light">
+    <div class="container px-5">
+        
+        <div class="row gx-5 mb-5 mt-n5-custom">
+            <div class="col-md-3 mb-4">
+                <div class="card border-0 rounded-4 shadow-sm h-100 p-4 hover-lift bg-white border-top-success">
+                    <div class="text-success fs-1 mb-2"><i class="bi bi-person-badge-fill"></i></div>
+                    <h4 class="fw-bold mb-0">Talentos</h4>
+                    <p class="text-muted small mb-0">Profissionais Verificados</p>
+                </div>
+            </div>
+            
+            <div class="col-md-3 mb-4">
+                <div class="card border-0 rounded-4 shadow-sm h-100 p-4 hover-lift bg-white border-top-primary">
+                    <div class="text-primary fs-1 mb-2"><i class="bi bi-shop"></i></div>
+                    <h4 class="fw-bold mb-0">Comércio</h4>
+                    <p class="text-muted small mb-0">Vendas e Produtos Locais</p>
+                </div>
+            </div>
+            
+            <div class="col-md-3 mb-4">
+                <div class="card border-0 rounded-4 shadow-sm h-100 p-4 hover-lift bg-white border-top-info">
+                    <div class="text-info fs-1 mb-2"><i class="bi bi-graph-up-arrow"></i></div>
+                    <h4 class="fw-bold mb-0">Fomento</h4>
+                    <p class="text-muted small mb-0">Geração de Renda</p>
+                </div>
+            </div>
+            
+            <div class="col-md-3 mb-4">
+                <div class="card border-0 rounded-4 shadow-sm h-100 p-4 hover-lift bg-white border-top-warning">
+                    <div class="text-warning fs-1 mb-2"><i class="bi bi-stars"></i></div>
+                    <h4 class="fw-bold mb-0">Qualidade</h4>
+                    <p class="text-muted small mb-0">Avaliação da Comunidade</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row gx-5">
+            <div class="col-lg-7">
+                <div class="card hover-lift border-0 shadow-lg rounded-4 mb-5">
+                    <div class="card-body p-5">
+                        <h3 class="fw-bold text-dark mb-4">Fortaleça o Comércio Local</h3>
+                        <p class="text-muted mb-5">
+                            Este hub é o motor econômico do <strong>Voz Ativa</strong>. Facilitamos o encontro entre quem precisa de um serviço e quem tem o talento para realizar, eliminando intermediários e valorizando o dinheiro que circula em Cariús.
+                        </p>
+                        
+                        <div class="action-box p-4 rounded-4 mb-4" style="background: #f0fff4; border-left: 5px solid #28a745;">
+                            <h5 class="fw-bold mb-2 text-success">Quer divulgar seu trabalho?</h5>
+                            <p class="small text-muted mb-4">Cadastre-se no mural digital e torne seu perfil profissional visível para todos os cidadãos e para a gestão municipal.</p>
+                            
+                            {{#if user}}
+                                <a href="/categories/vitrine_do_trabalhador/criar-vitrine" class="btn btn-success px-5 py-3 rounded-pill fw-bold shadow-sm">
+                                    <i class="bi bi-megaphone-fill me-2"></i> ANUNCIAR MEU SERVIÇO
+                                </a>
+                            {{else}}
+                                <a href="/users/login" class="btn btn-success px-5 py-3 rounded-pill fw-bold shadow-sm">
+                                    <i class="bi bi-megaphone-fill me-2"></i> ANUNCIAR MEU SERVIÇO
+                                </a>
+                            {{/if}}
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <div class="p-3 border rounded-3 bg-light border-start-success">
+                                    <h6 class="fw-bold mb-1">Mão de Obra</h6>
+                                    <p class="small text-muted mb-0">Catálogo profissional atualizado.</p>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="p-3 border rounded-3 bg-light border-start-success">
+                                    <h6 class="fw-bold mb-1">Incentivo</h6>
+                                    <p class="small text-muted mb-0">Apoio ao pequeno empreendedor.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="card hover-lift border-0 bg-dark text-white rounded-4 shadow-lg h-100" style="background: linear-gradient(145deg, #1a1a1a 0%, #0d1b2a 100%) !important;">
+                    <div class="card-body p-5">
+                        <h4 class="fw-bold text-success mb-4">Inteligência Governamental</h4>
+                        
+                        <div class="mb-4">
+                            <h6 class="fw-bold"><i class="bi bi-cpu text-success me-2"></i>Mapeamento de Competências</h6>
+                            <p class="small opacity-75">O governo passa a entender quais são as principais habilidades da nossa população para atrair investimentos certeiros.</p>
+                        </div>
+
+                        <div class="mb-4">
+                            <h6 class="fw-bold"><i class="bi bi-shield-check text-success me-2"></i>Segurança nas Transações</h6>
+                            <p class="small opacity-75">Ambiente seguro e profissional para negociações e divulgação de portfólio.</p>
+                        </div>
+
+                        <div class="mt-5 p-4 rounded-4 bg-white bg-opacity-10 border border-white border-opacity-10">
+                            <p class="fst-italic small mb-0">
+                                "Fomentar a economia local através da tecnologia é o caminho para um Cariús mais próspero e conectado com o futuro."
+                            </p>
+                            <hr class="opacity-25">
+                            <div class="d-flex align-items-center">
+                                <img src="/img/ceará.png" style="height: 40px;" alt="Ceará">
+                                <span class="ms-3 small fw-bold">HUB DE OPORTUNIDADES 2026</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 bg-light">
+    <div class="container px-5"> 
+        <div class="d-flex align-items-center justify-content-between mb-5">
+            <div>
+                <h2 class="fw-bold text-dark mb-1">Mural de Oportunidades</h2>
+                <p class="text-muted small mb-0">Profissionais e serviços ativos no município</p>
+            </div>
+            <div class="badge bg-success rounded-pill px-3 py-2 shadow-sm">Recém Adicionados</div>
+        </div>
+
+        <div class="row g-4">
+            {{#each anuncios}}
+                {{#if imagens.[0]}}
+                    <div class="col-12">
+                        <div class="card shadow-lg border-top-success border-1 rounded-4 overflow-hidden hover-lift bg-white">
+                            <div class="row g-0">
+                                <div class="col-md-4 position-relative">
+                                    <img src="/img_chamados/{{imagens.[0]}}" alt="{{titulo}}" class="img-extensa" style="width: 100%; height: 100%; object-fit: cover; min-height: 250px;" />
+                                    <div class="img-overlay"></div>
+                                </div>
+
+                                <div class="col-md-8">
+                                    <div class="card-body p-4 p-lg-5 h-100 d-flex flex-column">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <span class="badge bg-success-soft text-success px-3 py-2 rounded-pill fw-bold">
+                                                <i class="bi bi-patch-check-fill me-2 small"></i>{{categoria}}
+                                            </span>
+                                            <div class="text-muted small">
+                                                <i class="bi bi-calendar3 me-1"></i> {{formatDate dataCriacao}}
+                                            </div>
+                                        </div>
+                                        
+                                        <h3 class="card-title fw-bold text-dark mb-3">
+                                            <i class="bi bi-briefcase-fill text-success me-2"></i>
+                                            {{titulo}}
+                                        </h3>
+                                        <p class="card-text text-secondary mb-4 leading-relaxed">
+                                            {{descricao}}
+                                        </p>
+
+                                        <div class="col-20">
+                                            <div class="p-3 border rounded-3 bg-light border-start-success">
+                                                <a href="/users/perfil/{{usuario._id}}" class="text-decoration-none d-flex align-items-center hover-opacity">
+                                                    <div class="icon-shape rounded-circle me-3 overflow-hidden" style="width: 45px; height: 45px; flex-shrink: 0;">
+                                                        {{#if usuario.profileImage}}
+                                                            <img src="{{usuario.profileImage}}" alt="{{usuario.name}}" style="width: 100%; height: 100%; object-fit: cover;">
+                                                        {{else}}
+                                                            <div class="bg-primary-soft text-primary w-100 h-100 d-flex align-items-center justify-content-center">
+                                                                <i class="bi bi-person-fill"></i>
+                                                            </div>
+                                                        {{/if}}
+                                                    </div>
+
+                                                    {{!-- NOME E RÓTULO --}}
+                                                    <div>
+                                                        <p class="text-muted small mb-0 lh-2 fw-bold" style="font-size: 0.75rem;">Anunciante: </p>
+                                                        <p class="text-muted small mb-0">{{#if usuario.profession}}{{usuario.profession}}{{else}}Profissional{{/if}}</p>
+                                                        <span class="fw-bold text-dark">{{usuario.name}}</span>
+                                                    </div>
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <br>
+
+                                        <div class="mt-auto pt-4 border-top">
+                                            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+
+                                                <div class="d-flex align-items-center">
+                                                    <div class="icon-shape bg-danger-soft text-danger rounded-circle me-3">
+                                                        <i class="bi bi-geo-alt-fill"></i>
+                                                    </div>
+                                                    <div>
+                                                        <p class="text-muted small mb-0">Localização</p>
+                                                        <span class="fw-bold text-dark">{{localizacao}}</span>
+                                                    </div>
+                                                </div>
+
+                                                <div class="d-flex align-items-center gap-2">
+                                                    
+                                                    <form action="/categories/vitrine_do_trabalhador/curtir/{{_id}}" method="POST" class="m-0">
+                                                        <button type="submit" class="btn btn-sm rounded-pill border shadow-sm hover-lift px-3 transition-base 
+                                                            {{#if jaCurtiu}}btn-danger text-white{{else}}btn-light text-danger{{/if}}">
+                                                            <i class="bi {{#if jaCurtiu}}bi-heart-fill{{else}}bi-heart{{/if}} me-1"></i>
+                                                            <span class="fw-bold">{{curtidas.length}}</span>
+                                                        </button>
+                                                    </form>
+
+                                                    <a href="/categories/vitrine_do_trabalhador/detalhes/{{_id}}" class="btn btn-light btn-sm rounded-pill hover-lift border px-3 transition-base">
+                                                        <i class="bi bi-chat-dots-fill text-primary me-1"></i>
+                                                        <span class="fw-bold">{{comentarios.length}}</span>
+                                                    </a>
+
+                                                    <a href="https://wa.me/{{contato}}" target="_blank" class="btn btn-outline-success btn-sm rounded-pill px-4 fw-bold">
+                                                        <i class="bi bi-whatsapp me-2"></i>Contato
+                                                    </a>
+
+                                                    <a href="/categories/vitrine_do_trabalhador/detalhes/{{_id}}" class="btn btn-primary btn-sm rounded-pill px-4 fw-bold shadow-sm transition-base">
+                                                        Detalhes <i class="bi bi-arrow-right ms-1"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {{else}}
+                    <div class="col-12 mb-4">
+                        <div class="conteudo-recuado card border-0 shadow-sm rounded-4 overflow-hidden hover-lift bg-white border-start border-4 border-success">
+                            <div class="card-body p-4 p-lg-4">
+                                
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill fw-bold">
+                                        <i class="bi bi-patch-check-fill me-1"></i> {{categoria}}
+                                    </span>
+                                    <div class="text-muted small">
+                                        <i class="bi bi-calendar3 me-1"></i> {{formatDate dataCriacao}}
+                                    </div>
+                                </div>
+
+                                <h3 class="card-title fw-bold text-dark mb-3">
+                                    <i class="bi bi-briefcase-fill text-success me-2"></i>
+                                    {{titulo}}
+                                </h3>
+                                <p class="card-text text-secondary mb-4 leading-relaxed">
+                                    {{descricao}}
+                                </p>
+
+                                <div class="col-20">
+                                    <div class="p-3 border rounded-3 bg-light border-start-success">
+                                        <a href="/users/perfil/{{usuario._id}}" class="text-decoration-none d-flex align-items-center hover-opacity">
+                                            <div class="icon-shape rounded-circle me-3 overflow-hidden" style="width: 45px; height: 45px; flex-shrink: 0;">
+                                                {{#if usuario.profileImage}}
+                                                    <img src="{{usuario.profileImage}}" alt="{{usuario.name}}" style="width: 100%; height: 100%; object-fit: cover;">
+                                                {{else}}
+                                                    <div class="bg-primary-soft text-primary w-100 h-100 d-flex align-items-center justify-content-center">
+                                                        <i class="bi bi-person-fill"></i>
+                                                    </div>
+                                                {{/if}}
+                                            </div>
+
+                                            {{!-- NOME E RÓTULO --}}
+                                            <div>
+                                                <p class="text-muted small mb-0 lh-2 fw-bold" style="font-size: 0.75rem;">Anunciante: </p>
+                                                <p class="text-muted small mb-0">{{#if usuario.profession}}{{usuario.profession}}{{else}}Profissional{{/if}}</p>
+                                                <span class="fw-bold text-dark">{{usuario.name}}</span>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+                                <br>
+
+                                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 pt-3 border-top">
+
+                                    <div class="d-flex align-items-center">
+                                        <div class="icon-shape bg-danger-soft text-danger rounded-circle me-3">
+                                            <i class="bi bi-geo-alt-fill"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-muted small mb-0">Localização</p>
+                                            <span class="fw-bold text-dark">{{localizacao}}</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="d-flex align-items-center gap-2">
+                                            
+                                        <form action="/categories/vitrine_do_trabalhador/curtir/{{_id}}" method="POST" class="m-0">
+                                            <button type="submit" class="btn btn-sm rounded-pill border shadow-sm hover-lift px-3 transition-base 
+                                                {{#if jaCurtiu}}btn-danger text-white{{else}}btn-light text-danger{{/if}}">
+                                                <i class="bi {{#if jaCurtiu}}bi-heart-fill{{else}}bi-heart{{/if}} me-1"></i>
+                                                <span class="fw-bold">{{curtidas.length}}</span>
+                                            </button>
+                                        </form>
+
+                                        <a href="/categories/vitrine_do_trabalhador/detalhes/{{_id}}" class="btn btn-light btn-sm rounded-pill hover-lift border px-3 transition-base">
+                                            <i class="bi bi-chat-dots-fill text-primary me-1"></i>
+                                            <span class="fw-bold">{{comentarios.length}}</span>
+                                        </a>
+                                    </div>
+
+                                    <div class="d-flex align-items-center gap-2">
+                                        <a href="https://wa.me/{{contato}}" target="_blank" class="btn btn-outline-success btn-sm rounded-pill px-4 fw-bold">
+                                            <i class="bi bi-whatsapp me-2"></i>Contato
+                                        </a>
+
+                                        <a href="/categories/vitrine_do_trabalhador/detalhes/{{_id}}" class="btn btn-primary btn-sm rounded-pill px-4 fw-bold shadow-sm transition-base">
+                                            Detalhes <i class="bi bi-arrow-right ms-1"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                                <br>
+
+                            </div>
+                        </div>
+                    </div>
+                {{/if}}
+            {{else}}
+                {{!-- MENSAGEM CASO ESTEJA VAZIO --}}
+                <div class="col-12 text-center py-5">
+                    <div class="card border-0 shadow-sm p-5 rounded-4 bg-white text-muted">
+                        <i class="bi bi-search display-1 opacity-25"></i>
+                        <h4 class="mt-4 fw-bold text-dark">Nenhum anúncio hoje</h4>
+                        <p>Seja o primeiro a divulgar seus serviços na Vitrine!</p>
+                        <a href="/categories/vitrine_do_trabalhador/criar-vitrine" class="btn btn-success rounded-pill px-4 mt-2">Anunciar Agora</a>
+                    </div>
+                </div>
+            {{/each}}
+        </div>
+    </div>
+</section>
+
+<style>
+    /* Cores de borda e utilitários específicos do Hub de Oportunidades */
+    .border-top-success { border-top: 5px solid #28a745 !important; }
+    .border-top-info { border-top: 5px solid #0dcaf0 !important; }
+    .border-start-success { border-left: 4px solid #28a745 !important; }
+    .bg-success-soft { background-color: rgba(40, 167, 69, 0.1); }
+    .bg-primary-soft { background-color: rgba(13, 110, 253, 0.1); width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; }
+
+    /* Estilos Herdados do Layout de Melhorias */
+    .mt-n5-custom { margin-top: -85px; position: relative; z-index: 5; }
+    .glass-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 25px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    }
+    .hover-lift { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+    .hover-lift:hover { transform: translateY(-12px); box-shadow: 0 20px 40px rgba(0,0,0,0.12) !important; }
+    .text-shadow { text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+    .floating-img { animation: float 5s ease-in-out infinite; }
+    @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-20px); } }
+    .status-dot-green {
+        width: 10px; height: 10px; background: #28a745; border-radius: 50%;
+        display: inline-block; animation: pulse-green 2s infinite;
+    }
+    @keyframes pulse-green {
+        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
+        70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
+        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+    }
+    .img-extensa { width: 100%; height: 100%; min-height: 300px; object-fit: cover; }
+    .img-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to right, rgba(0,0,0,0.2), transparent); }
+    .leading-relaxed { line-height: 1.6; }
+
+    .conteudo-recuado {
+        padding-left: 20px; /* Ajuste o valor para a frente desejada */
+    }
+</style>

@@ -1,0 +1,239 @@
+<section class="py-5 bg-light" style="min-height: 90vh;">
+    <div class="container px-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-xl-7">
+                
+                <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+                    <div class="card-header p-4 border-0 text-center" style="background-color: #dc3545;">
+                        <h3 class="text-white fw-bold mb-0"><i class="bi bi-shield-lock-fill me-2"></i>Nova Denúncia Sigilosa</h3>
+                        <p class="text-white-50 mb-0 small text-uppercase tracking-wider">Sua identidade está protegida por criptografia</p>
+                    </div>
+                    
+                    <div class="card-body p-4 p-md-5 bg-white">
+                        <form action="/categories/denuncias_sigilosas/abrir-denuncia" method="POST" enctype="multipart/form-data">
+                            
+                            <div class="mb-4">
+                                <label class="form-label fw-bold text-secondary small text-uppercase">Tipo de Ocorrência</label>
+                                <select name="tipoOcorrencia" id="tipoOcorrencia" class="form-select custom-input" required onchange="toggleOutroField()">
+                                    <option value="" selected disabled>Selecione o tipo de crime ou incidente...</option>
+                                    <option value="Foco de Queimada">Foco de Queimada / Incêndio</option>
+                                    <option value="Descarte Irregular de Lixo">Descarte Irregular de Lixo</option>
+                                    <option value="Maus-tratos contra Animais">Maus-tratos contra Animais</option>
+                                    <option value="Poluição Sonora">Poluição Sonora (Som Alto)</option>
+                                    <option value="Vandalismo">Vandalismo / Dano ao Patrimônio</option>
+                                    <option value="Tráfico ou Uso de Drogas">Atividade Suspeita / Entorpecentes</option>
+                                    <option value="Outro">Outro (Especificar abaixo)</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-4 d-none" id="campoOutro">
+                                <label class="form-label fw-bold text-secondary small text-uppercase">Especifique a Ocorrência</label>
+                                <input type="text" name="titulo" id="inputOutro" class="form-control custom-input" placeholder="Ex: Construção irregular em área protegida">
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-bold text-secondary small text-uppercase">Localização exata (Clique no mapa)</label>
+                                <div id="map" class="rounded-4 mb-3 shadow-sm border" style="height: 300px; width: 100%; z-index: 1;"></div>
+                                
+                                <div class="input-group">
+                                    <span class="input-group-text border-0 bg-light text-danger"><i class="bi bi-geo-alt-fill"></i></span>
+                                    <input type="text" id="addressInput" name="localizacao" class="form-control custom-input border-start-0" placeholder="Marque o local no mapa" required readonly>
+                                </div>
+                                
+                                <input type="hidden" id="latInput" name="latitude">
+                                <input type="hidden" id="lngInput" name="longitude">
+                            </div>
+
+                            <div class="row mb-4">
+                                <div class="col-md-6 mb-3 mb-md-0">
+                                    <label class="form-label fw-bold text-secondary small text-uppercase">Fotos (Máx 3)</label>
+                                    <div class="upload-area rounded-4 p-3 text-center border-dashed bg-light" id="drop-zone-img" onclick="document.getElementById('imgInput').click()">
+                                        <input type="file" id="imgInput" name="imagens" accept="image/*" class="d-none" multiple>
+                                        <i class="bi bi-camera-fill fs-3 text-primary"></i>
+                                        <p class="mb-0 small text-muted">Adicionar Fotos</p>
+                                    </div>
+                                    <div id="preview-grid" class="row g-2 mt-2 d-none"></div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold text-secondary small text-uppercase">Vídeo (Opcional)</label>
+                                    <div class="upload-area rounded-4 p-3 text-center border-dashed bg-light" id="drop-zone-video" onclick="document.getElementById('videoInput').click()">
+                                        <input type="file" id="videoInput" name="video" accept="video/*" class="d-none">
+                                        <i class="bi bi-play-btn-fill fs-3 text-danger"></i>
+                                        <p class="mb-0 small text-muted" id="video-status">Anexar Vídeo</p>
+                                    </div>
+                                    <div id="video-preview-container" class="mt-2 d-none">
+                                        <span class="badge bg-success w-100 py-2"><i class="bi bi-check-circle me-1"></i> Vídeo Carregado</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-5">
+                                <label class="form-label fw-bold text-secondary small text-uppercase">Relato Detalhado dos Fatos</label>
+                                <textarea name="descricao" class="form-control custom-input" rows="4" placeholder="Descreva detalhadamente o ocorrido para facilitar a investigação..." required></textarea>
+                            </div>
+
+                            <div class="d-grid gap-3">
+                                <button type="submit" class="btn btn-danger btn-lg rounded-pill fw-bold shadow-sm py-3 transition-base">
+                                    <i class="bi bi-shield-check me-2"></i>ENVIAR DENÚNCIA SIGILOSA
+                                </button>
+                                <a href="/categories/denuncias_sigilosas/hub" class="btn btn-link text-decoration-none text-muted fw-bold">
+                                    CANCELAR E VOLTAR
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+    // --- LÓGICA DO CAMPO DINÂMICO "OUTRO" ---
+    function toggleOutroField() {
+        const select = document.getElementById('tipoOcorrencia');
+        const campoOutro = document.getElementById('campoOutro');
+        const inputOutro = document.getElementById('inputOutro');
+        
+        if (select.value === "Outro") {
+            campoOutro.classList.remove('d-none');
+            inputOutro.setAttribute('required', 'true');
+        } else {
+            campoOutro.classList.add('d-none');
+            inputOutro.removeAttribute('required');
+            inputOutro.value = "";
+        }
+    }
+
+    // --- LÓGICA DE PREVIEW DE IMAGENS (Sincronizado com Multer) ---
+    let selectedFiles = [];
+    const imgInput = document.getElementById('imgInput');
+    const previewGrid = document.getElementById('preview-grid');
+
+    imgInput.addEventListener('change', function(e) {
+        const files = Array.from(e.target.files);
+        files.forEach(file => {
+            if (selectedFiles.length < 3) {
+                selectedFiles.push(file);
+            }
+        });
+        renderPreview();
+    });
+
+    function renderPreview() {
+        previewGrid.innerHTML = '';
+        if (selectedFiles.length > 0) {
+            previewGrid.classList.remove('d-none');
+            selectedFiles.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const div = document.createElement('div');
+                    div.className = 'col-4 position-relative';
+                    div.innerHTML = `
+                        <div class="ratio ratio-1x1 shadow-sm rounded-3 overflow-hidden border">
+                            <img src="${e.target.result}" class="object-fit-cover">
+                        </div>
+                        <button type="button" onclick="removeFile(${index})" 
+                                class="btn btn-danger btn-sm position-absolute top-0 start-100 translate-middle rounded-circle p-0" 
+                                style="width:22px; height:22px; z-index: 10; border: 2px solid white;">
+                            <i class="bi bi-x"></i>
+                        </button>`;
+                    previewGrid.appendChild(div);
+                }
+                reader.readAsDataURL(file);
+            });
+        } else {
+            previewGrid.classList.add('d-none');
+        }
+        updateInput();
+    }
+
+    function removeFile(index) {
+        selectedFiles.splice(index, 1);
+        renderPreview();
+    }
+
+    function updateInput() {
+        const dataTransfer = new DataTransfer();
+        selectedFiles.forEach(file => dataTransfer.items.add(file));
+        imgInput.files = dataTransfer.files;
+    }
+
+    // --- LÓGICA DE VÍDEO ---
+    document.getElementById('videoInput').addEventListener('change', function() {
+        const container = document.getElementById('video-preview-container');
+        const statusText = document.getElementById('video-status');
+        if(this.files.length > 0) {
+            container.classList.remove('d-none');
+            statusText.innerText = "Vídeo Alterar";
+        }
+    });
+
+    // --- MAPA LEAFLET ---
+    const latInicial = -6.5372;
+    const lngInicial = -39.4958;
+
+    const map = L.map('map').setView([latInicial, lngInicial], 15);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    let marker = L.marker([latInicial, lngInicial], {draggable: true}).addTo(map);
+
+    function updateFields(lat, lng) {
+        document.getElementById('latInput').value = lat.toFixed(6);
+        document.getElementById('lngInput').value = lng.toFixed(6);
+        
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`)
+            .then(res => res.json())
+            .then(data => {
+                if(data.display_name) {
+                    document.getElementById('addressInput').value = data.display_name;
+                }
+            });
+    }
+
+    map.on('click', e => {
+        marker.setLatLng(e.latlng);
+        updateFields(e.latlng.lat, e.latlng.lng);
+    });
+
+    marker.on('dragend', () => {
+        const pos = marker.getLatLng();
+        updateFields(pos.lat, pos.lng);
+    });
+</script>
+
+<style>
+    .custom-input { 
+        background-color: #f8f9fa!important; 
+        border: 1px solid #dee2e6!important; 
+        border-radius: 12px!important; 
+        padding: 12px 15px; 
+    }
+    .custom-input:focus { 
+        border-color: #dc3545!important; 
+        box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.1)!important; 
+        background-color: #fff!important; 
+    }
+    .border-dashed { 
+        border: 2px dashed #cbd5e0; 
+        transition: all 0.2s ease; 
+        cursor: pointer;
+    }
+    .border-dashed:hover { 
+        background-color: #f1f3f5!important; 
+        border-color: #dc3545; 
+    }
+    .object-fit-cover { 
+        object-fit: cover; 
+        width: 100%; 
+        height: 100%; 
+    }
+    .transition-base { transition: all 0.3s ease; }
+    .transition-base:hover { transform: translateY(-2px); filter: brightness(1.1); }
+</style>

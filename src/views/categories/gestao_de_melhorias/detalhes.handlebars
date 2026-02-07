@@ -1,0 +1,180 @@
+<section class="py-5 bg-light">
+    <div class="container px-5">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb bg-white p-3 rounded-4 shadow-sm">
+                <li class="breadcrumb-item"><a href="/categories/gestao_de_melhorias/hub" class="text-decoration-none text-primary fw-bold">Hub</a></li>
+                <li class="breadcrumb-item active fw-semibold">Detalhes do Chamado</li>
+            </ol>
+        </nav>
+
+        <div class="row gx-5">
+            <div class="col-lg-8">
+                <div class="card shadow-lg border-0 rounded-4 overflow-hidden mb-4 bg-white">
+                    {{#if chamado.imagem.length}}
+                        <div id="carouselMelhoria" class="carousel slide bg-dark" data-bs-ride="carousel">
+                            <div class="carousel-inner">
+                                {{#each chamado.imagem}}
+                                <div class="carousel-item {{#if @first}}active{{/if}} text-center">
+                                    <img src="/img_chamados/{{this}}" class="img-fluid" style="max-height: 550px; width: 100%; object-fit: cover;">
+                                </div>
+                                {{/each}}
+                            </div>
+                            {{#if (gt chamado.imagem.length 1)}}
+                                <button class="carousel-control-prev" type="button" data-bs-target="#carouselMelhoria" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon shadow-sm" aria-hidden="true"></span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#carouselMelhoria" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon shadow-sm" aria-hidden="true"></span>
+                                </button>
+                            {{/if}}
+                        </div>
+                    {{else}}
+                        <div class="bg-secondary text-white text-center py-5">
+                            <i class="bi bi-image fs-1"></i>
+                            <p class="mt-2">Nenhuma imagem anexada</p>
+                        </div>
+                    {{/if}}
+
+                    <div class="card-body p-4 p-md-5">
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="badge bg-success px-3 py-2 rounded-pill me-3">Chamado Ativo</span>
+                            <small class="text-muted"><i class="bi bi-calendar3 me-1"></i> {{formatDate chamado.dataCriacao}}</small>
+                        </div>
+                        
+                        <h1 class="fw-bold text-dark display-6 mb-3">{{chamado.titulo}}</h1>
+                        <p class="lead text-secondary mb-4" style="line-height: 1.8;">{{chamado.descricao}}</p>
+                        
+                        <div class="mb-4">
+                            <h6 class="fw-bold text-dark mb-3"><i class="bi bi-map-fill me-2 text-primary"></i>Localização Geográfica</h6>
+                            <div id="mapDetails" class="rounded-4 border shadow-sm mb-3" style="height: 300px; width: 100%; z-index: 1;"></div>
+                            
+                            <div class="p-3 bg-light rounded-4 border-start border-danger border-4">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-geo-alt-fill text-danger fs-4 me-3"></i>
+                                    <div>
+                                        <p class="small text-muted mb-0">Endereço Registrado</p>
+                                        <span class="fw-bold text-dark">{{chamado.localizacao}}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
+                    <h6 class="text-uppercase fw-bold text-muted small mb-3">Protocolo Cariús</h6>
+                    <div class="mb-3">
+                        <label class="d-block small text-muted">Impacto:</label>
+                        <span class="badge bg-success-soft text-success rounded-pill fw-bold">Melhoria Urbana</span>
+                    </div>
+                    <div>
+                        <label class="d-block small text-muted">Status:</label>
+                        <span class="text-primary fw-bold"><i class="bi bi-shield-check me-1"></i>Em Análise Técnica</span>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm rounded-4 p-3 mb-4 text-center bg-white">
+                    <form action="/categories/gestao_de_melhorias/like/{{chamado._id}}" method="POST">
+                        {{#if jaCurtiu}} 
+                            <button type="submit" class="btn btn-danger w-100 rounded-pill fw-bold py-2 shadow-sm transition-base">
+                                <i class="bi bi-heart-fill me-2"></i> Você apoiou isto ({{chamado.curtidas.length}})
+                            </button>
+                        {{else}}
+                            <button type="submit" class="btn btn-outline-secondary w-100 rounded-pill fw-bold py-2 transition-base">
+                                <i class="bi bi-heart me-2"></i> Apoiar Melhoria ({{chamado.curtidas.length}})
+                            </button>
+                        {{/if}}
+                    </form>
+                </div>
+
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+                    <div class="p-4 border-bottom bg-white">
+                        <h6 class="fw-bold mb-0">Comentários <span class="badge bg-light text-dark ms-2">{{chamado.comentarios.length}}</span></h6>
+                    </div>
+
+                    <div class="p-4 overflow-auto" style="max-height: 450px; background-color: #fafafa;">
+                        {{#each chamado.comentarios}}
+                            <div class="d-flex align-items-start mb-3">
+                                <a href="/users/perfil/{{this.usuario._id}}" class="me-3">
+                                    <img src="{{this.usuario.profileImage}}" 
+                                        alt="{{this.usuario.name}}" 
+                                        class="rounded-circle shadow-sm" 
+                                        style="width: 45px; height: 45px; object-fit: cover; border: 2px solid #13315c; transition: 0.3s;">
+                                </a>
+                                
+                                <div class="bg-light p-3 rounded-3 shadow-sm w-100 col-1">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <a href="/users/perfil/{{this.usuario._id}}" class="text-decoration-none">
+                                            <h6 class="fw-bold mb-0 hover-blue" style="color: #13315c; font-size: 0.9rem;">
+                                                {{this.usuario.name}}
+                                            </h6>
+                                        </a>
+                                        <small class="text-muted" style="font-size: 0.75rem;">
+                                            {{formatDate this.createdAt}}
+                                        </small>
+                                    </div>
+                                    <p class="mb-0 small text-dark">{{this.texto}}</p>
+                                </div>
+                            </div>
+                        {{/each}}
+                    </div>
+
+                    <div class="p-3 bg-white border-top">
+                        <form action="/categories/gestao_de_melhorias/comentar/{{chamado._id}}" method="POST">
+                            <div class="input-group">
+                                <input type="text" name="texto" class="form-control border-0 bg-light rounded-pill ps-4" placeholder="Escreva um comentário" required>
+                                <button class="btn btn-primary rounded-circle ms-2 d-flex align-items-center justify-content-center shadow" type="submit" style="width: 40px; height: 40px;">
+                                    <i class="bi bi-send-fill" style="font-size: 0.8rem;"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <a href="/categories/gestao_de_melhorias/hub" class="btn btn-link w-100 text-decoration-none mt-4 text-muted small fw-bold">
+                    <i class="bi bi-arrow-left me-1"></i> Voltar para a lista
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Pega as coordenadas vindas do banco de dados via Handlebars
+        const lat = {{chamado.latitude}};
+        const lng = {{chamado.longitude}};
+
+        // Se existirem coordenadas, inicia o mapa
+        if (lat && lng) {
+            const map = L.map('mapDetails').setView([lat, lng], 16);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap'
+            }).addTo(map);
+
+            // Adiciona o marcador no local exato
+            L.marker([lat, lng]).addTo(map)
+                .bindPopup("<b>Local do Chamado</b><br>{{chamado.titulo}}")
+                .openPopup();
+        } else {
+            // Caso não tenha coordenadas no banco, esconde o mapa ou mostra centralizado em Cariús
+            document.getElementById('mapDetails').innerHTML = "<p class='text-center p-5 text-muted'>Coordenadas não disponíveis para este chamado.</p>";
+        }
+    });
+</script>
+
+<style>
+    .hover-blue:hover { color: #0056b3 !important; text-decoration: underline; }
+    .me-3 img:hover { transform: scale(1.1); }
+    .bg-success-soft { background-color: rgba(25, 135, 84, 0.1); }
+    .transition-base { transition: all 0.3s ease; }
+    .rounded-4 { border-radius: 1.25rem !important; }
+    /* Ajuste para o mapa não ficar em cima do menu se houver */
+    #mapDetails { z-index: 1 !important; }
+</style>

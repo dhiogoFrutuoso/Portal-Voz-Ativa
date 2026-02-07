@@ -1,0 +1,130 @@
+<style>
+    <link rel="stylesheet" href="https://cdn.linearicons.com/free/1.0.0/icon-font.min.css">
+    /* Fundo dinâmico sutil */
+    body {
+    font-family: Helvetica;
+    }
+
+    /* Efeito de Vidro no Card */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+
+    .glass-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(19, 49, 92, 0.15) !important;
+    }
+
+    /* Estilização Premium dos Inputs */
+    .form-floating > .form-control:focus {
+        border-color: #13315c;
+        box-shadow: 0 0 0 0.25rem rgba(19, 49, 92, 0.1);
+    }
+
+    /* Botão com Gradiente e Brilho */
+    .btn-gradient {
+        background: linear-gradient(45deg, #13315c, #1e4d8c);
+        border: none;
+        transition: all 0.3s ease;
+        letter-spacing: 1px;
+    }
+
+    .btn-gradient:hover {
+        background: linear-gradient(45deg, #1e4d8c, #13315c);
+        filter: brightness(1.1);
+        transform: scale(1.02);
+    }
+
+    /* Decoração de Círculos ao Fundo */
+    .circle-bg {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(19, 49, 92, 0.03);
+        z-index: -1;
+    }
+</style>
+
+<div class="circle-bg" style="width: 300px; height: 300px; top: -50px; left: -50px;"></div>
+<div class="circle-bg" style="width: 200px; height: 200px; bottom: 50px; right: -30px;"></div>
+
+<section class="container d-flex flex-column align-items-center justify-content-center" style="min-height: 85vh;">
+
+    <div class="col-12 col-sm-10 col-md-8 col-lg-5 col-xl-4 animate__animated animate__zoomIn">
+        
+        <div class="card glass-card shadow-lg rounded-4 overflow-hidden border-0">
+            <div class="card-body p-4 p-md-5">
+                
+                <div class="text-center mb-5">
+                    <div class="mb-3 d-inline-block position-relative">
+                        <div class="p-4 rounded-circle bg-white shadow-sm">
+                            <i class="bi bi-person-badge text-primary" style="font-size: 2.5rem; color: #13315c !important;"></i>
+                        </div>
+                    </div>
+                    <h2 class="fw-bolder" style="color: #13315c;">Portal Voz Ativa</h2>
+                    <p class="text-muted small px-4">Utilize suas credenciais para acessar o painel administrativo</p>
+                </div>
+
+                <form action="/users/login" method="POST">
+                    <div class="form-floating mb-3">
+                        <input type="email" name="email" class="form-control border-0 bg-light rounded-3" id="email" placeholder="nome@exemplo.com" required>
+                        <label for="email" class="text-muted d-flex align-items-center">
+                            <i class="bi bi-envelope-fill me-2"></i> E-mail
+                        </label>
+                    </div>
+
+                    <div class="form-floating mb-4 position-relative">
+                        <input type="password" name="password" class="form-control border-0 bg-light rounded-3" id="password" placeholder="Senha" required>
+                        <label for="password" class="text-muted d-flex align-items-center">
+                            <i class="bi bi-lock-fill me-2"></i> Senha
+                        </label>
+                        <span class="position-absolute top-50 end-0 translate-middle-y me-3" id="togglePassword" style="cursor: pointer; z-index: 10;">
+                            <i class="bi bi-eye-slash" id="toggleIcon"></i>
+                        </span>
+                    </div>
+
+                    <button type="submit" class="btn btn-gradient w-100 py-3 text-white fw-bold rounded-3 shadow mb-4">
+                        ENTRAR NO PORTAL
+                    </button>
+                </form>
+
+                <div class="position-relative mb-4">
+                    <hr class="text-muted opacity-25">
+                    <span class="position-absolute top-50 start-50 translate-middle bg-white px-3 text-muted small">OU</span>
+                </div>
+
+                <div class="text-center">
+                    <p class="mb-1 text-muted small">Não possui uma conta?</p>
+                    <a href="/users/register" class="text-decoration-none fw-bold" style="color: #13315c;">
+                        Cadastre-se <i class="bi bi-arrow-right-short"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <a href="/" class="text-decoration-none text-muted small opacity-75">
+                <i class="bi bi-house-door me-1"></i> Voltar à Home
+            </a>
+        </div>
+        <br>
+    </div>
+</section>
+
+<script>
+    const togglePassword = document.querySelector('#togglePassword');
+    const password = document.querySelector('#password');
+    const icon = document.querySelector('#toggleIcon');
+
+    togglePassword.addEventListener('click', function () {
+        // Alterna o tipo do input
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+        
+        // Alterna o ícone (olho aberto / olho fechado)
+        icon.classList.toggle('bi-eye');
+        icon.classList.toggle('bi-eye-slash');
+    });
+</script>

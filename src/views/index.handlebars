@@ -1,0 +1,452 @@
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&family=Nunito:wght@400;600;800&display=swap');
+    
+    .btn-light-effect { 
+        position: relative; 
+        overflow: hidden; 
+        z-index: 1; 
+        transition: all 0.3s ease; 
+    }
+
+    .btn-light-effect span { 
+        position: relative; 
+        z-index: 2; 
+    }
+
+    .btn-light-effect::before {
+        content: ""; 
+        position: absolute; 
+        top: 0; 
+        left: -300%; /* Começa bem fora da tela */
+        width: 300%; 
+        height: 300%;
+        /* O segredo: as paradas de cor (0%, 45%, 50%, 55%, 100%) criam uma linha fina */
+        background: linear-gradient(
+            120deg, 
+            transparent 40%, 
+            rgba(255, 255, 255, 0.315) 50%, 
+            transparent 60%
+        );
+        transition: all 3s cubic-bezier(0.19, 1, 0.22, 1); /* Transição mais elegante */
+        z-index: 1;
+    }
+
+    .btn-light-effect:hover::before { 
+        left: 150%; /* Atravessa a tela inteira */
+    }
+
+    /* Seção de Citação - Estilo Premium 2026 */
+    .quote-section {
+        position: relative;
+        padding: 100px 0;
+        /* Substitua pelo caminho real da sua imagem de fundo */
+        background: linear-gradient(rgba(19, 49, 92, 0.9), rgba(19, 49, 92, 0.9)), 
+                    url('/img/fundo-tecnologico.jpg'); 
+        background-attachment: fixed; /* Efeito Parallax */
+        background-size: cover;
+        background-position: center;
+        border-radius: 80px; /* Bordas arredondadas conforme o seu site */
+        margin: 60px 20px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Brilho pulsante sutil no fundo (substitui o efeito de hover) */
+    .quote-section::after {
+        content: "";
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%);
+        animation: pulse-glow 8s infinite alternate;
+        z-index: 1;
+    }
+
+    @keyframes pulse-glow {
+        0% { transform: translate(-10%, -10%); opacity: 0.5; }
+        100% { transform: translate(10%, 10%); opacity: 0.8; }
+    }
+
+    .quote-content {
+        position: relative;
+        z-index: 2; /* Garante que o texto fique acima do brilho */
+    }
+
+    .quote-text {
+        font-family: 'Poppins', sans-serif;
+        font-style: italic;
+        line-height: 1.4;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+
+    .divider-glow {
+        height: 3px;
+        width: 60px;
+        background: linear-gradient(90deg, transparent, #006aff, transparent);
+        margin: 30px auto;
+    }
+
+    .badge-reflexao {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(5px);
+        padding: 5px 15px;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    :root {
+        --section-blue: #13315cd9;
+        --primary-blue: #2568f8;
+        --secundary-blue: #2b83ff;
+        --terciary-blue: #2b83ff;
+        --fourth-blue: #1652a7;
+        --accent-blue: #006aff;
+        --accent-orange: #ff8c42;
+        --accent-green: #2a7428;
+        --primary-green: #39a035;
+        --secundary-green: #38a735;
+        --accent-red: #f94144;
+        --primary-red: #fc595c;
+        --bg-soft: #f0f4f8;
+        --white: #ffffff;
+        --black: #000000;
+    }
+
+    body { font-family: 'Nunito', sans-serif; background-color: var(--white); color: #2d3436; overflow-x: hidden; }
+    h1, h2, h3, h4, h5, h6 { font-family: 'Poppins', sans-serif; }
+
+    /* Estilo Arredondado e Moderno */
+    .rounded-huge { border-radius: 4rem !important; }
+    .rounded-soft { border-radius: 2.5rem !important; }
+    .btn-round { border-radius: 50px; padding: 14px 30px; font-weight: 700; transition: 0.3s; border: none; }
+    
+    /* Hero Section */
+    .hero-gradient {
+        background: radial-gradient(circle at top right, #eef2f7, var(--white));
+        padding: 80px 0;
+        border-radius: 0 0 100px 100px;
+        border-bottom: 5px solid var(--primary-blue);
+    }
+
+    /* Cards e Efeitos de Flutuação */
+    .floating-card {
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border: none !important;
+        background: var(--white);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+        border-radius: 2rem !important;
+    }
+    .floating-card:hover {
+        transform: translateY(-15px);
+        box-shadow: 0 30px 60px rgba(0,0,0,0.12) !important;
+    }
+
+    .floating-section {
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border: none !important;
+        background: #13315c;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+        border-radius: 2rem !important;
+        color: #333; 
+    }
+
+    .floating-section:hover {
+        transform: translateY(-15px);
+        background: #13315c !important;
+        box-shadow: 0 30px 60px rgba(19, 49, 92, 0.5) !important;
+        color: #ffffff !important;
+    }
+
+    .floating-section:hover h1, 
+    .floating-section:hover h2, 
+    .floating-section:hover p,
+    .floating-section:hover span {
+        color: #ffffff !important;
+    }
+
+    /* Citações Estilizadas */
+    .quote-card {
+        background: var(--white);
+        border-left: 8px solid var(--primary-blue);
+        padding: 2rem;
+        border-radius: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        font-style: italic;
+    }
+
+    .divider-custom {
+        height: 6px;
+        width: 100px;
+        background: linear-gradient(to right, var(--primary-blue), var(--primary-blue));
+        border-radius: 10px;
+        margin: 25px 0;
+    }
+
+    .img-side {
+        width: 100%;
+        border-radius: 3.5rem;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.2);
+        transition: 0.5s;
+    }
+    .img-side:hover { transform: scale(1.02); }
+
+    /* Overlay para seção de citação final */
+    .quote-section {
+        position: relative;
+        padding: 120px 0;
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        border-radius: 100px;
+        margin: 50px 20px;
+        overflow: hidden;
+    }
+    .quote-overlay {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(19, 49, 92, 0.85);
+    }
+    .feature-icon { font-size: 2.5rem; color: var(--primary-blue); margin-bottom: 1rem; }
+</style>
+
+<header class="hero-gradient mb-5">
+    <div class="container px-5">
+        <div class="row gx-5 align-items-center">
+            <div class="col-lg-7 text-center text-lg-start">
+                <div class="badge bg-white text-primary px-4 py-2 rounded-pill mb-3 shadow-sm border">
+                    🚀 Projeto Ceará de Valores 2026
+                </div>
+                <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400&display=swap" rel="stylesheet">
+                <h2 class="display-5 fw-bolder text-dark mb-2">Sua Voz tem Valor</h2>
+
+                <p class="lead text-muted mb-5 fs-4">
+                    O <strong>Voz Ativa</strong> é uma plataforma de ouvidoria digital e fomento econômico que centraliza a comunicação entre o cidadão e a gestão municipal.
+                </p>
+                <div class="d-grid gap-3 d-sm-flex justify-content-sm-center justify-content-lg-start">
+                    <a class="btn btn-primary btn-round shadow-lg btn-lg" style="background: var(--primary-blue);" href="#recursos">Conhecer Tecnologias</a>
+                    {{#if user}}
+                    {{else}}
+                        <a class="btn btn-outline-dark btn-round btn-lg" href="/users/register">Cadastrar-se</a>
+                        <a class="btn btn-outline-dark btn-round btn-lg" href="/users/login">Entrar</a>
+                    {{/if}}
+                </div>
+            </div>
+            <div class="col-lg-5 d-none d-lg-block">
+                <img src="/img/pessoas-socialiazando.png" class="img-fluid animate__animated animate__zoomIn" alt="Cidadãos">
+            </div>
+        </div>
+    </div>
+</header>
+
+<section class="py-5" id="sobre">
+    <div class="container px-5 my-5">
+        <div class="row gx-5 justify-content-center">
+            <div class="col-lg-10">
+                <div class="text-center mb-5">
+                    <h2 class="display-5 fw-bolder text-dark mb-2">Cidadania não é apenas votar</h2>
+                    <p class="lead text-muted">A essência política por trás do Voz Ativa</p>
+                    <div class="divider-custom mx-auto"></div>
+                </div>
+                <div class="row gx-5 align-items-center">
+                    <div class="col-md-6 text-justify fs-5">
+                        <p>Inspirados no <strong>Projeto Ceará de Valores</strong>, o Voz Ativa surge do entendimento de que a gestão pública não pode ser cega. Como dizia <strong>Aristóteles</strong> em sua obra 'A Política', o homem é um animal político destinado a viver em sociedade. Para o filósofo, a cidade existe para proporcionar uma 'vida boa' aos seus habitantes.</p>
+                        <p>Nossa plataforma profissionaliza essa comunicação através de um web-app de alta performance, permitindo que cada morador de Cariús seja um colaborador ativo.</p>
+                    </div>
+                    <div class="col-md-6 text-justify fs-5">
+                        <p>Fundamentamos nossas ações na pedagogia de <strong>Paulo Freire</strong>, que ensina que a educação e a consciência política são ferramentas de transformação. Ao dar ao trabalhador local uma <em>Vitrine Profissional</em>, fomentamos a autonomia econômica.</p>
+                        <p>O Voz Ativa é uma ferramenta de <strong>Tecnologia Social</strong>. Não é apenas software; é um pacto de transparência entre quem governa e quem é governado.</p>
+                    </div>
+                </div>
+                <div class="p-5 mt-5 bg-soft rounded-soft shadow-sm text-center border-start border-5 border-primary">
+                    <h4 class="mb-0 italic">"Onde a palavra é silenciada, a liberdade deixa de existir." — Hannah Arendt</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5" style="background: var(--bg-soft); border-radius: 120px; margin: 0 15px;">
+    <div class="container px-5">
+        <div class="row gx-5 align-items-center">
+            <div class="col-lg-6">
+                <img src="/img/cariús-panorama.png" alt="Cariús" class="img-side mb-4 mb-lg-0">
+            </div>
+            <div class="col-lg-6">
+                <h2 class="display-5 fw-bolder mb-2" style="color: var(--accent-green);">Desenvolvimento e Liberdade</h2>
+                <div class="quote-card" style="border-left-color: var(--primary-green);">
+                    <p class="mb-0">"O desenvolvimento deve ser avaliado pela expansão das liberdades humanas." — <strong>Amartya Sen</strong></p>
+                </div>
+                <p class="text-justify fs-5 text-muted mb-4">
+                    Entendemos que o desenvolvimento não é apenas crescimento econômico, mas transformação social. Através da nossa <strong>Vitrine do Trabalhador</strong>, criamos um modo de produção baseado na cooperação.
+                </p>
+                <div class="quote-card" style="border-left-color: var(--secundary-green);">
+                    <p class="mb-0">"A economia está incrustada nas relações sociais." — <strong>Karl Polanyi</strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<br>
+
+<section class="py-5" style="">
+    <div class="container px-5">
+        <div class="row gx-5 align-items-center">
+            <div class="col-lg-6 order-lg-2">
+                <img src="/img/tecnologia-social.png" alt="Participação" class="img-side mb-4 mb-lg-0">
+            </div>
+            <div class="col-lg-6 order-lg-1">
+                <h2 class="display-5 fw-bolder mb-2" style="color: var(--primary-blue);">Cidadania Ativa</h2>
+                <div class="quote-card" style="border-left-color: var(--secundary-blue);">
+                    <p class="mb-0">"A cidadania nasce da ação e da participação no espaço público." — <strong>Hannah Arendt</strong></p>
+                </div>
+                <p class="text-justify fs-5 text-muted mb-4">
+                    Como o homem é, por natureza, um animal político, o Voz Ativa oferece o poder em público. A legitimidade da nossa gestão municipal surge do diálogo livre entre você e o governo.
+                </p>
+                <div class="quote-card" style="border-left-color: var(--terciary-blue);">
+                    <p class="mb-0">"A democracia precisa ser vivida para ser aprendida." — <strong>John Dewey</strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<br>
+
+<section class="py-5" style="background: var(--bg-soft); border-radius: 120px; margin: 0 15px;">
+    <div class="container px-5">
+        <div class="row gx-5 align-items-center">
+            <div class="col-lg-6 text-center">
+                <img src="/img/heroi-comunidade.png" alt="Herói" class="img-side mb-4 mb-lg-0">
+            </div>
+            <div class="col-lg-6">
+                <h2 class="display-5 fw-bolder mb-2" style="color: var(--accent-red);">Consciência e Autonomia</h2>
+                <p class="text-justify fs-5 text-muted mb-4">
+                    A educação não transforma o mundo; ela muda as pessoas para que elas o transformem. Nosso aprendizado é um processo social voltado para formar indivíduos capazes de criar.
+                </p>
+                <div class="quote-card" style="border-left-color: var(--primary-red);">
+                    <p class="mb-0">"O saber está distribuído por toda a humanidade." — <strong>Pierre Lévy</strong></p>
+                </div>
+                <p class="text-justify fs-5 text-muted">
+                    Utilizamos a técnica subordinada à ética para garantir que a tecnologia reflita nossas escolhas sociais e prepare Cariús para a complexidade do futuro.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+<br>
+
+<section class="py-5 rounded-huge mx-md-3" id="recursos">
+    <div class="container px-5 my-5">
+        <div class="text-center mb-5">
+        <h2 class="display-5 fw-bolder text-dark mb-2">Inteligência Governamental</h2>
+            <p class="lead text-muted">Módulos integrados para uma gestão 360º</p>
+        </div>
+        <div class="row gx-5">
+            <div class="col-lg-4 mb-5">
+                <div class="card h-100 floating-card p-4">
+                    <div class="card-body">
+                        <div class="feature-icon"><i class="bi bi-geo-alt"></i></div>
+                        <div class="badge bg-primary rounded-pill mb-3">Cidadania</div>
+                        <h5 class="fw-bold mb-3">Gestão de Melhorias</h5>
+                        <p class="card-text">Feedbacks e sugestões com geolocalização. Ideal para apontar problemas em vias e iluminação.</p>
+                        <p class="small text-muted mt-3">Mapeamento via GPS com feedback direto da gestão.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-5">
+                <div class="card h-100 floating-card p-4" style="background: #fffafa;">
+                    <div class="card-body">
+                        <div class="feature-icon text-danger"><i class="bi bi-shield-lock"></i></div>
+                        <div class="badge bg-danger rounded-pill mb-3">Segurança</div>
+                        <h5 class="fw-bold mb-3">Denúncias Sigilosas</h5>
+                        <p class="card-text">Criptografia de ponta a ponta para proteger sua identidade em denúncias de crimes.</p>
+                        <p class="small text-muted mt-3">Protocolo anônimo para combate a crimes e queimadas.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-5">
+                <div class="card h-100 floating-card p-4">
+                    <div class="card-body">
+                        <div class="feature-icon text-success"><i class="bi bi-briefcase"></i></div>
+                        <div class="badge bg-success rounded-pill mb-3">Economia</div>
+                        <h5 class="fw-bold mb-3">Vitrine do Trabalhador</h5>
+                        <p class="card-text">Fomento às vendas locais sem intermediários. Divulgação gratuita de mão de obra.</p>
+                        <p class="small text-muted mt-3">Conexão direta entre o autônomo e o mercado local.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5" id="projeto">
+    <div class="container px-5">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <h6 class="text-primary fw-bold text-uppercase mb-3">Sobre a Plataforma</h6>
+                <h1 class="display-5 mb-3" style="font-family: 'Poppins', sans-serif; font-weight: 200; letter-spacing: 1px; line-height: 1.2; color: var(--fourth-blue);"><span style="color: var(--black); font-weight: 500;">Um ecossistema digital de alta performance.</span></h2>
+                <p class="fs-5 text-muted mb-4">
+                    O Portal Voz Ativa é um <strong>web-app</strong> centralizador projetado para encurtar a distância entre o cidadão e o poder público.
+                </p>
+                <div class="p-4 bg-light rounded-soft border shadow-sm mb-4 floating-card">
+                    <h5 class="fw-bold">Resultados Esperados:</h5>
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2"><i class="bi bi-check2-circle text-success me-2"></i> <strong>Confiança:</strong> Histórico público de sugestões.</li>
+                        <li class="mb-2"><i class="bi bi-check2-circle text-success me-2"></i> <strong>Renda:</strong> Novas frentes para prestadores locais.</li>
+                        <li><i class="bi bi-check2-circle text-success me-2"></i> <strong>Segurança:</strong> Resposta rápida para queimadas.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="p-5 bg-white rounded-huge shadow-lg border-start border-5 border-primary floating-card">
+                    <h4 class="fw-900 mb-5">Eixos de Impacto Estratégico</h4>
+                    <div class="d-flex mb-4">
+                        <div class="feature-icon me-4"><i class="bi bi-cpu"></i></div>
+                        <div>
+                            <h5 class="fw-bold">Inovação Tecnológica</h5>
+                            <p class="text-muted small">Criptografia e geolocalização precisa.</p>
+                        </div>
+                    </div>
+                    <div class="d-flex mb-4">
+                        <div class="feature-icon me-4"><i class="bi bi-graph-up-arrow"></i></div>
+                        <div>
+                            <h5 class="fw-bold">Empreendedorismo Social</h5>
+                            <p class="text-muted small">Vitrine gratuita para fomento da economia local.</p>
+                        </div>
+                    </div>
+                    <div class="d-flex">
+                        <div class="feature-icon me-4"><i class="bi bi-shield-check"></i></div>
+                        <div>
+                            <h5 class="fw-bold">Cidadania Ativa</h5>
+                            <p class="text-muted small">Transparência e redução de ruídos.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="quote-section btn btn-light-effect floating-section">
+    <div class="container quote-content text-center text-white">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="d-flex justify-content-center mb-4">
+                    <span class="badge-reflexao text-uppercase" style="letter-spacing: 2px;">Ação e Pensamento</span>
+                </div>
+                
+                <h2 class="display-5 fw-bolder mb-2">
+                    "A democracia é o exercício do diálogo, e o diálogo só é possível quando todos têm canais para serem ouvidos. Onde a voz do cidadão é silenciada, a gestão se torna cega."
+                </h2>
+                
+                <div class="divider-glow"></div>
+                
+                <p class="mb-0 fw-bold opacity-75 small" style="letter-spacing: 1px;">
+                    REFLEXÃO VOZ ATIVA • CARIÚS 2026
+                </p>
+            </div>
+        </div>
+    </div>
+</section>

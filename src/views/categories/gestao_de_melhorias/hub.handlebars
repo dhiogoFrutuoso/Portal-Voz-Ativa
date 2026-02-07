@@ -1,0 +1,360 @@
+<header class="py-5 text-white shadow-lg" style="background: linear-gradient(145deg, #13315c 0%, #0056b3 100%); position: relative; overflow: hidden; border-bottom: 5px solid #ffc107;">
+    <div style="position: absolute; top: -20%; right: -10%; width: 400px; height: 400px; background: rgba(255,255,255,0.05); border-radius: 50%; filter: blur(80px);"></div>
+    
+    <div class="container px-5">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <div class="d-flex align-items-center mb-3">
+                    <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold shadow-sm me-3">
+                        <i class="bi bi-cpu-fill me-1"></i> HUB ATIVO
+                    </span>
+                    <span class="text-white-50 fw-light">Cariús, Ceará - Edição 2026</span>
+                </div>
+                <h1 class="display-3 fw-bolder mb-3 text-shadow">Central de Melhorias</h1>
+                <p class="lead mb-4 opacity-75 fw-light" style="max-width: 600px;">
+                    Bem-vindo à inteligência por trás do <strong>Voz Ativa</strong>. Aqui, cada sugestão é processada via geolocalização para otimizar a gestão pública.
+                </p>
+            </div>
+            <div class="col-lg-4 d-none d-lg-block">
+                <div class="glass-card p-4 text-center floating-img">
+                    <h6 class="text-warning text-uppercase small mb-3">Servidor Central</h6>
+                    <div class="display-6 fw-bold mb-1">99.8%</div>
+                    <div class="small opacity-75">Disponibilidade de Resposta</div>
+                    <hr class="bg-white opacity-25">
+                    <div class="d-flex align-items-center justify-content-center">
+                        <span class="status-dot-green me-2"></span> 
+                        <span class="small fw-bold">SISTEMA ONLINE</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<section class="py-5 bg-light">
+    <div class="container px-5">
+        
+        <div class="row gx-5 mb-5 mt-n5-custom">
+            <div class="col-md-3 mb-4">
+                <div class="card border-0 rounded-4 shadow-sm h-100 p-4 hover-lift bg-white border-top-primary">
+                    <div class="text-primary fs-1 mb-2"><i class="bi bi-geo-fill"></i></div>
+                    <h4 class="fw-bold mb-0">Local</h4>
+                    <p class="text-muted small mb-0">Triagem por GPS</p>
+                </div>
+            </div>
+            
+            <div class="col-md-3 mb-4">
+                <div class="card border-0 rounded-4 shadow-sm h-100 p-4 hover-lift bg-white border-top-success">
+                    <div class="text-success fs-1 mb-2"><i class="bi bi-clock-history"></i></div>
+                    <h4 class="fw-bold mb-0">Agilidade</h4>
+                    <p class="text-muted small mb-0">Resposta em Tempo Real</p>
+                </div>
+            </div>
+            
+            <div class="col-md-3 mb-4">
+                <div class="card border-0 rounded-4 shadow-sm h-100 p-4 hover-lift bg-white border-top-danger">
+                    <div class="text-danger fs-1 mb-2"><i class="bi bi-shield-lock-fill"></i></div>
+                    <h4 class="fw-bold mb-0">Sigilo</h4>
+                    <p class="text-muted small mb-0">Dados Criptografados</p>
+                </div>
+            </div>
+            
+            <div class="col-md-3 mb-4">
+                <div class="card border-0 rounded-4 shadow-sm h-100 p-4 hover-lift bg-white border-top-warning">
+                    <div class="text-warning fs-1 mb-2"><i class="bi bi-recycle"></i></div>
+                    <h4 class="fw-bold mb-0">Papel Zero</h4>
+                    <p class="text-muted small mb-0">Foco Sustentável</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row gx-5">
+            <div class="col-lg-7">
+                <div class="card hover-lift border-0 shadow-lg rounded-4 mb-5">
+                    <div class="card-body p-5">
+                        <h3 class="fw-bold text-dark mb-4">Sua Voz, Sua Ação</h3>
+                        <p class="text-muted mb-5">
+                            O Portal Voz Ativa utiliza um <strong>Hub de Melhorias</strong> para garantir que sugestões de infraestrutura cheguem aos órgãos competentes sem ruído de informação.
+                        </p>
+                        
+                        <div class="action-box p-4 rounded-4 mb-4" style="background: #f8f9fa; border-left: 5px solid #13315c;">
+                            <h5 class="fw-bold mb-2">Pronto para colaborar?</h5>
+                            <p class="small text-muted mb-4">Ao clicar no botão abaixo, você será levado ao formulário de alta performance para registrar sua melhoria.</p>
+                            
+                            {{#if user}}
+                                <a href="/categories/gestao_de_melhorias/abrir-chamado" class="btn btn-light-effect btn btn-primary px-5 py-3 rounded-pill fw-bold shadow-sm transition-base">
+                                    <i class="bi bi-plus-lg me-2"></i> ABRIR NOVO CHAMADO
+                                </a>
+                            {{else}}
+                                <a href="/users/login" class="btn btn-light-effect btn btn-primary px-5 py-3 rounded-pill fw-bold shadow-sm transition-base">
+                                    <i class="bi bi-plus-lg me-2"></i> ABRIR NOVO CHAMADO
+                                </a>
+                            {{/if}}
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <div class="p-3 border rounded-3 bg-light border-start-primary">
+                                    <h6 class="fw-bold mb-1">Transparência</h6>
+                                    <p class="small text-muted mb-0">Histórico visível para todos.</p>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="p-3 border rounded-3 bg-light border-start-primary">
+                                    <h6 class="fw-bold mb-1">Prioridade</h6>
+                                    <p class="small text-muted mb-0">Foco em áreas críticas.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="card hover-lift border-0 bg-dark text-white rounded-4 shadow-lg h-100" style="background: linear-gradient(145deg, #1a1a1a 0%, #13315c 100%) !important;">
+                    <div class="card-body p-5">
+                        <h4 class="fw-bold text-warning mb-4">Por que o Hub?</h4>
+                        
+                        <div class="mb-4">
+                            <h6 class="fw-bold"><i class="bi bi-check-circle-fill text-success me-2"></i>Inovação Tecnológica</h6>
+                            <p class="small opacity-75">Transformamos processos manuais lentos em fluxos digitais instantâneos.</p>
+                        </div>
+
+                        <div class="mb-4">
+                            <h6 class="fw-bold"><i class="bi bi-check-circle-fill text-success me-2"></i>Empreendedorismo Social</h6>
+                            <p class="small opacity-75">O hub conecta a necessidade da rua com a capacidade de resolução da gestão.</p>
+                        </div>
+
+                        <div class="mt-5 p-4 rounded-4 bg-white bg-opacity-10 border border-white border-opacity-10">
+                            <p class="fst-italic small mb-0">
+                                "Implementar um ecossistema digital profissional que integre participação cidadã e desenvolvimento econômico local."
+                            </p>
+                            <hr class="opacity-25">
+                            <div class="d-flex align-items-center">
+                                <img src="/img/ceará.png" style="height: 40px;" alt="Ceará">
+                                <span class="ms-3 small fw-bold">PROJETO CEARÁ DE VALORES</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 bg-light">
+    <div class="container px-5"> 
+        <div class="d-flex align-items-center justify-content-between mb-5">
+            <div>
+                <h2 class="fw-bold text-dark mb-1">Monitoramento em Tempo Real</h2>
+                <p class="text-muted small mb-0">Gestão ativa das melhorias em Cariús</p>
+            </div>
+            <div class="badge bg-primary rounded-pill px-3 py-2 shadow-sm">Últimas Atualizações</div>
+        </div>
+
+        <div class="row g-4">
+            {{#each chamados}}
+                {{#if imagem.[0]}}
+                    <div class="col-12">
+                        <div class="card shadow-lg border-top-primary border-1 rounded-4 overflow-hidden hover-lift bg-white">
+                            <div class="row g-0">
+                                <div class="col-md-4 position-relative">
+                                    {{#if imagem.[0]}}
+                                        <img src="/img_chamados/{{imagem.[0]}}" alt="{{titulo}}" class="img-extensa" />
+                                        <div class="img-overlay"></div>
+                                    {{else}}
+                                        <div class="bg-dark d-flex flex-column align-items-center justify-content-center h-100 min-h-250">
+                                            <i class="bi bi-image text-white-50 display-4 mb-2"></i>
+                                            <span class="text-white-50 small">Sem imagem anexada</span>
+                                        </div>
+                                    {{/if}}
+                                </div>
+
+                                <div class="col-md-8">
+                                    <div class="card-body p-4 p-lg-5 h-100 d-flex flex-column">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <span class="badge bg-success-soft text-success px-3 py-2 rounded-pill fw-bold">
+                                                <i class="bi bi-circle-fill me-2 small"></i>{{status}}
+                                            </span>
+                                            <div class="text-muted small">
+                                                <i class="bi bi-calendar3 me-1"></i> {{formatDate dataCriacao}}
+                                            </div>
+                                        </div>
+                                        
+                                        <h3 class="card-title fw-bold text-dark mb-3">
+                                            <i class="bi bi-lightbulb-fill text-primary me-2"></i>
+                                            {{titulo}}
+                                        </h3>
+                                        <p class="card-text text-secondary mb-4 leading-relaxed">
+                                            {{descricao}}
+                                        </p>
+                                        
+                                        <div class="mt-auto pt-4 border-top">
+                                            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="icon-shape bg-danger-soft text-danger rounded-circle me-3">
+                                                        <i class="bi bi-geo-alt-fill"></i>
+                                                    </div>
+                                                    <div>
+                                                        <p class="text-muted small mb-0">Localização</p>
+                                                        <span class="fw-bold text-dark">{{localizacao}}</span>
+                                                    </div>
+                                                </div>
+
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <form action="/categories/gestao_de_melhorias/like/{{_id}}" method="POST" class="m-0">
+                                                        <button type="submit" class="btn btn-sm rounded-pill border shadow-sm hover-lift px-3 transition-base 
+                                                            {{#if jaCurtiu}}btn-danger text-white{{else}}btn-light text-danger{{/if}}">
+                                                            <i class="bi {{#if jaCurtiu}}bi-heart-fill{{else}}bi-heart{{/if}} me-1"></i>
+                                                            <span class="fw-bold">{{curtidas.length}}</span>
+                                                        </button>
+                                                    </form>
+                                                    
+                                                    <a href="/categories/gestao_de_melhorias/detalhes/{{_id}}" class="btn btn-light btn-sm rounded-pill hover-lift border px-3 transition-base">
+                                                        <i class="bi bi-chat-dots-fill text-primary me-1"></i>
+                                                        <span class="fw-bold">{{comentarios.length}}</span>
+                                                    </a>
+
+                                                    <a href="/categories/gestao_de_melhorias/detalhes/{{_id}}" class="btn btn-primary btn-sm rounded-pill px-4 fw-bold shadow-sm transition-base">
+                                                        Detalhes <i class="bi bi-arrow-right ms-1"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {{else}}
+                    <div class="col-12 mb-4">
+                        <div class="card shadow-lg border-0 rounded-4 overflow-hidden hover-lift bg-white" style="border-left: 8px solid #0d6efd !important;">
+                            <div class="card-body p-4 p-lg-5 d-flex flex-column">
+                                
+                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                    <span class="badge bg-success-soft text-success px-3 py-2 rounded-pill fw-bold">
+                                        <i class="bi bi-circle-fill me-2 small"></i>{{status}}
+                                    </span>
+                                    <div class="text-muted small">
+                                        <i class="bi bi-calendar3 me-1"></i> {{formatDate dataCriacao}}
+                                    </div>
+                                </div>
+                                
+                                <h3 class="card-title fw-bold text-dark mb-3">
+                                    <i class="bi bi-lightbulb-fill text-primary me-2"></i>
+                                    {{titulo}}
+                                </h3>
+                                
+                                <p class="card-text text-secondary mb-4 leading-relaxed">
+                                    {{descricao}}
+                                </p>
+                                
+                                <div class="mt-auto pt-4 border-top">
+                                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                                        
+                                        <div class="d-flex align-items-center">
+                                            <div class="icon-shape bg-primary-soft text-primary rounded-circle me-3">
+                                                <i class="bi bi-geo-alt-fill"></i>
+                                            </div>
+                                            <div>
+                                                <p class="text-muted small mb-0">Localização</p>
+                                                <span class="fw-bold text-dark">{{localizacao}}</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex align-items-center gap-2">
+                                            <form action="/categories/gestao_de_melhorias/like/{{_id}}" method="POST" class="m-0">
+                                                <button type="submit" class="btn btn-sm rounded-pill border shadow-sm hover-lift px-3 transition-base 
+                                                    {{#if jaCurtiu}}btn-danger text-white{{else}}btn-light text-danger{{/if}}">
+                                                    <i class="bi {{#if jaCurtiu}}bi-heart-fill{{else}}bi-heart{{/if}} me-1"></i>
+                                                    <span class="fw-bold">{{curtidas.length}}</span>
+                                                </button>
+                                            </form>
+                                            
+                                            <a href="/categories/gestao_de_melhorias/detalhes/{{_id}}" class="btn btn-light btn-sm rounded-pill hover-lift border px-3 transition-base">
+                                                <i class="bi bi-chat-dots-fill text-primary me-1"></i>
+                                                <span class="fw-bold">{{comentarios.length}}</span>
+                                            </a>
+
+                                            <a href="/categories/gestao_de_melhorias/detalhes/{{_id}}" class="btn btn-primary btn-sm rounded-pill px-4 fw-bold shadow-sm transition-base">
+                                                Detalhes <i class="bi bi-arrow-right ms-1"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {{/if}}
+            {{else}}
+                <div class="col-12 text-center py-5">
+                    <div class="card border-0 shadow-sm p-5 rounded-4 bg-white text-muted">
+                        <i class="bi bi-clipboard-x display-1 opacity-25"></i>
+                        <h4 class="mt-4 fw-bold text-dark">Tudo limpo por aqui!</h4>
+                        <p>Nenhuma melhoria foi registrada no sistema até o momento.</p>
+                    </div>
+                </div>
+            {{/each}}
+        </div>
+    </div>
+</section>
+
+<style>
+    .mt-n5-custom { margin-top: -85px; position: relative; z-index: 5; }
+    .border-top-primary { border-top: 5px solid #0d6efd !important; }
+    .border-top-success { border-top: 5px solid #198754 !important; }
+    .border-top-danger { border-top: 5px solid #dc3545 !important; }
+    .border-top-warning { border-top: 5px solid #ffc107 !important; }
+    .border-start-primary { border-left: 4px solid #0d6efd !important; }
+    
+    .bg-success-soft { background-color: rgba(25, 135, 84, 0.1); }
+    .bg-danger-soft { background-color: rgba(220, 53, 69, 0.1); width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; }
+    
+    .glass-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 25px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    }
+    
+    .transition-base { transition: all 0.3s ease-in-out !important; }
+
+    .btn-light-effect { position: relative; overflow: hidden; z-index: 1; transition: all 0.3s ease; }
+    .btn-light-effect span { position: relative; z-index: 2; }
+    .btn-light-effect::before {
+        content: ""; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+        background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+        transition: all 0.6s; z-index: 1;
+    }
+    .btn-light-effect:hover::before { left: 100%; }
+    
+    /* Light Transition effect similar to the other hub */
+    .btn-primary.transition-base:hover {
+        background-color: #004494 !important;
+        border-color: #004494 !important;
+        opacity: 0.9;
+        transform: scale(1.02);
+    }
+
+    .hover-lift { transition: all 0.3s ease; }
+    .hover-lift:hover { transform: translateY(-10px); box-shadow: 0 1rem 3rem rgba(0,0,0,0.175) !important; }
+    
+    .text-shadow { text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+    .floating-img { animation: float 5s ease-in-out infinite; }
+    @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-20px); } }
+    
+    .status-dot-green {
+        width: 10px; height: 10px; background: #28a745; border-radius: 50%;
+        display: inline-block; animation: pulse-green 2s infinite;
+    }
+    @keyframes pulse-green {
+        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
+        70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
+        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+    }
+    
+    .img-extensa { width: 100%; height: 100%; min-height: 300px; object-fit: cover; }
+    .img-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to right, rgba(0,0,0,0.2), transparent); }
+    .leading-relaxed { line-height: 1.6; }
+</style>

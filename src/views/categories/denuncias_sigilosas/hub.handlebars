@@ -1,0 +1,365 @@
+<header class="py-5 text-white shadow-lg" style="background: linear-gradient(145deg, #1d3557 0%, #e63946 100%); position: relative; overflow: hidden; border-bottom: 5px solid #ffc107;">
+    <div style="position: absolute; top: -20%; right: -10%; width: 400px; height: 400px; background: rgba(255,255,255,0.05); border-radius: 50%; filter: blur(80px);"></div>
+    
+    <div class="container px-5">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <div class="d-flex align-items-center mb-3">
+                    <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold shadow-sm me-3">
+                        <i class="bi bi-shield-lock-fill me-1"></i> HUB DE SEGURANÇA
+                    </span>
+                    <span class="text-white-50 fw-light">Cariús, Ceará - Proteção Ativa</span>
+                </div>
+                <h1 class="display-3 fw-bolder mb-3 text-shadow">Central de Proteção</h1>
+                <p class="lead mb-4 opacity-75 fw-light" style="max-width: 600px;">
+                    Canal de inteligência para combate a crimes e crimes ambientais. Suas informações são processadas com <strong>criptografia de ponta a ponta</strong> e enviadas diretamente aos órgãos competentes.
+                </p>
+            </div>
+            <div class="col-lg-4 d-none d-lg-block">
+                <div class="glass-card p-4 text-center floating-img">
+                    <h6 class="text-warning text-uppercase small mb-3">Protocolo de Sigilo</h6>
+                    <div class="display-6 fw-bold mb-1">100%</div>
+                    <div class="small opacity-75">Anonimato Garantido</div>
+                    <hr class="bg-white opacity-25">
+                    <div class="d-flex align-items-center justify-content-center">
+                        <span class="status-dot-green me-2"></span> 
+                        <span class="small fw-bold">DADOS CRIPTOGRAFADOS</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<section class="py-5 bg-light">
+    <div class="container px-5">
+        
+        <div class="row gx-5 mb-5 mt-n5-custom">
+            <div class="col-md-3 mb-4">
+                <div class="card border-1 rounded-4 shadow-sm h-100 p-4 hover-lift bg-white border-top-danger">
+                    <div class="text-danger fs-1 mb-2"><i class="bi bi-incognito"></i></div>
+                    <h4 class="fw-bold mb-0">Sigilo</h4>
+                    <p class="text-muted small mb-0">Identidade Protegida</p>
+                </div>
+            </div>
+            
+            <div class="col-md-3 mb-4">
+                <div class="card border-1 rounded-4 shadow-sm h-100 p-4 hover-lift bg-white border-top-primary">
+                    <div class="text-primary fs-1 mb-2"><i class="bi bi-shield-shaded"></i></div>
+                    <h4 class="fw-bold mb-0">Integração</h4>
+                    <p class="text-muted small mb-0">Guarda e Bombeiros</p>
+                </div>
+            </div>
+            
+            <div class="col-md-3 mb-4">
+                <div class="card border-1 rounded-4 shadow-sm h-100 p-4 hover-lift bg-white border-top-warning">
+                    <div class="text-warning fs-1 mb-2"><i class="bi bi-lightning-fill"></i></div>
+                    <h4 class="fw-bold mb-0">Agilidade</h4>
+                    <p class="text-muted small mb-0">Triagem Digital</p>
+                </div>
+            </div>
+            
+            <div class="col-md-3 mb-4">
+                <div class="card border-1 rounded-4 shadow-sm h-100 p-4 hover-lift bg-white border-top-success">
+                    <div class="text-success fs-1 mb-2"><i class="bi bi-tree-fill"></i></div> 
+                    <h4 class="fw-bold mb-0">Ambiental</h4>
+                    <p class="text-muted small mb-0">Foco em Queimadas</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row gx-5">
+            <div class="col-lg-7">
+                <div class="card hover-lift border-0 shadow-lg rounded-4 mb-5">
+                    <div class="card-body p-5">
+                        <h3 class="fw-bold text-dark mb-4">Denuncie com Segurança</h3>
+                        <p class="text-muted mb-4">
+                            Este hub centraliza denúncias de crimes locais e focos de incêndio. <strong>Atenção:</strong> Por questões de segurança, denúncias criminais são privadas e visíveis apenas para a gestão. Apenas registros de <strong>Queimadas</strong> são públicos para alerta da comunidade.
+                        </p>
+                        
+                        <div class="action-box p-4 rounded-4 mb-4" style="background: #fff5f5; border-left: 5px solid #e63946;">
+                            <h5 class="fw-bold text-danger mb-2">Presenciou algo agora?</h5>
+                            <p class="small text-muted mb-4">Sua colaboração pode salvar vidas e o meio ambiente de Cariús. Clique abaixo para iniciar o formulário seguro.</p>
+
+                            {{#if user}}
+                                <a href="/categories/denuncias_sigilosas/abrir-denuncia" class="btn-light-effect btn btn-danger px-5 py-3 rounded-pill fw-bold shadow-sm">
+                                    <span><i class="bi bi-megaphone-fill me-2"></i> REGISTRAR DENÚNCIA</span>
+                                </a>
+                            {{else}}
+                                <a href="/users/login" class="btn-light-effect btn btn-danger px-5 py-3 rounded-pill fw-bold shadow-sm">
+                                    <span><i class="bi bi-megaphone-fill me-2"></i> REGISTRAR DENÚNCIA</span>
+                                </a>
+                            {{/if}}
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <div class="p-3 border rounded-3 bg-light">
+                                    <h6 class="fw-bold mb-1">Criptografia</h6>
+                                    <p class="small text-muted mb-0">Dados inacessíveis para terceiros.</p>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="p-3 border rounded-3 bg-light">
+                                    <h6 class="fw-bold mb-1">Monitoramento</h6>
+                                    <p class="small text-muted mb-0">Acompanhamento via protocolo.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="card hover-lift border-0 bg-dark text-white rounded-4 shadow-lg h-100">
+                    <div class="card-body p-5">
+                        <h4 class="fw-bold text-warning mb-4">Compromisso Voz Ativa</h4>
+                        
+                        <div class="mb-4">
+                            <h6 class="fw-bold text-danger"><i class="bi bi-check-circle-fill me-2"></i>Segurança Digital</h6>
+                            <p class="small opacity-75">Implementamos um servidor dedicado com certificados SSL e banco de dados criptografado para sua total proteção.</p>
+                        </div>
+
+                        <div class="mb-4">
+                            <h6 class="fw-bold text-danger"><i class="bi bi-check-circle-fill me-2"></i>Resposta Operacional</h6>
+                            <p class="small opacity-75">Integração institucional direta para que a denúncia chegue a quem resolve em tempo recorde.</p>
+                        </div>
+
+                        <div class="mt-5 p-4 rounded-4 bg-white bg-opacity-10 border border-white border-opacity-10 text-center">
+                             <p class="fst-italic small mb-3">
+                                "Garantir que dados sensíveis de denúncias sejam protegidos, transformando a fiscalização cidadã em ação."
+                            </p>
+                            <hr class="opacity-25">
+                            <img src="/img/ceará.png" style="height: 50px; filter: brightness(0) invert(1); opacity: 0.7;" alt="Ceará">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 bg-light">
+    <div class="container px-5"> 
+        <div class="d-flex align-items-center justify-content-between mb-5">
+            <div>
+                <h2 class="fw-bold text-dark mb-1">
+                    <i class="bi bi-shield-radar text-danger me-2"></i>Painel de Monitoramento
+                </h2>
+                <p class="text-muted small mb-0">Gestão de ocorrências e alertas em tempo real para Cariús</p>
+            </div>
+            <div class="text-end">
+                <span class="badge bg-danger rounded-pill px-3 py-2 shadow-sm">
+                    <i class="bi bi-lock-fill me-1"></i>SISTEMA CRIPTOGRAFADO
+                </span>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            {{#each denuncias}}
+                {{#if imagens.[0]}}
+                    {{#if (eq tipoOcorrencia 'Foco de Queimada')}}
+                        <div class="col-12">
+                            <div class="card shadow-lg border-top-primary border-1 rounded-4 overflow-hidden hover-lift bg-white">
+                                <div class="row g-0">
+                                    <div class="col-md-4 position-relative">
+                                        {{#if imagens.[0]}}
+                                            <img src="/img_chamados/{{imagens.[0]}}" alt="{{titulo}}" class="img-extensa" />
+                                            <div class="img-overlay"></div>
+                                        {{else}}
+                                            <div class="bg-dark d-flex flex-column align-items-center justify-content-center h-100 min-h-250">
+                                                <i class="bi bi-shield-slash text-white-50 display-4 mb-2"></i>
+                                                <span class="text-white-50 small">Sem evidência visual</span>
+                                            </div>
+                                        {{/if}}
+                                    </div>
+
+                                    <div class="col-md-8">
+                                        <div class="card-body p-4 p-lg-5 h-100 d-flex flex-column">
+                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                <span class="badge {{#if (eq status 'Em Análise')}}bg-warning-soft text-warning{{else}}bg-success-soft text-success{{/if}} px-3 py-2 rounded-pill fw-bold">
+                                                    <i class="bi bi-circle-fill me-2 small"></i>{{status}}
+                                                </span>
+                                                <div class="text-muted small">
+                                                    <i class="bi bi-calendar3 me-1"></i> {{formatDate dataCriacao}}
+                                                </div>
+                                            </div>
+                                            
+                                            <h3 class="card-title fw-bold text-dark mb-3">
+                                                <i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>
+                                                {{#if (eq tipoOcorrencia 'Outro')}}{{titulo}}{{else}}{{tipoOcorrencia}}{{/if}}
+                                            </h3>
+                                            <p class="card-text text-secondary mb-4 leading-relaxed text-truncate-3">
+                                                {{descricao}}
+                                            </p>
+                                            
+                                            <div class="mt-auto pt-4 border-top">
+                                                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="icon-shape bg-danger-soft text-danger rounded-circle me-3">
+                                                            <i class="bi bi-geo-alt-fill"></i>
+                                                        </div>
+                                                        <div>
+                                                            <p class="text-muted small mb-0">Localização do Incidente</p>
+                                                            <span class="fw-bold text-dark">{{localizacao}}</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <form action="/categories/denuncias_sigilosas/like/{{_id}}" method="POST" class="m-0">
+                                                            <button type="submit" class="btn btn-sm rounded-pill border shadow-sm hover-lift px-3 transition-base 
+                                                                {{#if jaCurtiu}}btn-danger text-white{{else}}btn-light text-danger{{/if}}">
+                                                                <i class="bi {{#if jaCurtiu}}bi-heart-fill{{else}}bi-heart{{/if}} me-1"></i>
+                                                                <span class="fw-bold">{{curtidas.length}}</span>
+                                                            </button>
+                                                        </form>
+                                                        
+                                                        <a href="/categories/denuncias_sigilosas/detalhes/{{_id}}#comentarios" class="btn btn-light btn-sm rounded-pill hover-lift border px-3 transition-base" title="Ver comentários">
+                                                            <i class="bi bi-chat-dots-fill text-primary me-1"></i>
+                                                            <span class="fw-bold">{{comentarios.length}}</span>
+                                                        </a>
+
+                                                        <a href="/categories/denuncias_sigilosas/detalhes/{{_id}}" class="btn btn-dark btn-sm rounded-pill px-4 fw-bold shadow-sm transition-base">
+                                                            Ver Protocolo <i class="bi bi-arrow-right ms-1"></i>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {{/if}}
+                {{else}}
+                    {{#if (eq tipoOcorrencia 'Foco de Queimada')}}
+                        <div class="col-12 mb-4">
+                            <div class="card shadow-lg border-0 rounded-4 overflow-hidden hover-lift bg-white" style="border-left: 8px solid #dc3545 !important;">
+                                <div class="card-body p-4 p-lg-5 d-flex flex-column">
+                                    
+                                    <div class="d-flex justify-content-between align-items-center mb-4">
+                                        <span class="badge {{#if (eq status 'Em Análise')}}bg-warning-soft text-warning{{else}}bg-success-soft text-success{{/if}} px-3 py-2 rounded-pill fw-bold">
+                                            <i class="bi bi-circle-fill me-2 small"></i>{{status}}
+                                        </span>
+                                        <div class="text-muted small">
+                                            <i class="bi bi-calendar3 me-1"></i> {{formatDate dataCriacao}}
+                                        </div>
+                                    </div>
+                                    
+                                    <h3 class="card-title fw-bold text-dark mb-3">
+                                        <i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>
+                                        {{#if (eq tipoOcorrencia 'Outro')}}{{titulo}}{{else}}{{tipoOcorrencia}}{{/if}}
+                                    </h3>
+                                    
+                                    <p class="card-text text-secondary mb-4 leading-relaxed">
+                                        {{descricao}}
+                                    </p>
+                                    
+                                    <div class="mt-auto pt-4 border-top">
+                                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                                            
+                                            <div class="d-flex align-items-center">
+                                                <div class="icon-shape bg-danger-soft text-danger rounded-circle me-3">
+                                                    <i class="bi bi-geo-alt-fill"></i>
+                                                </div>
+                                                <div>
+                                                    <p class="text-muted small mb-0">Localização do Incidente</p>
+                                                    <span class="fw-bold text-dark">{{localizacao}}</span>
+                                                </div>
+                                            </div>
+
+                                            <div class="d-flex align-items-center gap-2">
+                                                <form action="/categories/denuncias_sigilosas/like/{{_id}}" method="POST" class="m-0">
+                                                    <button type="submit" class="btn btn-sm rounded-pill border shadow-sm hover-lift px-3 transition-base 
+                                                        {{#if jaCurtiu}}btn-danger text-white{{else}}btn-light text-danger{{/if}}">
+                                                        <i class="bi {{#if jaCurtiu}}bi-heart-fill{{else}}bi-heart{{/if}} me-1"></i>
+                                                        <span class="fw-bold">{{curtidas.length}}</span>
+                                                    </button>
+                                                </form>
+                                                
+                                                <a href="/categories/denuncias_sigilosas/detalhes/{{_id}}#comentarios" class="btn btn-light btn-sm rounded-pill hover-lift border px-3 transition-base" title="Ver comentários">
+                                                    <i class="bi bi-chat-dots-fill text-primary me-1"></i>
+                                                    <span class="fw-bold">{{comentarios.length}}</span>
+                                                </a>
+
+                                                <a href="/categories/denuncias_sigilosas/detalhes/{{_id}}" class="btn btn-dark btn-sm rounded-pill px-4 fw-bold shadow-sm transition-base">
+                                                    Ver Protocolo <i class="bi bi-arrow-right ms-1"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {{/if}}
+                {{/if}}
+            {{else}}
+                <div class="col-12 text-center py-5">
+                    <div class="card border-0 shadow-sm p-5 rounded-4 bg-white text-muted">
+                        <i class="bi bi-shield-check display-1 text-success opacity-25"></i>
+                        <h4 class="mt-4 fw-bold text-dark">Monitoramento Limpo</h4>
+                        <p>Não há ocorrências críticas registradas em Cariús neste momento.</p>
+                    </div>
+                </div>
+            {{/each}}
+        </div>
+    </div>
+</section>
+
+<style>
+    /* Design Premium */
+    .card-denuncia {
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        background: #ffffff;
+    }
+    .card-denuncia:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.08) !important;
+    }
+    
+    /* Destaque para Queimadas */
+    .border-queimada {
+        border-left: 8px solid #dc3545 !important;
+        background: linear-gradient(to right, #fff5f5, #ffffff);
+    }
+    
+    .text-truncate-3 {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .bg-warning-soft { background-color: rgba(255, 238, 0, 0.182); }
+    .bg-success-soft { background-color: rgba(0, 136, 72, 0.1); }
+
+    .italic { font-style: italic; }
+    .border-top-primary { border-top: 5px solid #d80000 !important; }
+    .border-start-danger-thick { border-left: 6px solid #dc3545 !important; }
+    .icon-circle { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .text-truncate-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .hover-lift { transition: transform 0.2s; }
+    .hover-lift:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important; }
+    /* Estilos do Efeito de Luz nos Botões */
+    .btn-light-effect { position: relative; overflow: hidden; z-index: 1; transition: all 0.3s ease; }
+    .btn-light-effect span { position: relative; z-index: 2; }
+    .btn-light-effect::before {
+        content: ""; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+        background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+        transition: all 0.6s; z-index: 1;
+    }
+    .btn-light-effect:hover::before { left: 100%; }
+
+    .hover-lift { transition: all 0.3s ease; }
+    .hover-lift:hover { transform: translateY(-10px); box-shadow: 0 1rem 3rem rgba(0,0,0,0.175) !important; }
+
+    /* Utilitários */
+    .mt-n5-custom { margin-top: -85px; position: relative; z-index: 5; }
+    .glass-card { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 25px; }
+    .floating-img { animation: float 5s ease-in-out infinite; }
+    @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-20px); } }
+    .status-dot-green { width: 10px; height: 10px; background: #28a745; border-radius: 50%; display: inline-block; animation: pulse-green 2s infinite; }
+    @keyframes pulse-green { 0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); } 100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); } }
+    .img-extensa { width: 100%; height: 100%; min-height: 250px; object-fit: cover; }
+    .bg-danger-soft { background-color: rgba(220, 53, 69, 0.1); }
+</style>

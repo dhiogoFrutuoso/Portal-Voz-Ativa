@@ -1,0 +1,76 @@
+<div class="bg-secondary text-white py-1" style="font-size: 0.75rem; background-color: #13315c !important;">
+  <div class="container d-flex justify-content-between">
+    <div class="d-md-block">BRASIL</div>
+    <div class="d-none d-md-block">
+      <a href="https://cearadevalores.com.br/" class="text-white text-decoration-none me-3">CEARÁ DE VALORES</a>
+    </div>
+  </div>
+</div>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top py-3">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center" href="/">
+      <div class="border-start border-4 border-warning ps-3">
+        <span class="d-block fw-light mb-0" style="font-size: 0.9rem; letter-spacing: 1px;">PREFEITURA DE CARIÚS</span>
+        <span class="d-block fw-bold text-uppercase h5 mb-0" style="color: #13315c;">Portal Voz Ativa</span>
+      </div>
+    </a>
+
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navGov">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navGov">
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0 fw-semibold text-uppercase" style="font-size: 0.85rem;">
+        <li class="nav-item">
+          <a class="nav-link px-3 text-dark border-hover" href="/">Início</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link px-3 text-dark border-hover" href="/categories">Categorias</a>
+        </li>
+        {{#if this.user.areAdmin}}
+          <li class="nav-item">
+            <a class="nav-link px-3 text-dark border-hover" href="/admin/">
+               <i class="bi bi-shield-lock me-1"></i> admin
+            </a>
+          </li>
+        {{/if}}
+        
+        {{#if user}}
+          <li class="nav-item">
+            <a class="nav-link px-3 text-dark border-hover" href="/users/perfil/{{this.user._id}}">
+               <i class="bi bi-person-circle me-1"></i> Perfil
+            </a>
+          </li>
+          <li class="nav-item ms-lg-3">
+            <a class="btn btn-outline-dark btn-sm px-4 rounded-0 fw-bold" href="/users/logout">SAIR</a>
+          </li>
+        {{else}}
+          <li class="nav-item ms-lg-3">
+            <a class="nav-link text-dark" href="/users/login">Entrar</a>
+          </li>
+          <li class="nav-item ms-lg-1">
+            <a class="btn btn-primary btn-sm px-4 rounded-0 fw-bold shadow-sm" style="background-color: #13315c; border-color: #13315c;" href="/users/register">
+              CADASTRAR-SE
+            </a>
+          </li>
+        {{/if}}
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<style>
+  /* Efeito de linha amarela embaixo ao passar o mouse */
+  .border-hover {
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s ease;
+  }
+  .border-hover:hover {
+    border-bottom: 3px solid #f9ca24;
+    color: #13315c !important;
+  }
+  .navbar-brand:hover {
+    opacity: 0.8;
+  }
+</style>

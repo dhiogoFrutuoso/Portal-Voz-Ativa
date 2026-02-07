@@ -1,0 +1,246 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+
+<style>
+    /* Seus estilos originais mantidos */
+    body { background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); min-height: 100vh; }
+    .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); }
+    .glass-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(19, 49, 92, 0.15) !important; }
+    .form-floating > .form-control:focus, .form-floating > .form-select:focus { border-color: #13315c; box-shadow: 0 0 0 0.25rem rgba(19, 49, 92, 0.1); }
+    .btn-gradient { background: linear-gradient(45deg, #13315c, #1e4d8c); border: none; transition: all 0.3s ease; letter-spacing: 1px; }
+    .btn-gradient:hover { filter: brightness(1.1); transform: scale(1.02); }
+
+    /* Estilo do Upload Redondo */
+    .profile-upload-container { position: relative; width: 120px; height: 120px; margin: 0 auto 15px; }
+    .file-upload-wrapper { width: 100%; height: 100%; border: 2px dashed #dee2e6; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: #f8f9fa; transition: all 0.3s ease; cursor: pointer; overflow: hidden; position: relative; }
+    .file-upload-wrapper:hover { border-color: #13315c; background-color: #f1f4f8; }
+    #imagePreview { position: absolute; width: 100%; height: 100%; object-fit: cover; display: none; }
+    .upload-icon { font-size: 1.8rem; color: #adb5bd; }
+
+    /* Ajustes do Cropper para o Modal */
+    /* Garante que a imagem dentro do modal tenha espaço para respirar */
+    .img-container {
+        width: 100%;
+        max-height: 450px;
+        margin-bottom: 10px;
+        background-color: #f7f7f7;
+        overflow: hidden;
+    }
+
+    .img-container img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+    }
+
+    /* Ajuste da prévia circular */
+    .preview-register {
+        width: 160px;
+        height: 160px;
+        border-radius: 50%;
+        border: 3px solid #13315c;
+        overflow: hidden;
+        margin: 0 auto;
+    }
+</style>
+
+<section class="container d-flex flex-column align-items-center justify-content-center py-5">
+    
+    <div class="container mt-3">
+        {{#each errors}}
+            <div class="alert alert-danger alert-dismissible fade show rounded-3 shadow-sm animate__animated animate__shakeX" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i> {{text}}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {{/each}}
+    </div>
+
+    <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-5 animate__animated animate__zoomIn">
+        <div class="card glass-card shadow-lg rounded-4 overflow-hidden border-0">
+            <div class="card-body p-4 p-md-5">
+                
+                <div class="text-center mb-4">
+                    <div class="mb-3 d-inline-block p-3 rounded-circle bg-white shadow-sm">
+                        <i class="bi bi-person-plus-fill text-primary" style="font-size: 2rem; color: #13315c !important;"></i>
+                    </div>
+                    <h2 class="fw-bolder" style="color: #13315c;">Criar Conta</h2>
+                    <p class="text-muted small">Faça parte da rede de inteligência de Cariús</p>
+                </div>
+
+                <form id="mainForm" action="/users/register" method="POST">
+                    <input type="hidden" name="croppedImage" id="croppedImage">
+                    
+                    <div class="text-center mb-4">
+                        <div class="profile-upload-container">
+                            <div class="file-upload-wrapper" onclick="document.getElementById('profileImageInput').click()">
+                                <img id="imagePreview" src="#" alt="Preview">
+                                <i class="bi bi-camera upload-icon" id="cameraIcon"></i>
+                                <input type="file" id="profileImageInput" hidden accept="image/*">
+                            </div>
+                        </div>
+                        <label class="form-label text-muted small fw-bold text-uppercase">Foto de Perfil</label>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input type="text" name="name" class="form-control border-0 bg-light rounded-3" id="name" placeholder="Seu nome" value="{{name}}" required>
+                        <label for="name" class="text-muted"><i class="bi bi-person me-2"></i> Nome Completo</label>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input type="email" name="email" class="form-control border-0 bg-light rounded-3" id="email" placeholder="nome@exemplo.com" value="{{email}}" required>
+                        <label for="email" class="text-muted"><i class="bi bi-envelope me-2"></i> E-mail</label>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <select name="profession" class="form-select border-0 bg-light rounded-3" id="profession">
+                            <option selected disabled>Selecione seu perfil</option>
+                            <option value="Cidadão">Cidadão / Estudante</option>
+                            <option value="Trabalhador Autônomo">Trabalhador Autônomo</option>
+                            <option value="Comerciante Local">Comerciante Local</option>
+                            <option value="Servidor Público">Servidor Público</option>
+                        </select>
+                        <label for="profession" class="text-muted"><i class="bi bi-briefcase me-2"></i> Perfil / Atuação</label>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <textarea name="bio" class="form-control border-0 bg-light rounded-3" id="bio" placeholder="Sobre você" style="height: 100px">{{bio}}</textarea>
+                        <label for="bio" class="text-muted"><i class="bi bi-card-text me-2"></i> Bio (Opcional)</label>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="form-floating">
+                                <input type="password" name="password" class="form-control border-0 bg-light rounded-3" id="password" placeholder="Senha" required>
+                                <label for="password" class="text-muted"><i class="bi bi-lock me-2"></i> Senha</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="form-floating">
+                                <input type="password" name="password_2" class="form-control border-0 bg-light rounded-3" id="password_2" placeholder="Repetir Senha" required>
+                                <label for="password_2" class="text-muted"><i class="bi bi-shield-check me-2"></i> Confirmar</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-gradient w-100 py-3 text-white fw-bold rounded-3 shadow mt-3 mb-4">
+                        FINALIZAR CADASTRO
+                    </button>
+                </form>
+
+                <div class="position-relative mb-4">
+                    <hr class="text-muted opacity-25">
+                    <span class="position-absolute top-50 start-50 translate-middle bg-white px-3 text-muted small">OU</span>
+                </div>
+
+                <div class="text-center">
+                    <p class="mb-1 text-muted small">Já possui uma conta?</p>
+                    <a href="/users/login" class="text-decoration-none fw-bold" style="color: #13315c;">
+                        Acesse sua conta aqui <i class="bi bi-box-arrow-in-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="modal fade" id="modalCropRegister" data-bs-backdrop="static" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content border-0 rounded-4 shadow">
+      <div class="modal-header bg-light">
+        <h5 class="modal-title fw-bold">Ajustar sua Foto</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div class="row gy-3">
+            <div class="col-md-8">
+                <div class="img-container">
+                    <img id="imageToCropRegister" src="">
+                </div>
+            </div>
+            <div class="col-md-4 text-center">
+                <p class="small fw-bold text-muted text-uppercase">Visualização</p>
+                <div class="preview-register shadow-sm"></div>
+            </div>
+        </div>
+      </div>
+      <div class="modal-footer bg-light">
+        <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary px-4" id="cropBtnRegister" style="background: #13315c;">Confirmar Foto</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+<script>
+    var $modal = $('#modalCropRegister');
+    var image = document.getElementById('imageToCropRegister');
+    var cropper;
+
+    // Detectar seleção de imagem
+    $('#profileImageInput').on('change', function(e){
+        var files = e.target.files;
+        var done = function (url) {
+            image.src = url;
+            $modal.modal('show');
+        };
+
+        if (files && files.length > 0) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                done(reader.result);
+            };
+            reader.readAsDataURL(files[0]);
+        }
+    });
+
+    // Inicializar o Cropper
+    $modal.on('shown.bs.modal', function () {
+        cropper = new Cropper(image, {
+            aspectRatio: 1, // Mantém o círculo perfeito
+            viewMode: 2,    // Não deixa o corte sair para fora da imagem
+            dragMode: 'move', // Permite arrastar a imagem
+            autoCropArea: 0.8,
+            restore: false,
+            guides: true,
+            center: true,
+            highlight: false,
+            cropBoxMovable: true,
+            cropBoxResizable: true,
+            toggleDragModeOnDblclick: false,
+            preview: '.preview-register' // Conecta com a div de visualização
+    });
+    }).on('hidden.bs.modal', function () {
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+    });
+
+    // Ao clicar em Confirmar no Modal
+    $('#cropBtnRegister').on('click', function(){
+        var canvas = cropper.getCroppedCanvas({
+            width: 400,
+            height: 400,
+        });
+
+        canvas.toBlob(function(blob){
+            var reader = new FileReader();
+            reader.readAsDataURL(blob); 
+            reader.onloadend = function() {
+                var base64data = reader.result;
+                
+                // 1. Coloca o Base64 no input escondido
+                $('#croppedImage').val(base64data);
+                
+                // 2. Atualiza a prévia redonda no formulário de registro
+                $('#imagePreview').attr('src', base64data).show();
+                $('#cameraIcon').hide();
+                
+                // 3. Fecha o modal
+                $modal.modal('hide');
+            }
+        });
+    });
+</script>

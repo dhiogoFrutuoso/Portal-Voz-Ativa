@@ -1,0 +1,28 @@
+{{!-- Printa as mensagens de sucesso e erro --}}
+
+{{#if success_msg}}
+    <div class="container mt-3">
+        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm rounded-4" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i> {{success_msg}}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+{{/if}}
+
+{{#if error_msg}}
+    <div class="container mt-3">
+        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm rounded-4" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> {{error_msg}}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+{{/if}}
+
+{{#if error}}
+    <div class="container mt-3">
+        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm rounded-4" role="alert">
+            <i class="bi bi-shield-lock-fill me-2"></i> {{error}}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+{{/if}}

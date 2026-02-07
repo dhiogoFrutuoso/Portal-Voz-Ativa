@@ -1,0 +1,214 @@
+<section class="py-5 bg-light" style="min-height: 90vh;">
+    <div class="container px-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-xl-7">
+                
+                <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+                    <div class="card-header p-4 border-0 text-center" style="background-color: #198754;">
+                        <h3 class="text-white fw-bold mb-0">Anunciar na Vitrine</h3>
+                        <p class="text-white-50 mb-0 small text-uppercase tracking-wider">Divulgue seu trabalho para toda Cariús</p>
+                    </div>
+                    
+                    <div class="card-body p-4 p-md-5 bg-white">
+                        <form action="/categories/vitrine_do_trabalhador/criar-vitrine" method="POST" enctype="multipart/form-data" id="formVitrine">
+                            
+                            <div class="mb-4">
+                                <label class="form-label fw-bold text-secondary small text-uppercase">Título do Anúncio / Nome do Negócio</label>
+                                <input type="text" name="titulo" class="form-control custom-input" placeholder="Ex: João Pedreiro ou Confeitaria da Maria" required>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-bold text-secondary small text-uppercase">Categoria</label>
+                                <select id="categoriaSelect" name="categoria" class="form-select custom-input" required onchange="toggleOutros()">
+                                    <option value="" selected disabled>Selecione uma categoria</option>
+                                    <option value="Serviços Gerais">Serviços Gerais</option>
+                                    <option value="Alimentação">Alimentação</option>
+                                    <option value="Construção Civil">Construção Civil</option>
+                                    <option value="Educação/Aulas">Educação/Aulas</option>
+                                    <option value="Artesanato">Artesanato</option>
+                                    <option value="Outros">Outros (Especificar)</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-4 d-none" id="containerOutros">
+                                <label class="form-label fw-bold text-secondary small text-uppercase">Qual a sua categoria?</label>
+                                <input type="text" id="inputOutros" name="categoria_especificada" class="form-control custom-input" placeholder="Digite o ramo de atuação">
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-bold text-secondary small text-uppercase">Fotos do seu trabalho (Máx. 3)</label>
+                                <div class="upload-area rounded-4 p-4 text-center border-dashed position-relative bg-light" id="drop-zone">
+                                    <input type="file" id="imgInput" name="imagens" accept="image/*" class="d-none" multiple>
+                                    <div id="placeholder-upload" class="cursor-pointer" onclick="document.getElementById('imgInput').click()">
+                                        <i class="bi bi-camera-fill fs-2 text-success"></i>
+                                        <p class="mb-0 small fw-bold text-muted">Clique para adicionar fotos</p>
+                                    </div>
+                                    <div id="preview-grid" class="row g-2 mt-2 d-none"></div>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-bold text-secondary small text-uppercase">Descrição</label>
+                                <textarea name="descricao" class="form-control custom-input" rows="3" placeholder="Descreva seus serviços..." required></textarea>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <label class="form-label fw-bold text-secondary small text-uppercase">Principais Produtos</label>
+                                    <input type="text" name="produtos" class="form-control custom-input" placeholder="Ex: Bolos, Doces">
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <label class="form-label fw-bold text-secondary small text-uppercase">Principais Serviços</label>
+                                    <input type="text" name="servicos" class="form-control custom-input" placeholder="Ex: Entregas">
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-bold text-secondary small text-uppercase">WhatsApp para Contato</label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-0 bg-light text-success"><i class="bi bi-whatsapp"></i></span>
+                                    <input type="text" name="contato" class="form-control custom-input border-start-0" placeholder="Ex: 88999999999" required>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-bold text-secondary small text-uppercase">Sua Localização</label>
+                                <div id="map" class="rounded-4 mb-3 shadow-sm border" style="height: 250px; width: 100%;"></div>
+                                <div class="input-group">
+                                    <span class="input-group-text border-0 bg-light text-danger"><i class="bi bi-geo-alt-fill"></i></span>
+                                    <input type="text" id="addressInput" name="localizacao" class="form-control custom-input border-start-0" placeholder="Selecione no mapa" required>
+                                </div>
+                                <input type="hidden" id="latInput" name="latitude">
+                                <input type="hidden" id="lngInput" name="longitude">
+                            </div>
+
+                            <div class="d-grid gap-3">
+                                <button type="submit" class="btn btn-success btn-lg rounded-pill fw-bold shadow-sm py-3 transition-base">
+                                    PUBLICAR ANÚNCIO
+                                </button>
+                                <a href="/categories/vitrine_do_trabalhador/hub" class="btn btn-link text-decoration-none text-muted fw-bold">
+                                    CANCELAR E VOLTAR
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+    // 1. Lógica da Categoria
+    function toggleOutros() {
+        const select = document.getElementById('categoriaSelect');
+        const container = document.getElementById('containerOutros');
+        const input = document.getElementById('inputOutros');
+        
+        if (select.value === 'Outros') {
+            container.classList.remove('d-none');
+            input.setAttribute('required', 'required');
+        } else {
+            container.classList.add('d-none');
+            input.removeAttribute('required');
+            input.value = '';
+        }
+    }
+
+    // 2. Lógica de Upload de Imagens (Melhorada)
+    let selectedFiles = [];
+    const imgInput = document.getElementById('imgInput');
+    const previewGrid = document.getElementById('preview-grid');
+    const placeholder = document.getElementById('placeholder-upload');
+
+    imgInput.addEventListener('change', function(e) {
+        const files = Array.from(e.target.files);
+        
+        files.forEach(file => {
+            if (selectedFiles.length < 3) {
+                selectedFiles.push(file);
+            }
+        });
+        
+        renderPreview();
+        syncFiles();
+    });
+
+    function renderPreview() {
+        previewGrid.innerHTML = '';
+        if (selectedFiles.length > 0) {
+            previewGrid.classList.remove('d-none');
+            placeholder.classList.toggle('d-none', selectedFiles.length >= 3);
+            
+            selectedFiles.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const div = document.createElement('div');
+                    div.className = 'col-4 position-relative';
+                    div.innerHTML = `
+                        <div class="ratio ratio-1x1">
+                            <img src="${e.target.result}" class="img-fluid rounded-3 border shadow-sm object-fit-cover">
+                        </div>
+                        <button type="button" onclick="removeFile(${index})" class="btn btn-danger btn-sm position-absolute top-0 start-100 translate-middle rounded-circle p-0" style="width: 22px; height: 22px; z-index: 10;">
+                            <i class="bi bi-x"></i>
+                        </button>`;
+                    previewGrid.appendChild(div);
+                }
+                reader.readAsDataURL(file);
+            });
+        } else {
+            previewGrid.classList.add('d-none');
+            placeholder.classList.remove('d-none');
+        }
+    }
+
+    function removeFile(index) {
+        selectedFiles.splice(index, 1);
+        renderPreview();
+        syncFiles();
+    }
+
+    function syncFiles() {
+        const dataTransfer = new DataTransfer();
+        selectedFiles.forEach(file => dataTransfer.items.add(file));
+        imgInput.files = dataTransfer.files;
+    }
+
+    // 3. Lógica do Mapa
+    const latInicial = -6.5372;
+    const lngInicial = -39.4958;
+    const map = L.map('map').setView([latInicial, lngInicial], 15);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    let marker = L.marker([latInicial, lngInicial], { draggable: true }).addTo(map);
+
+    function updateFields(lat, lng) {
+        document.getElementById('latInput').value = lat.toFixed(6);
+        document.getElementById('lngInput').value = lng.toFixed(6);
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`)
+            .then(res => res.json())
+            .then(data => { 
+                if (data.display_name) document.getElementById('addressInput').value = data.display_name; 
+            });
+    }
+
+    map.on('click', e => { 
+        marker.setLatLng(e.latlng); 
+        updateFields(e.latlng.lat, e.latlng.lng); 
+    });
+    
+    marker.on('dragend', e => { 
+        const pos = marker.getLatLng(); 
+        updateFields(pos.lat, pos.lng); 
+    });
+</script>
+
+<style>
+    .object-fit-cover { object-fit: cover; }
+    .custom-input { background-color: #f8f9fa !important; border: 1px solid #dee2e6 !important; border-radius: 12px !important; padding: 12px 15px; }
+    .custom-input:focus { border-color: #198754 !important; box-shadow: none !important; background-color: #fff !important; }
+    .border-dashed { border: 2px dashed #cbd5e0; transition: 0.3s; }
+    .cursor-pointer { cursor: pointer; }
+</style>

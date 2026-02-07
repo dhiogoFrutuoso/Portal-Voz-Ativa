@@ -1,0 +1,194 @@
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&family=Nunito:wght@400;700&display=swap');
+
+    :root {
+        --primary-red: #d90429;
+        --dark-red: #800f2f;
+        --soft-red: #fff5f5;
+        --accent-red: #ef233c;
+        --text-dark: #2b2d42;
+        --text-muted: #8d99ae;
+        --white: #ffffff;
+        --transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+
+    .btn-light-effect { 
+        position: relative; 
+        overflow: hidden; 
+        z-index: 1; 
+        transition: all 0.3s ease; 
+    }
+
+    .btn-light-effect span { 
+        position: relative; 
+        z-index: 2; 
+    }
+
+    .btn-light-effect::before {
+        content: ""; 
+        position: absolute; 
+        top: 0; 
+        left: -300%; /* Começa bem fora da tela */
+        width: 300%; 
+        height: 300%;
+        /* O segredo: as paradas de cor (0%, 45%, 50%, 55%, 100%) criam uma linha fina */
+        background: linear-gradient(
+            120deg, 
+            transparent 40%, 
+            rgba(255, 255, 255, 0.315) 50%, 
+            transparent 60%
+        );
+        transition: all 3s cubic-bezier(0.19, 1, 0.22, 1); /* Transição mais elegante */
+        z-index: 1;
+    }
+
+    .btn-light-effect:hover::before { 
+        left: 150%; /* Atravessa a tela inteira */
+    }
+
+    body { font-family: 'Nunito', sans-serif; color: var(--text-dark); background-color: #fdfdfd; }
+    h1, h2, h3, h4, .poppins { font-family: 'Poppins', sans-serif; }
+
+    /* Otimização de utilitários */
+    .rounded-huge { border-radius: 3rem !important; }
+    .btn-round { border-radius: 50px; padding: 12px 35px; font-weight: 700; transition: var(--transition); border: none; }
+    
+    /* Hero Section Renovada */
+    .hero-gradient {
+        background: radial-gradient(circle at top right, #fff5f5, var(--white));
+        padding: 100px 0;
+        border-radius: 0 0 80px 80px;
+        border-bottom: 6px solid var(--primary-red);
+    }
+    /* Cards Flutuantes Otimizados */
+    .floating-card {
+        transition: var(--transition);
+        border: 1px solid rgba(0,0,0,0.05) !important;
+        background: var(--white);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+    .floating-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(217, 4, 41, 0.15) !important;
+    }
+
+    /* Seção de Citação (Tema Vermelho) */
+    .quote-section {
+        position: relative;
+        padding: 120px 0;
+        background: linear-gradient(135deg, var(--dark-red), var(--primary-red));
+        border-radius: 60px;
+        margin: 60px 20px;
+        overflow: hidden;
+        border: none;
+    }
+
+    .quote-section::after {
+        content: "";
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
+        opacity: 0.1;
+    }
+
+    .divider-glow {
+        height: 3px;
+        width: 80px;
+        background: linear-gradient(90deg, transparent, #fff, transparent);
+        margin: 30px auto;
+    }
+
+    .badge-reflexao {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        padding: 8px 20px;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+    }
+
+    .divider-custom {
+        height: 5px;
+        width: 70px;
+        background: var(--primary-red);
+        border-radius: 10px;
+        margin: 20px auto;
+    }
+</style>
+
+<header class="hero-gradient mb-5">
+    <div class="container px-5">
+        <div class="row gx-5 align-items-center">
+            <div class="col-lg-7 text-center text-lg-start">
+                <div class="badge bg-white text-danger px-4 py-2 rounded-pill mb-3 shadow-sm border border-danger">
+                    ⚠️ Módulo de Administração 2026
+                </div>
+                <h2 class="display-5 fw-bolder text-dark mb-2">O Poder Exige <span class="text-danger">Ética.</span></h2>
+                <p class="lead text-muted mb-5 fs-4">
+                    Este ambiente contém dados sensíveis. Sua conduta aqui define a integridade do <strong>Voz Ativa</strong>.
+                </p>
+                <div class="d-grid gap-3 d-sm-flex justify-content-lg-start">
+                    <a class="btn btn-danger btn-round shadow-lg btn-lg btn-light-effect" href="#recursos">Ver Protocolos de Dados</a>
+                    <a class="btn btn-outline-dark btn-round btn-lg" href="/admin/painel">Acessar Painel</a>
+                </div>
+            </div>
+            <div class="col-lg-5 d-none d-lg-block">
+                <img src="/img/pessoas-socialiazando.png" class="img-fluid" alt="Cidadãos" style="filter: drop-shadow(0 20px 30px rgba(0,0,0,0.1));">
+            </div>
+        </div>
+    </div>
+</header>
+
+<section class="py-5" id="recursos">
+    <div class="container px-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="text-center mb-5">
+                    <h2 class="fw-bolder text-dark">O Compromisso Ético da Gestão</h2>
+                    <div class="divider-custom"></div>
+                </div>
+                <div class="row gx-5 fs-5">
+                    <div class="col-md-6 mb-4">
+                        <p class="text-justify">Atuar como <strong>administrador</strong> exige vigilância ética. Inspirados em <strong>Aristóteles</strong>, o poder deve servir ao bem comum. Cada denúncia moderada é um ato de preservação da justiça em Cariús.</p>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <p class="text-justify">Baseados em <strong>Paulo Freire</strong>, acreditamos na dialogicidade. O acesso aos dados não é privilégio, mas uma ferramenta de emancipação e proteção do cidadão.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section>
+    <h3 class="fw-bolder text-dark text-center">Denúncias e Inteligência Governamental</h3>
+    <div class="divider-custom"></div>
+    <br>
+    <p class="fs-5 text-center mx-auto" style="max-width: 800px;">
+        Crimes de alta exposição são mantidos sob <strong>sigilo administrativo absoluto</strong>. 
+        Isso protege a identidade do denunciante e evita o julgamento público precipitado, garantindo o devido processo legal e a segurança dos envolvidos.
+    </p>
+</section>
+
+<section class="quote-section btn btn-light-effect floating-section">
+    <div class="container quote-content text-center text-white">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="d-flex justify-content-center mb-4">
+                    <span class="badge-reflexao text-uppercase" style="letter-spacing: 2px;">Ação e Pensamento</span>
+                </div>
+                
+                <h2 class="display-6 fw-bolder mb-2" style="line-height: 3.5rem;">
+                    A autoridade do administrador não reside no poder de ver, mas no dever de zelar. Cada dado acessado e cada decisão tomada ecoam na integridade do Voz Ativa. Lembre-se: o acesso à privacidade do próximo é uma concessão de confiança absoluta, e a justiça é a única bússola permitida em território administrativo.
+                </h2>
+                
+                <div class="divider-glow"></div>
+                
+                <p class="mb-0 fw-bold opacity-75 small" style="letter-spacing: 1px;">
+                    REFLEXÃO VOZ ATIVA • CARIÚS 2026
+                </p>
+            </div>
+        </div>
+    </div>
+</section>

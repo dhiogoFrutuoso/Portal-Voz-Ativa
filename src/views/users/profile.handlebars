@@ -1,0 +1,215 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+
+<style>
+    /* Estilos originais mantidos */
+    .form-control-modern, .form-select-modern { border: 1px solid #e0e6ed; border-radius: 10px; padding: 12px 15px; transition: all 0.3s ease; background-color: #f8f9fa; }
+    .form-control-modern:focus, .form-select-modern:focus { border-color: #13315c; box-shadow: 0 0 0 0.25rem rgba(19, 49, 92, 0.1); background-color: #fff; outline: none; }
+    .btn-update { background: #13315c; color: white; font-weight: bold; border-radius: 10px; padding: 12px; border: none; transition: 0.3s; }
+    .btn-update:hover { background: #1e4d8c; transform: translateY(-2px); }
+    .nav-pills .nav-link.active { background-color: #eef4ff !important; color: #13315c !important; border-left: 5px solid #f9ca24 !important; }
+
+    /* Estilos para o Cropper */
+    /* Container da imagem principal no modal */
+    .img-container {
+        width: 100%;
+        max-height: 400px;
+        background-color: #f7f7f7;
+        overflow: hidden;
+        display: block;
+    }
+
+    /* A DIV da prévia (o círculo ao lado) */
+    .preview-register, .preview-profile { 
+        width: 150px !important; 
+        height: 150px !important;
+        border-radius: 50%;
+        border: 2px solid #13315c;
+        overflow: hidden; /* Essencial para o crop circular */
+        margin: 0 auto;
+        background-color: #eee;
+    }
+</style>
+
+<section class="pb-5" style="background: #f4f7f9; min-height: 100vh;">
+    
+    <form id="mainForm" action="/users/profile/edit" method="POST">
+        <input type="hidden" name="croppedImage" id="croppedImage">
+
+        <div class="position-relative" style="height: 250px; background: linear-gradient(45deg, #13315c, #0d6efd);">
+            <div class="container position-relative h-100">
+                <div class="position-absolute bottom-0 start-0 translate-middle-y ms-4 d-flex align-items-end" style="margin-bottom: -60px; z-index: 2;">
+                    <div class="position-relative">
+                        <div id="profilePreview" class="rounded-circle border border-4 border-white shadow-lg" 
+                             style="width: 140px; height: 140px; background: #fff; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                            {{#if user.profileImage}}
+                                <img src="{{user.profileImage}}" id="currentAvatar" style="width: 100%; height: 100%; object-fit: cover;">
+                            {{/if}}
+                        </div>
+                        <label for="fileInput" class="btn btn-warning btn-sm position-absolute bottom-0 end-0 rounded-circle shadow-sm" style="cursor: pointer;">
+                            <i class="bi bi-camera-fill"></i>
+                            <input type="file" id="fileInput" accept="image/*" style="display:none">
+                        </label>
+                    </div>
+                    <div class="ms-3 mb-4 text-white d-none d-md-block">
+                        <h3 class="fw-bold mb-0 shadow-sm">{{user.name}}</h3>
+                        <p class="small opacity-90 text-uppercase"><i class="bi bi-briefcase-fill me-1"></i>{{user.profession}}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container mt-5 pt-4">
+            <div class="row g-4">
+                <div class="col-lg-4 mt-5 mt-lg-4">
+                    <div class="card shadow-sm p-3 mb-4 bg-white rounded-4 border-0">
+                        <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist">
+                            <button type="button" class="nav-link active text-start py-3" data-bs-toggle="pill" data-bs-target="#tab-dados">
+                                <i class="bi bi-person-vcard me-2"></i> Meus Dados
+                            </button>
+                            <button type="button" class="nav-link text-start py-3" data-bs-toggle="pill" data-bs-target="#tab-seguranca">
+                                <i class="bi bi-lock me-2"></i> Segurança e Senha
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-8">
+
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="tab-dados" role="tabpanel">
+                            <div class="card p-4 shadow-sm bg-white rounded-4 border-0">
+                                <h4 class="fw-bold mb-4 text-dark"><i class="bi bi-pencil-square me-2"></i>Editar Informações</h4>
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold small text-muted">NOME COMPLETO</label>
+                                    <input type="text" name="name" class="form-control form-control-modern" value="{{user.name}}" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold small text-muted">BIO / DESCRIÇÃO</label>
+                                    <textarea name="bio" class="form-control form-control-modern" rows="3">{{user.bio}}</textarea>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold small text-muted">PROFISSÃO / PERFIL</label>
+                                    <select name="profession" class="form-select form-select-modern w-100">
+                                        <option value="{{user.profession}}" selected>{{user.profession}} (Atual)</option>
+                                        <option value="Cidadão">Cidadão</option>
+                                        <option value="Estudante">Estudante</option>
+                                        <option value="Servidor Público">Servidor Público</option>
+                                        <option value="Comerciante">Comerciante</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-update w-100 shadow-sm">SALVAR ALTERAÇÕES</button>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="tab-seguranca" role="tabpanel">
+                            <div class="card p-4 shadow-sm bg-white rounded-4 border-0">
+                                <h4 class="fw-bold mb-4 text-dark"><i class="bi bi-shield-lock me-2"></i>Alterar Senha</h4>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold small text-muted">SENHA ATUAL</label>
+                                    <input type="password" name="oldPassword" class="form-control form-control-modern" placeholder="••••••••">
+                                </div>
+                                <hr class="my-4 opacity-25">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold small text-muted">NOVA SENHA</label>
+                                    <input type="password" name="newPassword" class="form-control form-control-modern" placeholder="Mínimo 4 caracteres">
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold small text-muted">CONFIRMAR NOVA SENHA</label>
+                                    <input type="password" name="newPassword2" class="form-control form-control-modern" placeholder="Repita a nova senha">
+                                </div>
+                                
+                                <button type="submit" formaction="/users/profile/change-password" class="btn btn-primary w-100 py-3 fw-bold rounded-3">ATUALIZAR SENHA</button>
+                            </div>
+                        </div>
+                    </div> 
+                </div>
+            </div>
+        </div>
+    </form>
+</section>
+
+<div class="modal fade" id="modalCrop" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalLabel">Ajustar Foto de Perfil</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="img-container">
+            <div class="row">
+                <div class="col-md-8">
+                    <img id="imageToCrop" src="">
+                </div>
+                <div class="col-md-4 text-center">
+                    <p class="small fw-bold">VISUALIZAÇÃO</p>
+                    <div class="preview-profile shadow-sm"></div> 
+                </div>
+            </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="cropBtn">Cortar e Salvar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+<script>
+    var $modal = $('#modalCrop');
+    var image = document.getElementById('imageToCrop');
+    var cropper;
+
+    $('#fileInput').on('change', function(e){
+        var files = e.target.files;
+        var done = function (url) {
+            image.src = url;
+            $modal.modal('show');
+        };
+        if (files && files.length > 0) {
+            var reader = new FileReader();
+            reader.onload = function (e) { done(reader.result); };
+            reader.readAsDataURL(files[0]);
+        }
+    });
+
+    $modal.on('shown.bs.modal', function () {
+        cropper = new Cropper(image, {
+            aspectRatio: 1, // Mantém o círculo perfeito
+            viewMode: 2,    // Não deixa o corte sair para fora da imagem
+            dragMode: 'move', // Permite arrastar a imagem
+            autoCropArea: 0.8,
+            restore: false,
+            guides: true,
+            center: true,
+            highlight: false,
+            cropBoxMovable: true,
+            cropBoxResizable: true,
+            toggleDragModeOnDblclick: false,
+            preview: '.preview-profile' // Conecta com a div de visualização
+        });
+    }).on('hidden.bs.modal', function () {
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+    });
+
+    $('#cropBtn').on('click', function(){
+        canvas = cropper.getCroppedCanvas({ width: 400, height: 400 });
+        canvas.toBlob(function(blob){
+            var reader = new FileReader();
+            reader.readAsDataURL(blob); 
+            reader.onloadend = function() {
+                var base64data = reader.result;
+                $('#croppedImage').val(base64data);
+                $('#mainForm').submit();
+            }
+        });
+    });
+</script>

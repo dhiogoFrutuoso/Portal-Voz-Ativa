@@ -1,0 +1,242 @@
+<style>
+    /* Estilo detalhado para o cabeçalho superior */
+    .hero-categories {
+        background: linear-gradient(135deg, #ffffff 0%, #f0f4f8 100%);
+        padding: 80px 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Elementos decorativos de fundo para parecer tecnologia gov */
+    .hero-categories::before {
+        content: "";
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        width: 300px;
+        height: 300px;
+        background: rgba(19, 49, 92, 0.03);
+        border-radius: 50%;
+    }
+
+    .header-badge {
+        font-size: 0.8rem;
+        letter-spacing: 2px;
+        font-weight: 700;
+        color: #13315c;
+        border: 1px solid rgba(19, 49, 92, 0.2);
+        padding: 8px 20px;
+        border-radius: 50px;
+        display: inline-block;
+    }
+
+    .header-title {
+        color: #13315c;
+        font-weight: 800;
+        letter-spacing: -1px;
+        line-height: 1.2;
+    }
+
+    .header-placeholder {
+        background: #ffffff;
+        border: 2px dashed #dee2e6;
+        border-radius: 2rem;
+        height: 250px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+    }
+
+    .header-placeholder:hover {
+        border-color: #13315c;
+        background: #f8f9fa;
+    }
+</style>
+
+<div class="hero-categories border-bottom">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-7 text-center text-lg-start">
+                <div class="header-badge mb-3 text-uppercase">
+                    Ecossistema Digital Profissional
+                </div>
+                <h1 class="display-5 fw-bolder text-dark mb-2">
+                    Categorias de Impacto
+                </h1>
+                <p class="lead text-muted fs-4 mb-4" style="max-width: 600px;">
+                    Explore as funcionalidades do <strong>Voz Ativa</strong>, onde a inovação tecnológica encontra a cidadania para transformar Cariús.
+                </p>
+                
+                <div class="d-flex justify-content-center justify-content-lg-start gap-4 mb-2 text-secondary small fw-bold">
+                    <span><i class="bi bi-check-circle-fill text-primary me-2"></i>ALTA PERFORMANCE</span>
+                    <span><i class="bi bi-shield-lock-fill text-primary me-2"></i>100% SEGURO</span>
+                </div>
+            </div>
+
+            <div class="col-lg-5 mt-5 mt-lg-0">
+                <div class="img-fluid">
+                    <img src="/img/pessoas-juntas.png" 
+                        alt="Cidadãos de Cariús colaborando" 
+                        class="img-fluid">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --gov-blue: #13315c;
+    }
+
+    /* Fundo da página para destacar os cards flutuantes */
+    .categories-wrapper {
+        background-color: #f4f7f9;
+        padding: 40px 0;
+    }
+
+    .floating-card {
+        min-height: 500px; /* Reduzi a altura para não ocupar a tela toda */
+        border-radius: 2.5rem; /* Bordas bem arredondadas */
+        margin-bottom: 60px; /* Espaço para não se encostarem */
+        transition: transform 0.4s ease, box-shadow 0.4s ease;
+        border: none;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1); /* Efeito flutuante */
+    }
+
+    .floating-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 30px 60px rgba(0,0,0,0.15);
+    }
+
+    /* Gradientes refinados */
+    .bg-melhorias { background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); }
+    .bg-seguranca { background: linear-gradient(135deg, #7f1d1d 0%, #ef4444 100%); }
+    .bg-vitrine { background: linear-gradient(135deg, #064e3b 0%, #10b981 100%); }
+
+    .glass-box {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 2rem;
+        width: 100%;
+        height: 300px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-info-glass {
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        color: white;
+        backdrop-filter: blur(4px);
+    }
+
+    .btn-info-glass:hover {
+        background: white;
+        color: var(--gov-blue);
+    }
+</style>
+
+<div class="categories-wrapper">
+    <div class="container">
+        
+        <div class="floating-card bg-melhorias text-white p-5">
+            <div class="row w-100 align-items-center">
+                <div class="col-lg-7">
+                    <span class="badge bg-white text-primary mb-3 px-3 py-2 rounded-pill fw-bold">CIDADANIA</span>
+                    <h2 class="display-4 fw-bold mb-3">Gestão de Melhorias</h2>
+                    <p class="fs-5 opacity-90 mb-4">Envie feedbacks e sugestões para a gestão municipal com o auxílio de geolocalização precisa.</p>
+                    <div class="d-flex gap-3">
+                        <a href="/categories/gestao_de_melhorias/saiba-mais" class="btn btn-info-glass btn-lg px-4 rounded-pill fw-bold">Saiba Mais</a>
+                        <a href="/categories/gestao_de_melhorias/hub" class="btn btn-light btn-lg px-4 rounded-pill fw-bold text-primary">Acessar</a>
+                    </div>
+                </div>
+                <div class="col-lg-5">
+                    <div class="glass-box mt-4 mt-lg-0" style="overflow: hidden; position: relative;">
+                        
+                        <img src="/img/pessoas-unidas.png" 
+                            alt="Comunidade Unida" 
+                            class="img-fluid" 
+                            style="
+                                width: 100%; 
+                                height: 100%; 
+                                object-fit: cover; 
+                                transform: scale(1.2); /* Aqui você controla o nível de zoom (1.2 = 20% de aumento) */
+                                transform-origin: center;
+                                transition: transform 0.5s ease;
+                            ">
+                            
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="floating-card bg-seguranca text-white p-5">
+            <div class="row w-100 align-items-center flex-lg-row-reverse">
+                <div class="col-lg-7 ps-lg-5">
+                    <span class="badge bg-white text-danger mb-3 px-3 py-2 rounded-pill fw-bold">SEGURANÇA</span>
+                    <h2 class="display-4 fw-bold mb-3">Denúncias Sigilosas</h2>
+                    <p class="fs-5 opacity-90 mb-4">Canal 100% seguro para denúncias de crimes e queimadas com criptografia de ponta a ponta.</p>
+                    <div class="d-flex gap-3">
+                        <a href="/categories/denuncias_sigilosas/saiba-mais" class="btn btn-info-glass btn-lg px-4 rounded-pill fw-bold">Saiba Mais</a>
+                        <a href="/categories/denuncias_sigilosas/hub" class="btn btn-light btn-lg px-4 rounded-pill fw-bold text-danger">Registrar</a>
+                    </div>
+                </div>
+                    <div class="col-lg-5">
+                        <div class="glass-box mt-4 mt-lg-0" style="overflow: hidden; position: relative; display: flex; align-items: center; justify-content: center;">
+                            
+                            <img src="/img/pessoas-pensativas.png" 
+                                alt="Cidadãos analisando informações" 
+                                class="img-fluid" 
+                                style="
+                                    width: 100%; 
+                                    height: 100%; 
+                                    object-fit: cover; 
+                                    transform: scale(1.5); /* Ajuste o zoom aqui (1.5 é um zoom considerável) */
+                                    transform-origin: center;
+                                ">
+                                
+                        </div>
+                    </div>
+            </div>
+        </div>
+
+        <div class="floating-card bg-vitrine text-white p-5">
+            <div class="row w-100 align-items-center">
+                <div class="col-lg-7">
+                    <span class="badge bg-white text-success mb-3 px-3 py-2 rounded-pill fw-bold">ECONOMIA</span>
+                    <h2 class="display-4 fw-bold mb-3">Vitrine do Trabalhador</h2>
+                    <p class="fs-5 opacity-90 mb-4">Espaço profissional para divulgação de mão de obra e fomento das vendas locais sem custos.</p>
+                    <div class="d-flex gap-3">
+                        <a href="/categories/vitrine_do_trabalhador/saiba-mais" class="btn btn-info-glass btn-lg px-4 rounded-pill fw-bold">Saiba Mais</a>
+                        <a href="/categories/vitrine_do_trabalhador/hub" class="btn btn-light btn-lg px-4 rounded-pill fw-bold text-success">Ver Vitrine</a>
+                    </div>
+                </div>
+                <div class="col-lg-5">
+                    <div class="glass-box mt-4 mt-lg-0" style="overflow: hidden; position: relative; display: flex; align-items: center; justify-content: center;">
+                        
+                        <img src="/img/pessoas-trabalhando.png" 
+                            alt="Cidadãos analisando informações" 
+                            class="img-fluid" 
+                            style="
+                                width: 100%; 
+                                height: 100%; 
+                                object-fit: cover; 
+                                transform: scale(1.5); /* Ajuste o zoom aqui (1.5 é um zoom considerável) */
+                                transform-origin: center;
+                            ">
+                            
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

@@ -1,0 +1,156 @@
+<section class="py-5 bg-light" style="min-height: 100vh;">
+    <div class="container">
+        <div class="mb-4">
+            <a href="javascript:history.back()" class="btn btn-white btn-sm rounded-pill shadow-sm px-3 fw-bold text-muted">
+                <i class="bi bi-arrow-left me-1"></i> VOLTAR
+            </a>
+            {{#if eDonoDoPerfil}}
+                <a href="/users/profile" class="btn btn-sm btn-primary rounded-pill px-3 fw-bold">
+                    EDITAR <i class="bi bi-pencil-square me-1"></i> 
+                </a>
+            {{/if}}
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                    <div style="height: 100px; background: linear-gradient(135deg, #13315c 0%, #0056b3 100%);"></div>
+                    
+                    <div class="card-body pt-0 text-center">
+                        <div class="position-relative" style="margin-top: -50px;">
+                            <img src="{{perfil.profileImage}}" 
+                                 alt="{{perfil.name}}" 
+                                 class="rounded-circle shadow border border-4 border-white" 
+                                 style="width: 120px; height: 120px; object-fit: cover; background-color: white;">
+                        </div>
+
+                        <h4 class="fw-bold text-dark mt-3 mb-1">{{perfil.name}}</h4>
+                        <p class="text-muted small mb-3">
+                            <i class="bi bi-calendar-event me-1"></i> No portal desde {{formatDate perfil.createdAt}}
+                        </p>
+                        
+                        <div class="d-flex justify-content-center gap-2 mb-4">
+                            <span class="badge bg-success-soft text-success px-3 py-2 rounded-pill">
+                                <i class="bi bi-patch-check-fill me-1"></i> Cidadão Ativo
+                            </span>
+                        </div>
+
+                        <div class="bg-light rounded-4 p-3 mb-4 position-relative">
+                            <i class="bi bi-quote fs-1 text-primary-soft position-absolute top-0 start-0 opacity-25" style="margin-top: -10px;"></i>
+                            <p class="text-secondary small mb-0 font-italic" style="position: relative; z-index: 1;">
+                                {{#if perfil.bio}}
+                                    "{{perfil.bio}}"
+                                {{else}}
+                                    "Cidadão interessado em contribuir para uma Cariús cada vez melhor para todos."
+                                {{/if}}
+                            </p>
+                        </div>
+
+                        <div class="row g-0 border-top pt-3">
+                            <div class="col-6 border-end">
+                                <h5 class="fw-bold mb-0 text-primary">{{chamados.length}}</h5>
+                                <small class="text-muted text-uppercase fw-bold" style="font-size: 0.6rem;">Sugestões</small>
+                            </div>
+                            <div class="col-6">
+                                <h5 class="fw-bold mb-0 text-primary">{{totalLikes}}</h5>
+                                <small class="text-muted text-uppercase fw-bold" style="font-size: 0.6rem;">Apoios</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm rounded-4 p-3 mt-4 bg-white">
+                    <h6 class="fw-bold text-dark small mb-3 text-uppercase">Informações Adicionais</h6>
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-geo-alt text-danger me-2"></i>
+                        <span class="small text-secondary">Residente em Cariús - CE</span>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-envelope text-primary me-2"></i>
+                        <span class="small text-secondary">{{perfil.email}}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-8">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <h5 class="fw-bold mb-0 text-dark">Histórico de Contribuições</h5>
+                    <span class="badge bg-white text-muted shadow-sm border px-3 py-2 rounded-pill">
+                        {{chamados.length}} registros encontrados
+                    </span>
+                </div>
+                
+                {{#each vitrinesEChamados}}
+                    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-3 transition-base hover-shadow">
+                        <div class="row g-0">
+                            {{#if this.imagem.[0]}}
+                            <div class="col-md-3">
+                                <img src="/img_chamados/{{this.imagem.[0]}}" class="img-fluid h-100 object-fit-cover" style="min-height: 140px;">
+                            </div>
+                            {{/if}}
+                            <div class="col-md-{{#if this.imagem.[0]}}9{{else}}12{{/if}}">
+                                <div class="card-body p-4">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h5 class="fw-bold mb-0 h6">{{this.titulo}}</h5>
+                                        <span class="badge {{#if (eq this.status 'Concluído')}}bg-success{{else}}bg-primary-soft text-primary{{/if}} rounded-pill" style="font-size: 0.7rem;">
+                                            {{this.status}}
+                                        </span>
+                                    </div>
+                                    <p class="text-muted small text-truncate-2 mb-3">{{this.descricao}}</p>
+                                    <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                                        <div class="d-flex align-items-center">
+                                            <i class="bi bi-geo-alt text-danger me-1"></i>
+                                            <small class="text-muted fw-semibold" style="font-size: 0.75rem;">{{this.localizacao}}</small>
+                                        </div>
+                                        <a href="/categories/gestao_de_melhorias/detalhes/{{this._id}}" class="btn btn-sm btn-primary rounded-pill px-3 fw-bold" style="font-size: 0.75rem;">
+                                            VER DETALHES
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {{else}}
+                    <div class="text-center py-5 bg-white rounded-4 shadow-sm">
+                        <i class="bi bi-chat-left-dots display-4 text-muted opacity-25"></i>
+                        <p class="text-muted mt-3">Nenhuma contribuição pública registrada até o momento.</p>
+                    </div>
+                {{/each}}
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .bg-primary-soft { background-color: rgba(19, 49, 92, 0.08); }
+    .bg-success-soft { background-color: rgba(25, 135, 84, 0.1); }
+    .text-primary { color: #13315c !important; }
+    .text-primary-soft { color: #13315c; opacity: 0.2; }
+    .object-fit-cover { object-fit: cover; }
+    .font-italic { font-style: italic; }
+    
+    .text-truncate-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .hover-shadow:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 25px rgba(0,0,0,0.08) !important;
+    }
+
+    .btn-white {
+        background: white;
+        border: none;
+    }
+
+    .transition-base { 
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); 
+    }
+
+    .card {
+        border: none !important;
+    }
+</style>
