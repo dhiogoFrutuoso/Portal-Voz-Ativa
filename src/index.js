@@ -88,6 +88,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Mongoose
+mongoose.set('strictQuery', true)
 mongoose.Promise = global.Promise;
 mongoose.connect(db.mongoURI)
     .then(() => {
