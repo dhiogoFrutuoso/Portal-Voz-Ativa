@@ -108,7 +108,7 @@ app.use('/users', users);
 app.use('/project', project);
 
 // --- INICIALIZAÇÃO ---
-const PORT = process.env.PORT || 8081;
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
     console.log(`Servidor rodando em http://localhost:${PORT}`);
     console.log(`Portal Voz Ativa - Cariús 2026`);
