@@ -1,55 +1,43 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 
 <style>
-    /* Estilos originais mantidos */
     .form-control-modern, .form-select-modern { border: 1px solid #e0e6ed; border-radius: 10px; padding: 12px 15px; transition: all 0.3s ease; background-color: #f8f9fa; }
     .form-control-modern:focus, .form-select-modern:focus { border-color: #13315c; box-shadow: 0 0 0 0.25rem rgba(19, 49, 92, 0.1); background-color: #fff; outline: none; }
     .btn-update { background: #13315c; color: white; font-weight: bold; border-radius: 10px; padding: 12px; border: none; transition: 0.3s; }
     .btn-update:hover { background: #1e4d8c; transform: translateY(-2px); }
     .nav-pills .nav-link.active { background-color: #eef4ff !important; color: #13315c !important; border-left: 5px solid #f9ca24 !important; }
 
-    /* Garante que a imagem caiba dentro do modal para você conseguir cortar */
-    img {
-        display: block;
-        max-width: 100%;
-    }
-
-    /* Muda o cursor quando você passa o mouse sobre a imagem no Cropper */
-    .cropper-face, .cropper-move {
-        cursor: grab !important;
-    }
-
-    .cropper-face:active, .cropper-move:active {
-        cursor: grabbing !important;
-    }
-
-    /* Isso impede que a imagem fique gigante ou saia do modal */
+    /* Ajustes Cropper */
     .img-container {
-        min-height: 400px; /* Garante um tamanho mínimo */
-        max-height: 500px; /* Garante que não suma da tela */
+        min-height: 400px;
+        max-height: 500px;
         width: 100%;
-        background-color: #333; /* Fundo escuro ajuda a ver as bordas da imagem */
+        background-color: #333;
         overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
-    #imageToCrop {
-        display: block;
-        max-width: 100%; /* Essencial para o Cropper não bugar */
-    }
+    #imageToCrop { max-width: 100%; display: block; }
 
-    /* Garante que a visualização lateral seja circular */
+    /* Preview Circular Lateral */
     .preview-profile {
         width: 160px;
         height: 160px;
-        border-radius: 50%;
+        border-radius: 50%; /* Garante o círculo */
         overflow: hidden;
-        margin: 0 auto;
+        margin: 10px auto;
         border: 2px solid #ddd;
+        background-color: #f0f0f0;
     }
+
+    .cropper-face, .cropper-move { cursor: grab !important; }
+    .cropper-face:active, .cropper-move:active { cursor: grabbing !important; }
 </style>
 
 <section class="pb-5" style="background: #f4f7f9; min-height: 100vh;">
-    
     <form id="mainForm" action="/users/profile/edit" method="POST">
         <input type="hidden" name="croppedImage" id="croppedImage">
 
@@ -59,9 +47,7 @@
                     <div class="position-relative">
                         <div id="profilePreview" class="rounded-circle border border-4 border-white shadow-lg" 
                              style="width: 140px; height: 140px; background: #fff; overflow: hidden; display: flex; align-items: center; justify-content: center;">
-                            {{#if user.profileImage}}
-                                <img src="{{user.profileImage}}" id="currentAvatar" style="width: 100%; height: 100%; object-fit: cover;">
-                            {{/if}}
+                            <img src="{{user.profileImage}}" id="currentAvatar" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://via.placeholder.com/140'">
                         </div>
                         <label for="fileInput" class="btn btn-warning btn-sm position-absolute bottom-0 end-0 rounded-circle shadow-sm" style="cursor: pointer;">
                             <i class="bi bi-camera-fill"></i>
@@ -92,7 +78,6 @@
                 </div>
 
                 <div class="col-lg-8">
-
                     <div class="tab-content">
                         <div class="tab-pane fade show active" id="tab-dados" role="tabpanel">
                             <div class="card p-4 shadow-sm bg-white rounded-4 border-0">
@@ -122,7 +107,6 @@
                         <div class="tab-pane fade" id="tab-seguranca" role="tabpanel">
                             <div class="card p-4 shadow-sm bg-white rounded-4 border-0">
                                 <h4 class="fw-bold mb-4 text-dark"><i class="bi bi-shield-lock me-2"></i>Alterar Senha</h4>
-                                
                                 <div class="mb-3">
                                     <label class="form-label fw-bold small text-muted">SENHA ATUAL</label>
                                     <input type="password" name="oldPassword" class="form-control form-control-modern" placeholder="••••••••">
@@ -136,7 +120,6 @@
                                     <label class="form-label fw-bold small text-muted">CONFIRMAR NOVA SENHA</label>
                                     <input type="password" name="newPassword2" class="form-control form-control-modern" placeholder="Repita a nova senha">
                                 </div>
-                                
                                 <button type="submit" formaction="/users/profile/change-password" class="btn btn-primary w-100 py-3 fw-bold rounded-3">ATUALIZAR SENHA</button>
                             </div>
                         </div>
@@ -147,27 +130,27 @@
     </form>
 </section>
 
-<div class="modal fade" id="modalCrop" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg" role="document">
+<div class="modal fade" id="modalCrop" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="modalLabel">Ajustar Foto de Perfil</h5>
+        <h5 class="modal-title">Ajustar Foto de Perfil</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <div class="mt-2 text-center">
-            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="cropper.zoom(0.1)"><i class="bi bi-zoom-in"></i> +</button>
-            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="cropper.zoom(-0.1)"><i class="bi bi-zoom-out"></i> -</button>
+        <div class="mb-3 text-center">
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="zoomIn"><i class="bi bi-zoom-in"></i> Zoom +</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="zoomOut"><i class="bi bi-zoom-out"></i> Zoom -</button>
         </div>
-        <div class="img-container">
-            <div class="row">
-                <div class="col-md-8">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="img-container">
                     <img id="imageToCrop" src="">
                 </div>
-                <div class="col-md-4 text-center">
-                    <p class="small fw-bold">VISUALIZAÇÃO</p>
-                    <div class="preview-profile shadow-sm"></div> 
-                </div>
+            </div>
+            <div class="col-md-4 text-center">
+                <p class="small fw-bold">VISUALIZAÇÃO</p>
+                <div class="preview-profile shadow-sm"></div> 
             </div>
         </div>
       </div>
@@ -180,6 +163,7 @@
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
 <script>
@@ -189,29 +173,26 @@
         var cropper;
         var bsModal = new bootstrap.Modal(modalElement);
 
+        // Abrir Modal ao selecionar arquivo
         $('#fileInput').on('change', function(e) {
             var files = e.target.files;
             if (files && files.length > 0) {
                 var reader = new FileReader();
                 reader.onload = function (event) {
                     image.src = event.target.result;
-                    if (cropper) {
-                        cropper.destroy();
-                        cropper = null;
-                    }
                     bsModal.show();
                 };
                 reader.readAsDataURL(files[0]);
             }
         });
 
+        // Inicializar Cropper quando o modal abrir
         modalElement.addEventListener('shown.bs.modal', function () {
             cropper = new Cropper(image, {
                 aspectRatio: 1,
-                // viewMode: 0 permite que a imagem fique menor que a caixa e saia dos limites (Zoom Livre)
                 viewMode: 1, 
-                dragMode: 'move',      // O mouse sempre arrasta a imagem
-                autoCropArea: 0.8,     // Inicia com a caixa já criada
+                dragMode: 'move',
+                autoCropArea: 0.8,
                 restore: false,
                 guides: true,
                 center: true,
@@ -219,51 +200,41 @@
                 cropBoxMovable: true,
                 cropBoxResizable: true,
                 toggleDragModeOnDblclick: false,
-                
-                // CONFIGURAÇÕES DE ZOOM E PERMANÊNCIA
-                zoomOnWheel: true,     // Permite zoom com o scroll
-                zoomOnTouch: true,     // Permite zoom no celular (pinch)
-                wheelZoomRatio: 0.1,   // Velocidade do zoom
-                zoomable: true,        // Garante que o zoom está ativo
-                
-                ready: function () {
-                    // Isso impede que a caixa de seleção suma se você clicar fora dela
-                    var cropperInstance = this.cropper;
-                    $(image).on('cropend', function () {
-                        // Se por algum motivo a caixa sumir, ele força ela a voltar
-                        if (!cropperInstance.cropped) {
-                            cropperInstance.crop();
-                        }
-                    });
-                },
+                zoomOnWheel: true,
                 preview: '.preview-profile'
             });
         });
 
+        // Destruir cropper ao fechar modal para limpar memória
         modalElement.addEventListener('hidden.bs.modal', function () {
             if (cropper) {
                 cropper.destroy();
                 cropper = null;
             }
+            $('#fileInput').val(''); // Limpa o input de arquivo
         });
 
+        // Botões de Zoom
+        $('#zoomIn').on('click', function() { cropper.zoom(0.1); });
+        $('#zoomOut').on('click', function() { cropper.zoom(-0.1); });
+
+        // Ação de Cortar e Enviar para Cloudinary
         $('#cropBtn').on('click', function() {
             if (!cropper) return;
 
-            // 1. Gera o Canvas do corte
+            const btn = $(this);
+            btn.html('<span class="spinner-border spinner-border-sm"></span> Salvando...').prop('disabled', true);
+
             var canvas = cropper.getCroppedCanvas({ width: 400, height: 400 });
             var base64data = canvas.toDataURL('image/png');
 
-            // 2. Configurações do Cloudinary
-            var cloudName = 'dnh7vok3r'; // Substitua pelo seu
-            var unsignedPreset = 'Portal-Voz-Ativa'; // Substitua pelo seu preset
+            var cloudName = 'dnh7vok3r'; 
+            var unsignedPreset = 'Portal-Voz-Ativa'; 
 
-            // 3. Preparar o "pacote" para envio
             var formData = new FormData();
             formData.append('file', base64data);
             formData.append('upload_preset', unsignedPreset);
 
-            // 4. Enviar para a Nuvem via AJAX
             $.ajax({
                 url: `https://api.cloudinary.com/v1_1/${cloudName}/upload`,
                 method: 'POST',
@@ -271,22 +242,22 @@
                 processData: false,
                 contentType: false,
                 success: function(response) {
-                    // A URL permanente da imagem que o Cloudinary gerou:
                     var imageUrl = response.secure_url;
                     
-                    // 5. Agora sim, colocamos o LINK no input e enviamos o seu form
-                    $('#croppedImage').val(imageUrl); // O input agora guarda o LINK, não o base64 gigante
+                    $('#croppedImage').val(imageUrl); 
                     $('#currentAvatar').attr('src', imageUrl);
                     
                     bsModal.hide();
                     
+                    // Pequeno delay para o usuário ver a imagem trocada antes do submit
                     setTimeout(function(){
                         $('#mainForm').submit();
-                    }, 500);
+                    }, 800);
                 },
                 error: function(err) {
-                    console.error("Erro ao subir para a nuvem:", err);
-                    alert("Erro ao salvar imagem. Tente novamente.");
+                    console.error("Erro Cloudinary:", err);
+                    alert("Erro ao subir imagem. Verifique o console.");
+                    btn.text('Cortar e Salvar').prop('disabled', false);
                 }
             });
         });
