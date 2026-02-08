@@ -2,177 +2,98 @@ import express from 'express';
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import passport from 'passport';
-import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
+import { v2 as cloudinary } from 'cloudinary';
+import 'dotenv/config';
 import '../models/user.js';
-
 import '../models/vitrine.js';
 
 const user = mongoose.model('users');
 const router = express.Router();
 
-// --- CONFIGURAÇÃO DO MULTER (Para outras necessidades) ---
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        const dir = path.resolve("src", "public", "img_users");
-        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-        cb(null, dir);
-    },
-    filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname));
-    }
+// --- CONFIGURAÇÃO DO CLOUDINARY ---
+// Substitua pelos seus dados do Dashboard do Cloudinary
+cloudinary.config({ 
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME, 
+  api_key: process.env.CLOUDINARY_API_KEY, 
+  api_secret: process.env.CLOUDINARY_API_SECRET 
 });
-const upload = multer({ storage });
 
-// --- FUNÇÃO AUXILIAR PARA SALVAR BASE64 ---
-const saveBase64Image = (base64String) => {
+// --- FUNÇÃO PARA SUBIR PARA O CLOUDINARY ---
+const uploadToCloudinary = async (base64String) => {
     try {
-        const base64Data = base64String.replace(/^data:image\/\w+;base64,/, "");
-        const buffer = Buffer.from(base64Data, 'base64');
-        const fileName = `user_${Date.now()}.png`;
         
-        // Use path.join(__dirname, '..', 'public', 'img_users') ou similar 
-        // para garantir que o caminho seja absoluto e correto
-        const dir = path.join(process.cwd(), "src", "public", "img_users");
-        
-        if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir, { recursive: true });
-        }
-        
-        const filePath = path.join(dir, fileName);
-        fs.writeFileSync(filePath, buffer);
-        
-        return "/img_users/" + fileName;
+        const result = await cloudinary.uploader.upload(base64String, {
+            folder: 'img_users',
+        });
+        return result.secure_url;
     } catch (error) {
-        console.error("Erro ao salvar imagem Base64:", error);
-        return "/img/guest.jpg"; // Retorna imagem padrão se der erro
+        console.error("Erro no Cloudinary:", error);
+        return "/img/guest.jpg";
     }
 };
 
 // --- ROTAS DE REGISTRO ---
-router.get('/register', (req, res) => {
-    res.render('users/register');
-});
-
 router.post('/register', async (req, res) => {
     const { name, email, profession, bio, password, password_2, croppedImage } = req.body;
     let errors = [];
 
-    // 1. Validações de Campos
     if (!name || name.trim() === "") errors.push({ text: 'Nome inválido!' });
     if (!email || email.trim() === "") errors.push({ text: 'E-mail inválido!' });
-    if (!password || password.length < 4) errors.push({ text: 'Senha muito curta (mínimo 4 caracteres)!' });
+    if (!password || password.length < 4) errors.push({ text: 'Senha muito curta!' });
     if (password != password_2) errors.push({ text: 'As senhas não coincidem!' });
 
-    // Se houver erros de validação, renderiza a página enviando o array 'errors'
     if (errors.length > 0) {
         return res.render('users/register', { errors, name, email, profession, bio });
     }
 
     try {
         const userExists = await user.findOne({ email: email });
-        
-        // 2. Verificação de E-mail duplicado
         if (userExists) {
-            // Em vez de req.flash + render, enviamos o erro direto para o render
             return res.render('users/register', { 
                 error_msg: "Já existe uma conta com este e-mail.", 
                 name, email, profession, bio 
             });
         }
 
-        // 3. Processamento da Imagem
+        // ALTERAÇÃO: Agora envia para o Cloudinary
         let caminhoFoto = "/img/guest.jpg";
-        if (croppedImage && croppedImage.trim() !== "") {
-            caminhoFoto = saveBase64Image(croppedImage); 
+        if (croppedImage && croppedImage.startsWith("data:image")) {
+            caminhoFoto = await uploadToCloudinary(croppedImage); 
         }
 
-        // 4. Criação do Usuário
         const newUser = new user({
-            name, 
-            email, 
-            password, 
-            profession, 
-            bio, 
+            name, email, password, profession, bio, 
             profileImage: caminhoFoto 
         });
 
-        // Hash da senha
         const salt = await bcrypt.genSalt(10);
         newUser.password = await bcrypt.hash(newUser.password, salt);
-        
         await newUser.save();
 
-        // Aqui usamos redirect, então o flash funciona perfeitamente!
         req.flash('success_msg', 'Usuário criado com sucesso!');
         res.redirect('/users/login');
 
     } catch (err) {
         console.error("Erro no Registro:", err);
-        // Em caso de erro crítico de banco, também enviamos direto se for renderizar
-        res.render('users/register', { 
-            error_msg: 'Erro interno ao processar cadastro.',
-            name, email, profession, bio 
-        });
+        res.render('users/register', { error_msg: 'Erro interno.', name, email, profession, bio });
     }
 });
 
-// --- LOGIN / LOGOUT ---
-router.get('/login', (req, res) => {
-    res.render('users/login');
-});
-
-router.post('/login', (req, res, next) => {
-    passport.authenticate('local', {
-        successRedirect: '/',
-        failureRedirect: '/users/login',
-        failureFlash: true
-    })(req, res, next);
-});
-
-router.get('/logout', (req, res) => {
-    req.logout(() => {
-        res.redirect('/');
-    });
-});
-
-// --- PERFIL E EDIÇÃO ---
-router.get('/profile', (req, res) => {
-    if (!req.user) {
-        req.flash('error_msg', 'Faça login para acessar.');
-        return res.redirect('/users/login');
-    }
-    const userData = JSON.parse(JSON.stringify(req.user));
-    res.render('users/profile', { user: userData });
-});
-
+// --- EDIÇÃO DE PERFIL ---
 router.post('/profile/edit', async (req, res) => {
     if(!req.user) return res.redirect('/users/login');
     
-    // Verificação de segurança
-    if (!req.body) {
-        req.flash('error_msg', 'Erro ao processar os dados do formulário.');
-        return res.redirect('/users/profile');
-    }
-
     try {
         const usuario = await user.findById(req.user._id);
-        
-        // Agora o erro não deve mais ocorrer aqui:
         usuario.name = req.body.name || usuario.name; 
         usuario.bio = req.body.bio;
         usuario.profession = req.body.profession;
 
-        // Lógica do Cropper no Perfil
-        if (req.body.croppedImage) {
-            // Deleta imagem antiga para não entulhar o servidor
-            if (usuario.profileImage && usuario.profileImage.includes('/img_users/')) {
-                const oldPath = path.resolve("src", "public", usuario.profileImage.replace(/^\//, ''));
-                if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
-            }
-            // Salva a nova imagem cortada
-            usuario.profileImage = saveBase64Image(req.body.croppedImage);
+        // ALTERAÇÃO: Lógica do Cropper enviando para nuvem
+        if (req.body.croppedImage && req.body.croppedImage.startsWith("data:image")) {
+            // No Cloudinary, você não precisa se preocupar em deletar manualmente 
+            // no código básico, mas aqui salvamos a nova URL
+            usuario.profileImage = await uploadToCloudinary(req.body.croppedImage);
         }
 
         await usuario.save();
