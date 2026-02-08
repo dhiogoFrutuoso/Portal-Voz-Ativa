@@ -161,78 +161,52 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
 <script>
-    // 1. Instanciamos o modal usando o padrão do Bootstrap 5 (sem depender de jQuery para o modal)
-    var modalElement = document.getElementById('modalCrop');
-    var bsModal = new bootstrap.Modal(modalElement); 
-    
-    var image = document.getElementById('imageToCrop');
-    var cropper;
+    // Esse comando garante que o código só rode DEPOIS que 
+    // todos os scripts do layout (jQuery e Bootstrap) carregarem.
+    window.addEventListener('load', function () {
+        
+        var modalElement = document.getElementById('modalCrop');
+        // Agora o 'bootstrap' já estará definido!
+        var bsModal = new bootstrap.Modal(modalElement); 
+        
+        var image = document.getElementById('imageToCrop');
+        var cropper;
 
-    // Quando o arquivo é selecionado
-    $('#fileInput').on('change', function(e){
-        var files = e.target.files;
-        var done = function (url) {
-            image.src = url;
-            bsModal.show(); // FORMA CORRETA NO BS5: abre o modal
-        };
-        if (files && files.length > 0) {
-            var reader = new FileReader();
-            reader.onload = function (e) { done(reader.result); };
-            reader.readAsDataURL(files[0]);
-        }
-    });
-
-    // Eventos do Modal (usando listeners nativos que são mais estáveis)
-    modalElement.addEventListener('shown.bs.modal', function () {
-        cropper = new Cropper(image, {
-            aspectRatio: 1,
-            viewMode: 2,
-            dragMode: 'move',
-            autoCropArea: 0.8,
-            restore: false,
-            guides: true,
-            center: true,
-            highlight: false,
-            cropBoxMovable: true,
-            cropBoxResizable: true,
-            toggleDragModeOnDblclick: false,
-            preview: '.preview-profile'
-        });
-    });
-
-    modalElement.addEventListener('hidden.bs.modal', function () {
-        if (cropper) {
-            cropper.destroy();
-            cropper = null;
-        }
-        // Limpa o input de arquivo para permitir selecionar a mesma imagem se o usuário cancelar
-        document.getElementById('fileInput').value = "";
-    });
-
-    // Botão de Cortar e Salvar
-    $('#cropBtn').on('click', function(){
-        if (!cropper) return;
-
-        var canvas = cropper.getCroppedCanvas({
-            width: 400,
-            height: 400,
-            imageSmoothingEnabled: true,
-            imageSmoothingQuality: 'high',
+        $('#fileInput').on('change', function(e){
+            var files = e.target.files;
+            var done = function (url) {
+                image.src = url;
+                bsModal.show();
+            };
+            if (files && files.length > 0) {
+                var reader = new FileReader();
+                reader.onload = function (e) { done(reader.result); };
+                reader.readAsDataURL(files[0]);
+            }
         });
 
-        // Transforma em Base64
-        var base64data = canvas.toDataURL('image/png');
-        
-        // 1. Alimenta o input hidden para o Node.js receber
-        $('#croppedImage').val(base64data);
-        
-        // 2. Atualiza a imagem na tela para o usuário ver
-        $('#currentAvatar').attr('src', base64data);
-        
-        // 3. Fecha o modal
-        bsModal.hide(); // FORMA CORRETA NO BS5: fecha o modal
-        
-        // 4. Envia o formulário
-        $('#mainForm').submit();
+        modalElement.addEventListener('shown.bs.modal', function () {
+            cropper = new Cropper(image, {
+                aspectRatio: 1,
+                viewMode: 2,
+                preview: '.preview-profile'
+            });
+        });
+
+        modalElement.addEventListener('hidden.bs.modal', function () {
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+        });
+
+        $('#cropBtn').on('click', function(){
+            var canvas = cropper.getCroppedCanvas({ width: 400, height: 400 });
+            var base64data = canvas.toDataURL('image/png');
+            
+            $('#croppedImage').val(base64data);
+            bsModal.hide();
+            $('#mainForm').submit();
+        });
     });
 </script>
