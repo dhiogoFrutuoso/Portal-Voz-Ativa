@@ -14,6 +14,15 @@
         max-width: 100%;
     }
 
+    /* Muda o cursor quando você passa o mouse sobre a imagem no Cropper */
+    .cropper-face, .cropper-move {
+        cursor: grab !important;
+    }
+
+    .cropper-face:active, .cropper-move:active {
+        cursor: grabbing !important;
+    }
+
     /* Isso impede que a imagem fique gigante ou saia do modal */
     .img-container {
         min-height: 400px; /* Garante um tamanho mínimo */
@@ -246,16 +255,18 @@
     });
     cropper = new Cropper(image, {
         aspectRatio: 1,
-        viewMode: 2,           // Permite ver a imagem inteira dentro do box
-        dragMode: 'move',      // Permite arrastar a imagem
-        autoCropArea: 0.8,     // Inicia o corte em 80% para você ver as bordas
+        viewMode: 1,            // Mantém a imagem dentro do container
+        dragMode: 'move',       // <--- ISSO permite arrastar a imagem com o mouse
+        autoCropArea: 0.8,      // Deixa um espaço em volta para facilitar a visão
         restore: false,
         guides: true,
         center: true,
         highlight: false,
-        cropBoxMovable: true,
-        cropBoxResizable: true,
-        zoomOnWheel: true,     // <--- LIBERA O ZOOM NO MOUSE
-        wheelZoomRatio: 0.1,   // Sensibilidade do zoom
+        cropBoxMovable: true,   // Você ainda pode mover a caixa de corte
+        cropBoxResizable: true, // Você ainda pode redimensionar a caixa
+        toggleDragModeOnDblclick: false, // Impede que o clique duplo mude o modo sem querer
+        ready: function () {
+            console.log("Modo de movimento ativado!");
+        }
     });
 </script>
