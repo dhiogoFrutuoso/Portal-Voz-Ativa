@@ -252,21 +252,21 @@
                 $('#mainForm').submit();
             }, 500);
         });
-    });
-    cropper = new Cropper(image, {
-        aspectRatio: 1,
-        viewMode: 1,            // Mantém a imagem dentro do container
-        dragMode: 'move',       // <--- ISSO permite arrastar a imagem com o mouse
-        autoCropArea: 0.8,      // Deixa um espaço em volta para facilitar a visão
-        restore: false,
-        guides: true,
-        center: true,
-        highlight: false,
-        cropBoxMovable: true,   // Você ainda pode mover a caixa de corte
-        cropBoxResizable: true, // Você ainda pode redimensionar a caixa
-        toggleDragModeOnDblclick: false, // Impede que o clique duplo mude o modo sem querer
-        ready: function () {
-            console.log("Modo de movimento ativado!");
-        }
+            cropper = new Cropper(image, {
+            aspectRatio: 1,
+            viewMode: 1,            // Mantém a imagem dentro do container
+            dragMode: 'move',       // <--- ISSO permite arrastar a imagem com o mouse
+            autoCropArea: 0.8,      // Deixa um espaço em volta para facilitar a visão
+            restore: false,
+            guides: true,
+            center: true,
+            highlight: false,
+            cropBoxMovable: true,   // Você ainda pode mover a caixa de corte
+            cropBoxResizable: true, // Você ainda pode redimensionar a caixa
+            toggleDragModeOnDblclick: false, // Impede que o clique duplo mude o modo sem querer
+            ready: function () {
+                console.log("Modo de movimento ativado!");
+            }
+        });
     });
 </script>
