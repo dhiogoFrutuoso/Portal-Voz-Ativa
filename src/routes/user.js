@@ -97,6 +97,15 @@ router.get('/logout', (req, res) => {
     });
 });
 
+router.get('/profile', (req, res) => {
+    if (!req.user) {
+        req.flash('error_msg', 'Faça login para acessar.');
+        return res.redirect('/users/login');
+    }
+    const userData = JSON.parse(JSON.stringify(req.user));
+    res.render('users/profile', { user: userData });
+});
+
 // --- EDIÇÃO DE PERFIL ---
 router.post('/profile/edit', async (req, res) => {
     if(!req.user) return res.redirect('/users/login');
