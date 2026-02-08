@@ -46,8 +46,11 @@
                 <div class="position-absolute bottom-0 start-0 translate-middle-y ms-4 d-flex align-items-end" style="margin-bottom: -60px; z-index: 2;">
                     <div class="position-relative">
                         <div id="profilePreview" class="rounded-circle border border-4 border-white shadow-lg" 
-                             style="width: 140px; height: 140px; background: #fff; overflow: hidden; display: flex; align-items: center; justify-content: center;">
-                            <img src="{{user.profileImage}}" id="currentAvatar" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://via.placeholder.com/140'">
+                            style="width: 140px; height: 140px; background: #eee; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                            
+                            <img src="{{user.profileImage}}" id="currentAvatar" 
+                                style="width: 100%; height: 100%; object-fit: cover;" 
+                                onerror="this.src='https://res.cloudinary.com/dnh7vok3r/image/upload/v1/placeholder-user.png';">
                         </div>
                         <label for="fileInput" class="btn btn-warning btn-sm position-absolute bottom-0 end-0 rounded-circle shadow-sm" style="cursor: pointer;">
                             <i class="bi bi-camera-fill"></i>
@@ -233,31 +236,31 @@
 
             var formData = new FormData();
             formData.append('file', base64data);
-            formData.append('upload_preset', unsignedPreset);
+            formData.append('upload_preset', 'Portal-Voz-Ativa');
 
             $.ajax({
-                url: `https://api.cloudinary.com/v1_1/${cloudName}/upload`,
+                url: `https://api.cloudinary.com/v1_1/dnh7vok3r/upload`,
                 method: 'POST',
                 data: formData,
                 processData: false,
                 contentType: false,
                 success: function(response) {
-                    var imageUrl = response.secure_url;
+                    var cloudImageUrl = response.secure_url;
                     
-                    $('#croppedImage').val(imageUrl); 
-                    $('#currentAvatar').attr('src', imageUrl);
+                    $('#croppedImage').val(cloudImageUrl); 
+                    
+                    $('#currentAvatar').attr('src', cloudImageUrl);
                     
                     bsModal.hide();
                     
-                    // Pequeno delay para o usuário ver a imagem trocada antes do submit
                     setTimeout(function(){
                         $('#mainForm').submit();
-                    }, 800);
+                    }, 500);
                 },
                 error: function(err) {
-                    console.error("Erro Cloudinary:", err);
-                    alert("Erro ao subir imagem. Verifique o console.");
-                    btn.text('Cortar e Salvar').prop('disabled', false);
+                    console.error("Erro no Cloudinary:", err);
+                    alert("Erro ao subir para nuvem. Verifique o preset e o cloudName.");
+                    $btn.html('Cortar e Salvar').attr('disabled', false);
                 }
             });
         });
