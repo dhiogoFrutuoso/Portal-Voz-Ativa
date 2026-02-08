@@ -159,7 +159,7 @@
                         <div class="card shadow-lg border-top-success border-1 rounded-4 overflow-hidden hover-lift bg-white">
                             <div class="row g-0">
                                 <div class="col-md-4 position-relative">
-                                    <img src="{{imagens.[0]}}" alt="{{titulo}}" class="img-extensa" style="width: 100%; height: 100%; object-fit: cover; min-height: 250px;" />
+                                    <img src="/img_chamados/{{imagens.[0]}}" alt="{{titulo}}" class="img-extensa" style="width: 100%; height: 100%; object-fit: cover; min-height: 250px;" />
                                     <div class="img-overlay"></div>
                                 </div>
 
@@ -178,7 +178,7 @@
                                             <i class="bi bi-briefcase-fill text-success me-2"></i>
                                             {{titulo}}
                                         </h3>
-                                        <p class="card-text text-secondary mb-4 text-truncate-custom">
+                                        <p class="card-text text-secondary mb-4 leading-relaxed">
                                             {{descricao}}
                                         </p>
 
@@ -195,6 +195,7 @@
                                                         {{/if}}
                                                     </div>
 
+                                                    {{!-- NOME E RÓTULO --}}
                                                     <div>
                                                         <p class="text-muted small mb-0 lh-2 fw-bold" style="font-size: 0.75rem;">Anunciante: </p>
                                                         <p class="text-muted small mb-0">{{#if usuario.profession}}{{usuario.profession}}{{else}}Profissional{{/if}}</p>
@@ -252,6 +253,7 @@
                     <div class="col-12 mb-4">
                         <div class="conteudo-recuado card border-0 shadow-sm rounded-4 overflow-hidden hover-lift bg-white border-start border-4 border-success">
                             <div class="card-body p-4 p-lg-4">
+                                
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill fw-bold">
                                         <i class="bi bi-patch-check-fill me-1"></i> {{categoria}}
@@ -265,7 +267,7 @@
                                     <i class="bi bi-briefcase-fill text-success me-2"></i>
                                     {{titulo}}
                                 </h3>
-                                <p class="card-text text-secondary mb-4 text-truncate-custom">
+                                <p class="card-text text-secondary mb-4 leading-relaxed">
                                     {{descricao}}
                                 </p>
 
@@ -281,6 +283,8 @@
                                                     </div>
                                                 {{/if}}
                                             </div>
+
+                                            {{!-- NOME E RÓTULO --}}
                                             <div>
                                                 <p class="text-muted small mb-0 lh-2 fw-bold" style="font-size: 0.75rem;">Anunciante: </p>
                                                 <p class="text-muted small mb-0">{{#if usuario.profession}}{{usuario.profession}}{{else}}Profissional{{/if}}</p>
@@ -292,6 +296,7 @@
                                 <br>
 
                                 <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 pt-3 border-top">
+
                                     <div class="d-flex align-items-center">
                                         <div class="icon-shape bg-danger-soft text-danger rounded-circle me-3">
                                             <i class="bi bi-geo-alt-fill"></i>
@@ -303,6 +308,7 @@
                                     </div>
                                     
                                     <div class="d-flex align-items-center gap-2">
+                                            
                                         <form action="/categories/vitrine_do_trabalhador/curtir/{{_id}}" method="POST" class="m-0">
                                             <button type="submit" class="btn btn-sm rounded-pill border shadow-sm hover-lift px-3 transition-base 
                                                 {{#if jaCurtiu}}btn-danger text-white{{else}}btn-light text-danger{{/if}}">
@@ -315,7 +321,9 @@
                                             <i class="bi bi-chat-dots-fill text-primary me-1"></i>
                                             <span class="fw-bold">{{comentarios.length}}</span>
                                         </a>
+                                    </div>
 
+                                    <div class="d-flex align-items-center gap-2">
                                         <a href="https://wa.me/{{contato}}" target="_blank" class="btn btn-outline-success btn-sm rounded-pill px-4 fw-bold">
                                             <i class="bi bi-whatsapp me-2"></i>Contato
                                         </a>
@@ -325,11 +333,14 @@
                                         </a>
                                     </div>
                                 </div>
+                                <br>
+
                             </div>
                         </div>
                     </div>
                 {{/if}}
             {{else}}
+                {{!-- MENSAGEM CASO ESTEJA VAZIO --}}
                 <div class="col-12 text-center py-5">
                     <div class="card border-0 shadow-sm p-5 rounded-4 bg-white text-muted">
                         <i class="bi bi-search display-1 opacity-25"></i>
@@ -344,12 +355,6 @@
 </section>
 
 <style>
-    .text-truncate-custom {
-        display: -webkit-box;
-        -webkit-line-clamp: 3; /* Número de linhas */
-        -webkit-box-orient: vertical;  
-        overflow: hidden;
-    }
     /* Cores de borda e utilitários específicos do Hub de Oportunidades */
     .border-top-success { border-top: 5px solid #28a745 !important; }
     .border-top-info { border-top: 5px solid #0dcaf0 !important; }

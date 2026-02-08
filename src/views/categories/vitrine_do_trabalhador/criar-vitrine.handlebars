@@ -10,8 +10,7 @@
                     </div>
                     
                     <div class="card-body p-4 p-md-5 bg-white">
-                        <form action="/categories/vitrine_do_trabalhador/criar-vitrine" method="POST" id="formVitrine">
-                            <input type="hidden" id="urlsImagens" name="imagens">
+                        <form action="/categories/vitrine_do_trabalhador/criar-vitrine" method="POST" enctype="multipart/form-data" id="formVitrine">
                             
                             <div class="mb-4">
                                 <label class="form-label fw-bold text-secondary small text-uppercase">Título do Anúncio / Nome do Negócio</label>
@@ -119,7 +118,7 @@
         }
     }
 
-    // 2. Lógica de Upload e Preview de Imagens
+    // 2. Lógica de Upload de Imagens (Melhorada)
     let selectedFiles = [];
     const imgInput = document.getElementById('imgInput');
     const previewGrid = document.getElementById('preview-grid');
@@ -135,6 +134,7 @@
         });
         
         renderPreview();
+        syncFiles();
     });
 
     function renderPreview() {
@@ -168,6 +168,13 @@
     function removeFile(index) {
         selectedFiles.splice(index, 1);
         renderPreview();
+        syncFiles();
+    }
+
+    function syncFiles() {
+        const dataTransfer = new DataTransfer();
+        selectedFiles.forEach(file => dataTransfer.items.add(file));
+        imgInput.files = dataTransfer.files;
     }
 
     // 3. Lógica do Mapa
@@ -195,61 +202,6 @@
     marker.on('dragend', e => { 
         const pos = marker.getLatLng(); 
         updateFields(pos.lat, pos.lng); 
-    });
-
-    // 4. ENVIO PARA CLOUDINARY + SUBMIT FINAL
-    document.getElementById('formVitrine').addEventListener('submit', async function(e) {
-        e.preventDefault(); // Para o envio padrão do formulário
-
-        const btnSubmit = this.querySelector('button[type="submit"]');
-        const originalText = btnSubmit.innerHTML;
-        
-        // Feedback de carregamento
-        btnSubmit.disabled = true;
-        btnSubmit.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Enviando Anúncio...`;
-
-        try {
-            const uploadedUrls = [];
-
-            // Faz o upload de cada imagem para o Cloudinary
-            for (const file of selectedFiles) {
-                const formData = new FormData();
-                formData.append('file', file);
-                formData.append('upload_preset', 'ml_default'); // Certifique-se que o preset está como 'unsigned' no Cloudinary
-
-                const response = await fetch('https://api.cloudinary.com/v1_1/dnh7vok3r/image/upload', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                if (!response.ok) throw new Error('Falha no upload de uma imagem');
-
-                const data = await response.json();
-                uploadedUrls.push(data.secure_url);
-            }
-
-            // Criamos um campo oculto no formulário para enviar as URLs como uma string JSON
-            let inputImagens = document.getElementById('urlsImagens');
-            if (!inputImagens) {
-                inputImagens = document.createElement('input');
-                inputImagens.type = 'hidden';
-                inputImagens.id = 'urlsImagens';
-                inputImagens.name = 'imagens'; // O nome que o seu backend espera
-                this.appendChild(inputImagens);
-            }
-            
-            // Define o valor como as URLs (seja array ou string, dependendo do seu backend)
-            inputImagens.value = JSON.stringify(uploadedUrls);
-
-            // Agora sim, envia o formulário para o seu servidor Node.js
-            this.submit();
-
-        } catch (error) {
-            console.error("Erro:", error);
-            alert("Ocorreu um erro ao enviar as imagens. Verifique sua conexão.");
-            btnSubmit.disabled = false;
-            btnSubmit.innerHTML = originalText;
-        }
     });
 </script>
 
