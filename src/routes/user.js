@@ -57,13 +57,15 @@ router.post('/register', async (req, res) => {
             });
         }
 
-        let caminhoFoto = "/img/guest.jpg";
-        if (croppedImage && croppedImage.startsWith("data:image")) {
-            caminhoFoto = await uploadToCloudinary(croppedImage); 
-        }
+        // Se o croppedImage vier vazio, usamos a imagem padrão
+        let caminhoFoto = (croppedImage && croppedImage !== "") ? croppedImage : "/img/guest.jpg";
 
         const newUser = new user({
-            name, email, password, profession, bio, 
+            name, 
+            email, 
+            password, 
+            profession, 
+            bio, 
             profileImage: caminhoFoto 
         });
 
