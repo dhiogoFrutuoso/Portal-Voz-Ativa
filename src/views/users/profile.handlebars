@@ -170,67 +170,71 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
 <script>
-    // Usamos o seletor do jQuery para garantir que o DOM está pronto
     $(document).ready(function() {
-        
-        // 1. Variáveis Globais
         var modalElement = document.getElementById('modalCrop');
         var image = document.getElementById('imageToCrop');
         var cropper;
-        
-        // 2. Tenta pegar a instância do Bootstrap (ou cria uma nova)
         var bsModal = new bootstrap.Modal(modalElement);
 
-        // 3. Quando seleciona o arquivo
         $('#fileInput').on('change', function(e) {
             var files = e.target.files;
             if (files && files.length > 0) {
                 var reader = new FileReader();
                 reader.onload = function (event) {
                     image.src = event.target.result;
-                    bsModal.show(); // Abre o modal
+                    // IMPORTANTE: Destruir o cropper antigo antes de abrir o modal com foto nova
+                    if (cropper) {
+                        cropper.destroy();
+                        cropper = null;
+                    }
+                    bsModal.show();
                 };
                 reader.readAsDataURL(files[0]);
             }
         });
 
-        // 4. Quando o modal terminar de abrir, inicia o Cropper
         modalElement.addEventListener('shown.bs.modal', function () {
+            // Inicialização limpa e segura
             cropper = new Cropper(image, {
-            aspectRatio: 1,
-            viewMode: 1, // Não permite que a caixa de corte saia da imagem
-            autoCropArea: 1, // Seleciona o máximo da imagem ao abrir
-            responsive: true,
-            restore: false,
-            ready: function () {
-                // Isso força o Cropper a se ajustar ao tamanho real da imagem no modal
-                cropper.setCropBoxData({ width: 200, height: 200 });
+                aspectRatio: 1,
+                viewMode: 1,
+                autoCropArea: 1,
+                responsive: true,
+                preview: '.preview-profile', // Ativa a janelinha de visualização lateral
+                ready: function () {
+                    // Garante que a caixa de seleção apareça corretamente
+                    console.log("Cropper pronto!");
+                }
+            });
+        });
+
+        // Limpeza total ao fechar o modal para não bugar a próxima abertura
+        modalElement.addEventListener('hidden.bs.modal', function () {
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
             }
         });
 
-        // ... no clique do botão salvar ...
         $('#cropBtn').on('click', function() {
-            // Pegamos o canvas com alta qualidade
+            if (!cropper) return;
+
             var canvas = cropper.getCroppedCanvas({
                 width: 400,
                 height: 400,
-                imageSmoothingEnabled: true,
-                imageSmoothingQuality: 'high',
             });
 
-            // Converte para Base64
             var base64data = canvas.toDataURL('image/png');
             
-            // 1. Atualiza o valor no input hidden que vai pro banco
+            // Atribui ao input hidden
             $('#croppedImage').val(base64data);
             
-            // 2. Troca a imagem na tela na hora (feedback visual)
+            // Feedback visual imediato
             $('#currentAvatar').attr('src', base64data);
             
-            // 3. Fecha o modal e envia o form
             bsModal.hide();
             
-            // IMPORTANTE: Pequeno delay para garantir que o input recebeu o texto gigante do base64
+            // Envio do formulário
             setTimeout(function(){
                 $('#mainForm').submit();
             }, 500);
