@@ -27,16 +27,27 @@ const upload = multer({ storage });
 
 // --- FUNÇÃO AUXILIAR PARA SALVAR BASE64 ---
 const saveBase64Image = (base64String) => {
-    const base64Data = base64String.replace(/^data:image\/\w+;base64,/, "");
-    const buffer = Buffer.from(base64Data, 'base64');
-    const fileName = `user_${Date.now()}.png`;
-    const dir = path.resolve("src", "public", "img_users");
-    
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-    
-    const filePath = path.join(dir, fileName);
-    fs.writeFileSync(filePath, buffer);
-    return "/img_users/" + fileName;
+    try {
+        const base64Data = base64String.replace(/^data:image\/\w+;base64,/, "");
+        const buffer = Buffer.from(base64Data, 'base64');
+        const fileName = `user_${Date.now()}.png`;
+        
+        // Use path.join(__dirname, '..', 'public', 'img_users') ou similar 
+        // para garantir que o caminho seja absoluto e correto
+        const dir = path.join(process.cwd(), "src", "public", "img_users");
+        
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+        }
+        
+        const filePath = path.join(dir, fileName);
+        fs.writeFileSync(filePath, buffer);
+        
+        return "/img_users/" + fileName;
+    } catch (error) {
+        console.error("Erro ao salvar imagem Base64:", error);
+        return "/img/guest.jpg"; // Retorna imagem padrão se der erro
+    }
 };
 
 // --- ROTAS DE REGISTRO ---
