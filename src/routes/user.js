@@ -111,24 +111,23 @@ router.get('/profile', (req, res) => {
 
 // --- EDIÇÃO DE PERFIL ---
 router.post('/profile/edit', async (req, res) => {
-    if(!req.user) return res.redirect('/users/login');
-    
     try {
-        const usuario = await user.findById(req.user._id);
-        usuario.name = req.body.name || usuario.name; 
-        usuario.bio = req.body.bio;
-        usuario.profession = req.body.profession;
+        const { name, bio, profession, croppedImage } = req.body;
+        const userId = req.user._id;
 
-        if (req.body.croppedImage && req.body.croppedImage.startsWith("data:image")) {
-            usuario.profileImage = await uploadToCloudinary(req.body.croppedImage);
+        let updateData = { name, bio, profession };
+
+        if (croppedImage && croppedImage !== "") {
+            updateData.profileImage = croppedImage; 
         }
 
-        await usuario.save();
+        await user.findByIdAndUpdate(userId, updateData);
+        
         req.flash('success_msg', 'Perfil atualizado com sucesso!');
         res.redirect('/users/profile');
     } catch (err) {
-        console.error(err);
-        req.flash('error_msg', 'Erro ao salvar perfil');
+        console.error("Erro ao atualizar perfil:", err);
+        req.flash('error_msg', 'Erro ao salvar as alterações.');
         res.redirect('/users/profile');
     }
 });
