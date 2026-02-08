@@ -14,19 +14,28 @@
         max-width: 100%;
     }
 
-    .preview-profile, .preview-register {
+    /* Isso impede que a imagem fique gigante ou saia do modal */
+    .img-container {
+        max-height: 450px;
+        width: 100%;
+        text-align: center;
+        background-color: #f7f7f7;
         overflow: hidden;
-        width: 160px; 
-        height: 160px;
-        margin: 10px auto;
-        border-radius: 50%; /* Faz a prévia ficar circular */
-        border: 1px solid #ddd;
     }
 
-    /* Define uma altura para a área de corte não ficar minúscula */
-    .img-container {
-        max-height: 400px;
-        width: 100%;
+    #imageToCrop {
+        display: block;
+        max-width: 100%; /* Essencial para o Cropper não bugar */
+    }
+
+    /* Garante que a visualização lateral seja circular */
+    .preview-profile {
+        width: 160px;
+        height: 160px;
+        border-radius: 50%;
+        overflow: hidden;
+        margin: 0 auto;
+        border: 2px solid #ddd;
     }
 </style>
 
@@ -187,51 +196,44 @@
 
         // 4. Quando o modal terminar de abrir, inicia o Cropper
         modalElement.addEventListener('shown.bs.modal', function () {
-            // Se já existir um cropper (de uma tentativa anterior), destrói
-            if (cropper) {
-                cropper.destroy();
-            }
-
             cropper = new Cropper(image, {
-                aspectRatio: 1,
-                viewMode: 1, // Mantém o corte dentro da imagem
-                dragMode: 'move',
-                autoCropArea: 0.8,
-                preview: '.preview-profile'
-            });
-        });
-
-        // 5. Quando o modal fechar, limpa o cropper para não pesar o navegador
-        modalElement.addEventListener('hidden.bs.modal', function () {
-            if (cropper) {
-                cropper.destroy();
-                cropper = null;
+            aspectRatio: 1,
+            viewMode: 1, // Não permite que a caixa de corte saia da imagem
+            autoCropArea: 1, // Seleciona o máximo da imagem ao abrir
+            responsive: true,
+            restore: false,
+            ready: function () {
+                // Isso força o Cropper a se ajustar ao tamanho real da imagem no modal
+                cropper.setCropBoxData({ width: 200, height: 200 });
             }
         });
 
-        // 6. Botão de Salvar
+        // ... no clique do botão salvar ...
         $('#cropBtn').on('click', function() {
-            if (!cropper) return;
-
+            // Pegamos o canvas com alta qualidade
             var canvas = cropper.getCroppedCanvas({
                 width: 400,
-                height: 400
+                height: 400,
+                imageSmoothingEnabled: true,
+                imageSmoothingQuality: 'high',
             });
 
+            // Converte para Base64
             var base64data = canvas.toDataURL('image/png');
             
-            // Coloca no input hidden e envia
+            // 1. Atualiza o valor no input hidden que vai pro banco
             $('#croppedImage').val(base64data);
             
-            // Feedback visual rápido
+            // 2. Troca a imagem na tela na hora (feedback visual)
             $('#currentAvatar').attr('src', base64data);
             
+            // 3. Fecha o modal e envia o form
             bsModal.hide();
             
-            // Pequeno delay para o modal fechar antes de dar o submit
-            setTimeout(function() {
+            // IMPORTANTE: Pequeno delay para garantir que o input recebeu o texto gigante do base64
+            setTimeout(function(){
                 $('#mainForm').submit();
-            }, 300);
+            }, 500);
         });
     });
 </script>
