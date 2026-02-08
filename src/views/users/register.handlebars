@@ -174,73 +174,96 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
 <script>
-    var $modal = $('#modalCropRegister');
-    var image = document.getElementById('imageToCropRegister');
-    var cropper;
+    $(document).ready(function() {
+        // Ajustado para os IDs reais do seu HTML de Register
+        var modalElement = document.getElementById('modalCropRegister');
+        var image = document.getElementById('imageToCropRegister');
+        var cropper;
+        var bsModal = new bootstrap.Modal(modalElement);
 
-    // Detectar seleção de imagem
-    $('#profileImageInput').on('change', function(e){
-        var files = e.target.files;
-        var done = function (url) {
-            image.src = url;
-            $modal.modal('show');
-        };
-
-        if (files && files.length > 0) {
-            var reader = new FileReader();
-            reader.onload = function (e) {
-                done(reader.result);
-            };
-            reader.readAsDataURL(files[0]);
-        }
-    });
-
-    // Inicializar o Cropper
-    $modal.on('shown.bs.modal', function () {
-        cropper = new Cropper(image, {
-            aspectRatio: 1, // Mantém o círculo perfeito
-            viewMode: 2,    // Não deixa o corte sair para fora da imagem
-            dragMode: 'move', // Permite arrastar a imagem
-            autoCropArea: 0.8,
-            restore: false,
-            guides: true,
-            center: true,
-            highlight: false,
-            cropBoxMovable: true,
-            cropBoxResizable: true,
-            toggleDragModeOnDblclick: false,
-            preview: '.preview-register' // Conecta com a div de visualização
-    });
-    }).on('hidden.bs.modal', function () {
-        if (cropper) {
-            cropper.destroy();
-            cropper = null;
-        }
-    });
-
-    // Ao clicar em Confirmar no Modal
-    $('#cropBtnRegister').on('click', function(){
-        var canvas = cropper.getCroppedCanvas({
-            width: 400,
-            height: 400,
+        // Abrir Modal ao selecionar arquivo (ID: profileImageInput)
+        $('#profileImageInput').on('change', function(e) {
+            var files = e.target.files;
+            if (files && files.length > 0) {
+                var reader = new FileReader();
+                reader.onload = function (event) {
+                    image.src = event.target.result;
+                    bsModal.show();
+                };
+                reader.readAsDataURL(files[0]);
+            }
         });
 
-        canvas.toBlob(function(blob){
-            var reader = new FileReader();
-            reader.readAsDataURL(blob); 
-            reader.onloadend = function() {
-                var base64data = reader.result;
-                
-                // 1. Coloca o Base64 no input escondido
-                $('#croppedImage').val(base64data);
-                
-                // 2. Atualiza a prévia redonda no formulário de registro
-                $('#imagePreview').attr('src', base64data).show();
-                $('#cameraIcon').hide();
-                
-                // 3. Fecha o modal
-                $modal.modal('hide');
+        // Inicializar Cropper quando o modal abrir
+        modalElement.addEventListener('shown.bs.modal', function () {
+            cropper = new Cropper(image, {
+                aspectRatio: 1,
+                viewMode: 1, 
+                dragMode: 'move',
+                autoCropArea: 0.8,
+                restore: false,
+                guides: true,
+                center: true,
+                highlight: false,
+                cropBoxMovable: true,
+                cropBoxResizable: true,
+                toggleDragModeOnDblclick: false,
+                zoomOnWheel: true,
+                preview: '.preview-register' // Classe correta do seu modal de registro
+            });
+        });
+
+        // Destruir cropper ao fechar modal para limpar memória
+        modalElement.addEventListener('hidden.bs.modal', function () {
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
             }
+            $('#profileImageInput').val(''); // Limpa o input de arquivo
+        });
+
+        // Ação de Cortar e Enviar para Cloudinary (ID do botão: cropBtnRegister)
+        $('#cropBtnRegister').on('click', function() {
+            if (!cropper) return;
+
+            const btn = $(this);
+            btn.html('<span class="spinner-border spinner-border-sm"></span> Subindo...').prop('disabled', true);
+
+            var canvas = cropper.getCroppedCanvas({ width: 400, height: 400 });
+            var base64data = canvas.toDataURL('image/png');
+
+            var formData = new FormData();
+            formData.append('file', base64data);
+            formData.append('upload_preset', 'Portal-Voz-Ativa');
+
+            $.ajax({
+                url: `https://api.cloudinary.com/v1_1/dnh7vok3r/upload`,
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    var cloudImageUrl = response.secure_url;
+                    
+                    // 1. Coloca a URL final no input escondido para o Back-end
+                    $('#croppedImage').val(cloudImageUrl); 
+                    
+                    // 2. Atualiza a prévia redonda no formulário
+                    $('#imagePreview').attr('src', cloudImageUrl).show();
+                    $('#cameraIcon').hide();
+                    
+                    bsModal.hide();
+                    
+                    // Nota: Removi o submit automático aqui para permitir que o usuário 
+                    // preencha o restante do formulário (nome, senha, etc) antes de enviar.
+                    btn.html('Confirmar Foto').prop('disabled', false);
+                },
+                error: function(err) {
+                    console.error("Erro no Cloudinary:", err);
+                    alert("Erro ao subir para nuvem. Verifique a conexão.");
+                    btn.html('Confirmar Foto').prop('disabled', false);
+                }
+            });
         });
     });
 </script>
