@@ -8,25 +8,25 @@
     .btn-update:hover { background: #1e4d8c; transform: translateY(-2px); }
     .nav-pills .nav-link.active { background-color: #eef4ff !important; color: #13315c !important; border-left: 5px solid #f9ca24 !important; }
 
-    /* Estilos para o Cropper */
-    /* Container da imagem principal no modal */
-    .img-container {
-        width: 100%;
-        max-height: 400px;
-        background-color: #f7f7f7;
-        overflow: hidden;
+    /* Garante que a imagem caiba dentro do modal para você conseguir cortar */
+    img {
         display: block;
+        max-width: 100%;
     }
 
-    /* A DIV da prévia (o círculo ao lado) */
-    .preview-register, .preview-profile { 
-        width: 150px !important; 
-        height: 150px !important;
-        border-radius: 50%;
-        border: 2px solid #13315c;
-        overflow: hidden; /* Essencial para o crop circular */
-        margin: 0 auto;
-        background-color: #eee;
+    .preview-profile, .preview-register {
+        overflow: hidden;
+        width: 160px; 
+        height: 160px;
+        margin: 10px auto;
+        border-radius: 50%; /* Faz a prévia ficar circular */
+        border: 1px solid #ddd;
+    }
+
+    /* Define uma altura para a área de corte não ficar minúscula */
+    .img-container {
+        max-height: 400px;
+        width: 100%;
     }
 </style>
 
@@ -207,6 +207,21 @@
             $('#croppedImage').val(base64data);
             bsModal.hide();
             $('#mainForm').submit();
+        });
+        
+        modalElement.addEventListener('shown.bs.modal', function () {
+            // O segredo está em destruir o cropper antigo se ele existir antes de criar um novo
+            if (cropper) {
+                cropper.destroy();
+            }
+            
+            cropper = new Cropper(image, {
+                aspectRatio: 1,
+                viewMode: 1, // '1' restringe a caixa de corte ao tamanho da imagem
+                autoCropArea: 1, // Começa com o corte selecionando tudo
+                responsive: true,
+                checkOrientation: false // Evita que imagens de celular girem sozinhas
+            });
         });
     });
 </script>
