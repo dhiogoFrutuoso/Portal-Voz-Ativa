@@ -90,7 +90,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Mongoose
 mongoose.set('strictQuery', true)
 mongoose.Promise = global.Promise;
-mongoose.connect(db.mongoURI)
+mongoose.connect(db.mongoURI, { serverSelectionTimeoutMS: 120000 })
     .then(() => {
         console.log('Conectado ao MongoDB do Voz Ativa com sucesso!');
     }).catch((err) => {
