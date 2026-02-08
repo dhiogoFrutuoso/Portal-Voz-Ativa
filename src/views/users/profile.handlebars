@@ -16,10 +16,10 @@
 
     /* Isso impede que a imagem fique gigante ou saia do modal */
     .img-container {
-        max-height: 450px;
+        min-height: 400px; /* Garante um tamanho mínimo */
+        max-height: 500px; /* Garante que não suma da tela */
         width: 100%;
-        text-align: center;
-        background-color: #f7f7f7;
+        background-color: #333; /* Fundo escuro ajuda a ver as bordas da imagem */
         overflow: hidden;
     }
 
@@ -146,6 +146,10 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
+        <div class="mt-2 text-center">
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="cropper.zoom(0.1)"><i class="bi bi-zoom-in"></i> +</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="cropper.zoom(-0.1)"><i class="bi bi-zoom-out"></i> -</button>
+        </div>
         <div class="img-container">
             <div class="row">
                 <div class="col-md-8">
@@ -239,5 +243,19 @@
                 $('#mainForm').submit();
             }, 500);
         });
+    });
+    cropper = new Cropper(image, {
+        aspectRatio: 1,
+        viewMode: 2,           // Permite ver a imagem inteira dentro do box
+        dragMode: 'move',      // Permite arrastar a imagem
+        autoCropArea: 0.8,     // Inicia o corte em 80% para você ver as bordas
+        restore: false,
+        guides: true,
+        center: true,
+        highlight: false,
+        cropBoxMovable: true,
+        cropBoxResizable: true,
+        zoomOnWheel: true,     // <--- LIBERA O ZOOM NO MOUSE
+        wheelZoomRatio: 0.1,   // Sensibilidade do zoom
     });
 </script>
