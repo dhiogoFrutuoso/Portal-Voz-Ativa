@@ -201,15 +201,27 @@
     });
 
     $('#cropBtn').on('click', function(){
-        canvas = cropper.getCroppedCanvas({ width: 400, height: 400 });
-        canvas.toBlob(function(blob){
-            var reader = new FileReader();
-            reader.readAsDataURL(blob); 
-            reader.onloadend = function() {
-                var base64data = reader.result;
-                $('#croppedImage').val(base64data);
-                $('#mainForm').submit();
-            }
+        // Define o tamanho final da imagem (400x400 é ótimo para perfil)
+        var canvas = cropper.getCroppedCanvas({
+            width: 400,
+            height: 400,
+            imageSmoothingEnabled: true,
+            imageSmoothingQuality: 'high',
         });
+
+        // Transforma em Base64
+        var base64data = canvas.toDataURL('image/png');
+        
+        // 1. Coloca o texto gigante no input escondido
+        $('#croppedImage').val(base64data);
+        
+        // 2. Atualiza o círculo de imagem na tela (opcional, antes de enviar)
+        $('#currentAvatar').attr('src', base64data);
+        
+        // 3. Fecha o modal
+        $modal.modal('hide');
+        
+        // 4. Envia o formulário automaticamente
+        $('#mainForm').submit();
     });
 </script>
