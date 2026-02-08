@@ -161,15 +161,19 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
 <script>
-    var $modal = $('#modalCrop');
+    // 1. Instanciamos o modal usando o padrão do Bootstrap 5 (sem depender de jQuery para o modal)
+    var modalElement = document.getElementById('modalCrop');
+    var bsModal = new bootstrap.Modal(modalElement); 
+    
     var image = document.getElementById('imageToCrop');
     var cropper;
 
+    // Quando o arquivo é selecionado
     $('#fileInput').on('change', function(e){
         var files = e.target.files;
         var done = function (url) {
             image.src = url;
-            $modal.modal('show');
+            bsModal.show(); // FORMA CORRETA NO BS5: abre o modal
         };
         if (files && files.length > 0) {
             var reader = new FileReader();
@@ -178,11 +182,12 @@
         }
     });
 
-    $modal.on('shown.bs.modal', function () {
+    // Eventos do Modal (usando listeners nativos que são mais estáveis)
+    modalElement.addEventListener('shown.bs.modal', function () {
         cropper = new Cropper(image, {
-            aspectRatio: 1, // Mantém o círculo perfeito
-            viewMode: 2,    // Não deixa o corte sair para fora da imagem
-            dragMode: 'move', // Permite arrastar a imagem
+            aspectRatio: 1,
+            viewMode: 2,
+            dragMode: 'move',
             autoCropArea: 0.8,
             restore: false,
             guides: true,
@@ -191,17 +196,23 @@
             cropBoxMovable: true,
             cropBoxResizable: true,
             toggleDragModeOnDblclick: false,
-            preview: '.preview-profile' // Conecta com a div de visualização
+            preview: '.preview-profile'
         });
-    }).on('hidden.bs.modal', function () {
+    });
+
+    modalElement.addEventListener('hidden.bs.modal', function () {
         if (cropper) {
             cropper.destroy();
             cropper = null;
         }
+        // Limpa o input de arquivo para permitir selecionar a mesma imagem se o usuário cancelar
+        document.getElementById('fileInput').value = "";
     });
 
+    // Botão de Cortar e Salvar
     $('#cropBtn').on('click', function(){
-        // Define o tamanho final da imagem (400x400 é ótimo para perfil)
+        if (!cropper) return;
+
         var canvas = cropper.getCroppedCanvas({
             width: 400,
             height: 400,
@@ -212,16 +223,16 @@
         // Transforma em Base64
         var base64data = canvas.toDataURL('image/png');
         
-        // 1. Coloca o texto gigante no input escondido
+        // 1. Alimenta o input hidden para o Node.js receber
         $('#croppedImage').val(base64data);
         
-        // 2. Atualiza o círculo de imagem na tela (opcional, antes de enviar)
+        // 2. Atualiza a imagem na tela para o usuário ver
         $('#currentAvatar').attr('src', base64data);
         
         // 3. Fecha o modal
-        $modal.modal('hide');
+        bsModal.hide(); // FORMA CORRETA NO BS5: fecha o modal
         
-        // 4. Envia o formulário automaticamente
+        // 4. Envia o formulário
         $('#mainForm').submit();
     });
 </script>
