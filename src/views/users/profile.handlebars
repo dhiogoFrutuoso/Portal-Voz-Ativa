@@ -161,38 +161,47 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
 <script>
-    // Esse comando garante que o código só rode DEPOIS que 
-    // todos os scripts do layout (jQuery e Bootstrap) carregarem.
-    window.addEventListener('load', function () {
+    // Usamos o seletor do jQuery para garantir que o DOM está pronto
+    $(document).ready(function() {
         
+        // 1. Variáveis Globais
         var modalElement = document.getElementById('modalCrop');
-        // Agora o 'bootstrap' já estará definido!
-        var bsModal = new bootstrap.Modal(modalElement); 
-        
         var image = document.getElementById('imageToCrop');
         var cropper;
+        
+        // 2. Tenta pegar a instância do Bootstrap (ou cria uma nova)
+        var bsModal = new bootstrap.Modal(modalElement);
 
-        $('#fileInput').on('change', function(e){
+        // 3. Quando seleciona o arquivo
+        $('#fileInput').on('change', function(e) {
             var files = e.target.files;
-            var done = function (url) {
-                image.src = url;
-                bsModal.show();
-            };
             if (files && files.length > 0) {
                 var reader = new FileReader();
-                reader.onload = function (e) { done(reader.result); };
+                reader.onload = function (event) {
+                    image.src = event.target.result;
+                    bsModal.show(); // Abre o modal
+                };
                 reader.readAsDataURL(files[0]);
             }
         });
 
+        // 4. Quando o modal terminar de abrir, inicia o Cropper
         modalElement.addEventListener('shown.bs.modal', function () {
+            // Se já existir um cropper (de uma tentativa anterior), destrói
+            if (cropper) {
+                cropper.destroy();
+            }
+
             cropper = new Cropper(image, {
                 aspectRatio: 1,
-                viewMode: 2,
+                viewMode: 1, // Mantém o corte dentro da imagem
+                dragMode: 'move',
+                autoCropArea: 0.8,
                 preview: '.preview-profile'
             });
         });
 
+        // 5. Quando o modal fechar, limpa o cropper para não pesar o navegador
         modalElement.addEventListener('hidden.bs.modal', function () {
             if (cropper) {
                 cropper.destroy();
@@ -200,28 +209,29 @@
             }
         });
 
-        $('#cropBtn').on('click', function(){
-            var canvas = cropper.getCroppedCanvas({ width: 400, height: 400 });
+        // 6. Botão de Salvar
+        $('#cropBtn').on('click', function() {
+            if (!cropper) return;
+
+            var canvas = cropper.getCroppedCanvas({
+                width: 400,
+                height: 400
+            });
+
             var base64data = canvas.toDataURL('image/png');
             
+            // Coloca no input hidden e envia
             $('#croppedImage').val(base64data);
-            bsModal.hide();
-            $('#mainForm').submit();
-        });
-        
-        modalElement.addEventListener('shown.bs.modal', function () {
-            // O segredo está em destruir o cropper antigo se ele existir antes de criar um novo
-            if (cropper) {
-                cropper.destroy();
-            }
             
-            cropper = new Cropper(image, {
-                aspectRatio: 1,
-                viewMode: 1, // '1' restringe a caixa de corte ao tamanho da imagem
-                autoCropArea: 1, // Começa com o corte selecionando tudo
-                responsive: true,
-                checkOrientation: false // Evita que imagens de celular girem sozinhas
-            });
+            // Feedback visual rápido
+            $('#currentAvatar').attr('src', base64data);
+            
+            bsModal.hide();
+            
+            // Pequeno delay para o modal fechar antes de dar o submit
+            setTimeout(function() {
+                $('#mainForm').submit();
+            }, 300);
         });
     });
 </script>
