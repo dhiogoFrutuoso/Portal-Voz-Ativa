@@ -79,6 +79,24 @@ router.post('/register', async (req, res) => {
     }
 });
 
+router.get('/login', (req, res) => {
+    res.render('users/login');
+});
+
+router.post('/login', (req, res, next) => {
+    passport.authenticate('local', {
+        successRedirect: '/',
+        failureRedirect: '/users/login',
+        failureFlash: true
+    })(req, res, next);
+});
+
+router.get('/logout', (req, res) => {
+    req.logout(() => {
+        res.redirect('/');
+    });
+});
+
 // --- EDIÇÃO DE PERFIL ---
 router.post('/profile/edit', async (req, res) => {
     if(!req.user) return res.redirect('/users/login');
