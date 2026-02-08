@@ -11,17 +11,15 @@ const user = mongoose.model('users');
 const router = express.Router();
 
 // --- CONFIGURAÇÃO DO CLOUDINARY ---
-// Substitua pelos seus dados do Dashboard do Cloudinary
 cloudinary.config({ 
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME, 
-  api_key: process.env.CLOUDINARY_API_KEY, 
-  api_secret: process.env.CLOUDINARY_API_SECRET 
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME, 
+    api_key: process.env.CLOUDINARY_API_KEY, 
+    api_secret: process.env.CLOUDINARY_API_SECRET 
 });
 
-// --- FUNÇÃO PARA SUBIR PARA O CLOUDINARY ---
+// --- FUNÇÃO AUXILIAR PARA SUBIR PARA O CLOUDINARY ---
 const uploadToCloudinary = async (base64String) => {
     try {
-        
         const result = await cloudinary.uploader.upload(base64String, {
             folder: 'img_users',
         });
@@ -33,6 +31,10 @@ const uploadToCloudinary = async (base64String) => {
 };
 
 // --- ROTAS DE REGISTRO ---
+router.get('/register', (req, res) => {
+    res.render('users/register');
+});
+
 router.post('/register', async (req, res) => {
     const { name, email, profession, bio, password, password_2, croppedImage } = req.body;
     let errors = [];
@@ -55,7 +57,6 @@ router.post('/register', async (req, res) => {
             });
         }
 
-        // ALTERAÇÃO: Agora envia para o Cloudinary
         let caminhoFoto = "/img/guest.jpg";
         if (croppedImage && croppedImage.startsWith("data:image")) {
             caminhoFoto = await uploadToCloudinary(croppedImage); 
@@ -79,6 +80,7 @@ router.post('/register', async (req, res) => {
     }
 });
 
+// --- LOGIN / LOGOUT ---
 router.get('/login', (req, res) => {
     res.render('users/login');
 });
@@ -97,6 +99,7 @@ router.get('/logout', (req, res) => {
     });
 });
 
+// --- PERFIL LOGADO ---
 router.get('/profile', (req, res) => {
     if (!req.user) {
         req.flash('error_msg', 'Faça login para acessar.');
@@ -116,10 +119,7 @@ router.post('/profile/edit', async (req, res) => {
         usuario.bio = req.body.bio;
         usuario.profession = req.body.profession;
 
-        // ALTERAÇÃO: Lógica do Cropper enviando para nuvem
         if (req.body.croppedImage && req.body.croppedImage.startsWith("data:image")) {
-            // No Cloudinary, você não precisa se preocupar em deletar manualmente 
-            // no código básico, mas aqui salvamos a nova URL
             usuario.profileImage = await uploadToCloudinary(req.body.croppedImage);
         }
 
@@ -171,16 +171,14 @@ router.post('/profile/change-password', async (req, res) => {
     }
 });
 
+// --- PERFIL PÚBLICO (CORRIGIDO) ---
 router.get('/perfil/:id', async (req, res) => {
-    
     try {
-        // 1. Verificar se o ID é um ID válido do MongoDB para não travar o servidor
         if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
             req.flash('error_msg', 'ID de usuário inválido.');
             return res.redirect('/');
         }
 
-        // 2. Buscar o usuário (use o nome que você registrou no mongoose.model)
         const User = mongoose.model('users'); 
         const Chamado = mongoose.model('chamados');
         const Vitrine = mongoose.model('vitrine');
@@ -192,16 +190,15 @@ router.get('/perfil/:id', async (req, res) => {
             return res.redirect('/');
         }
 
-        // 3. Buscar os chamados e as vitrines dele
         const vitrinesUsuario = await Vitrine.find({ usuario: req.params.id }).sort({ datacriacao: -1 }).lean();
         const chamadosDoUsuario = await Chamado.find({ usuario: req.params.id }).sort({ dataCriacao: -1 }).lean();
 
         const vitrinesEChamados = { ...vitrinesUsuario, ...chamadosDoUsuario };
-
-        // 4. Calcular total de curtidas recebidas
         const totalLikes = chamadosDoUsuario.reduce((acc, curr) => acc + (curr.curtidas ? curr.curtidas.length : 0), 0);
 
-        const eDonoDoPerfil = req.params.id === req.user._id.toString();
+        // CORREÇÃO AQUI: Verifica se req.user existe antes de acessar o _id
+        const eDonoDoPerfil = req.user ? req.params.id === req.user._id.toString() : false;
+
         res.render('users/userProfile', {
             usuario: req.params.id, 
             user: req.user, 
@@ -212,7 +209,6 @@ router.get('/perfil/:id', async (req, res) => {
         });
 
     } catch (err) {
-        // ISSO VAI MOSTRAR O ERRO REAL NO SEU TERMINAL (VS CODE)
         console.error("ERRO DETALHADO NO PERFIL:", err);
         req.flash('error_msg', 'Erro interno ao carregar o perfil.');
         res.redirect('/');
