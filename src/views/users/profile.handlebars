@@ -195,10 +195,6 @@
                 var reader = new FileReader();
                 reader.onload = function (event) {
                     image.src = event.target.result;
-<<<<<<< Updated upstream
-=======
-                    // IMPORTANTE: Destruir o cropper antigo antes de abrir o modal com foto nova
->>>>>>> Stashed changes
                     if (cropper) {
                         cropper.destroy();
                         cropper = null;
@@ -210,10 +206,10 @@
         });
 
         modalElement.addEventListener('shown.bs.modal', function () {
-<<<<<<< Updated upstream
             cropper = new Cropper(image, {
                 aspectRatio: 1,
-                viewMode: 1, 
+                // viewMode: 0 permite que a imagem fique menor que a caixa e saia dos limites (Zoom Livre)
+                viewMode: 0, 
                 dragMode: 'move',      // O mouse sempre arrasta a imagem
                 autoCropArea: 0.8,     // Inicia com a caixa já criada
                 restore: false,
@@ -244,23 +240,6 @@
             });
         });
 
-=======
-            // Inicialização limpa e segura
-            cropper = new Cropper(image, {
-                aspectRatio: 1,
-                viewMode: 1,
-                autoCropArea: 1,
-                responsive: false,
-                preview: '.preview-profile', // Ativa a janelinha de visualização lateral
-                ready: function () {
-                    // Garante que a caixa de seleção apareça corretamente
-                    console.log("Cropper pronto!");
-                }
-            });
-        });
-
-        // Limpeza total ao fechar o modal para não bugar a próxima abertura
->>>>>>> Stashed changes
         modalElement.addEventListener('hidden.bs.modal', function () {
             if (cropper) {
                 cropper.destroy();
@@ -274,49 +253,18 @@
             var canvas = cropper.getCroppedCanvas({
                 width: 400,
                 height: 400,
-<<<<<<< Updated upstream
                 fillColor: '#fff', // Fundo branco se a imagem for menor que o corte
             });
 
             var base64data = canvas.toDataURL('image/png');
             $('#croppedImage').val(base64data);
-=======
-            });
-
-            var base64data = canvas.toDataURL('image/png');
-            
-            // Atribui ao input hidden
-            $('#croppedImage').val(base64data);
-            
-            // Feedback visual imediato
->>>>>>> Stashed changes
             $('#currentAvatar').attr('src', base64data);
             
             bsModal.hide();
             
-<<<<<<< Updated upstream
             setTimeout(function(){
                 $('#mainForm').submit();
             }, 500);
-=======
-            // Envio do formulário
-            setTimeout(function(){
-                $('#mainForm').submit();
-            }, 500);
-        });
-        cropper = new Cropper(image, {
-            aspectRatio: 1,
-            dragMode: 'move',   // <--- FOCO AQUI: Ativa o arrastar por padrão
-            autoCropArea: 0.8,
-            restore: false,
-            guides: true,
-            center: true,
-            highlight: false,   // Impede de criar novas boxes de seleção
-            cropBoxMovable: true,
-            cropBoxResizable: true,
-            toggleDragModeOnDblclick: false,
-            preview: '.preview-profile'
->>>>>>> Stashed changes
         });
     });
 </script>
