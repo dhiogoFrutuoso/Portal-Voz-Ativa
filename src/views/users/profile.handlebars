@@ -8,25 +8,43 @@
     .btn-update:hover { background: #1e4d8c; transform: translateY(-2px); }
     .nav-pills .nav-link.active { background-color: #eef4ff !important; color: #13315c !important; border-left: 5px solid #f9ca24 !important; }
 
-    /* Estilos para o Cropper */
-    /* Container da imagem principal no modal */
-    .img-container {
-        width: 100%;
-        max-height: 400px;
-        background-color: #f7f7f7;
-        overflow: hidden;
+    /* Garante que a imagem caiba dentro do modal para você conseguir cortar */
+    img {
         display: block;
+        max-width: 100%;
     }
 
-    /* A DIV da prévia (o círculo ao lado) */
-    .preview-register, .preview-profile { 
-        width: 150px !important; 
-        height: 150px !important;
+    /* Muda o cursor quando você passa o mouse sobre a imagem no Cropper */
+    .cropper-face, .cropper-move {
+        cursor: grab !important;
+    }
+
+    .cropper-face:active, .cropper-move:active {
+        cursor: grabbing !important;
+    }
+
+    /* Isso impede que a imagem fique gigante ou saia do modal */
+    .img-container {
+        min-height: 400px; /* Garante um tamanho mínimo */
+        max-height: 500px; /* Garante que não suma da tela */
+        width: 100%;
+        background-color: #333; /* Fundo escuro ajuda a ver as bordas da imagem */
+        overflow: hidden;
+    }
+
+    #imageToCrop {
+        display: block;
+        max-width: 100%; /* Essencial para o Cropper não bugar */
+    }
+
+    /* Garante que a visualização lateral seja circular */
+    .preview-profile {
+        width: 160px;
+        height: 160px;
         border-radius: 50%;
-        border: 2px solid #13315c;
-        overflow: hidden; /* Essencial para o crop circular */
+        overflow: hidden;
         margin: 0 auto;
-        background-color: #eee;
+        border: 2px solid #ddd;
     }
 </style>
 
@@ -137,6 +155,10 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
+        <div class="mt-2 text-center">
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="cropper.zoom(0.1)"><i class="bi bi-zoom-in"></i> +</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="cropper.zoom(-0.1)"><i class="bi bi-zoom-out"></i> -</button>
+        </div>
         <div class="img-container">
             <div class="row">
                 <div class="col-md-8">
@@ -162,85 +184,86 @@
 
 <script>
     $(document).ready(function() {
-        var $modal = $('#modalCrop');
+        var modalElement = document.getElementById('modalCrop');
         var image = document.getElementById('imageToCrop');
         var cropper;
+        var bsModal = new bootstrap.Modal(modalElement);
 
-        // 1. Seleção do arquivo
-        $('#fileInput').on('change', function(e){
+        $('#fileInput').on('change', function(e) {
             var files = e.target.files;
             if (files && files.length > 0) {
                 var reader = new FileReader();
-                reader.onload = function (e) { 
-                    image.src = e.target.result;
-                    $modal.modal('show'); 
+                reader.onload = function (event) {
+                    image.src = event.target.result;
+                    if (cropper) {
+                        cropper.destroy();
+                        cropper = null;
+                    }
+                    bsModal.show();
                 };
                 reader.readAsDataURL(files[0]);
             }
         });
 
-        // 2. Inicialização quando o modal abre
-        $modal.on('shown.bs.modal', function () {
-            // Destruir se já existir para evitar que a seleção trave
-            if (cropper) {
-                cropper.destroy();
-            }
-
+        modalElement.addEventListener('shown.bs.modal', function () {
             cropper = new Cropper(image, {
                 aspectRatio: 1,
-                viewMode: 2,        // Importante: Mantém o zoom controlado
-                dragMode: 'move',   // <--- FOCO AQUI: Ativa o arrastar por padrão
-                autoCropArea: 0.8,
+                viewMode: 1, 
+                dragMode: 'move',      // O mouse sempre arrasta a imagem
+                autoCropArea: 0.8,     // Inicia com a caixa já criada
                 restore: false,
                 guides: true,
                 center: true,
-                highlight: false,   // Impede de criar novas boxes de seleção
+                highlight: false,
                 cropBoxMovable: true,
                 cropBoxResizable: true,
                 toggleDragModeOnDblclick: false,
+                
+                // CONFIGURAÇÕES DE ZOOM E PERMANÊNCIA
+                zoomOnWheel: true,     // Permite zoom com o scroll
+                zoomOnTouch: true,     // Permite zoom no celular (pinch)
+                wheelZoomRatio: 0.1,   // Velocidade do zoom
+                zoomable: true,        // Garante que o zoom está ativo
+                
+                ready: function () {
+                    // Isso impede que a caixa de seleção suma se você clicar fora dela
+                    var cropperInstance = this.cropper;
+                    $(image).on('cropend', function () {
+                        // Se por algum motivo a caixa sumir, ele força ela a voltar
+                        if (!cropperInstance.cropped) {
+                            cropperInstance.crop();
+                        }
+                    });
+                },
                 preview: '.preview-profile'
             });
-        }).on('hidden.bs.modal', function () {
+        });
+
+        modalElement.addEventListener('hidden.bs.modal', function () {
             if (cropper) {
                 cropper.destroy();
                 cropper = null;
             }
-            // Limpa o input file para permitir selecionar a mesma imagem de novo
-            $('#fileInput').val('');
         });
 
-        // 3. Clique no botão de Salvar
-        $('#cropBtn').on('click', function(){
+        $('#cropBtn').on('click', function() {
             if (!cropper) return;
 
-            var canvas = cropper.getCroppedCanvas({ 
-                width: 400, 
+            var canvas = cropper.getCroppedCanvas({
+                width: 400,
                 height: 400,
-                imageSmoothingEnabled: true,
-                imageSmoothingQuality: 'high'
+                fillColor: '#fff', // Fundo branco se a imagem for menor que o corte
             });
 
-            canvas.toBlob(function(blob){
-                var reader = new FileReader();
-                reader.readAsDataURL(blob); 
-                reader.onloadend = function() {
-                    var base64data = reader.result;
-                    
-                    // Coloca no input hidden
-                    $('#croppedImage').val(base64data);
-                    
-                    // Feedback visual na página antes de enviar
-                    $('#currentAvatar').attr('src', base64data);
-                    
-                    // Fecha o modal
-                    $modal.modal('hide');
-
-                    // Envia o formulário após um pequeno delay
-                    setTimeout(function() {
-                        $('#mainForm').submit();
-                    }, 300);
-                }
-            }, 'image/png'); // Força PNG para manter qualidade
+            var base64data = canvas.toDataURL('image/png');
+            $('#croppedImage').val(base64data);
+            $('#currentAvatar').attr('src', base64data);
+            
+            bsModal.hide();
+            
+            setTimeout(function(){
+                $('#mainForm').submit();
+            }, 500);
         });
     });
 </script>
