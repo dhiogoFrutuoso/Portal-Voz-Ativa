@@ -250,21 +250,45 @@
         $('#cropBtn').on('click', function() {
             if (!cropper) return;
 
-            var canvas = cropper.getCroppedCanvas({
-                width: 400,
-                height: 400,
-                fillColor: '#fff', // Fundo branco se a imagem for menor que o corte
-            });
-
+            // 1. Gera o Canvas do corte
+            var canvas = cropper.getCroppedCanvas({ width: 400, height: 400 });
             var base64data = canvas.toDataURL('image/png');
-            $('#croppedImage').val(base64data);
-            $('#currentAvatar').attr('src', base64data);
-            
-            bsModal.hide();
-            
-            setTimeout(function(){
-                $('#mainForm').submit();
-            }, 500);
+
+            // 2. Configurações do Cloudinary
+            var cloudName = 'Portal-Voz-Ativa'; // Substitua pelo seu
+            var unsignedPreset = 'perfil_preset'; // Substitua pelo seu preset
+
+            // 3. Preparar o "pacote" para envio
+            var formData = new FormData();
+            formData.append('file', base64data);
+            formData.append('upload_preset', unsignedPreset);
+
+            // 4. Enviar para a Nuvem via AJAX
+            $.ajax({
+                url: `https://api.cloudinary.com/v1_1/${cloudName}/upload`,
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    // A URL permanente da imagem que o Cloudinary gerou:
+                    var imageUrl = response.secure_url;
+                    
+                    // 5. Agora sim, colocamos o LINK no input e enviamos o seu form
+                    $('#croppedImage').val(imageUrl); // O input agora guarda o LINK, não o base64 gigante
+                    $('#currentAvatar').attr('src', imageUrl);
+                    
+                    bsModal.hide();
+                    
+                    setTimeout(function(){
+                        $('#mainForm').submit();
+                    }, 500);
+                },
+                error: function(err) {
+                    console.error("Erro ao subir para a nuvem:", err);
+                    alert("Erro ao salvar imagem. Tente novamente.");
+                }
+            });
         });
     });
 </script>
