@@ -75,7 +75,7 @@ O portal pode ser acessado através do link abaixo:
 
 O portal pode ser acessado através do link abaixo:
 
-📄 **[Clique aqui para visualizar o PDF do Projeto](./documento.pdf)**
+📄 **[Clique aqui para visualizar o PDF do Projeto](./PORTAL_VOZ_ATIVA.pdf)**
 
 ---
 
