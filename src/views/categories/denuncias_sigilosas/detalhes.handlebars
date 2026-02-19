@@ -15,7 +15,7 @@
                             <div class="carousel-inner">
                                 {{#each denuncia.imagens}}
                                 <div class="carousel-item {{#if @first}}active{{/if}} text-center">
-                                    <img src="{{this}}" class="img-fluid" style="max-height: 550px; width: 100%; object-fit: cover;" alt="Evidência {{#if @index}}{{add @index 1}}{{/if}}">
+                                    <img src="{{this}}" class="img-fluid" style="max-height: 550px; width: 100%; object-fit: cover;" alt="Evidência fotográfica">
                                 </div>
                                 {{/each}}
                             </div>
@@ -44,15 +44,17 @@
                         <h1 class="fw-bold text-dark display-6 mb-3">{{denuncia.titulo}}</h1>
                         <p class="lead text-secondary mb-4" style="line-height: 1.8;">{{denuncia.descricao}}</p>
                         
-                            {{#if denuncia.video}}
+                        {{#if denuncia.video}}
                             <div class="mb-4">
                                 <h6 class="fw-bold text-dark mb-3"><i class="bi bi-play-circle-fill me-2 text-danger"></i>Vídeo da Ocorrência</h6>
-                                <video controls preload="metadata" class="rounded-4 w-100 shadow-sm" style="max-height: 400px; background: #000;">
-                                    <source src="/videos/{{denuncia.video}}" type="video/mp4">
-                                    Seu navegador não suporta vídeos.
-                                </video>
+                                <div class="ratio ratio-16x9 shadow-sm overflow-hidden rounded-4" style="background: #000;">
+                                    <video controls preload="metadata" class="w-100 h-100">
+                                        <source src="{{denuncia.video}}" type="video/mp4">
+                                        Seu navegador não suporta vídeos.
+                                    </video>
+                                </div>
                             </div>
-                            {{/if}}
+                        {{/if}}
 
                         <div class="mb-4">
                             <h6 class="fw-bold text-dark mb-3"><i class="bi bi-map-fill me-2 text-danger"></i>Localização do Incidente</h6>
@@ -80,7 +82,7 @@
                     </div>
                     <div>
                         <label class="d-block small text-muted">Situação Atual:</label>
-                        <span class="text-primary fw-bold"><i class="bi bi-info-circle me-1"></i>{{denuncia.status}}</span>
+                        <span class="text-primary fw-bold"><i class="bi bi-info-circle me-1"></i>{{#if denuncia.status}}{{denuncia.status}}{{else}}Em Análise{{/if}}</span>
                     </div>
                 </div>
 
@@ -129,7 +131,6 @@
                         {{/each}}
                     </div>
 
-
                     <div class="p-3 bg-white border-top">
                         <form action="/categories/denuncias_sigilosas/comentar/{{denuncia._id}}" method="POST">
                             <div class="input-group">
@@ -152,6 +153,7 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Uso seguro de variáveis do Handlebars para evitar erros de sintaxe JS
         const lat = parseFloat("{{denuncia.latitude}}");
         const lng = parseFloat("{{denuncia.longitude}}");
         
@@ -159,7 +161,7 @@
             const map = L.map('mapDetails').setView([lat, lng], 16);
             
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             }).addTo(map);
 
             L.marker([lat, lng]).addTo(map)
@@ -169,7 +171,7 @@
                 map.invalidateSize(); 
             }, 200);
         } else {
-            document.getElementById('mapDetails').innerHTML = "<div class='d-flex h-100 align-items-center justify-content-center'><p class='text-muted'>Localização não disponível</p></div>";
+            document.getElementById('mapDetails').innerHTML = "<div class='d-flex h-100 align-items-center justify-content-center text-center p-3'><p class='text-muted small'>Localização exata não disponível para este protocolo.</p></div>";
         }
     });
 </script>
@@ -177,4 +179,7 @@
 <style>
     .hover-blue:hover { color: #0056b3 !important; text-decoration: underline; }
     .me-3 img:hover { transform: scale(1.1); }
+    .bg-danger-soft { background-color: rgba(220, 53, 69, 0.1); }
+    .transition-base { transition: all 0.3s ease; }
+    .transition-base:hover { transform: translateY(-2px); }
 </style>

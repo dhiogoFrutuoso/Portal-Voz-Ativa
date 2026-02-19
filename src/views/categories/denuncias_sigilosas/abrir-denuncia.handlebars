@@ -10,7 +10,7 @@
                     </div>
                     
                     <div class="card-body p-4 p-md-5 bg-white">
-                        <form id="mainForm" action="/categories/denuncias_sigilosas/abrir-denuncia" method="POST" enctype="multipart/form-data">
+                        <form id="mainForm" action="/categories/denuncias_sigilosas/abrir-denuncia" method="POST">
                             
                             <div class="mb-4">
                                 <label class="form-label fw-bold text-secondary small text-uppercase">Tipo de Ocorrência</label>
@@ -60,13 +60,18 @@
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold text-secondary small text-uppercase">Vídeo (Opcional)</label>
                                     <div class="upload-area rounded-4 p-3 text-center border-dashed bg-light" id="drop-zone-video" onclick="document.getElementById('videoInput').click()">
-                                        <input type="file" id="videoInput" name="video" accept="video/*" class="d-none">
+                                        <input type="file" id="videoInput" accept="video/*" class="d-none">
                                         <i class="bi bi-play-btn-fill fs-3 text-danger"></i>
                                         <p class="mb-0 small text-muted" id="video-status">Anexar Vídeo</p>
                                     </div>
                                     <div id="video-preview-container" class="mt-2 d-none">
-                                        <span class="badge bg-success w-100 py-2"><i class="bi bi-check-circle me-1"></i> Vídeo Carregado</span>
+                                        <div class="alert alert-success d-flex align-items-center mb-0 py-2">
+                                            <i class="bi bi-check-circle-fill me-2"></i>
+                                            <small id="video-filename">Vídeo selecionado</small>
+                                            <button type="button" class="btn-close ms-auto" style="font-size: 0.5rem;" onclick="removeVideo()"></button>
+                                        </div>
                                     </div>
+                                    <input type="hidden" name="video_url" id="videoUrlInput">
                                 </div>
                             </div>
 
@@ -97,12 +102,12 @@
 
 <script>
     $(document).ready(function() {
-        // --- CONFIGURAÇÕES CLOUDINARY ---
         const cloudName = 'dnh7vok3r';
         const unsignedPreset = 'Portal-Voz-Ativa';
         let selectedFiles = [];
+        let selectedVideo = null;
 
-        // --- LÓGICA DO MAPA (Corrigida para inicializar após o DOM) ---
+        // --- LÓGICA DO MAPA ---
         const latInicial = -6.5372;
         const lngInicial = -39.4958;
 
@@ -136,13 +141,11 @@
             updateFields(pos.lat, pos.lng);
         });
 
-        // --- LÓGICA DE PREVIEW DE IMAGENS ---
+        // --- LÓGICA DE FOTOS ---
         $('#imgInput').on('change', function(e) {
             const files = Array.from(e.target.files);
             files.forEach(file => {
-                if (selectedFiles.length < 3) {
-                    selectedFiles.push(file);
-                }
+                if (selectedFiles.length < 3) selectedFiles.push(file);
             });
             renderPreview();
         });
@@ -181,64 +184,76 @@
         }
 
         // --- LÓGICA DE VÍDEO ---
-        $('#videoInput').on('change', function() {
+        $('#videoInput').on('change', function(e) {
             if(this.files.length > 0) {
+                selectedVideo = this.files[0];
+                $('#video-filename').text(selectedVideo.name);
                 $('#video-preview-container').removeClass('d-none');
-                $('#video-status').text("Vídeo Alterar");
+                $('#video-status').text("Alterar Vídeo");
             }
         });
 
-        // --- LÓGICA DE SUBMIT COM CLOUDINARY (REPLICANDO PROFILE/REGISTER) ---
+        window.removeVideo = function() {
+            selectedVideo = null;
+            $('#videoInput').val('');
+            $('#video-preview-container').addClass('d-none');
+            $('#video-status').text("Anexar Vídeo");
+        }
+
+        // --- SUBMIT COM UPLOAD PARA CLOUDINARY ---
         $('#mainForm').on('submit', async function(e) {
             e.preventDefault();
             const btn = $('#submitBtn');
             const $urlsContainer = $('#cloudinaryUrlsContainer');
             
-            btn.html('<span class="spinner-border spinner-border-sm me-2"></span> Processando...').prop('disabled', true);
-            $urlsContainer.empty();
+            btn.html('<span class="spinner-border spinner-border-sm me-2"></span> Subindo mídias...').prop('disabled', true);
 
             try {
-                // Se houver imagens, faz o upload de cada uma
-                if (selectedFiles.length > 0) {
-                    for (let file of selectedFiles) {
-                        // Converte para Base64 como nos seus outros scripts
-                        const base64Data = await new Promise((resolve) => {
-                            const reader = new FileReader();
-                            reader.onload = (ev) => resolve(ev.target.result);
-                            reader.readAsDataURL(file);
-                        });
+                // 1. Upload das Imagens
+                $urlsContainer.empty();
+                for (let file of selectedFiles) {
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    formData.append('upload_preset', unsignedPreset);
+                    formData.append('folder', 'denuncias/fotos');
 
-                        const formData = new FormData();
-                        formData.append('file', base64Data);
-                        formData.append('upload_preset', unsignedPreset);
-
-                        const response = await $.ajax({
-                            url: `https://api.cloudinary.com/v1_1/${cloudName}/upload`,
-                            method: 'POST',
-                            data: formData,
-                            processData: false,
-                            contentType: false
-                        });
-
-                        // Injeta a URL no form como input hidden
-                        $urlsContainer.append(`<input type="hidden" name="imagens_urls[]" value="${response.secure_url}">`);
-                    }
+                    const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const data = await res.json();
+                    $urlsContainer.append(`<input type="hidden" name="imagens_urls[]" value="${data.secure_url}">`);
                 }
 
-                // Finaliza o envio do formulário
-                setTimeout(() => {
-                    document.getElementById('mainForm').submit();
-                }, 500);
+                // 2. Upload do Vídeo (se houver)
+                if (selectedVideo) {
+                    btn.html('<span class="spinner-border spinner-border-sm me-2"></span> Subindo vídeo (isso pode demorar)...');
+                    const videoData = new FormData();
+                    videoData.append('file', selectedVideo);
+                    videoData.append('upload_preset', unsignedPreset);
+                    videoData.append('folder', 'denuncias/videos');
+
+                    // Importante: vídeos usam a rota /video/upload
+                    const resVideo = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/video/upload`, {
+                        method: 'POST',
+                        body: videoData
+                    });
+                    const dataVideo = await resVideo.json();
+                    $('#videoUrlInput').val(dataVideo.secure_url);
+                }
+
+                // 3. Envio Final do Form para o Node.js
+                btn.html('<span class="spinner-border spinner-border-sm me-2"></span> Finalizando...').prop('disabled', true);
+                this.submit();
 
             } catch (err) {
-                console.error("Erro no Cloudinary:", err);
-                alert("Erro ao enviar imagens. Verifique sua conexão.");
+                console.error("Erro no upload:", err);
+                alert("Erro ao enviar arquivos para o servidor. Verifique o tamanho do vídeo ou sua conexão.");
                 btn.html('<i class="bi bi-shield-check me-2"></i>ENVIAR DENÚNCIA SIGILOSA').prop('disabled', false);
             }
         });
     });
 
-    // Função global para o campo Outro
     function toggleOutroField() {
         const select = document.getElementById('tipoOcorrencia');
         const campoOutro = document.getElementById('campoOutro');

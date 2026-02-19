@@ -235,11 +235,11 @@ router.get('/denuncias_sigilosas/hub', async (req, res) => {
     }
 });
 
-router.post('/denuncias_sigilosas/abrir-denuncia', isUser, uploadDenuncia, async (req, res) => {
+router.post('/denuncias_sigilosas/abrir-denuncia', isUser, async (req, res) => {
     try {
-        const { tipoOcorrencia, titulo, descricao, localizacao, latitude, longitude } = req.body;
+        const { tipoOcorrencia, titulo, descricao, localizacao, latitude, longitude, video_url } = req.body;
         
-        // Captura flexível para evitar array vazio
+        // Captura flexível para as imagens enviadas via Cloudinary no Front-end
         let imagensCloudinary = req.body['imagens_urls[]'] || req.body.imagens_urls || [];
         if (typeof imagensCloudinary === 'string') imagensCloudinary = [imagensCloudinary];
 
@@ -251,7 +251,8 @@ router.post('/denuncias_sigilosas/abrir-denuncia', isUser, uploadDenuncia, async
             latitude: latitude ? parseFloat(latitude) : null,
             longitude: longitude ? parseFloat(longitude) : null,
             imagens: imagensCloudinary,
-            video: req.files && req.files['video'] ? req.files['video'][0].filename : null,
+            // Agora pegamos a URL que veio do input hidden 'video_url' preenchido pelo script do front
+            video: video_url || null, 
             usuario: req.user._id
         };
 
@@ -259,7 +260,8 @@ router.post('/denuncias_sigilosas/abrir-denuncia', isUser, uploadDenuncia, async
         req.flash('success_msg', 'Denúncia enviada com sucesso!');
         res.redirect('/categories/denuncias_sigilosas/hub');
     } catch (err) {
-        console.error(err);
+        console.error("Erro ao salvar denúncia:", err);
+        req.flash('error_msg', 'Houve um erro ao processar sua denúncia.');
         res.redirect('/categories/denuncias_sigilosas/abrir-denuncia');
     }
 });
@@ -284,7 +286,9 @@ router.get('/denuncias_sigilosas/detalhes/:id', async (req, res) => {
                 ...denuncia,
                 curtidas: curtidas,
                 comentarios: denuncia.comentarios || [],
-                imagens: denuncia.imagens || [] 
+                imagens: denuncia.imagens || [],
+                // Garante que o campo video chegue ao template (pode ser a URL do Cloudinary)
+                video: denuncia.video || null 
             }, 
             jaCurtiu 
         });
