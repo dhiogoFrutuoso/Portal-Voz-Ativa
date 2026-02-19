@@ -82,7 +82,7 @@ router.post('/gestao_de_melhorias/abrir-chamado', isUser, upload.none(), async (
             localizacao,
             latitude: latitude ? parseFloat(latitude) : null, 
             longitude: longitude ? parseFloat(longitude) : null,
-            imagem: nomesImagens, // Certifique-se que no seu Model o campo é 'imagem' do tipo Array
+            imagens: nomesImagens, // Certifique-se que no seu Model o campo é 'imagem' do tipo Array
             usuario: req.user._id
         };
 
@@ -107,7 +107,7 @@ router.get('/gestao_de_melhorias/hub', async (req, res) => {
             doc.jaCurtiu = req.user ? doc.curtidas.some(id => id.toString() === req.user._id.toString()) : false;
             
             // Define a imagem principal para o card (primeira posição do array)
-            doc.imagemPrincipal = (doc.imagem && doc.imagem.length > 0) ? doc.imagem[0] : null;
+            doc.imagemPrincipal = (doc.imagens && doc.imagens.length > 0) ? doc.imagens[0] : null;
             
             return doc;
         });
@@ -139,7 +139,7 @@ router.get('/gestao_de_melhorias/detalhes/:id', async (req, res) => {
                 ...chamadoDoc,
                 curtidas: curtidas,
                 comentarios: chamadoDoc.comentarios || [],
-                imagens: chamadoDoc.imagem || [] 
+                imagens: chamadoDoc.imagens || [] 
             }, 
             jaCurtiu 
         });
