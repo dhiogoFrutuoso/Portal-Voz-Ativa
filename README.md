@@ -71,6 +71,14 @@ O portal pode ser acessado através do link abaixo:
 
 ---
 
+## 📋 PDF do projeto:
+
+O portal pode ser acessado através do link abaixo:
+
+📄 **[Clique aqui para visualizar o PDF do Projeto](./documento.pdf)**
+
+---
+
 <p align="center">
   Desenvolvido com ❤️ para a cidade de Cariús.
 </p>
