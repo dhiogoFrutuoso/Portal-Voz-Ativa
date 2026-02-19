@@ -15,7 +15,7 @@
                             <div class="carousel-inner">
                                 {{#each vitrine.imagens}}
                                 <div class="carousel-item {{#if @first}}active{{/if}} text-center">
-                                    <img src="/img_chamados/{{this}}" class="img-fluid" style="max-height: 550px; width: 100%; object-fit: cover;">
+                                    <img src="{{this}}" class="img-fluid" style="max-height: 550px; width: 100%; object-fit: cover;">
                                 </div>
                                 {{/each}}
                             </div>
@@ -36,16 +36,39 @@
                     {{/if}}
 
                     <div class="card-body p-4 p-md-5">
-                        <div class="d-flex align-items-center mb-3">
-                            <span class="badge bg-success px-3 py-2 rounded-pill me-3">Anúncio Ativo</span>
-                            <small class="text-muted"><i class="bi bi-calendar3 me-1"></i> {{formatDate vitrine.dataCriacao}}</small>
+                        <div class="d-flex align-items-center mb-3 flex-wrap gap-2">
+                            <span class="badge bg-success px-3 py-2 rounded-pill">Anúncio Ativo</span>
+                            <span class="badge bg-primary-soft text-primary px-3 py-2 rounded-pill border border-primary">
+                                <i class="bi bi-tag-fill me-1"></i> {{vitrine.categoriaExibida}}
+                            </span>
+                            <small class="text-muted ms-auto"><i class="bi bi-calendar3 me-1"></i> {{formatDate vitrine.dataCriacao}}</small>
                         </div>
                         
                         <h1 class="fw-bold text-dark display-6 mb-3">{{vitrine.titulo}}</h1>
-                        <p class="lead text-secondary mb-4" style="line-height: 1.8;">{{vitrine.descricao}}</p>
-                        
+                        <p class="lead text-secondary mb-4" style="line-height: 1.8; white-space: pre-line;">{{vitrine.descricao}}</p>
+
+                        <div class="row mb-5">
+                            {{#if vitrine.produtos}}
+                            <div class="col-md-6 mb-3">
+                                <div class="p-3 border rounded-4 bg-light h-100">
+                                    <h6 class="fw-bold text-success mb-2"><i class="bi bi-box-seam me-2"></i>Principais Produtos</h6>
+                                    <p class="mb-0 text-dark">{{vitrine.produtos}}</p>
+                                </div>
+                            </div>
+                            {{/if}}
+                            
+                            {{#if vitrine.servicos}}
+                            <div class="col-md-6 mb-3">
+                                <div class="p-3 border rounded-4 bg-light h-100">
+                                    <h6 class="fw-bold text-primary mb-2"><i class="bi bi-tools me-2"></i>Principais Serviços</h6>
+                                    <p class="mb-0 text-dark">{{vitrine.servicos}}</p>
+                                </div>
+                            </div>
+                            {{/if}}
+                        </div>
+
                         <div class="mb-4">
-                            <h6 class="fw-bold text-dark mb-3"><i class="bi bi-map-fill me-2 text-primary"></i>Localização Geográfica</h6>
+                            <h6 class="fw-bold text-dark mb-3"><i class="bi bi-map-fill me-2 text-danger"></i>Localização Geográfica</h6>
                             <div id="mapDetails" class="rounded-4 border shadow-sm mb-3" style="height: 300px; width: 100%; z-index: 1;"></div>
                             
                             <div class="p-3 bg-light rounded-4 border-start border-danger border-4">
@@ -66,11 +89,11 @@
                 <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
                     <h6 class="text-uppercase fw-bold text-muted small mb-3">Profissional Responsável</h6>
                     <div class="d-flex align-items-center mb-3">
-                        <div class="icon-shape rounded-circle me-3 overflow-hidden" style="width: 55px; height: 55px; flex-shrink: 0;">
+                        <div class="icon-shape rounded-circle me-3 overflow-hidden shadow-sm" style="width: 55px; height: 55px; flex-shrink: 0; border: 2px solid #eee;">
                             {{#if vitrine.usuario.profileImage}}
                                 <img src="{{vitrine.usuario.profileImage}}" alt="{{vitrine.usuario.name}}" class="w-100 h-100" style="object-fit: cover;">
                             {{else}}
-                                <div class="bg-primary-soft text-primary w-100 h-100 d-flex align-items-center justify-content-center">
+                                <div class="bg-light text-primary w-100 h-100 d-flex align-items-center justify-content-center">
                                     <i class="bi bi-person-fill fs-4"></i>
                                 </div>
                             {{/if}}
@@ -80,7 +103,7 @@
                             <small class="text-muted">{{vitrine.usuario.profession}}</small>
                         </div>
                     </div>
-                    <a href="https://wa.me/{{vitrine.whatsapp}}" target="_blank" class="btn btn-success w-100 rounded-pill fw-bold py-2 mb-2 shadow-sm">
+                    <a href="https://wa.me/55{{vitrine.contato}}" target="_blank" class="btn btn-success w-100 rounded-pill fw-bold py-2 mb-2 shadow-sm">
                         <i class="bi bi-whatsapp me-2"></i> Chamar no WhatsApp
                     </a>
                     <a href="/users/perfil/{{vitrine.usuario._id}}" class="btn btn-outline-primary w-100 rounded-pill fw-bold py-2 small">
@@ -107,31 +130,35 @@
                         <h6 class="fw-bold mb-0">Comentários <span class="badge bg-light text-dark ms-2">{{vitrine.comentarios.length}}</span></h6>
                     </div>
 
-                    <div class="p-4 overflow-auto" style="max-height: 450px; background-color: #fafafa;">
-                        {{#each vitrine.comentarios}}
-                            <div class="d-flex align-items-start mb-3">
-                                <a href="/users/perfil/{{this.usuario._id}}" class="me-3">
-                                    <img src="{{this.usuario.profileImage}}" 
-                                        alt="{{this.usuario.name}}" 
-                                        class="rounded-circle shadow-sm" 
-                                        style="width: 45px; height: 45px; object-fit: cover; border: 2px solid #13315c; transition: 0.3s;">
-                                </a>
-                                
-                                <div class="bg-light p-3 rounded-3 shadow-sm w-100 col-1">
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <a href="/users/perfil/{{this.usuario._id}}" class="text-decoration-none">
-                                            <h6 class="fw-bold mb-0 hover-blue" style="color: #13315c; font-size: 0.9rem;">
-                                                {{this.usuario.name}}
-                                            </h6>
-                                        </a>
-                                        <small class="text-muted" style="font-size: 0.75rem;">
-                                            {{formatDate this.createdAt}}
-                                        </small>
+                    <div class="p-4 overflow-auto" style="max-height: 400px; background-color: #fafafa;">
+                        {{#if vitrine.comentarios}}
+                            {{#each vitrine.comentarios}}
+                                <div class="d-flex align-items-start mb-3">
+                                    <a href="/users/perfil/{{this.usuario._id}}" class="me-3 flex-shrink-0">
+                                        <img src="{{this.usuario.profileImage}}" 
+                                            alt="{{this.usuario.name}}" 
+                                            class="rounded-circle shadow-sm" 
+                                            style="width: 40px; height: 40px; object-fit: cover; border: 2px solid #fff;">
+                                    </a>
+                                    
+                                    <div class="bg-white p-3 rounded-3 shadow-sm border w-100">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <a href="/users/perfil/{{this.usuario._id}}" class="text-decoration-none">
+                                                <h6 class="fw-bold mb-0 hover-blue text-primary" style="font-size: 0.85rem;">
+                                                    {{this.usuario.name}}
+                                                </h6>
+                                            </a>
+                                            <small class="text-muted" style="font-size: 0.7rem;">
+                                                {{formatDate this.createdAt}}
+                                            </small>
+                                        </div>
+                                        <p class="mb-0 small text-dark">{{this.texto}}</p>
                                     </div>
-                                    <p class="mb-0 small text-dark">{{this.texto}}</p>
                                 </div>
-                            </div>
-                        {{/each}}
+                            {{/each}}
+                        {{else}}
+                            <p class="text-center text-muted small py-3">Seja o primeiro a comentar!</p>
+                        {{/if}}
                     </div>
 
                     <div class="p-3 bg-white border-top">
@@ -163,7 +190,6 @@
         const lat = {{vitrine.latitude}};
         const lng = {{vitrine.longitude}};
 
-        // Se existirem coordenadas, inicia o mapa
         if (lat && lng) {
             const map = L.map('mapDetails').setView([lat, lng], 16);
 
@@ -171,23 +197,27 @@
                 attribution: '© OpenStreetMap'
             }).addTo(map);
 
-            // Adiciona o marcador no local exato
-            L.marker([lat, lng]).addTo(map)
-                .bindPopup("<b>Local do Anúncio</b><br>{{vitrine.titulo}}")
+            const customIcon = L.divIcon({
+                className: 'custom-div-icon',
+                html: "<div style='background-color:#dc3545; width:15px; height:15px; border-radius:50%; border:2px solid white; box-shadow: 0 0 5px rgba(0,0,0,0.5);'></div>",
+                iconSize: [15, 15],
+                iconAnchor: [7, 7]
+            });
+
+            L.marker([lat, lng], {icon: customIcon}).addTo(map)
+                .bindPopup("<b>{{vitrine.titulo}}</b><br>Trabalhador(a) está aqui.")
                 .openPopup();
         } else {
-            // Caso não tenha coordenadas no banco, esconde o mapa ou mostra centralizado em Cariús
-            document.getElementById('mapDetails').innerHTML = "<p class='text-center p-5 text-muted'>Coordenadas não disponíveis para este Anúncio.</p>";
+            document.getElementById('mapDetails').innerHTML = "<div class='d-flex align-items-center justify-content-center h-100'><p class='text-muted'>Localização não disponível.</p></div>";
         }
     });
 </script>
 
 <style>
     .hover-blue:hover { color: #0056b3 !important; text-decoration: underline; }
-    .me-3 img:hover { transform: scale(1.1); }
-    .bg-success-soft { background-color: rgba(25, 135, 84, 0.1); }
+    .bg-primary-soft { background-color: rgba(13, 110, 253, 0.05); }
     .transition-base { transition: all 0.3s ease; }
     .rounded-4 { border-radius: 1.25rem !important; }
-    /* Ajuste para o mapa não ficar em cima do menu se houver */
     #mapDetails { z-index: 1 !important; }
+    .carousel-item img { border-radius: 0; }
 </style>

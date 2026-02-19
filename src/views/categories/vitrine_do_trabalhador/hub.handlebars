@@ -154,12 +154,12 @@
 
         <div class="row g-4">
             {{#each anuncios}}
-                {{#if imagens.[0]}}
+                {{#if imagemPrincipal}}
                     <div class="col-12">
                         <div class="card shadow-lg border-top-success border-1 rounded-4 overflow-hidden hover-lift bg-white">
                             <div class="row g-0">
                                 <div class="col-md-4 position-relative">
-                                    <img src="/img_chamados/{{imagens.[0]}}" alt="{{titulo}}" class="img-extensa" style="width: 100%; height: 100%; object-fit: cover; min-height: 250px;" />
+                                    <img src="{{imagemPrincipal}}" class="card-img-top img-extensa" alt="{{this.titulo}}">
                                     <div class="img-overlay"></div>
                                 </div>
 
@@ -346,7 +346,6 @@
                         <i class="bi bi-search display-1 opacity-25"></i>
                         <h4 class="mt-4 fw-bold text-dark">Nenhum anúncio hoje</h4>
                         <p>Seja o primeiro a divulgar seus serviços na Vitrine!</p>
-                        <a href="/categories/vitrine_do_trabalhador/criar-vitrine" class="btn btn-success rounded-pill px-4 mt-2">Anunciar Agora</a>
                     </div>
                 </div>
             {{/each}}

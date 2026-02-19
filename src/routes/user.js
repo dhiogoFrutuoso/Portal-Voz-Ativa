@@ -18,14 +18,31 @@ cloudinary.config({
 });
 
 // --- FUNÇÃO AUXILIAR PARA SUBIR PARA O CLOUDINARY ---
-const uploadToCloudinary = async (base64String) => {
+const uploadToCloudinary = async (imageInput) => {
     try {
-        const result = await cloudinary.uploader.upload(base64String, {
-            folder: 'img_users',
-        });
-        return result.secure_url;
+        if (!imageInput || imageInput === "") {
+            return "/img/guest.jpg";
+        }
+
+        // Se já for uma URL do Cloudinary (enviada pelo seu AJAX frontend), apenas retorna ela
+        if (imageInput.startsWith('http')) {
+            return imageInput;
+        }
+
+        // Se for Base64, faz o upload normalmente
+        if (imageInput.startsWith('data:image')) {
+            const result = await cloudinary.uploader.upload(imageInput, {
+                folder: 'img_users',
+                transformation: [
+                    { width: 500, height: 500, crop: "fill", gravity: "face" }
+                ]
+            });
+            return result.secure_url;
+        }
+
+        return "/img/guest.jpg";
     } catch (error) {
-        console.error("Erro no Cloudinary:", error);
+        console.error("Erro no Cloudinary Backend:", error);
         return "/img/guest.jpg";
     }
 };
@@ -51,14 +68,15 @@ router.post('/register', async (req, res) => {
     try {
         const userExists = await user.findOne({ email: email });
         if (userExists) {
+            // Note: Usando render com mensagem de erro direta
             return res.render('users/register', { 
-                error_msg: "Já existe uma conta com este e-mail.", 
+                error_msg: "Já existe uma conta com este e-mail.",
                 name, email, profession, bio 
             });
         }
 
-        // Se o croppedImage vier vazio, usamos a imagem padrão
-        let caminhoFoto = (croppedImage && croppedImage !== "") ? croppedImage : "/img/guest.jpg";
+        // Processa a imagem (Seja URL pronta ou Base64)
+        const profileImageUrl = await uploadToCloudinary(croppedImage);
 
         const newUser = new user({
             name, 
@@ -66,7 +84,7 @@ router.post('/register', async (req, res) => {
             password, 
             profession, 
             bio, 
-            profileImage: caminhoFoto 
+            profileImage: profileImageUrl 
         });
 
         const salt = await bcrypt.genSalt(10);
@@ -119,8 +137,9 @@ router.post('/profile/edit', async (req, res) => {
 
         let updateData = { name, bio, profession };
 
+        // Se houver algo no croppedImage (URL ou Base64), processa
         if (croppedImage && croppedImage !== "") {
-            updateData.profileImage = croppedImage; 
+            updateData.profileImage = await uploadToCloudinary(croppedImage);
         }
 
         await user.findByIdAndUpdate(userId, updateData);
@@ -172,7 +191,7 @@ router.post('/profile/change-password', async (req, res) => {
     }
 });
 
-// --- PERFIL PÚBLICO (CORRIGIDO) ---
+// --- PERFIL PÚBLICO ---
 router.get('/perfil/:id', async (req, res) => {
     try {
         if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
@@ -191,13 +210,12 @@ router.get('/perfil/:id', async (req, res) => {
             return res.redirect('/');
         }
 
-        const vitrinesUsuario = await Vitrine.find({ usuario: req.params.id }).sort({ datacriacao: -1 }).lean();
+        const vitrinesUsuario = await Vitrine.find({ usuario: req.params.id }).sort({ dataCriacao: -1 }).lean();
         const chamadosDoUsuario = await Chamado.find({ usuario: req.params.id }).sort({ dataCriacao: -1 }).lean();
 
-        const vitrinesEChamados = { ...vitrinesUsuario, ...chamadosDoUsuario };
+        const vitrinesEChamados = [...vitrinesUsuario, ...chamadosDoUsuario];
         const totalLikes = chamadosDoUsuario.reduce((acc, curr) => acc + (curr.curtidas ? curr.curtidas.length : 0), 0);
 
-        // CORREÇÃO AQUI: Verifica se req.user existe antes de acessar o _id
         const eDonoDoPerfil = req.user ? req.params.id === req.user._id.toString() : false;
 
         res.render('users/userProfile', {
@@ -205,8 +223,8 @@ router.get('/perfil/:id', async (req, res) => {
             user: req.user, 
             eDonoDoPerfil,
             perfil: usuarioPerfil, 
-            vitrinesEChamados: vitrinesEChamados,
-            totalLikes: totalLikes
+            vitrinesEChamados,
+            totalLikes
         });
 
     } catch (err) {

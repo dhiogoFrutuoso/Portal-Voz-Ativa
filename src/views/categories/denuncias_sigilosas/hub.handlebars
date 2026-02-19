@@ -157,72 +157,70 @@
 
         <div class="row g-4">
             {{#each denuncias}}
-                {{#if imagens.[0]}}
-                    {{#if (eq tipoOcorrencia 'Foco de Queimada')}}
-                        <div class="col-12">
-                            <div class="card shadow-lg border-top-primary border-1 rounded-4 overflow-hidden hover-lift bg-white">
-                                <div class="row g-0">
-                                    <div class="col-md-4 position-relative">
-                                        {{#if imagens.[0]}}
-                                            <img src="/img_chamados/{{imagens.[0]}}" alt="{{titulo}}" class="img-extensa" />
-                                            <div class="img-overlay"></div>
-                                        {{else}}
-                                            <div class="bg-dark d-flex flex-column align-items-center justify-content-center h-100 min-h-250">
-                                                <i class="bi bi-shield-slash text-white-50 display-4 mb-2"></i>
-                                                <span class="text-white-50 small">Sem evidência visual</span>
-                                            </div>
-                                        {{/if}}
-                                    </div>
+                {{#if (eq tipoOcorrencia 'Foco de Queimada')}}
+                    <div class="col-12">
+                        <div class="card shadow-lg border-top-primary border-1 rounded-4 overflow-hidden hover-lift bg-white">
+                            <div class="row g-0">
+                                <div class="col-md-4 position-relative">
+                                    {{#if imagemPrincipal}}
+                                        <img src="{{imagemPrincipal}}" alt="{{titulo}}" class="img-extensa" />
+                                        <div class="img-overlay"></div>
+                                    {{else}}
+                                        <div class="bg-dark d-flex flex-column align-items-center justify-content-center h-100 min-h-250">
+                                            <i class="bi bi-shield-slash text-white-50 display-4 mb-2"></i>
+                                            <span class="text-white-50 small">Sem evidência visual</span>
+                                        </div>
+                                    {{/if}}
+                                </div>
 
-                                    <div class="col-md-8">
-                                        <div class="card-body p-4 p-lg-5 h-100 d-flex flex-column">
-                                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                                <span class="badge {{#if (eq status 'Em Análise')}}bg-warning-soft text-warning{{else}}bg-success-soft text-success{{/if}} px-3 py-2 rounded-pill fw-bold">
-                                                    <i class="bi bi-circle-fill me-2 small"></i>{{status}}
-                                                </span>
-                                                <div class="text-muted small">
-                                                    <i class="bi bi-calendar3 me-1"></i> {{formatDate dataCriacao}}
+                                <div class="col-md-8">
+                                    <div class="card-body p-4 p-lg-5 h-100 d-flex flex-column">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <span class="badge {{#if (eq status 'Em Análise')}}bg-warning-soft text-warning{{else}}bg-success-soft text-success{{/if}} px-3 py-2 rounded-pill fw-bold">
+                                                <i class="bi bi-circle-fill me-2 small"></i>{{status}}
+                                            </span>
+                                            <div class="text-muted small">
+                                                <i class="bi bi-calendar3 me-1"></i> {{formatDate dataCriacao}}
+                                            </div>
+                                        </div>
+                                        
+                                        <h3 class="card-title fw-bold text-dark mb-3">
+                                            <i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>
+                                            {{#if (eq tipoOcorrencia 'Outro')}}{{titulo}}{{else}}{{tipoOcorrencia}}{{/if}}
+                                        </h3>
+                                        <p class="card-text text-secondary mb-4 leading-relaxed text-truncate-3">
+                                            {{descricao}}
+                                        </p>
+                                        
+                                        <div class="mt-auto pt-4 border-top">
+                                            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="icon-shape bg-danger-soft text-danger rounded-circle me-3">
+                                                        <i class="bi bi-geo-alt-fill"></i>
+                                                    </div>
+                                                    <div>
+                                                        <p class="text-muted small mb-0">Localização do Incidente</p>
+                                                        <span class="fw-bold text-dark">{{localizacao}}</span>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            
-                                            <h3 class="card-title fw-bold text-dark mb-3">
-                                                <i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>
-                                                {{#if (eq tipoOcorrencia 'Outro')}}{{titulo}}{{else}}{{tipoOcorrencia}}{{/if}}
-                                            </h3>
-                                            <p class="card-text text-secondary mb-4 leading-relaxed text-truncate-3">
-                                                {{descricao}}
-                                            </p>
-                                            
-                                            <div class="mt-auto pt-4 border-top">
-                                                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="icon-shape bg-danger-soft text-danger rounded-circle me-3">
-                                                            <i class="bi bi-geo-alt-fill"></i>
-                                                        </div>
-                                                        <div>
-                                                            <p class="text-muted small mb-0">Localização do Incidente</p>
-                                                            <span class="fw-bold text-dark">{{localizacao}}</span>
-                                                        </div>
-                                                    </div>
 
-                                                    <div class="d-flex align-items-center gap-2">
-                                                        <form action="/categories/denuncias_sigilosas/like/{{_id}}" method="POST" class="m-0">
-                                                            <button type="submit" class="btn btn-sm rounded-pill border shadow-sm hover-lift px-3 transition-base 
-                                                                {{#if jaCurtiu}}btn-danger text-white{{else}}btn-light text-danger{{/if}}">
-                                                                <i class="bi {{#if jaCurtiu}}bi-heart-fill{{else}}bi-heart{{/if}} me-1"></i>
-                                                                <span class="fw-bold">{{curtidas.length}}</span>
-                                                            </button>
-                                                        </form>
-                                                        
-                                                        <a href="/categories/denuncias_sigilosas/detalhes/{{_id}}#comentarios" class="btn btn-light btn-sm rounded-pill hover-lift border px-3 transition-base" title="Ver comentários">
-                                                            <i class="bi bi-chat-dots-fill text-primary me-1"></i>
-                                                            <span class="fw-bold">{{comentarios.length}}</span>
-                                                        </a>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <form action="/categories/denuncias_sigilosas/like/{{_id}}" method="POST" class="m-0">
+                                                        <button type="submit" class="btn btn-sm rounded-pill border shadow-sm hover-lift px-3 transition-base 
+                                                            {{#if jaCurtiu}}btn-danger text-white{{else}}btn-light text-danger{{/if}}">
+                                                            <i class="bi {{#if jaCurtiu}}bi-heart-fill{{else}}bi-heart{{/if}} me-1"></i>
+                                                            <span class="fw-bold">{{curtidas.length}}</span>
+                                                        </button>
+                                                    </form>
+                                                    
+                                                    <a href="/categories/denuncias_sigilosas/detalhes/{{_id}}#comentarios" class="btn btn-light btn-sm rounded-pill hover-lift border px-3 transition-base" title="Ver comentários">
+                                                        <i class="bi bi-chat-dots-fill text-primary me-1"></i>
+                                                        <span class="fw-bold">{{comentarios.length}}</span>
+                                                    </a>
 
-                                                        <a href="/categories/denuncias_sigilosas/detalhes/{{_id}}" class="btn btn-dark btn-sm rounded-pill px-4 fw-bold shadow-sm transition-base">
-                                                            Ver Protocolo <i class="bi bi-arrow-right ms-1"></i>
-                                                        </a>
-                                                    </div>
+                                                    <a href="/categories/denuncias_sigilosas/detalhes/{{_id}}" class="btn btn-dark btn-sm rounded-pill px-4 fw-bold shadow-sm transition-base">
+                                                        Ver Protocolo <i class="bi bi-arrow-right ms-1"></i>
+                                                    </a>
                                                 </div>
                                             </div>
                                         </div>
@@ -230,68 +228,7 @@
                                 </div>
                             </div>
                         </div>
-                    {{/if}}
-                {{else}}
-                    {{#if (eq tipoOcorrencia 'Foco de Queimada')}}
-                        <div class="col-12 mb-4">
-                            <div class="card shadow-lg border-0 rounded-4 overflow-hidden hover-lift bg-white" style="border-left: 8px solid #dc3545 !important;">
-                                <div class="card-body p-4 p-lg-5 d-flex flex-column">
-                                    
-                                    <div class="d-flex justify-content-between align-items-center mb-4">
-                                        <span class="badge {{#if (eq status 'Em Análise')}}bg-warning-soft text-warning{{else}}bg-success-soft text-success{{/if}} px-3 py-2 rounded-pill fw-bold">
-                                            <i class="bi bi-circle-fill me-2 small"></i>{{status}}
-                                        </span>
-                                        <div class="text-muted small">
-                                            <i class="bi bi-calendar3 me-1"></i> {{formatDate dataCriacao}}
-                                        </div>
-                                    </div>
-                                    
-                                    <h3 class="card-title fw-bold text-dark mb-3">
-                                        <i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>
-                                        {{#if (eq tipoOcorrencia 'Outro')}}{{titulo}}{{else}}{{tipoOcorrencia}}{{/if}}
-                                    </h3>
-                                    
-                                    <p class="card-text text-secondary mb-4 leading-relaxed">
-                                        {{descricao}}
-                                    </p>
-                                    
-                                    <div class="mt-auto pt-4 border-top">
-                                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
-                                            
-                                            <div class="d-flex align-items-center">
-                                                <div class="icon-shape bg-danger-soft text-danger rounded-circle me-3">
-                                                    <i class="bi bi-geo-alt-fill"></i>
-                                                </div>
-                                                <div>
-                                                    <p class="text-muted small mb-0">Localização do Incidente</p>
-                                                    <span class="fw-bold text-dark">{{localizacao}}</span>
-                                                </div>
-                                            </div>
-
-                                            <div class="d-flex align-items-center gap-2">
-                                                <form action="/categories/denuncias_sigilosas/like/{{_id}}" method="POST" class="m-0">
-                                                    <button type="submit" class="btn btn-sm rounded-pill border shadow-sm hover-lift px-3 transition-base 
-                                                        {{#if jaCurtiu}}btn-danger text-white{{else}}btn-light text-danger{{/if}}">
-                                                        <i class="bi {{#if jaCurtiu}}bi-heart-fill{{else}}bi-heart{{/if}} me-1"></i>
-                                                        <span class="fw-bold">{{curtidas.length}}</span>
-                                                    </button>
-                                                </form>
-                                                
-                                                <a href="/categories/denuncias_sigilosas/detalhes/{{_id}}#comentarios" class="btn btn-light btn-sm rounded-pill hover-lift border px-3 transition-base" title="Ver comentários">
-                                                    <i class="bi bi-chat-dots-fill text-primary me-1"></i>
-                                                    <span class="fw-bold">{{comentarios.length}}</span>
-                                                </a>
-
-                                                <a href="/categories/denuncias_sigilosas/detalhes/{{_id}}" class="btn btn-dark btn-sm rounded-pill px-4 fw-bold shadow-sm transition-base">
-                                                    Ver Protocolo <i class="bi bi-arrow-right ms-1"></i>
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    {{/if}}
+                    </div>
                 {{/if}}
             {{else}}
                 <div class="col-12 text-center py-5">
@@ -317,7 +254,6 @@
         box-shadow: 0 15px 30px rgba(0,0,0,0.08) !important;
     }
     
-    /* Destaque para Queimadas */
     .border-queimada {
         border-left: 8px solid #dc3545 !important;
         background: linear-gradient(to right, #fff5f5, #ffffff);
@@ -340,7 +276,7 @@
     .text-truncate-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     .hover-lift { transition: transform 0.2s; }
     .hover-lift:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important; }
-    /* Estilos do Efeito de Luz nos Botões */
+    
     .btn-light-effect { position: relative; overflow: hidden; z-index: 1; transition: all 0.3s ease; }
     .btn-light-effect span { position: relative; z-index: 2; }
     .btn-light-effect::before {
@@ -350,10 +286,6 @@
     }
     .btn-light-effect:hover::before { left: 100%; }
 
-    .hover-lift { transition: all 0.3s ease; }
-    .hover-lift:hover { transform: translateY(-10px); box-shadow: 0 1rem 3rem rgba(0,0,0,0.175) !important; }
-
-    /* Utilitários */
     .mt-n5-custom { margin-top: -85px; position: relative; z-index: 5; }
     .glass-card { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 25px; }
     .floating-img { animation: float 5s ease-in-out infinite; }

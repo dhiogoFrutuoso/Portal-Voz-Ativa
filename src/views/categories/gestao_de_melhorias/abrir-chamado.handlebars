@@ -10,7 +10,7 @@
                     </div>
                     
                     <div class="card-body p-4 p-md-5 bg-white">
-                        <form action="/categories/gestao_de_melhorias/abrir-chamado" method="POST" enctype="multipart/form-data">
+                        <form id="mainForm" action="/categories/gestao_de_melhorias/abrir-chamado" method="POST">
                             
                             <div class="mb-4">
                                 <label class="form-label fw-bold text-secondary small text-uppercase">O que precisa de atenção?</label>
@@ -45,7 +45,7 @@
 
                                     <div id="preview-grid" class="row g-2 mt-2 d-none"></div>
                                 </div>
-                                <div id="file-container"></div> 
+                                <div id="cloudinaryUrlsContainer"></div> 
                             </div>
 
                             <div class="mb-5">
@@ -54,7 +54,7 @@
                             </div>
 
                             <div class="d-grid gap-3">
-                                <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold shadow-sm py-3 transition-base">
+                                <button type="submit" id="submitBtn" class="btn btn-primary btn-lg rounded-pill fw-bold shadow-sm py-3 transition-base">
                                     CONFIRMAR REGISTRO
                                 </button>
                                 <a href="/categories/gestao_de_melhorias/hub" class="btn btn-link text-decoration-none text-muted fw-bold">
@@ -71,147 +71,147 @@
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
-    let selectedFiles = [];
-    const imgInput = document.getElementById('imgInput');
-    const previewGrid = document.getElementById('preview-grid');
-    const placeholder = document.getElementById('placeholder-upload');
+    $(document).ready(function() {
+        // --- CONFIGURAÇÕES CLOUDINARY ---
+        const cloudName = 'dnh7vok3r';
+        const unsignedPreset = 'Portal-Voz-Ativa';
+        let selectedFiles = [];
 
-    imgInput.addEventListener('change', function(e) {
-        const files = Array.from(e.target.files);
-        
-        // Adiciona apenas se não exceder 3
-        files.forEach(file => {
-            if (selectedFiles.length < 3) {
-                selectedFiles.push(file);
-            }
+        // --- LÓGICA DO MAPA ---
+        const latInicial = -6.5372;
+        const lngInicial = -39.4958;
+
+        const map = L.map('map').setView([latInicial, lngInicial], 15);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        let marker = L.marker([latInicial, lngInicial], {draggable: true}).addTo(map);
+
+        function updateFields(lat, lng) {
+            document.getElementById('latInput').value = lat.toFixed(6);
+            document.getElementById('lngInput').value = lng.toFixed(6);
+            
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`)
+                .then(res => res.json())
+                .then(data => {
+                    if(data.display_name) {
+                        document.getElementById('addressInput').value = data.display_name;
+                    }
+                });
+        }
+
+        map.on('click', e => {
+            marker.setLatLng(e.latlng);
+            updateFields(e.latlng.lat, e.latlng.lng);
         });
 
-        renderPreview();
-        updateInput(); // Sincroniza os arquivos para o envio
-    });
+        marker.on('dragend', () => {
+            const pos = marker.getLatLng();
+            updateFields(pos.lat, pos.lng);
+        });
 
-    function renderPreview() {
-        previewGrid.innerHTML = '';
-        
-        if (selectedFiles.length > 0) {
-            previewGrid.classList.remove('d-none');
-            // Só esconde o placeholder se chegar em 3 fotos, 
-            // senão deixa o ícone para adicionar mais.
-            placeholder.classList.toggle('d-none', selectedFiles.length >= 3);
-
-            selectedFiles.forEach((file, index) => {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const div = document.createElement('div');
-                    div.className = 'col-4 position-relative';
-                    div.innerHTML = `
-                        <div class="ratio ratio-1x1">
-                            <img src="${e.target.result}" class="img-fluid rounded-3 border shadow-sm object-fit-cover">
-                        </div>
-                        <button type="button" onclick="removeFile(${index})" 
-                                class="btn btn-danger btn-sm position-absolute top-0 start-100 translate-middle rounded-circle p-0" 
-                                style="width: 22px; height: 22px; z-index: 10;">
-                            <i class="bi bi-x"></i>
-                        </button>
-                    `;
-                    previewGrid.appendChild(div);
+        // --- LÓGICA DE PREVIEW DE IMAGENS ---
+        $('#imgInput').on('change', function(e) {
+            const files = Array.from(e.target.files);
+            files.forEach(file => {
+                if (selectedFiles.length < 3) {
+                    selectedFiles.push(file);
                 }
-                reader.readAsDataURL(file);
             });
-        } else {
-            previewGrid.classList.add('d-none');
-            placeholder.classList.remove('d-none');
+            renderPreview();
+        });
+
+        window.removeFile = function(index) {
+            selectedFiles.splice(index, 1);
+            renderPreview();
         }
-    }
 
-    function removeFile(index) {
-        selectedFiles.splice(index, 1);
-        renderPreview();
-        updateInput();
-    }
+        function renderPreview() {
+            const $previewGrid = $('#preview-grid');
+            const $placeholder = $('#placeholder-upload');
+            $previewGrid.empty();
 
-    // Função crucial: Como o FileList é somente leitura, 
-    // usamos o DataTransfer para simular um novo input de arquivos
-    function updateInput() {
-        const dataTransfer = new DataTransfer();
-        selectedFiles.forEach(file => dataTransfer.items.add(file));
-        imgInput.files = dataTransfer.files;
-        
-        // Garante que o nome do campo seja 'imagens' para o Multer no backend
-        imgInput.name = "imagens"; 
-    }
-    // --- MAPA COM LEAFLET ---
-    // Coordenadas de Cariús, CE
-    const latInicial = -6.5372;
-    const lngInicial = -39.4958;
+            if (selectedFiles.length > 0) {
+                $previewGrid.removeClass('d-none');
+                $placeholder.toggleClass('d-none', selectedFiles.length >= 3);
 
-    const map = L.map('map').setView([latInicial, lngInicial], 15);
-
-    // Camada do Mapa (OpenStreetMap)
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
-
-    // Marcador
-    let marker = L.marker([latInicial, lngInicial], {
-        draggable: true
-    }).addTo(map);
-
-    // Função para atualizar campos
-    function updateFields(lat, lng) {
-        document.getElementById('latInput').value = lat.toFixed(6);
-        document.getElementById('lngInput').value = lng.toFixed(6);
-        
-        // Busca o endereço usando Nominatim (Geocoding Grátis)
-        fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.display_name) {
-                    document.getElementById('addressInput').value = data.display_name;
-                }
-            });
-    }
-
-    // Evento de clique no mapa
-    map.on('click', function(e) {
-        marker.setLatLng(e.latlng);
-        updateFields(e.latlng.lat, e.latlng.lng);
-    });
-
-    // Evento de arrastar o marcador
-    marker.on('dragend', function(e) {
-        const position = marker.getLatLng();
-        updateFields(position.lat, position.lng);
-    });
-
-    // --- PREVIEW DE IMAGENS ---
-    document.getElementById('imgInput').addEventListener('change', function() {
-        const grid = document.getElementById('preview-grid');
-        const placeholder = document.getElementById('placeholder-upload');
-        grid.innerHTML = '';
-        if (this.files.length > 0) {
-            grid.classList.remove('d-none');
-            placeholder.classList.add('d-none');
-            Array.from(this.files).slice(0, 3).forEach(file => {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const div = document.createElement('div');
-                    div.className = 'col-4';
-                    div.innerHTML = `<img src="${e.target.result}" class="img-fluid rounded-3 border shadow-sm" style="height: 80px; width: 100%; object-fit: cover;">`;
-                    grid.appendChild(div);
-                }
-                reader.readAsDataURL(file);
-            });
+                selectedFiles.forEach((file, index) => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const html = `
+                            <div class="col-4 position-relative">
+                                <div class="ratio ratio-1x1 shadow-sm rounded-3 overflow-hidden border">
+                                    <img src="${e.target.result}" class="object-fit-cover w-100 h-100">
+                                </div>
+                                <button type="button" onclick="removeFile(${index})" 
+                                        class="btn btn-danger btn-sm position-absolute top-0 start-100 translate-middle rounded-circle p-0" 
+                                        style="width:22px; height:22px; z-index: 10; border: 2px solid white;">
+                                    <i class="bi bi-x"></i>
+                                </button>
+                            </div>`;
+                        $previewGrid.append(html);
+                    }
+                    reader.readAsDataURL(file);
+                });
+            } else {
+                $previewGrid.addClass('d-none');
+                $placeholder.removeClass('d-none');
+            }
         }
+
+        // --- LÓGICA DE SUBMIT COM CLOUDINARY ---
+        $('#mainForm').on('submit', async function(e) {
+            e.preventDefault();
+            const btn = $('#submitBtn');
+            const $urlsContainer = $('#cloudinaryUrlsContainer');
+            
+            btn.html('<span class="spinner-border spinner-border-sm me-2"></span> Processando...').prop('disabled', true);
+            $urlsContainer.empty();
+
+            try {
+                if (selectedFiles.length > 0) {
+                    for (let file of selectedFiles) {
+                        const base64Data = await new Promise((resolve) => {
+                            const reader = new FileReader();
+                            reader.onload = (ev) => resolve(ev.target.result);
+                            reader.readAsDataURL(file);
+                        });
+
+                        const formData = new FormData();
+                        formData.append('file', base64Data);
+                        formData.append('upload_preset', unsignedPreset);
+
+                        const response = await $.ajax({
+                            url: `https://api.cloudinary.com/v1_1/${cloudName}/upload`,
+                            method: 'POST',
+                            data: formData,
+                            processData: false,
+                            contentType: false
+                        });
+
+                        // Injeta como 'imagens[]' para o backend receber a array
+                        $urlsContainer.append(`<input type="hidden" name="imagens[]" value="${response.secure_url}">`);
+                    }
+                }
+
+                // Envio final
+                this.submit();
+
+            } catch (err) {
+                console.error("Erro no Cloudinary:", err);
+                alert("Erro ao enviar imagens. Verifique sua conexão.");
+                btn.html('CONFIRMAR REGISTRO').prop('disabled', false);
+            }
+        });
     });
 </script>
 
 <style>
-    /* Estilo extra para as imagens ficarem sempre quadradas no preview */
     .object-fit-cover { object-fit: cover; }
-    .ratio-1x1 { background: #eee; border-radius: 8px; }
     .custom-input { background-color: #f8f9fa !important; border: 1px solid #dee2e6 !important; border-radius: 12px !important; padding: 12px 15px; }
     .custom-input:focus { border-color: #13315c !important; box-shadow: none !important; background-color: #fff !important; }
     .border-dashed { border: 2px dashed #cbd5e0; transition: 0.3s; }

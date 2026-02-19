@@ -10,7 +10,7 @@
                     </div>
                     
                     <div class="card-body p-4 p-md-5 bg-white">
-                        <form action="/categories/denuncias_sigilosas/abrir-denuncia" method="POST" enctype="multipart/form-data">
+                        <form id="mainForm" action="/categories/denuncias_sigilosas/abrir-denuncia" method="POST" enctype="multipart/form-data">
                             
                             <div class="mb-4">
                                 <label class="form-label fw-bold text-secondary small text-uppercase">Tipo de Ocorrência</label>
@@ -48,11 +48,13 @@
                                 <div class="col-md-6 mb-3 mb-md-0">
                                     <label class="form-label fw-bold text-secondary small text-uppercase">Fotos (Máx 3)</label>
                                     <div class="upload-area rounded-4 p-3 text-center border-dashed bg-light" id="drop-zone-img" onclick="document.getElementById('imgInput').click()">
-                                        <input type="file" id="imgInput" name="imagens" accept="image/*" class="d-none" multiple>
+                                        <input type="file" id="imgInput" accept="image/*" class="d-none" multiple>
                                         <i class="bi bi-camera-fill fs-3 text-primary"></i>
                                         <p class="mb-0 small text-muted">Adicionar Fotos</p>
                                     </div>
                                     <div id="preview-grid" class="row g-2 mt-2 d-none"></div>
+                                    
+                                    <div id="cloudinaryUrlsContainer"></div>
                                 </div>
 
                                 <div class="col-md-6">
@@ -74,7 +76,7 @@
                             </div>
 
                             <div class="d-grid gap-3">
-                                <button type="submit" class="btn btn-danger btn-lg rounded-pill fw-bold shadow-sm py-3 transition-base">
+                                <button type="submit" id="submitBtn" class="btn btn-danger btn-lg rounded-pill fw-bold shadow-sm py-3 transition-base">
                                     <i class="bi bi-shield-check me-2"></i>ENVIAR DENÚNCIA SIGILOSA
                                 </button>
                                 <a href="/categories/denuncias_sigilosas/hub" class="btn btn-link text-decoration-none text-muted fw-bold">
@@ -91,9 +93,152 @@
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
-    // --- LÓGICA DO CAMPO DINÂMICO "OUTRO" ---
+    $(document).ready(function() {
+        // --- CONFIGURAÇÕES CLOUDINARY ---
+        const cloudName = 'dnh7vok3r';
+        const unsignedPreset = 'Portal-Voz-Ativa';
+        let selectedFiles = [];
+
+        // --- LÓGICA DO MAPA (Corrigida para inicializar após o DOM) ---
+        const latInicial = -6.5372;
+        const lngInicial = -39.4958;
+
+        const map = L.map('map').setView([latInicial, lngInicial], 15);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        let marker = L.marker([latInicial, lngInicial], {draggable: true}).addTo(map);
+
+        function updateFields(lat, lng) {
+            document.getElementById('latInput').value = lat.toFixed(6);
+            document.getElementById('lngInput').value = lng.toFixed(6);
+            
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`)
+                .then(res => res.json())
+                .then(data => {
+                    if(data.display_name) {
+                        document.getElementById('addressInput').value = data.display_name;
+                    }
+                });
+        }
+
+        map.on('click', e => {
+            marker.setLatLng(e.latlng);
+            updateFields(e.latlng.lat, e.latlng.lng);
+        });
+
+        marker.on('dragend', () => {
+            const pos = marker.getLatLng();
+            updateFields(pos.lat, pos.lng);
+        });
+
+        // --- LÓGICA DE PREVIEW DE IMAGENS ---
+        $('#imgInput').on('change', function(e) {
+            const files = Array.from(e.target.files);
+            files.forEach(file => {
+                if (selectedFiles.length < 3) {
+                    selectedFiles.push(file);
+                }
+            });
+            renderPreview();
+        });
+
+        window.removeFile = function(index) {
+            selectedFiles.splice(index, 1);
+            renderPreview();
+        }
+
+        function renderPreview() {
+            const $previewGrid = $('#preview-grid');
+            $previewGrid.empty();
+            if (selectedFiles.length > 0) {
+                $previewGrid.removeClass('d-none');
+                selectedFiles.forEach((file, index) => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const html = `
+                            <div class="col-4 position-relative">
+                                <div class="ratio ratio-1x1 shadow-sm rounded-3 overflow-hidden border">
+                                    <img src="${e.target.result}" class="object-fit-cover">
+                                </div>
+                                <button type="button" onclick="removeFile(${index})" 
+                                        class="btn btn-danger btn-sm position-absolute top-0 start-100 translate-middle rounded-circle p-0" 
+                                        style="width:22px; height:22px; z-index: 10; border: 2px solid white;">
+                                    <i class="bi bi-x"></i>
+                                </button>
+                            </div>`;
+                        $previewGrid.append(html);
+                    }
+                    reader.readAsDataURL(file);
+                });
+            } else {
+                $previewGrid.addClass('d-none');
+            }
+        }
+
+        // --- LÓGICA DE VÍDEO ---
+        $('#videoInput').on('change', function() {
+            if(this.files.length > 0) {
+                $('#video-preview-container').removeClass('d-none');
+                $('#video-status').text("Vídeo Alterar");
+            }
+        });
+
+        // --- LÓGICA DE SUBMIT COM CLOUDINARY (REPLICANDO PROFILE/REGISTER) ---
+        $('#mainForm').on('submit', async function(e) {
+            e.preventDefault();
+            const btn = $('#submitBtn');
+            const $urlsContainer = $('#cloudinaryUrlsContainer');
+            
+            btn.html('<span class="spinner-border spinner-border-sm me-2"></span> Processando...').prop('disabled', true);
+            $urlsContainer.empty();
+
+            try {
+                // Se houver imagens, faz o upload de cada uma
+                if (selectedFiles.length > 0) {
+                    for (let file of selectedFiles) {
+                        // Converte para Base64 como nos seus outros scripts
+                        const base64Data = await new Promise((resolve) => {
+                            const reader = new FileReader();
+                            reader.onload = (ev) => resolve(ev.target.result);
+                            reader.readAsDataURL(file);
+                        });
+
+                        const formData = new FormData();
+                        formData.append('file', base64Data);
+                        formData.append('upload_preset', unsignedPreset);
+
+                        const response = await $.ajax({
+                            url: `https://api.cloudinary.com/v1_1/${cloudName}/upload`,
+                            method: 'POST',
+                            data: formData,
+                            processData: false,
+                            contentType: false
+                        });
+
+                        // Injeta a URL no form como input hidden
+                        $urlsContainer.append(`<input type="hidden" name="imagens_urls[]" value="${response.secure_url}">`);
+                    }
+                }
+
+                // Finaliza o envio do formulário
+                setTimeout(() => {
+                    document.getElementById('mainForm').submit();
+                }, 500);
+
+            } catch (err) {
+                console.error("Erro no Cloudinary:", err);
+                alert("Erro ao enviar imagens. Verifique sua conexão.");
+                btn.html('<i class="bi bi-shield-check me-2"></i>ENVIAR DENÚNCIA SIGILOSA').prop('disabled', false);
+            }
+        });
+    });
+
+    // Função global para o campo Outro
     function toggleOutroField() {
         const select = document.getElementById('tipoOcorrencia');
         const campoOutro = document.getElementById('campoOutro');
@@ -108,132 +253,14 @@
             inputOutro.value = "";
         }
     }
-
-    // --- LÓGICA DE PREVIEW DE IMAGENS (Sincronizado com Multer) ---
-    let selectedFiles = [];
-    const imgInput = document.getElementById('imgInput');
-    const previewGrid = document.getElementById('preview-grid');
-
-    imgInput.addEventListener('change', function(e) {
-        const files = Array.from(e.target.files);
-        files.forEach(file => {
-            if (selectedFiles.length < 3) {
-                selectedFiles.push(file);
-            }
-        });
-        renderPreview();
-    });
-
-    function renderPreview() {
-        previewGrid.innerHTML = '';
-        if (selectedFiles.length > 0) {
-            previewGrid.classList.remove('d-none');
-            selectedFiles.forEach((file, index) => {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const div = document.createElement('div');
-                    div.className = 'col-4 position-relative';
-                    div.innerHTML = `
-                        <div class="ratio ratio-1x1 shadow-sm rounded-3 overflow-hidden border">
-                            <img src="${e.target.result}" class="object-fit-cover">
-                        </div>
-                        <button type="button" onclick="removeFile(${index})" 
-                                class="btn btn-danger btn-sm position-absolute top-0 start-100 translate-middle rounded-circle p-0" 
-                                style="width:22px; height:22px; z-index: 10; border: 2px solid white;">
-                            <i class="bi bi-x"></i>
-                        </button>`;
-                    previewGrid.appendChild(div);
-                }
-                reader.readAsDataURL(file);
-            });
-        } else {
-            previewGrid.classList.add('d-none');
-        }
-        updateInput();
-    }
-
-    function removeFile(index) {
-        selectedFiles.splice(index, 1);
-        renderPreview();
-    }
-
-    function updateInput() {
-        const dataTransfer = new DataTransfer();
-        selectedFiles.forEach(file => dataTransfer.items.add(file));
-        imgInput.files = dataTransfer.files;
-    }
-
-    // --- LÓGICA DE VÍDEO ---
-    document.getElementById('videoInput').addEventListener('change', function() {
-        const container = document.getElementById('video-preview-container');
-        const statusText = document.getElementById('video-status');
-        if(this.files.length > 0) {
-            container.classList.remove('d-none');
-            statusText.innerText = "Vídeo Alterar";
-        }
-    });
-
-    // --- MAPA LEAFLET ---
-    const latInicial = -6.5372;
-    const lngInicial = -39.4958;
-
-    const map = L.map('map').setView([latInicial, lngInicial], 15);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap'
-    }).addTo(map);
-
-    let marker = L.marker([latInicial, lngInicial], {draggable: true}).addTo(map);
-
-    function updateFields(lat, lng) {
-        document.getElementById('latInput').value = lat.toFixed(6);
-        document.getElementById('lngInput').value = lng.toFixed(6);
-        
-        fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`)
-            .then(res => res.json())
-            .then(data => {
-                if(data.display_name) {
-                    document.getElementById('addressInput').value = data.display_name;
-                }
-            });
-    }
-
-    map.on('click', e => {
-        marker.setLatLng(e.latlng);
-        updateFields(e.latlng.lat, e.latlng.lng);
-    });
-
-    marker.on('dragend', () => {
-        const pos = marker.getLatLng();
-        updateFields(pos.lat, pos.lng);
-    });
 </script>
 
 <style>
-    .custom-input { 
-        background-color: #f8f9fa!important; 
-        border: 1px solid #dee2e6!important; 
-        border-radius: 12px!important; 
-        padding: 12px 15px; 
-    }
-    .custom-input:focus { 
-        border-color: #dc3545!important; 
-        box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.1)!important; 
-        background-color: #fff!important; 
-    }
-    .border-dashed { 
-        border: 2px dashed #cbd5e0; 
-        transition: all 0.2s ease; 
-        cursor: pointer;
-    }
-    .border-dashed:hover { 
-        background-color: #f1f3f5!important; 
-        border-color: #dc3545; 
-    }
-    .object-fit-cover { 
-        object-fit: cover; 
-        width: 100%; 
-        height: 100%; 
-    }
+    .custom-input { background-color: #f8f9fa!important; border: 1px solid #dee2e6!important; border-radius: 12px!important; padding: 12px 15px; }
+    .custom-input:focus { border-color: #dc3545!important; box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.1)!important; background-color: #fff!important; }
+    .border-dashed { border: 2px dashed #cbd5e0; transition: all 0.2s ease; cursor: pointer; }
+    .border-dashed:hover { background-color: #f1f3f5!important; border-color: #dc3545; }
+    .object-fit-cover { object-fit: cover; width: 100%; height: 100%; }
     .transition-base { transition: all 0.3s ease; }
     .transition-base:hover { transform: translateY(-2px); filter: brightness(1.1); }
 </style>

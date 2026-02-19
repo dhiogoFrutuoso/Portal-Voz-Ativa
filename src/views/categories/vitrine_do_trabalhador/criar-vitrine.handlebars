@@ -10,7 +10,7 @@
                     </div>
                     
                     <div class="card-body p-4 p-md-5 bg-white">
-                        <form action="/categories/vitrine_do_trabalhador/criar-vitrine" method="POST" enctype="multipart/form-data" id="formVitrine">
+                        <form action="/categories/vitrine_do_trabalhador/criar-vitrine" method="POST" id="formVitrine">
                             
                             <div class="mb-4">
                                 <label class="form-label fw-bold text-secondary small text-uppercase">Título do Anúncio / Nome do Negócio</label>
@@ -38,13 +38,17 @@
                             <div class="mb-4">
                                 <label class="form-label fw-bold text-secondary small text-uppercase">Fotos do seu trabalho (Máx. 3)</label>
                                 <div class="upload-area rounded-4 p-4 text-center border-dashed position-relative bg-light" id="drop-zone">
-                                    <input type="file" id="imgInput" name="imagens" accept="image/*" class="d-none" multiple>
-                                    <div id="placeholder-upload" class="cursor-pointer" onclick="document.getElementById('imgInput').click()">
+                                    <input type="file" id="imgInputHelper" accept="image/*" class="d-none" multiple>
+                                    
+                                    <div id="hiddenInputsContainer"></div>
+
+                                    <div id="placeholder-upload" class="cursor-pointer" onclick="document.getElementById('imgInputHelper').click()">
                                         <i class="bi bi-camera-fill fs-2 text-success"></i>
                                         <p class="mb-0 small fw-bold text-muted">Clique para adicionar fotos</p>
                                     </div>
                                     <div id="preview-grid" class="row g-2 mt-2 d-none"></div>
                                 </div>
+                                <small class="text-muted mt-2 d-block">As imagens são processadas automaticamente.</small>
                             </div>
 
                             <div class="mb-4">
@@ -76,7 +80,7 @@
                                 <div id="map" class="rounded-4 mb-3 shadow-sm border" style="height: 250px; width: 100%;"></div>
                                 <div class="input-group">
                                     <span class="input-group-text border-0 bg-light text-danger"><i class="bi bi-geo-alt-fill"></i></span>
-                                    <input type="text" id="addressInput" name="localizacao" class="form-control custom-input border-start-0" placeholder="Selecione no mapa" required>
+                                    <input type="text" id="addressInput" name="localizacao" class="form-control custom-input border-start-0" placeholder="Selecione no mapa" required readonly>
                                 </div>
                                 <input type="hidden" id="latInput" name="latitude">
                                 <input type="hidden" id="lngInput" name="longitude">
@@ -118,24 +122,36 @@
         }
     }
 
-    // 2. Lógica de Upload de Imagens (Melhorada)
-    let selectedFiles = [];
-    const imgInput = document.getElementById('imgInput');
+    // 2. Lógica de Imagens para o Backend (Conversão para Simular URLs/Strings)
+    const imgInputHelper = document.getElementById('imgInputHelper');
     const previewGrid = document.getElementById('preview-grid');
     const placeholder = document.getElementById('placeholder-upload');
+    const hiddenInputsContainer = document.getElementById('hiddenInputsContainer');
+    let selectedFiles = [];
 
-    imgInput.addEventListener('change', function(e) {
+    imgInputHelper.addEventListener('change', function(e) {
         const files = Array.from(e.target.files);
-        
         files.forEach(file => {
             if (selectedFiles.length < 3) {
                 selectedFiles.push(file);
+                addHiddenInput(file);
             }
         });
-        
         renderPreview();
-        syncFiles();
     });
+
+    function addHiddenInput(file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'imagens_urls[]'; // Nome que o seu backend espera
+            input.value = e.target.result; // Enviando o Base64 como string
+            input.id = `input-${file.name}-${file.lastModified}`;
+            hiddenInputsContainer.appendChild(input);
+        };
+        reader.readAsDataURL(file);
+    }
 
     function renderPreview() {
         previewGrid.innerHTML = '';
@@ -152,7 +168,7 @@
                         <div class="ratio ratio-1x1">
                             <img src="${e.target.result}" class="img-fluid rounded-3 border shadow-sm object-fit-cover">
                         </div>
-                        <button type="button" onclick="removeFile(${index})" class="btn btn-danger btn-sm position-absolute top-0 start-100 translate-middle rounded-circle p-0" style="width: 22px; height: 22px; z-index: 10;">
+                        <button type="button" onclick="removeFile(${index}, '${file.name}-${file.lastModified}')" class="btn btn-danger btn-sm position-absolute top-0 start-100 translate-middle rounded-circle p-0" style="width: 22px; height: 22px; z-index: 10;">
                             <i class="bi bi-x"></i>
                         </button>`;
                     previewGrid.appendChild(div);
@@ -165,16 +181,11 @@
         }
     }
 
-    function removeFile(index) {
+    function removeFile(index, fileId) {
         selectedFiles.splice(index, 1);
+        const inputToRemove = document.getElementById(`input-${fileId}`);
+        if(inputToRemove) inputToRemove.remove();
         renderPreview();
-        syncFiles();
-    }
-
-    function syncFiles() {
-        const dataTransfer = new DataTransfer();
-        selectedFiles.forEach(file => dataTransfer.items.add(file));
-        imgInput.files = dataTransfer.files;
     }
 
     // 3. Lógica do Mapa
@@ -187,10 +198,16 @@
     function updateFields(lat, lng) {
         document.getElementById('latInput').value = lat.toFixed(6);
         document.getElementById('lngInput').value = lng.toFixed(6);
+        
         fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`)
             .then(res => res.json())
             .then(data => { 
-                if (data.display_name) document.getElementById('addressInput').value = data.display_name; 
+                if (data.display_name) {
+                    // Simplifica o endereço para não ficar gigante no input
+                    const parts = data.display_name.split(',');
+                    const simplified = parts.slice(0, 3).join(',');
+                    document.getElementById('addressInput').value = simplified;
+                }
             });
     }
 
@@ -203,12 +220,18 @@
         const pos = marker.getLatLng(); 
         updateFields(pos.lat, pos.lng); 
     });
+
+    // Inicia campos com valor inicial do marcador
+    updateFields(latInicial, lngInicial);
 </script>
 
 <style>
     .object-fit-cover { object-fit: cover; }
     .custom-input { background-color: #f8f9fa !important; border: 1px solid #dee2e6 !important; border-radius: 12px !important; padding: 12px 15px; }
     .custom-input:focus { border-color: #198754 !important; box-shadow: none !important; background-color: #fff !important; }
-    .border-dashed { border: 2px dashed #cbd5e0; transition: 0.3s; }
+    .border-dashed { border: 2px dashed #cbd5e0; transition: 0.3s; border-radius: 1.25rem; }
     .cursor-pointer { cursor: pointer; }
+    .transition-base { transition: all 0.3s ease; }
+    .btn-success { background-color: #198754; border: none; }
+    .btn-success:hover { background-color: #146c43; transform: translateY(-2px); }
 </style>

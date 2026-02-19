@@ -15,7 +15,7 @@
                             <div class="carousel-inner">
                                 {{#each denuncia.imagens}}
                                 <div class="carousel-item {{#if @first}}active{{/if}} text-center">
-                                    <img src="/img_chamados/{{this}}" class="img-fluid" style="max-height: 550px; width: 100%; object-fit: cover;">
+                                    <img src="{{this}}" class="img-fluid" style="max-height: 550px; width: 100%; object-fit: cover;" alt="Evidência {{#if @index}}{{add @index 1}}{{/if}}">
                                 </div>
                                 {{/each}}
                             </div>
@@ -156,10 +156,8 @@
         const lng = parseFloat("{{denuncia.longitude}}");
         
         if (!isNaN(lat) && !isNaN(lng)) {
-            // Inicializa o mapa
             const map = L.map('mapDetails').setView([lat, lng], 16);
             
-            // URL CORRIGIDA ABAIXO
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
@@ -167,7 +165,6 @@
             L.marker([lat, lng]).addTo(map)
                 .bindPopup("<b>Local da Ocorrência</b>").openPopup();
             
-            // Correção para o bug de renderização do Leaflet em containers dinâmicos
             setTimeout(() => { 
                 map.invalidateSize(); 
             }, 200);

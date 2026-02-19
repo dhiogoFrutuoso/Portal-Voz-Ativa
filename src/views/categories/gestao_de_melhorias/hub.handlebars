@@ -154,13 +154,13 @@
 
         <div class="row g-4">
             {{#each chamados}}
-                {{#if imagem.[0]}}
+                {{#if imagemPrincipal}}
                     <div class="col-12">
                         <div class="card shadow-lg border-top-primary border-1 rounded-4 overflow-hidden hover-lift bg-white">
                             <div class="row g-0">
                                 <div class="col-md-4 position-relative">
-                                    {{#if imagem.[0]}}
-                                        <img src="/img_chamados/{{imagem.[0]}}" alt="{{titulo}}" class="img-extensa" />
+                                    {{#if imagemPrincipal}}
+                                        <img src="{{imagemPrincipal}}" alt="{{this.titulo}}" onerror="this.src='/img/default-placeholder.png'" class="img-extensa">
                                         <div class="img-overlay"></div>
                                     {{else}}
                                         <div class="bg-dark d-flex flex-column align-items-center justify-content-center h-100 min-h-250">
