@@ -34,7 +34,7 @@
 <section class="py-5 bg-light">
     <div class="container px-5">
         
-        <div class="row gx-5 mb-5 mt-n5-custom">
+        <div class="row gx-3 mb-5 mt-n5-custom">
             <div class="col-md-3 mb-4">
                 <div class="card border-0 rounded-4 shadow-sm h-100 p-4 hover-lift bg-white border-top-success">
                     <div class="text-success fs-1 mb-2"><i class="bi bi-person-badge-fill"></i></div>
@@ -71,7 +71,7 @@
         <div class="row gx-5">
             <div class="col-lg-7">
                 <div class="card hover-lift border-0 shadow-lg rounded-4 mb-5">
-                    <div class="card-body p-5">
+                    <div class="card-body vitrine-padding">
                         <h3 class="fw-bold text-dark mb-4">Fortaleça o Comércio Local</h3>
                         <p class="text-muted mb-5">
                             Este hub é o motor econômico do <strong>Voz Ativa</strong>. Facilitamos o encontro entre quem precisa de um serviço e quem tem o talento para realizar, eliminando intermediários e valorizando o dinheiro que circula em Cariús.
@@ -92,7 +92,7 @@
                             {{/if}}
                         </div>
 
-                        <div class="row g-3">
+                        <div class="row g-3 cards-height">
                             <div class="col-6">
                                 <div class="p-3 border rounded-3 bg-light border-start-success">
                                     <h6 class="fw-bold mb-1">Mão de Obra</h6>
@@ -149,7 +149,7 @@
                 <h2 class="fw-bold text-dark mb-1">Mural de Oportunidades</h2>
                 <p class="text-muted small mb-0">Profissionais e serviços ativos no município</p>
             </div>
-            <div class="badge bg-success rounded-pill px-3 py-2 shadow-sm">Recém Adicionados</div>
+            <div class="badge bg-success rounded-pill px-3 py-2 shadow-sm" style="margin-top: 10px;">Recém Adicionados</div>
         </div>
 
         <div class="row g-4">
@@ -354,6 +354,37 @@
 </section>
 
 <style>
+    @media screen and (max-width: 390px) {
+        * {
+            flex-flow: row wrap;
+        }
+    }
+
+    @media screen and (max-width: 390px) {
+        .vitrine-padding {
+            margin-top: 15px;
+            padding: 17px;
+        }
+    }
+
+    @media screen and (min-width: 391px) {
+        .vitrine-padding {
+            padding: 40px;
+        }
+    }
+
+    @media screen and (max-width: 390px) {
+        .cards-height {
+            height: 100%;
+        }
+    }
+
+    @media screen and (min-width: 391px) {
+        .cards-height {
+            min-height: auto;
+        }
+    }
+
     /* Cores de borda e utilitários específicos do Hub de Oportunidades */
     .border-top-success { border-top: 5px solid #28a745 !important; }
     .border-top-info { border-top: 5px solid #0dcaf0 !important; }

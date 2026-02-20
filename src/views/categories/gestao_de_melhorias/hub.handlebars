@@ -34,7 +34,7 @@
 <section class="py-5 bg-light">
     <div class="container px-5">
         
-        <div class="row gx-5 mb-5 mt-n5-custom">
+        <div class="row gx-3 mb-5 mt-n5-custom">
             <div class="col-md-3 mb-4">
                 <div class="card border-0 rounded-4 shadow-sm h-100 p-4 hover-lift bg-white border-top-primary">
                     <div class="text-primary fs-1 mb-2"><i class="bi bi-geo-fill"></i></div>
@@ -71,7 +71,7 @@
         <div class="row gx-5">
             <div class="col-lg-7">
                 <div class="card hover-lift border-0 shadow-lg rounded-4 mb-5">
-                    <div class="card-body p-5">
+                    <div class="card-body chamado-padding">
                         <h3 class="fw-bold text-dark mb-4">Sua Voz, Sua Ação</h3>
                         <p class="text-muted mb-5">
                             O Portal Voz Ativa utiliza um <strong>Hub de Melhorias</strong> para garantir que sugestões de infraestrutura cheguem aos órgãos competentes sem ruído de informação.
@@ -100,7 +100,7 @@
                                 </div>
                             </div>
                             <div class="col-6">
-                                <div class="p-3 border rounded-3 bg-light border-start-primary">
+                                <div class="p-3 border rounded-3 bg-light border-start-primary cards-height">
                                     <h6 class="fw-bold mb-1">Prioridade</h6>
                                     <p class="small text-muted mb-0">Foco em áreas críticas.</p>
                                 </div>
@@ -149,7 +149,7 @@
                 <h2 class="fw-bold text-dark mb-1">Monitoramento em Tempo Real</h2>
                 <p class="text-muted small mb-0">Gestão ativa das melhorias em Cariús</p>
             </div>
-            <div class="badge bg-primary rounded-pill px-3 py-2 shadow-sm">Últimas Atualizações</div>
+            <div class="badge bg-primary rounded-pill px-3 py-2 shadow-sm" style="margin-top: 10px;">Últimas Atualizações</div>
         </div>
 
         <div class="row g-4">
@@ -300,6 +300,37 @@
 </section>
 
 <style>
+    @media screen and (max-width: 390px) {
+        * {
+            flex-flow: row wrap;
+        }
+    }
+
+    @media screen and (max-width: 390px) {
+        .chamado-padding {
+            margin-top: 15px;
+            padding: 17px;
+        }
+    }
+
+    @media screen and (min-width: 391px) {
+        .chamado-padding {
+            padding: 40px;
+        }
+    }
+
+    @media screen and (max-width: 390px) {
+        .cards-height {
+            height: 100%;
+        }
+    }
+
+    @media screen and (min-width: 391px) {
+        .cards-height {
+            min-height: auto;
+        }
+    }
+
     .mt-n5-custom { margin-top: -85px; position: relative; z-index: 5; }
     .border-top-primary { border-top: 5px solid #0d6efd !important; }
     .border-top-success { border-top: 5px solid #198754 !important; }

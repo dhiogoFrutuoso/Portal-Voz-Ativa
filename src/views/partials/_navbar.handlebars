@@ -38,7 +38,7 @@
         
         {{#if user}}
           <li class="nav-item">
-            <a class="nav-link px-3 text-dark border-hover" href="/users/perfil/{{this.user._id}}">
+            <a class="nav-link text-dark border-hover" href="/users/perfil/{{this.user._id}}">
                <i class="bi bi-person-circle me-1"></i> Perfil
             </a>
           </li>
@@ -47,10 +47,10 @@
           </li>
         {{else}}
           <li class="nav-item ms-lg-3">
-            <a class="nav-link text-dark" href="/users/login">Entrar</a>
+            <a class="nav-link text-dark px-3 border-hover" href="/users/login">Entrar</a>
           </li>
-          <li class="nav-item ms-lg-1">
-            <a class="btn btn-primary btn-sm px-4 rounded-0 fw-bold shadow-sm" style="background-color: #13315c; border-color: #13315c;" href="/users/register">
+          <li class="nav-item ms-lg-1 register">
+            <a class="btn btn-primary btn-sm px-3 rounded-0 fw-bold shadow-sm" style="background-color: #13315c; border-color: #13315c;" href="/users/register">
               CADASTRAR-SE
             </a>
           </li>
@@ -61,16 +61,62 @@
 </nav>
 
 <style>
-  /* Efeito de linha amarela embaixo ao passar o mouse */
-  .border-hover {
-    border-bottom: 3px solid transparent;
-    transition: all 0.2s ease;
+  @media screen and (max-width: 800px){
+    /* Efeito de linha amarela embaixo ao passar o mouse */
+    .border-hover {
+      border-bottom: 3px solid transparent;
+      max-width: 0px;
+      transition: all 0.3s ease;
+    }
+    .border-hover:hover {
+      border-bottom: 3px solid #f9ca24;
+      max-width: 140px;
+      color: #13315c !important;
+    }
+    .navbar-brand:hover {
+      opacity: 0.8;
+    }
   }
-  .border-hover:hover {
-    border-bottom: 3px solid #f9ca24;
-    color: #13315c !important;
+
+  @media screen and (min-width: 801px){
+    .border-hover {
+      position: relative;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .border-hover:after {
+      content: "";
+      position: absolute;
+      display: flex;
+      left: 0;
+      bottom: -3px;
+      width: 100%;
+      justify-content: ;
+      height: 3px;
+      background-color: #f9ca24;
+
+      transform: scaleX(0);
+      transform-origin: center;
+      transition: transform 0.15s ease-in-out;
+    }
+
+    .border-hover:hover {
+      color: #13315c !important;
+    }
+
+    .border-hover:hover::after {
+      transform: scaleX(1);
+    }
+
+    .navbar-brand:hover {
+      opacity: 0.8;
+    }
   }
-  .navbar-brand:hover {
-    opacity: 0.8;
+
+  @media screen and (max-width: 800px){
+    .register {
+      padding: 7px;
+    }
   }
 </style>

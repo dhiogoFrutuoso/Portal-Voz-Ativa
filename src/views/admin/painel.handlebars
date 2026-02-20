@@ -34,7 +34,7 @@
 <section class="py-5 bg-light">
     <div class="container px-5">
         
-        <div class="row gx-5 mb-5 mt-n5-custom">
+        <div class="row gx-3 mb-5 mt-n5-custom">
             <div class="col-md-3 mb-4">
                 <div class="card border-1 rounded-4 shadow-sm h-100 p-4 hover-lift bg-white border-top-danger">
                     <div class="text-danger fs-1 mb-2"><i class="bi bi-incognito"></i></div>
@@ -71,7 +71,7 @@
         <div class="row gx-5">
             <div class="col-12">
                 <div class="card hover-lift border-0 bg-dark text-white botao-huge shadow-lg overflow-hidden">
-                    <div class="card-body p-5">
+                    <div class="card-body">
                         <div class="row align-items-center">
                             <div class="col-lg-7">
                                 <h4 class="fw-bold text-danger mb-4 poppins">
@@ -129,7 +129,7 @@
                 </h2>
                 <p class="text-muted small mb-0">Gestão de ocorrências e alertas em tempo real para Cariús</p>
             </div>
-            <div class="text-end">
+            <div class="text-end" style="margin-top: 10px;">
                 <span class="badge bg-danger rounded-pill px-3 py-2 shadow-sm">
                     <i class="bi bi-lock-fill me-1"></i>SISTEMA CRIPTOGRAFADO
                 </span>
@@ -286,13 +286,32 @@
 </section>
 
 <style>
-    .botao-huge {
-        border-radius: 30px;
-        padding: 15px 40px;
-        background-color: #007AFF;
-        color: white;
-        border: none;
+    @media screen and (max-width: 390px) {
+        * {
+            flex-flow: row wrap;
+        }
     }
+
+    @media screen and (max-width: 390px) {
+        .botao-huge {
+            border-radius: 30px;
+            padding: 20px;
+            background-color: #007AFF;
+            color: white;
+            border: none;
+        }
+    }
+
+    @media screen and (min-width: 391px) {
+        .botao-huge {
+            border-radius: 30px;
+            padding: 40px;
+            background-color: #007AFF;
+            color: white;
+            border: none;
+        }
+    }
+
     /* Design Premium */
     .card-denuncia {
         transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);

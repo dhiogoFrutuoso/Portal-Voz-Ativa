@@ -56,7 +56,7 @@
             <div class="col-md-4">
                 <div class="card-modern hover-float">
                     <div class="icon-box bg-warning-soft text-warning"><i class="bi bi-recycle"></i></div>
-                    <h5 class="fw-bold">Sustentabilidade</h5>
+                    <h5 class="fw-bold" style="overflow-wrap: break-word;">Sustentabilidade</h5>
                     <p class="small text-muted mb-0">Projeto Papel Zero: agilidade no atendimento e redução de impactos ambientais.</p>
                 </div>
             </div>
@@ -138,6 +138,12 @@
 </section>
 
 <style>
+    @media screen and (max-width: 390px) {
+        * {
+            flex-flow: row wrap;
+        }
+    }
+
     .fw-900 { font-weight: 900 !important; }
     
     .card-modern {

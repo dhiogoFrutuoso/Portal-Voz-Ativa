@@ -1,38 +1,82 @@
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&family=Nunito:wght@400;600;800&display=swap');
+
+    @media screen and (min-width: 391px) {
+        .btn-light-effect { 
+            position: relative; 
+            overflow: hidden; 
+            z-index: 1; 
+            transition: all 0.3s ease; 
+        }
+
+        .btn-light-effect span { 
+            position: relative; 
+            z-index: 2; 
+        }
+
+        .btn-light-effect::before {
+            content: ""; 
+            position: absolute; 
+            top: 0; 
+            left: -300%; /* Começa bem fora da tela */
+            width: 300%; 
+            height: 300%;
+            /* O segredo: as paradas de cor (0%, 45%, 50%, 55%, 100%) criam uma linha fina */
+            background: linear-gradient(
+                120deg, 
+                transparent 40%, 
+                rgba(255, 255, 255, 0.315) 50%, 
+                transparent 60%
+            );
+            transition: all 3s cubic-bezier(0.19, 1, 0.22, 1); /* Transição mais elegante */
+            z-index: 1;
+        }
+
+        .btn-light-effect:hover::before { 
+            left: 150%; /* Atravessa a tela inteira */
+        }
+    }
     
-    .btn-light-effect { 
-        position: relative; 
-        overflow: hidden; 
-        z-index: 1; 
-        transition: all 0.3s ease; 
+    @media screen and (max-width: 390px) {
+        .btn-light-effect { 
+            position: relative; 
+            overflow: hidden; 
+            z-index: 1; 
+            transition: all 0.3s ease; 
+        }
+
+        .btn-light-effect span { 
+            position: relative; 
+            z-index: 2; 
+        }
+
+        .btn-light-effect::before {
+            content: ""; 
+            position: absolute; 
+            top: 0; 
+            left: -900%; /* Começa bem fora da tela */
+            width: 900%; 
+            height: 300%;
+            /* O segredo: as paradas de cor (0%, 45%, 50%, 55%, 100%) criam uma linha fina */
+            background: linear-gradient(
+                120deg, 
+                transparent 40%, 
+                rgba(255, 255, 255, 0.315) 50%, 
+                transparent 60%
+            );
+            transition: all 3s cubic-bezier(0.19, 1, 0.22, 1); /* Transição mais elegante */
+            z-index: 1;
+        }
+
+        .btn-light-effect:hover::before { 
+            left: 150%; /* Atravessa a tela inteira */
+        }
     }
 
-    .btn-light-effect span { 
-        position: relative; 
-        z-index: 2; 
-    }
-
-    .btn-light-effect::before {
-        content: ""; 
-        position: absolute; 
-        top: 0; 
-        left: -300%; /* Começa bem fora da tela */
-        width: 300%; 
-        height: 300%;
-        /* O segredo: as paradas de cor (0%, 45%, 50%, 55%, 100%) criam uma linha fina */
-        background: linear-gradient(
-            120deg, 
-            transparent 40%, 
-            rgba(255, 255, 255, 0.315) 50%, 
-            transparent 60%
-        );
-        transition: all 3s cubic-bezier(0.19, 1, 0.22, 1); /* Transição mais elegante */
-        z-index: 1;
-    }
-
-    .btn-light-effect:hover::before { 
-        left: 150%; /* Atravessa a tela inteira */
+    @media screen and (max-width: 390px) { 
+        .div-overflow-wrap {
+            overflow-wrap: break-word; 
+        }
     }
 
     /* Seção de Citação - Estilo Premium 2026 */
@@ -411,8 +455,8 @@
                     </div>
                     <div class="d-flex mb-4">
                         <div class="feature-icon me-4"><i class="bi bi-graph-up-arrow"></i></div>
-                        <div>
-                            <h5 class="fw-bold">Empreendedorismo Social</h5>
+                        <div style="max-width: 127px; display:inline-block">
+                            <h5 class="fw-bold div-overflow-wrap">Empreendedorismo Social</h5>
                             <p class="text-muted small">Vitrine gratuita para fomento da economia local.</p>
                         </div>
                     </div>
