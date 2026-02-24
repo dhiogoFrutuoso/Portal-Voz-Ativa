@@ -3,12 +3,21 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import passport from 'passport';
 import { v2 as cloudinary } from 'cloudinary';
+import rateLimit from 'express-rate-limit';
 import 'dotenv/config';
 import '../models/user.js';
 import '../models/vitrine.js';
 
 const user = mongoose.model('users');
 const router = express.Router();
+
+// --- RATE LIMIT ---
+
+const loginLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000, // 5 minutos
+  max: 5,
+  message: "Muitas tentativas de login, tente novamente mais tarde.",
+});
 
 // --- CONFIGURAÇÃO DO CLOUDINARY ---
 cloudinary.config({ 
@@ -105,7 +114,7 @@ router.get('/login', (req, res) => {
     res.render('users/login');
 });
 
-router.post('/login', (req, res, next) => {
+router.post('/login', loginLimiter, (req, res, next) => {
     passport.authenticate('local', {
         successRedirect: '/',
         failureRedirect: '/users/login',

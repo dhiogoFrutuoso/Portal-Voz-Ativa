@@ -9,6 +9,7 @@ import passport from 'passport';
 import { fileURLToPath } from 'url';
 import moment from 'moment';
 import { engine } from 'express-handlebars';
+import rateLimit from 'express-rate-limit';
 import admin from "./routes/admin.js";
 import users from './routes/user.js';
 import categories from './routes/categories.js';
@@ -47,6 +48,15 @@ app.use((req, res, next) => {
     res.locals.user = req.user || null; // Essencial para o Hub identificar o usuário logado
     next();
 });
+
+const Limiter = rateLimit({
+    windowMs: 10*60*1000,
+    max: 50,
+    message: "Muitas requisições desse IP, tente novamente daqui a 10 minutos.",
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+app.use(Limiter);
 
 // BodyParser
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));

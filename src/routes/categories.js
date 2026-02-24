@@ -6,6 +6,15 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import { v2 as cloudinary } from 'cloudinary';
 import dotenv from 'dotenv';
+import rateLimit from 'express-rate-limit';
+
+// Rate Limiter
+
+const Limiter = rateLimit({
+  windowMs: 5 * 60 * 1000, // 5 minutos
+  max: 5,
+  message: "Muitas tentativas de registro, tente novamente mais tarde.",
+});
 
 // Carregar variáveis de ambiente
 dotenv.config();
@@ -64,7 +73,7 @@ router.get('/gestao_de_melhorias/abrir-chamado', isUser, (req, res) => {
     res.render('categories/gestao_de_melhorias/abrir-chamado');
 });
 
-router.post('/gestao_de_melhorias/abrir-chamado', isUser, upload.none(), async (req, res) => {
+router.post('/gestao_de_melhorias/abrir-chamado', isUser, Limiter, upload.none(), async (req, res) => {
     try {
         // CORREÇÃO: O JS envia 'imagens[]'. Capturamos todas as variações possíveis para garantir.
         let nomesImagens = req.body['imagens[]'] || req.body['imagens_urls[]'] || req.body.imagens || [];
@@ -235,7 +244,7 @@ router.get('/denuncias_sigilosas/hub', async (req, res) => {
     }
 });
 
-router.post('/denuncias_sigilosas/abrir-denuncia', isUser, async (req, res) => {
+router.post('/denuncias_sigilosas/abrir-denuncia', Limiter, isUser, async (req, res) => {
     try {
         const { tipoOcorrencia, titulo, descricao, localizacao, latitude, longitude, video_url } = req.body;
         
@@ -460,7 +469,7 @@ router.post('/vitrine_do_trabalhador/comentar/:id', isUser, async (req, res) => 
 });
 
 // Criar Anúncio
-router.post('/vitrine_do_trabalhador/criar-vitrine', isUser, upload.none(), async (req, res) => {
+router.post('/vitrine_do_trabalhador/criar-vitrine', isUser, Limiter, upload.none(), async (req, res) => {
     try {
         if (!req.body.titulo || !req.body.descricao) {
             req.flash("error_msg", "Preencha todos os campos obrigatórios.");
