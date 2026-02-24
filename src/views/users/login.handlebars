@@ -1,3 +1,5 @@
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
 <style>
     <link rel="stylesheet" href="https://cdn.linearicons.com/free/1.0.0/icon-font.min.css">
     /* Fundo dinâmico sutil */
@@ -45,6 +47,12 @@
         background: rgba(19, 49, 92, 0.03);
         z-index: -1;
     }
+
+    .g-recaptcha {
+        display: flex;
+        justify-content: center;
+        margin: 20px 0px;
+    }
 </style>
 
 <div class="circle-bg" style="width: 300px; height: 300px; top: -50px; left: -50px;"></div>
@@ -84,6 +92,8 @@
                             <i class="bi bi-eye-slash" id="toggleIcon"></i>
                         </span>
                     </div>
+
+                    <div class="g-recaptcha" data-sitekey="6Le7y3UsAAAAADXSBbaYhRjBDEFF0qJLGhHqZ8s7"></div>
 
                     <button type="submit" class="btn btn-gradient w-100 py-3 text-white fw-bold rounded-3 shadow mb-4">
                         ENTRAR NO PORTAL

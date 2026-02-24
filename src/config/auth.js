@@ -11,20 +11,20 @@ export default function configurePassport(passportInstance) { //recebe o passpor
     passportInstance.use(new LocalStrategy({ usernameField: "email" }, (email, password, done) => { //Configura a estratégia local para verificar o login do usuario com email e senha
         
             User.findOne({ email: email }).lean().then((user) => { //procura o usuario pelo email no banco de dados
-                    if (!user) {
-                        return done(null, false, { message: "email inválido! essa conta não existe, tente novamente!" }); //se não encontrar, retorna uma mensagem de erro
+                if (!user) {
+                    return done(null, false, { message: "email inválido! essa conta não existe, tente novamente!" }); //se não encontrar, retorna uma mensagem de erro
+                };
+
+                bcrypt.compare(password, user.password, (err, isMatch) => { //compara a senha digitada com a senha do banco de dados
+                    if (err) return done(err);
+
+                    if (isMatch) { //se a senha estiver correta
+                        return done(null, user); //retorna o usuario
+                    } else {//se a senha estiver incorreta
+                        return done(null, false, { message: "senha incorreta, tente novamente!" }); //retorna uma mensagem de erro
                     };
-
-                    bcrypt.compare(password, user.password, (err, isMatch) => { //compara a senha digitada com a senha do banco de dados
-                        if (err) return done(err);
-
-                        if (isMatch) { //se a senha estiver correta
-                            return done(null, user); //retorna o usuario
-                        } else {//se a senha estiver incorreta
-                            return done(null, false, { message: "senha incorreta, tente novamente!" }); //retorna uma mensagem de erro
-                        };
-                    });
-                }).catch((err) => done(err));
+                });
+            }).catch((err) => done(err));
         })
     );
 

@@ -10,6 +10,8 @@ import { fileURLToPath } from 'url';
 import moment from 'moment';
 import { engine } from 'express-handlebars';
 import rateLimit from 'express-rate-limit';
+import { SignJWT, jwtVerify } from 'jose';
+import cookieParser from 'cookie-parser';
 import admin from "./routes/admin.js";
 import users from './routes/user.js';
 import categories from './routes/categories.js';
@@ -21,11 +23,13 @@ import './models/user.js';
 const app = express();
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
+app.use(cookieParser());
 
 auth(passport);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const JOSE_SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET);
 
 // --- CONFIGURAÇÕES ---
 
@@ -57,6 +61,22 @@ const Limiter = rateLimit({
     legacyHeaders: false,
 });
 app.use(Limiter);
+
+const protect = async (req, res, next) => {
+    const token = req.cookies.auth_token;
+
+    if (!token) {
+        res.render('users/login', { error_msg: 'Acesso negado. Faça login.'});
+    }
+
+    try {
+        const { payload } = await jwtVerify(token, SECRET_KEY);
+        req.user = payload; 
+        next();
+    } catch (err) {
+        console.log("Token inválido ou expirado.")
+    }
+};
 
 // BodyParser
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
@@ -123,4 +143,8 @@ const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
     console.log(`Servidor rodando em http://localhost:${PORT}`);
     console.log(`Portal Voz Ativa - Cariús 2026`);
+
+    if (!process.env.JWT_SECRET) {
+        console.warn("AVISO: JWT_SECRET não definida no arquivo .env!");
+    }
 });

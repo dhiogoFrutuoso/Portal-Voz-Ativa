@@ -1,4 +1,5 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
 <style>
     /* Seus estilos originais mantidos */
@@ -40,6 +41,10 @@
         border: 3px solid #13315c;
         overflow: hidden;
         margin: 0 auto;
+    }
+    .g-recaptcha {
+        display: flex;
+        justify-content: center;
     }
 </style>
 
@@ -120,6 +125,8 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="g-recaptcha" data-sitekey="6Le7y3UsAAAAADXSBbaYhRjBDEFF0qJLGhHqZ8s7"></div>
 
                     <button type="submit" class="btn btn-gradient w-100 py-3 text-white fw-bold rounded-3 shadow mt-3 mb-4">
                         FINALIZAR CADASTRO

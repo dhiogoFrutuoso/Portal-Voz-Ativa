@@ -4,12 +4,16 @@ import bcrypt from 'bcryptjs';
 import passport from 'passport';
 import { v2 as cloudinary } from 'cloudinary';
 import rateLimit from 'express-rate-limit';
+import { SignJWT, jwtVerify } from 'jose';
 import 'dotenv/config';
 import '../models/user.js';
 import '../models/vitrine.js';
+import isUser from '../helpers/isUser.js';
 
 const user = mongoose.model('users');
 const router = express.Router();
+const JOSE_SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET);
+const RECAPTCHA_SECRET = process.env.RECAPTCHA_SECRET;
 
 // --- RATE LIMIT ---
 
@@ -17,7 +21,7 @@ const loginLimiter = rateLimit({
   windowMs: 5 * 60 * 1000, // 5 minutos
   max: 5,
   message: "Muitas tentativas de login, tente novamente mais tarde.",
-});
+})
 
 // --- CONFIGURAÇÃO DO CLOUDINARY ---
 cloudinary.config({ 
@@ -62,6 +66,30 @@ router.get('/register', (req, res) => {
 });
 
 router.post('/register', async (req, res) => {
+    const token = req.body['g-recaptcha-response'];
+
+    if (!token) {
+        return res.render('users/register', { error_msg: 'Por favor, complete o reCAPTCHA.'});
+    }
+
+    try {
+        const response = await fetch(`https://www.google.com/recaptcha/api/siteverify`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `secret=${RECAPTCHA_SECRET}&response=${token}`
+        });
+
+        const googleData = await response.json();
+
+        if (!googleData.success) {
+            return res.render('users/login', "Falha na validação de segurança (Bot detectado).");
+        };
+
+    } catch (error) {
+        console.error('Erro ao validar reCAPTCHA:', error);
+        res.status(500).json({ error: 'Erro interno no servidor.' });
+    }
+
     const { name, email, profession, bio, password, password_2, croppedImage } = req.body;
     let errors = [];
 
@@ -77,14 +105,9 @@ router.post('/register', async (req, res) => {
     try {
         const userExists = await user.findOne({ email: email });
         if (userExists) {
-            // Note: Usando render com mensagem de erro direta
-            return res.render('users/register', { 
-                error_msg: "Já existe uma conta com este e-mail.",
-                name, email, profession, bio 
-            });
+            return res.render('users/register', { error_msg: "Já existe uma conta com este e-mail.", name, email, profession, bio });
         }
 
-        // Processa a imagem (Seja URL pronta ou Base64)
         const profileImageUrl = await uploadToCloudinary(croppedImage);
 
         const newUser = new user({
@@ -114,18 +137,63 @@ router.get('/login', (req, res) => {
     res.render('users/login');
 });
 
-router.post('/login', loginLimiter, (req, res, next) => {
-    passport.authenticate('local', {
-        successRedirect: '/',
-        failureRedirect: '/users/login',
-        failureFlash: true
-    })(req, res, next);
+router.post('/login', loginLimiter, async (req, res, next) => {
+    const recaptchaToken = req.body['g-recaptcha-response'];
+
+    if (!recaptchaToken) {
+        return res.render('users/login', "Por favor faça o reCAPTCHA para provar que você não é um robô!");
+    }
+
+    try {
+        const googleResponse = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `secret=${RECAPTCHA_SECRET}&response=${recaptchaToken}`
+        });
+
+        const googleData = await googleResponse.json();
+
+        if (!googleData.success) {
+            return res.render('users/login', "Falha na validação de segurança (Bot detectado).");
+        };
+
+        passport.authenticate('local', {
+            successRedirect: '/',
+            failureRedirect: '/users/login',
+            failureFlash: true
+        })(req, res, next);
+
+        if (isUser) {
+            
+            const token = await new SignJWT({ id: 1, role: 'admin' })
+                .setProtectedHeader({ alg: 'HS256' })
+                .setIssuedAt()
+                .setExpirationTime('2h')
+                .sign(JOSE_SECRET_KEY);
+    
+            res.cookie('auth_token', token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production', 
+                maxAge: 7200000 
+            });
+    
+            return console.log('Login realizado com sucesso!');
+        } else {
+            return res.render('users/login', 'Credenciais inválidas');
+        };
+    } catch (err) {
+        res.render('users/login', { error_msg: 'Erro interno.', err});
+    }
+
 });
 
 router.get('/logout', (req, res) => {
     req.logout(() => {
         res.redirect('/');
     });
+
+    res.clearCookie('auth_token');
+    console.log('Saiu com sucesso.');
 });
 
 // --- PERFIL LOGADO ---
