@@ -10,6 +10,9 @@
     "start": "node src/index.js",
     "test": "."
   },
+  "engines": {
+    "node": ">=22.22.2"
+  },
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "body-parser": "^2.2.2",
