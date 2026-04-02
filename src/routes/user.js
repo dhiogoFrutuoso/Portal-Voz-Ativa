@@ -19,7 +19,7 @@ const RECAPTCHA_SECRET = process.env.RECAPTCHA_SECRET;
 
 const loginLimiter = rateLimit({
   windowMs: 5 * 60 * 1000, // 5 minutos
-  max: 5,
+  max: 15,
   message: "Muitas tentativas de login, tente novamente mais tarde.",
 })
 

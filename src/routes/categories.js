@@ -12,7 +12,7 @@ import rateLimit from 'express-rate-limit';
 
 const Limiter = rateLimit({
   windowMs: 5 * 60 * 1000, // 5 minutos
-  max: 5,
+  max: 30,
   message: "Muitas tentativas de registro, tente novamente mais tarde.",
 });
 
