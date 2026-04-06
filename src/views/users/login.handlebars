@@ -129,11 +129,9 @@
     const icon = document.querySelector('#toggleIcon');
 
     togglePassword.addEventListener('click', function () {
-        // Alterna o tipo do input
         const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
         password.setAttribute('type', type);
         
-        // Alterna o ícone (olho aberto / olho fechado)
         icon.classList.toggle('bi-eye');
         icon.classList.toggle('bi-eye-slash');
     });
