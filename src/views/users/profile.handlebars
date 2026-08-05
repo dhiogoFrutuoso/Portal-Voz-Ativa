@@ -76,6 +76,9 @@
                             <button type="button" class="nav-link text-start py-3" data-bs-toggle="pill" data-bs-target="#tab-seguranca">
                                 <i class="bi bi-lock me-2"></i> Segurança e Senha
                             </button>
+                            <button type="button" class="nav-link text-start py-3 text-danger" data-bs-toggle="pill" data-bs-target="#tab-excluir">
+                                <i class="bi bi-trash3 me-2"></i> Excluir Perfil
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -126,12 +129,63 @@
                                 <button type="submit" formaction="/users/profile/change-password" class="btn btn-primary w-100 py-3 fw-bold rounded-3">ATUALIZAR SENHA</button>
                             </div>
                         </div>
+
+                        <div class="tab-pane fade" id="tab-excluir" role="tabpanel">
+                            <div class="card p-4 shadow-sm bg-white rounded-4 border-0">
+                                <h4 class="fw-bold mb-3 text-danger"><i class="bi bi-exclamation-octagon me-2"></i>Zona de Perigo</h4>
+                                <p class="text-muted small mb-4">
+                                    Ao excluir seu perfil, todas as suas informações pessoais, fotos, histórico e publicações vinculadas serão removidos definitivamente da base de dados do Portal Voz Ativa.
+                                </p>
+
+                                <div class="p-3 bg-danger bg-opacity-10 border border-danger border-opacity-25 rounded-3 mb-4">
+                                    <h6 class="fw-bold text-danger mb-1"><i class="bi bi-shield-exclamation me-1"></i> Atenção: Ação Irreversível</h6>
+                                    <small class="text-muted">Esta ação não poderá ser desfeita. Você perderá permanentemente o acesso ao seu perfil e ao painel.</small>
+                                </div>
+
+                                <button type="button" class="btn btn-outline-danger w-100 py-3 fw-bold rounded-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalDeleteAccountProfile">
+                                    <i class="bi bi-trash3 me-1"></i> EXCLUIR MINHA CONTA DEFINITIVAMENTE
+                                </button>
+                            </div>
+                        </div>
                     </div> 
                 </div>
             </div>
         </div>
     </form>
 </section>
+
+<!-- Modal de Exclusão de Perfil -->
+<div class="modal fade" id="modalDeleteAccountProfile" tabindex="-1" aria-labelledby="modalDeleteAccountProfileLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
+      <div class="modal-header bg-danger text-white border-0 py-3">
+        <h5 class="modal-title fw-bold" id="modalDeleteAccountProfileLabel">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i> Excluir Perfil Definitivamente
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="/users/profile/delete" method="POST">
+        <div class="modal-body p-4">
+          <p class="text-dark fw-semibold mb-2">Tem certeza de que deseja excluir sua conta no Portal Voz Ativa?</p>
+          <div class="alert alert-warning rounded-3 border-0 py-2 small mb-3">
+            <i class="bi bi-info-circle-fill me-1"></i> 
+            <strong>Atenção:</strong> Esta ação é irreversível. Seu perfil, fotos e contribuições vinculadas serão removidos permanentemente.
+          </div>
+          <div class="mb-3">
+            <label for="confirmPasswordEdit" class="form-label small fw-bold text-muted">DIGITE SUA SENHA PARA CONFIRMAR:</label>
+            <input type="password" name="confirmPassword" id="confirmPasswordEdit" class="form-control rounded-3 py-2" placeholder="Sua senha atual" required>
+          </div>
+        </div>
+        <div class="modal-footer bg-light border-0 py-3">
+          <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-danger rounded-pill px-4 fw-bold">
+            <i class="bi bi-trash3 me-1"></i> Confirmar Exclusão
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 
 <div class="modal fade" id="modalCrop" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">

@@ -41,6 +41,33 @@ const Denuncia = mongoose.model('denuncias');
 const Vitrine = mongoose.model('vitrine');
 const router = express.Router();
 
+// --- FUNÇÃO AUXILIAR PARA FORMATAR USUÁRIO (ANONIMIZAÇÃO ESTILO INSTAGRAM CASO EXCLUÍDO) ---
+const formatAuthor = (u) => {
+    if (!u) {
+        return {
+            _id: null,
+            name: "Usuário Indisponível",
+            profileImage: "/img/guest.jpg",
+            profession: "Conta Indisponível",
+            isDeleted: true
+        };
+    }
+    return {
+        ...u,
+        name: u.name || "Usuário do Voz Ativa",
+        profileImage: u.profileImage || "/img/guest.jpg",
+        profession: u.profession || "Cidadão",
+        isDeleted: false
+    };
+};
+
+const formatComments = (comentarios = []) => {
+    return comentarios.map(c => ({
+        ...c,
+        usuario: formatAuthor(c.usuario)
+    }));
+};
+
 // --- CONFIGURAÇÃO DO MULTER ---
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -146,8 +173,9 @@ router.get('/gestao_de_melhorias/detalhes/:id', async (req, res) => {
         res.render("categories/gestao_de_melhorias/detalhes", { 
             chamadoDoc: {
                 ...chamadoDoc,
+                usuario: formatAuthor(chamadoDoc.usuario),
                 curtidas: curtidas,
-                comentarios: chamadoDoc.comentarios || [],
+                comentarios: formatComments(chamadoDoc.comentarios),
                 imagens: chamadoDoc.imagens || [] 
             }, 
             jaCurtiu 
@@ -293,8 +321,9 @@ router.get('/denuncias_sigilosas/detalhes/:id', async (req, res) => {
         res.render("categories/denuncias_sigilosas/detalhes", { 
             denuncia: {
                 ...denuncia,
+                usuario: formatAuthor(denuncia.usuario),
                 curtidas: curtidas,
-                comentarios: denuncia.comentarios || [],
+                comentarios: formatComments(denuncia.comentarios),
                 imagens: denuncia.imagens || [],
                 // Garante que o campo video chegue ao template (pode ser a URL do Cloudinary)
                 video: denuncia.video || null 
@@ -372,6 +401,7 @@ router.get('/vitrine_do_trabalhador/hub', async (req, res) => {
             const curtidasArray = anuncio.curtidas || []; 
             return {
                 ...anuncio,
+                usuario: formatAuthor(anuncio.usuario),
                 curtidas: curtidasArray,
                 // Garante uma imagem de capa para o card do HUB
                 imagemPrincipal: anuncio.imagens && anuncio.imagens.length > 0 ? anuncio.imagens[0] : null,
@@ -406,8 +436,9 @@ router.get('/vitrine_do_trabalhador/detalhes/:id', async (req, res) => {
         res.render("categories/vitrine_do_trabalhador/detalhes", { 
             vitrine: {
                 ...vitrineDoc,
+                usuario: formatAuthor(vitrineDoc.usuario),
                 curtidas: curtidas,
-                comentarios: vitrineDoc.comentarios || [],
+                comentarios: formatComments(vitrineDoc.comentarios),
                 imagens: vitrineDoc.imagens || [],
                 // Garante que a categoria exibida seja a especificada se for "Outros"
                 categoriaExibida: vitrineDoc.categoria === 'Outros' ? vitrineDoc.categoria_especificada : vitrineDoc.categoria

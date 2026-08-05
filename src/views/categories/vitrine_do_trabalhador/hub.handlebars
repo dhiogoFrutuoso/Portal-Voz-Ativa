@@ -184,24 +184,34 @@
 
                                         <div class="col-20">
                                             <div class="p-3 border rounded-3 bg-light border-start-success">
-                                                <a href="/users/perfil/{{usuario._id}}" class="text-decoration-none d-flex align-items-center hover-opacity">
-                                                    <div class="icon-shape rounded-circle me-3 overflow-hidden" style="width: 45px; height: 45px; flex-shrink: 0;">
-                                                        {{#if usuario.profileImage}}
-                                                            <img src="{{usuario.profileImage}}" alt="{{usuario.name}}" style="width: 100%; height: 100%; object-fit: cover;">
-                                                        {{else}}
-                                                            <div class="bg-primary-soft text-primary w-100 h-100 d-flex align-items-center justify-content-center">
-                                                                <i class="bi bi-person-fill"></i>
-                                                            </div>
-                                                        {{/if}}
+                                                {{#if usuario.isDeleted}}
+                                                    <div class="d-flex align-items-center opacity-75">
+                                                        <div class="icon-shape rounded-circle me-3 overflow-hidden" style="width: 45px; height: 45px; flex-shrink: 0; border: 1px solid #ddd;">
+                                                            <img src="/img/guest.jpg" alt="Usuário Indisponível" style="width: 100%; height: 100%; object-fit: cover;">
+                                                        </div>
+                                                        <div>
+                                                            <p class="text-muted small mb-0 lh-2 fw-bold" style="font-size: 0.75rem;">Anunciante: </p>
+                                                            <p class="text-muted small mb-0">Conta Excluída</p>
+                                                            <span class="fw-bold text-muted fst-italic"><i class="bi bi-person-x me-1"></i>Usuário Indisponível</span>
+                                                        </div>
                                                     </div>
+                                                {{else}}
+                                                    <a href="/users/perfil/{{usuario._id}}" class="text-decoration-none d-flex align-items-center hover-opacity">
+                                                        <div class="icon-shape rounded-circle me-3 overflow-hidden" style="width: 45px; height: 45px; flex-shrink: 0;">
+                                                            <img src="{{#if usuario.profileImage}}{{usuario.profileImage}}{{else}}/img/guest.jpg{{/if}}" 
+                                                                 alt="{{usuario.name}}" 
+                                                                 style="width: 100%; height: 100%; object-fit: cover;"
+                                                                 onerror="this.src='/img/guest.jpg'">
+                                                        </div>
 
-                                                    {{!-- NOME E RÓTULO --}}
-                                                    <div>
-                                                        <p class="text-muted small mb-0 lh-2 fw-bold" style="font-size: 0.75rem;">Anunciante: </p>
-                                                        <p class="text-muted small mb-0">{{#if usuario.profession}}{{usuario.profession}}{{else}}Profissional{{/if}}</p>
-                                                        <span class="fw-bold text-dark">{{usuario.name}}</span>
-                                                    </div>
-                                                </a>
+                                                        {{!-- NOME E RÓTULO --}}
+                                                        <div>
+                                                            <p class="text-muted small mb-0 lh-2 fw-bold" style="font-size: 0.75rem;">Anunciante: </p>
+                                                            <p class="text-muted small mb-0">{{#if usuario.profession}}{{usuario.profession}}{{else}}Profissional{{/if}}</p>
+                                                            <span class="fw-bold text-dark">{{usuario.name}}</span>
+                                                        </div>
+                                                    </a>
+                                                {{/if}}
                                             </div>
                                         </div>
                                         <br>
@@ -273,24 +283,34 @@
 
                                 <div class="col-20">
                                     <div class="p-3 border rounded-3 bg-light border-start-success">
-                                        <a href="/users/perfil/{{usuario._id}}" class="text-decoration-none d-flex align-items-center hover-opacity">
-                                            <div class="icon-shape rounded-circle me-3 overflow-hidden" style="width: 45px; height: 45px; flex-shrink: 0;">
-                                                {{#if usuario.profileImage}}
-                                                    <img src="{{usuario.profileImage}}" alt="{{usuario.name}}" style="width: 100%; height: 100%; object-fit: cover;">
-                                                {{else}}
-                                                    <div class="bg-primary-soft text-primary w-100 h-100 d-flex align-items-center justify-content-center">
-                                                        <i class="bi bi-person-fill"></i>
-                                                    </div>
-                                                {{/if}}
+                                        {{#if usuario.isDeleted}}
+                                            <div class="d-flex align-items-center opacity-75">
+                                                <div class="icon-shape rounded-circle me-3 overflow-hidden" style="width: 45px; height: 45px; flex-shrink: 0; border: 1px solid #ddd;">
+                                                    <img src="/img/guest.jpg" alt="Usuário Indisponível" style="width: 100%; height: 100%; object-fit: cover;">
+                                                </div>
+                                                <div>
+                                                    <p class="text-muted small mb-0 lh-2 fw-bold" style="font-size: 0.75rem;">Anunciante: </p>
+                                                    <p class="text-muted small mb-0">Conta Excluída</p>
+                                                    <span class="fw-bold text-muted fst-italic"><i class="bi bi-person-x me-1"></i>Usuário Indisponível</span>
+                                                </div>
                                             </div>
+                                        {{else}}
+                                            <a href="/users/perfil/{{usuario._id}}" class="text-decoration-none d-flex align-items-center hover-opacity">
+                                                <div class="icon-shape rounded-circle me-3 overflow-hidden" style="width: 45px; height: 45px; flex-shrink: 0;">
+                                                    <img src="{{#if usuario.profileImage}}{{usuario.profileImage}}{{else}}/img/guest.jpg{{/if}}" 
+                                                         alt="{{usuario.name}}" 
+                                                         style="width: 100%; height: 100%; object-fit: cover;"
+                                                         onerror="this.src='/img/guest.jpg'">
+                                                </div>
 
-                                            {{!-- NOME E RÓTULO --}}
-                                            <div>
-                                                <p class="text-muted small mb-0 lh-2 fw-bold" style="font-size: 0.75rem;">Anunciante: </p>
-                                                <p class="text-muted small mb-0">{{#if usuario.profession}}{{usuario.profession}}{{else}}Profissional{{/if}}</p>
-                                                <span class="fw-bold text-dark">{{usuario.name}}</span>
-                                            </div>
-                                        </a>
+                                                {{!-- NOME E RÓTULO --}}
+                                                <div>
+                                                    <p class="text-muted small mb-0 lh-2 fw-bold" style="font-size: 0.75rem;">Anunciante: </p>
+                                                    <p class="text-muted small mb-0">{{#if usuario.profession}}{{usuario.profession}}{{else}}Profissional{{/if}}</p>
+                                                    <span class="fw-bold text-dark">{{usuario.name}}</span>
+                                                </div>
+                                            </a>
+                                        {{/if}}
                                     </div>
                                 </div>
                                 <br>

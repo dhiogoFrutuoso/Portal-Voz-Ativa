@@ -4,15 +4,15 @@ import bcrypt from "bcryptjs";
 import passport from "passport";
 import { v2 as cloudinary } from "cloudinary";
 import rateLimit from "express-rate-limit";
-import { SignJWT, jwtVerify } from "jose";
 import "dotenv/config";
 import "../models/user.js";
 import "../models/vitrine.js";
+import "../models/categories.js";
+import "../models/denuncias.js";
 import isUser from "../helpers/isUser.js";
 
 const user = mongoose.model("users");
 const router = express.Router();
-const JOSE_SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET);
 const RECAPTCHA_SECRET = process.env.RECAPTCHA_SECRET;
 
 // --- RATE LIMIT ---
@@ -64,39 +64,57 @@ router.get("/register", (req, res) => {
 });
 
 router.post("/register", async (req, res) => {
+  const { name, email, profession, bio, password, password_2, croppedImage } =
+    req.body;
   const token = req.body["g-recaptcha-response"];
 
   if (!token) {
     return res.render("users/register", {
-      error_msg: "Por favor, complete o reCAPTCHA.",
+      error_msg: "Por favor, complete o reCAPTCHA para prosseguir.",
+      name,
+      email,
+      profession,
+      bio,
     });
   }
 
   try {
+    const params = new URLSearchParams();
+    params.append("secret", RECAPTCHA_SECRET || "");
+    params.append("response", token);
+
     const response = await fetch(
-      `https://www.google.com/recaptcha/api/siteverify`,
+      "https://www.google.com/recaptcha/api/siteverify",
       {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: `secret=${RECAPTCHA_SECRET}&response=${token}`,
+        body: params.toString(),
       },
     );
 
     const googleData = await response.json();
 
     if (!googleData.success) {
-      return res.render(
-        "users/login",
-        "Falha na validação de segurança (Bot detectado).",
-      );
+      console.warn("reCAPTCHA falhou no registro:", googleData["error-codes"]);
+      return res.render("users/register", {
+        error_msg: "Falha na validação de segurança do reCAPTCHA.",
+        name,
+        email,
+        profession,
+        bio,
+      });
     }
   } catch (error) {
     console.error("Erro ao validar reCAPTCHA:", error);
-    res.status(500).json({ error: "Erro interno no servidor." });
+    return res.render("users/register", {
+      error_msg: "Erro ao validar o reCAPTCHA. Tente novamente.",
+      name,
+      email,
+      profession,
+      bio,
+    });
   }
 
-  const { name, email, profession, bio, password, password_2, croppedImage } =
-    req.body;
   let errors = [];
 
   if (!name || name.trim() === "") errors.push({ text: "Nome inválido!" });
@@ -147,7 +165,7 @@ router.post("/register", async (req, res) => {
   } catch (err) {
     console.error("Erro no Registro:", err);
     res.render("users/register", {
-      error_msg: "Erro interno.",
+      error_msg: "Erro interno no cadastro.",
       name,
       email,
       profession,
@@ -165,66 +183,71 @@ router.post("/login", loginLimiter, async (req, res, next) => {
   const recaptchaToken = req.body["g-recaptcha-response"];
 
   if (!recaptchaToken) {
-    return res.render(
-      "users/login",
-      "Por favor faça o reCAPTCHA para provar que você não é um robô!",
-    );
+    return res.render("users/login", {
+      error_msg: "Por favor faça o reCAPTCHA para provar que você não é um robô!",
+    });
   }
 
   try {
+    const params = new URLSearchParams();
+    params.append("secret", RECAPTCHA_SECRET || "");
+    params.append("response", recaptchaToken);
+
     const googleResponse = await fetch(
       "https://www.google.com/recaptcha/api/siteverify",
       {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: `secret=${RECAPTCHA_SECRET}&response=${recaptchaToken}`,
+        body: params.toString(),
       },
     );
 
     const googleData = await googleResponse.json();
 
     if (!googleData.success) {
-      return res.render(
-        "users/login",
-        "Falha na validação de segurança (Bot detectado).",
-      );
-    }
-
-    passport.authenticate("local", {
-      successRedirect: "/",
-      failureRedirect: "/users/login",
-      failureFlash: true,
-    })(req, res, next);
-
-    if (isUser) {
-      const token = await new SignJWT({ id: 1, role: "admin" })
-        .setProtectedHeader({ alg: "HS256" })
-        .setIssuedAt()
-        .setExpirationTime("2h")
-        .sign(JOSE_SECRET_KEY);
-
-      res.cookie("auth_token", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        maxAge: 7200000,
+      console.warn("reCAPTCHA falhou no login:", googleData["error-codes"]);
+      return res.render("users/login", {
+        error_msg: "Falha na validação de segurança (reCAPTCHA inválido).",
       });
-
-      return console.log("Login realizado com sucesso!");
-    } else {
-      return res.render("users/login", "Credenciais inválidas");
     }
+
+    passport.authenticate("local", (err, user, info) => {
+      if (err) {
+        console.error("Erro no passport.authenticate:", err);
+        return res.render("users/login", {
+          error_msg: "Erro interno ao autenticar usuário.",
+        });
+      }
+
+      if (!user) {
+        return res.render("users/login", {
+          error_msg: info && info.message ? info.message : "Credenciais inválidas.",
+        });
+      }
+
+      req.logIn(user, (err) => {
+        if (err) {
+          console.error("Erro no req.logIn:", err);
+          return res.render("users/login", {
+            error_msg: "Erro ao iniciar a sessão.",
+          });
+        }
+
+        req.flash("success_msg", "Login realizado com sucesso!");
+        return res.redirect("/");
+      });
+    })(req, res, next);
   } catch (err) {
-    res.render("users/login", { error_msg: "Erro interno.", err });
+    console.error("Erro no login:", err);
+    return res.render("users/login", { error_msg: "Erro interno no servidor." });
   }
 });
 
 router.get("/logout", (req, res) => {
   req.logout(() => {
+    req.flash("success_msg", "Desconectado com sucesso!");
     res.redirect("/");
   });
-
-  res.clearCookie("auth_token");
-  console.log("Saiu com sucesso.");
 });
 
 // --- PERFIL LOGADO ---
@@ -298,12 +321,63 @@ router.post("/profile/change-password", async (req, res) => {
   }
 });
 
+// --- EXCLUSÃO DE CONTA PELO PRÓPRIO USUÁRIO ---
+router.post("/profile/delete", async (req, res) => {
+  if (!req.user) {
+    req.flash("error_msg", "Você precisa estar logado para realizar esta ação.");
+    return res.redirect("/users/login");
+  }
+
+  const { confirmPassword } = req.body;
+  const userId = req.user._id;
+
+  try {
+    const usuario = await user.findById(userId);
+    if (!usuario) {
+      req.flash("error_msg", "Usuário não encontrado.");
+      return res.redirect("/");
+    }
+
+    if (confirmPassword) {
+      const isMatch = await bcrypt.compare(confirmPassword, usuario.password);
+      if (!isMatch) {
+        req.flash("error_msg", "Senha incorreta! Não foi possível confirmar a exclusão da conta.");
+        return res.redirect("/users/profile");
+      }
+    }
+
+    const Chamado = mongoose.models.chamados || mongoose.model("chamados");
+    const Vitrine = mongoose.models.vitrine || mongoose.model("vitrine");
+    const Denuncia = mongoose.models.denuncias || mongoose.model("denuncias");
+
+    await Promise.all([
+      user.findByIdAndDelete(userId),
+      Chamado.deleteMany({ usuario: userId }),
+      Vitrine.deleteMany({ usuario: userId }),
+      Chamado.updateMany({}, { $pull: { curtidas: userId, comentarios: { usuario: userId } } }),
+      Vitrine.updateMany({}, { $pull: { curtidas: userId, comentarios: { usuario: userId } } }),
+      Denuncia.updateMany({}, { $pull: { curtidas: userId, comentarios: { usuario: userId } } }),
+    ]);
+
+    req.logout((err) => {
+      if (err) console.error("Erro no logout ao excluir conta:", err);
+      req.flash("success_msg", "Sua conta e seus dados foram excluídos com sucesso.");
+      res.redirect("/");
+    });
+  } catch (err) {
+    console.error("Erro ao excluir conta:", err);
+    req.flash("error_msg", "Erro interno ao excluir sua conta.");
+    res.redirect("/users/profile");
+  }
+});
+
 // --- PERFIL PÚBLICO ---
 router.get("/perfil/:id", async (req, res) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      req.flash("error_msg", "ID de usuário inválido.");
-      return res.redirect("/");
+      return res.render("users/perfil-indisponivel", {
+        user: req.user
+      });
     }
 
     const User = mongoose.model("users");
@@ -313,8 +387,9 @@ router.get("/perfil/:id", async (req, res) => {
     const usuarioPerfil = await User.findById(req.params.id).lean();
 
     if (!usuarioPerfil) {
-      req.flash("error_msg", "Este usuário não foi encontrado.");
-      return res.redirect("/");
+      return res.render("users/perfil-indisponivel", {
+        user: req.user
+      });
     }
 
     const vitrinesUsuario = await Vitrine.find({ usuario: req.params.id })

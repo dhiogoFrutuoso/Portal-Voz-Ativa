@@ -90,25 +90,34 @@
                     <h6 class="text-uppercase fw-bold text-muted small mb-3">Profissional Responsável</h6>
                     <div class="d-flex align-items-center mb-3">
                         <div class="icon-shape rounded-circle me-3 overflow-hidden shadow-sm" style="width: 55px; height: 55px; flex-shrink: 0; border: 2px solid #eee;">
-                            {{#if vitrine.usuario.profileImage}}
-                                <img src="{{vitrine.usuario.profileImage}}" alt="{{vitrine.usuario.name}}" class="w-100 h-100" style="object-fit: cover;">
-                            {{else}}
-                                <div class="bg-light text-primary w-100 h-100 d-flex align-items-center justify-content-center">
-                                    <i class="bi bi-person-fill fs-4"></i>
-                                </div>
-                            {{/if}}
+                            <img src="{{#if vitrine.usuario.profileImage}}{{vitrine.usuario.profileImage}}{{else}}/img/guest.jpg{{/if}}" 
+                                 alt="{{vitrine.usuario.name}}" 
+                                 class="w-100 h-100 {{#if vitrine.usuario.isDeleted}}opacity-75{{/if}}" 
+                                 style="object-fit: cover;" 
+                                 onerror="this.src='/img/guest.jpg'">
                         </div>
                         <div>
-                            <h6 class="mb-0 fw-bold text-dark">{{vitrine.usuario.name}}</h6>
-                            <small class="text-muted">{{vitrine.usuario.profession}}</small>
+                            {{#if vitrine.usuario.isDeleted}}
+                                <h6 class="mb-0 fw-bold text-muted fst-italic"><i class="bi bi-person-x me-1"></i>Usuário Indisponível</h6>
+                                <small class="text-muted">Conta Excluída</small>
+                            {{else}}
+                                <h6 class="mb-0 fw-bold text-dark">{{vitrine.usuario.name}}</h6>
+                                <small class="text-muted">{{vitrine.usuario.profession}}</small>
+                            {{/if}}
                         </div>
                     </div>
-                    <a href="https://wa.me/55{{vitrine.contato}}" target="_blank" class="btn btn-success w-100 rounded-pill fw-bold py-2 mb-2 shadow-sm">
-                        <i class="bi bi-whatsapp me-2"></i> Chamar no WhatsApp
-                    </a>
-                    <a href="/users/perfil/{{vitrine.usuario._id}}" class="btn btn-outline-primary w-100 rounded-pill fw-bold py-2 small">
-                        Ver Perfil Completo
-                    </a>
+                    {{#if vitrine.usuario.isDeleted}}
+                        <button class="btn btn-secondary w-100 rounded-pill fw-bold py-2 mb-2 small" disabled>
+                            <i class="bi bi-person-slash me-1"></i> Perfil Indisponível
+                        </button>
+                    {{else}}
+                        <a href="https://wa.me/55{{vitrine.contato}}" target="_blank" class="btn btn-success w-100 rounded-pill fw-bold py-2 mb-2 shadow-sm">
+                            <i class="bi bi-whatsapp me-2"></i> Chamar no WhatsApp
+                        </a>
+                        <a href="/users/perfil/{{vitrine.usuario._id}}" class="btn btn-outline-primary w-100 rounded-pill fw-bold py-2 small">
+                            Ver Perfil Completo
+                        </a>
+                    {{/if}}
                 </div>
 
                 <div class="card border-0 shadow-sm rounded-4 p-3 mb-4 text-center bg-white">
@@ -134,20 +143,36 @@
                         {{#if vitrine.comentarios}}
                             {{#each vitrine.comentarios}}
                                 <div class="d-flex align-items-start mb-3">
-                                    <a href="/users/perfil/{{this.usuario._id}}" class="me-3 flex-shrink-0">
-                                        <img src="{{this.usuario.profileImage}}" 
-                                            alt="{{this.usuario.name}}" 
-                                            class="rounded-circle shadow-sm" 
-                                            style="width: 40px; height: 40px; object-fit: cover; border: 2px solid #fff;">
-                                    </a>
+                                    {{#if this.usuario.isDeleted}}
+                                        <span class="me-3 flex-shrink-0">
+                                            <img src="/img/guest.jpg" 
+                                                 alt="Usuário Indisponível" 
+                                                 class="rounded-circle shadow-sm opacity-75" 
+                                                 style="width: 40px; height: 40px; object-fit: cover; border: 2px solid #ddd;">
+                                        </span>
+                                    {{else}}
+                                        <a href="/users/perfil/{{this.usuario._id}}" class="me-3 flex-shrink-0">
+                                            <img src="{{#if this.usuario.profileImage}}{{this.usuario.profileImage}}{{else}}/img/guest.jpg{{/if}}" 
+                                                alt="{{this.usuario.name}}" 
+                                                class="rounded-circle shadow-sm" 
+                                                style="width: 40px; height: 40px; object-fit: cover; border: 2px solid #fff;"
+                                                onerror="this.src='/img/guest.jpg'">
+                                        </a>
+                                    {{/if}}
                                     
                                     <div class="bg-white p-3 rounded-3 shadow-sm border w-100">
                                         <div class="d-flex justify-content-between align-items-center mb-1">
-                                            <a href="/users/perfil/{{this.usuario._id}}" class="text-decoration-none">
-                                                <h6 class="fw-bold mb-0 hover-blue text-primary" style="font-size: 0.85rem;">
-                                                    {{this.usuario.name}}
-                                                </h6>
-                                            </a>
+                                            {{#if this.usuario.isDeleted}}
+                                                <span class="fw-bold mb-0 text-muted fst-italic" style="font-size: 0.85rem;">
+                                                    <i class="bi bi-person-x me-1"></i> Usuário Indisponível
+                                                </span>
+                                            {{else}}
+                                                <a href="/users/perfil/{{this.usuario._id}}" class="text-decoration-none">
+                                                    <h6 class="fw-bold mb-0 hover-blue text-primary" style="font-size: 0.85rem;">
+                                                        {{this.usuario.name}}
+                                                    </h6>
+                                                </a>
+                                            {{/if}}
                                             <small class="text-muted" style="font-size: 0.7rem;">
                                                 {{formatDate this.createdAt}}
                                             </small>

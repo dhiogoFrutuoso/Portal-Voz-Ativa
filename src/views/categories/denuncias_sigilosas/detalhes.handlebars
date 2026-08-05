@@ -107,20 +107,36 @@
                     <div class="p-4 overflow-auto" style="max-height: 450px; background-color: #fafafa;">
                         {{#each denuncia.comentarios}}
                             <div class="d-flex align-items-start mb-3">
-                                <a href="/users/perfil/{{this.usuario._id}}" class="me-3">
-                                    <img src="{{this.usuario.profileImage}}" 
-                                        alt="{{this.usuario.name}}" 
-                                        class="rounded-circle shadow-sm" 
-                                        style="width: 45px; height: 45px; object-fit: cover; border: 2px solid #13315c; transition: 0.3s;">
-                                </a>
+                                {{#if this.usuario.isDeleted}}
+                                    <span class="me-3 flex-shrink-0">
+                                        <img src="/img/guest.jpg" 
+                                             alt="Usuário Indisponível" 
+                                             class="rounded-circle shadow-sm opacity-75" 
+                                             style="width: 45px; height: 45px; object-fit: cover; border: 2px solid #ccc;">
+                                    </span>
+                                {{else}}
+                                    <a href="/users/perfil/{{this.usuario._id}}" class="me-3 flex-shrink-0">
+                                        <img src="{{#if this.usuario.profileImage}}{{this.usuario.profileImage}}{{else}}/img/guest.jpg{{/if}}" 
+                                             alt="{{this.usuario.name}}" 
+                                             class="rounded-circle shadow-sm" 
+                                             style="width: 45px; height: 45px; object-fit: cover; border: 2px solid #13315c; transition: 0.3s;"
+                                             onerror="this.src='/img/guest.jpg'">
+                                    </a>
+                                {{/if}}
                                 
                                 <div class="bg-light p-3 rounded-3 shadow-sm w-100 col-1">
                                     <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <a href="/users/perfil/{{this.usuario._id}}" class="text-decoration-none">
-                                            <h6 class="fw-bold mb-0 hover-blue" style="color: #13315c; font-size: 0.9rem;">
-                                                {{this.usuario.name}}
-                                            </h6>
-                                        </a>
+                                        {{#if this.usuario.isDeleted}}
+                                            <span class="fw-bold mb-0 text-muted fst-italic" style="font-size: 0.88rem;">
+                                                <i class="bi bi-person-x me-1"></i> Usuário Indisponível
+                                            </span>
+                                        {{else}}
+                                            <a href="/users/perfil/{{this.usuario._id}}" class="text-decoration-none">
+                                                <h6 class="fw-bold mb-0 hover-blue" style="color: #13315c; font-size: 0.9rem;">
+                                                    {{this.usuario.name}}
+                                                </h6>
+                                            </a>
+                                        {{/if}}
                                         <small class="text-muted" style="font-size: 0.75rem;">
                                             {{formatDate this.createdAt}}
                                         </small>
@@ -128,6 +144,8 @@
                                     <p class="mb-0 small text-dark">{{this.texto}}</p>
                                 </div>
                             </div>
+                        {{else}}
+                            <p class="text-center text-muted small my-4">Nenhum comentário registrado.</p>
                         {{/each}}
                     </div>
 
