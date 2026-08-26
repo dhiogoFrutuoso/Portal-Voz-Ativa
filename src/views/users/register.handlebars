@@ -199,7 +199,7 @@
             </div>
           </div>
 
-          <div class="g-recaptcha" data-sitekey="6LcE53YtAAAAABUiDGr2DSTfhu3oCFhPEkOa8LCV"></div>
+          <div class="g-recaptcha" data-sitekey="{{recaptchaSiteKey}}"></div>
 
           <button type="submit" class="btn btn-gradient w-100 py-3 text-white fw-bold rounded-3 shadow mt-3 mb-4">
             FINALIZAR CADASTRO
@@ -313,10 +313,10 @@
 
       var formData = new FormData();
       formData.append('file', base64data);
-      formData.append('upload_preset', 'Portal-Voz-Ativa');
+      formData.append('upload_preset', '{{cloudinaryUploadPreset}}');
 
       $.ajax({
-        url: 'https://api.cloudinary.com/v1_1/dnh7vok3r/upload',
+        url: 'https://api.cloudinary.com/v1_1/{{cloudinaryCloudName}}/upload',
         method: 'POST',
         data: formData,
         processData: false,

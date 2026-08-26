@@ -1,10 +1,5 @@
 import express from 'express';
 import mongoose from 'mongoose';
-import multer from 'multer';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-
 import '../models/denuncias.js';
 
 import isAdmin from '../helpers/isAdmin.js';
@@ -12,9 +7,6 @@ import isAdmin from '../helpers/isAdmin.js';
 const Denuncia = mongoose.model('denuncias');
 
 const router = express.Router();
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 router.get('/', isAdmin, (req, res) => { 
     res.render('admin/index')

@@ -1,11 +1,8 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import multer from 'multer';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 import { v2 as cloudinary } from 'cloudinary';
-import dotenv from 'dotenv';
+import 'dotenv/config';
 import rateLimit from 'express-rate-limit';
 
 // Rate Limiter
@@ -15,9 +12,6 @@ const Limiter = rateLimit({
   max: 30,
   message: "Muitas tentativas de registro, tente novamente mais tarde.",
 });
-
-// Carregar variáveis de ambiente
-dotenv.config();
 
 // Configuração do Cloudinary
 cloudinary.config({
@@ -32,9 +26,6 @@ import '../models/denuncias.js';
 import '../models/vitrine.js';
 
 import isUser from '../helpers/isUser.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 const Chamado = mongoose.model('chamados');
 const Denuncia = mongoose.model('denuncias');
@@ -69,20 +60,10 @@ const formatComments = (comentarios = []) => {
 };
 
 // --- CONFIGURAÇÃO DO MULTER ---
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, path.join(__dirname, '../public/videos/'));
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + "-" + file.originalname);
-    }
-});
-
-const upload = multer({ storage: storage });
-
-const uploadDenuncia = upload.fields([
-    { name: 'video', maxCount: 1 }
-]);
+// As mídias sobem direto do navegador para o Cloudinary e chegam aqui apenas como URL,
+// então o multer é usado só para interpretar o multipart/form-data (upload.none()).
+// Nada é gravado em disco: o sistema de arquivos do Render/Vercel é efêmero.
+const upload = multer();
 
 // --- ROTAS GERAIS ---
 
@@ -118,7 +99,7 @@ router.post('/gestao_de_melhorias/abrir-chamado', isUser, Limiter, upload.none()
             localizacao,
             latitude: latitude ? parseFloat(latitude) : null, 
             longitude: longitude ? parseFloat(longitude) : null,
-            imagens: nomesImagens, // Certifique-se que no seu Model o campo é 'imagem' do tipo Array
+            imagens: nomesImagens,
             usuario: req.user._id
         };
 
@@ -427,7 +408,7 @@ router.get('/vitrine_do_trabalhador/detalhes/:id', async (req, res) => {
 
         if (!vitrineDoc) {
             req.flash("error_msg", "Esse anúncio não foi encontrado.");
-            return res.redirect("/categories/vitrine_do_trabal_ador/hub");
+            return res.redirect("/categories/vitrine_do_trabalhador/hub");
         }
 
         const curtidas = vitrineDoc.curtidas || [];

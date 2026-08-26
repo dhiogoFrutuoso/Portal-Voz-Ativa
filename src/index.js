@@ -1,6 +1,7 @@
+import 'dotenv/config';
+
 import express from 'express';
 import handlebars from 'express-handlebars';
-import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
 import path from 'path';
 import session from 'express-session';
@@ -10,8 +11,6 @@ import { fileURLToPath } from 'url';
 import moment from 'moment';
 import { engine } from 'express-handlebars';
 import rateLimit from 'express-rate-limit';
-import { SignJWT, jwtVerify } from 'jose';
-import cookieParser from 'cookie-parser';
 import admin from "./routes/admin.js";
 import users from './routes/user.js';
 import categories from './routes/categories.js';
@@ -23,21 +22,49 @@ import './models/user.js';
 const app = express();
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
-app.use(cookieParser());
 
 auth(passport);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const JOSE_SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET);
+
+// --- VARIÁVEIS DE AMBIENTE ---
+// Os valores públicos (cloud do Cloudinary, preset de upload e site key do reCAPTCHA)
+// ficam expostos no HTML de qualquer forma, então mantemos um padrão embutido para o
+// deploy não quebrar caso a variável não esteja definida no Render/Vercel.
+const isProduction = process.env.NODE_ENV === 'production';
+const CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME || 'dnh7vok3r';
+const CLOUDINARY_UPLOAD_PRESET = process.env.CLOUDINARY_UPLOAD_PRESET || 'Portal-Voz-Ativa';
+const RECAPTCHA_SITE_KEY = process.env.RECAPTCHA_SITE_KEY || '6LcE53YtAAAAABUiDGr2DSTfhu3oCFhPEkOa8LCV';
+
+// Já os segredos não têm padrão seguro: avisamos alto e claro se faltarem.
+const requiredEnv = ['CLOUDINARY_API_KEY', 'CLOUDINARY_API_SECRET', 'RECAPTCHA_SECRET', 'SESSION_SECRET'];
+const missingEnv = requiredEnv.filter((key) => !process.env[key]);
+
+if (missingEnv.length > 0) {
+    console.warn(`AVISO: variáveis de ambiente ausentes -> ${missingEnv.join(', ')}`);
+}
+
+if (!process.env.SESSION_SECRET) {
+    console.warn('AVISO: SESSION_SECRET ausente. Usando chave padrão — defina uma no ambiente.');
+}
 
 // --- CONFIGURAÇÕES ---
 
 // Passport
+// O Render e a Vercel colocam o app atrás de um proxy: sem isso o cookie "secure" não é enviado.
+app.set('trust proxy', 1);
+
 app.use(session({
-    secret: 'secretKeyVozAtiva', // Chave de segurança para o ecossistema digital
-    resave: true,
-    saveUninitialized: true
+    secret: process.env.SESSION_SECRET || 'secretKeyVozAtiva', // Chave de segurança para o ecossistema digital
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        httpOnly: true,
+        secure: 'auto', // HTTPS em produção, HTTP no ambiente local — decidido pela conexão
+        sameSite: 'lax',
+        maxAge: 1000 * 60 * 60 * 24 * 7 // 7 dias
+    }
 }));
 
 app.use(passport.initialize());
@@ -50,6 +77,9 @@ app.use((req, res, next) => {
     res.locals.error_msg = req.flash("error_msg");
     res.locals.error = req.flash("error");
     res.locals.user = req.user || null; // Essencial para o Hub identificar o usuário logado
+    res.locals.cloudinaryCloudName = CLOUDINARY_CLOUD_NAME;
+    res.locals.cloudinaryUploadPreset = CLOUDINARY_UPLOAD_PRESET;
+    res.locals.recaptchaSiteKey = RECAPTCHA_SITE_KEY;
     next();
 });
 
@@ -62,25 +92,6 @@ const Limiter = rateLimit({
 });
 app.use(Limiter);
 
-const protect = async (req, res, next) => {
-    const token = req.cookies.auth_token;
-
-    if (!token) {
-        res.render('users/login', { error_msg: 'Acesso negado. Faça login.'});
-    }
-
-    try {
-        const { payload } = await jwtVerify(token, SECRET_KEY);
-        req.user = payload; 
-        next();
-    } catch (err) {
-        console.log("Token inválido ou expirado.")
-    }
-};
-
-// BodyParser
-app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
-app.use(bodyParser.json({ limit: '50mb' }));
 
 // Handlebars
 app.engine('handlebars', handlebars.engine({
@@ -143,8 +154,5 @@ const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
     console.log(`Servidor rodando em http://localhost:${PORT}`);
     console.log(`Portal Voz Ativa - Cariús 2026`);
-
-    if (!process.env.JWT_SECRET) {
-        console.warn("AVISO: JWT_SECRET não definida no arquivo .env!");
-    }
+    console.log(`Ambiente: ${isProduction ? 'produção' : 'desenvolvimento'}`);
 });

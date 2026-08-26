@@ -50,7 +50,7 @@
                             
                             <img src="{{user.profileImage}}" id="currentAvatar" 
                                 style="width: 100%; height: 100%; object-fit: cover;" 
-                                onerror="this.src='https://res.cloudinary.com/dnh7vok3r/image/upload/v1/placeholder-user.png';">
+                                onerror="this.src='/img/guest.jpg';">
                         </div>
                         <label for="fileInput" class="btn btn-warning btn-sm position-absolute bottom-0 end-0 rounded-circle shadow-sm" style="cursor: pointer;">
                             <i class="bi bi-camera-fill"></i>
@@ -285,15 +285,15 @@
             var canvas = cropper.getCroppedCanvas({ width: 400, height: 400 });
             var base64data = canvas.toDataURL('image/png');
 
-            var cloudName = 'dnh7vok3r'; 
-            var unsignedPreset = 'Portal-Voz-Ativa'; 
+            var cloudName = '{{cloudinaryCloudName}}';
+            var unsignedPreset = '{{cloudinaryUploadPreset}}';
 
             var formData = new FormData();
             formData.append('file', base64data);
-            formData.append('upload_preset', 'Portal-Voz-Ativa');
+            formData.append('upload_preset', unsignedPreset);
 
             $.ajax({
-                url: `https://api.cloudinary.com/v1_1/dnh7vok3r/upload`,
+                url: `https://api.cloudinary.com/v1_1/${cloudName}/upload`,
                 method: 'POST',
                 data: formData,
                 processData: false,

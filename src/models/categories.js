@@ -31,7 +31,7 @@ const ChamadoSchema = new mongoose.Schema({
     },
     // ---------------------------------
 
-    imagem: { 
+    imagens: { 
         type: [String],
         default: []
     }, 
