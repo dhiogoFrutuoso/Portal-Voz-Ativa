@@ -11,6 +11,7 @@
                     
                     <div class="card-body p-4 p-md-5 bg-white">
                         <form id="mainForm" action="/categories/gestao_de_melhorias/abrir-chamado" method="POST">
+                        <input type="hidden" name="_csrf" value="{{csrfToken}}">
                             
                             <div class="mb-4">
                                 <label class="form-label fw-bold text-secondary small text-uppercase">O que precisa de atenção?</label>

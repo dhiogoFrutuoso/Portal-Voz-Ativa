@@ -26,6 +26,18 @@ import '../models/denuncias.js';
 import '../models/vitrine.js';
 
 import isUser from '../helpers/isUser.js';
+import {
+    chamadoSchema,
+    denunciaSchema,
+    vitrineSchema,
+    comentarioSchema,
+    normalizarMidias,
+    normalizarVideo,
+    primeiraMensagem
+} from '../helpers/validators.js';
+
+// Um :id fora do formato ObjectId derruba a query com CastError; barramos antes.
+const idValido = (id) => mongoose.Types.ObjectId.isValid(id);
 
 const Chamado = mongoose.model('chamados');
 const Denuncia = mongoose.model('denuncias');
@@ -83,22 +95,21 @@ router.get('/gestao_de_melhorias/abrir-chamado', isUser, (req, res) => {
 
 router.post('/gestao_de_melhorias/abrir-chamado', isUser, Limiter, upload.none(), async (req, res) => {
     try {
-        // CORREÇÃO: O JS envia 'imagens[]'. Capturamos todas as variações possíveis para garantir.
-        let nomesImagens = req.body['imagens[]'] || req.body['imagens_urls[]'] || req.body.imagens || [];
-        
-        // Se vier apenas uma string (uma única foto), transformamos em array
-        if (typeof nomesImagens === 'string') {
-            nomesImagens = [nomesImagens];
+        const validacao = chamadoSchema.safeParse(req.body);
+
+        if (!validacao.success) {
+            req.flash('error_msg', primeiraMensagem(validacao.error));
+            return res.redirect('/categories/gestao_de_melhorias/abrir-chamado');
         }
 
-        const { titulo, descricao, localizacao, latitude, longitude } = req.body;
+        // O JS do formulário envia 'imagens[]'; aceitamos as variações e
+        // descartamos qualquer URL que não venha do nosso Cloudinary.
+        const nomesImagens = normalizarMidias(
+            req.body['imagens[]'] || req.body['imagens_urls[]'] || req.body.imagens
+        );
 
         const novoChamado = {
-            titulo,
-            descricao,
-            localizacao,
-            latitude: latitude ? parseFloat(latitude) : null, 
-            longitude: longitude ? parseFloat(longitude) : null,
+            ...validacao.data,
             imagens: nomesImagens,
             usuario: req.user._id
         };
@@ -138,6 +149,11 @@ router.get('/gestao_de_melhorias/hub', async (req, res) => {
 
 router.get('/gestao_de_melhorias/detalhes/:id', async (req, res) => {
     try {
+        if (!idValido(req.params.id)) {
+            req.flash("error_msg", "Este chamado não foi encontrado.");
+            return res.redirect("/categories/gestao_de_melhorias/hub");
+        }
+
         const chamadoDoc = await Chamado.findById(req.params.id)
             .populate('usuario')
             .populate('comentarios.usuario')
@@ -176,7 +192,13 @@ router.post('/gestao_de_melhorias/like/:id', async (req, res) => {
             return res.redirect('/users/login'); 
         }
 
+        if (!idValido(req.params.id)) {
+            return res.redirect('/categories/gestao_de_melhorias/hub');
+        }
+
         const chamado = await Chamado.findById(req.params.id);
+        if (!chamado) return res.redirect('/categories/gestao_de_melhorias/hub');
+
         const usuarioId = req.user._id;
 
         const jaCurtiuIndex = chamado.curtidas.indexOf(usuarioId);
@@ -203,8 +225,14 @@ router.post('/gestao_de_melhorias/comentar/:id', async (req, res) => {
             return res.redirect(`/users/login`);
         }
 
+        const validacao = comentarioSchema.safeParse(req.body);
+        if (!idValido(req.params.id) || !validacao.success) {
+            req.flash('error_msg', 'Comentário inválido.');
+            return res.redirect('/categories/gestao_de_melhorias/hub');
+        }
+
         const novoComentario = {
-            texto: req.body.texto,
+            texto: validacao.data.texto,
             usuario: req.user._id,
             createdAt: new Date()
         };
@@ -255,22 +283,30 @@ router.get('/denuncias_sigilosas/hub', async (req, res) => {
 
 router.post('/denuncias_sigilosas/abrir-denuncia', Limiter, isUser, async (req, res) => {
     try {
-        const { tipoOcorrencia, titulo, descricao, localizacao, latitude, longitude, video_url } = req.body;
-        
-        // Captura flexível para as imagens enviadas via Cloudinary no Front-end
-        let imagensCloudinary = req.body['imagens_urls[]'] || req.body.imagens_urls || [];
-        if (typeof imagensCloudinary === 'string') imagensCloudinary = [imagensCloudinary];
+        const validacao = denunciaSchema.safeParse(req.body);
+
+        if (!validacao.success) {
+            req.flash('error_msg', primeiraMensagem(validacao.error));
+            return res.redirect('/categories/denuncias_sigilosas/abrir-denuncia');
+        }
+
+        const { tipoOcorrencia, titulo, descricao, localizacao, latitude, longitude } = validacao.data;
+
+        // Só entram no banco URLs originadas do nosso Cloudinary.
+        const imagensCloudinary = normalizarMidias(
+            req.body['imagens_urls[]'] || req.body.imagens_urls, 3
+        );
 
         const novaDenuncia = {
             tipoOcorrencia,
-            titulo: tipoOcorrencia === 'Outro' ? titulo : tipoOcorrencia,
+            titulo: tipoOcorrencia === 'Outro' && titulo ? titulo : tipoOcorrencia,
             descricao,
             localizacao,
-            latitude: latitude ? parseFloat(latitude) : null,
-            longitude: longitude ? parseFloat(longitude) : null,
+            latitude,
+            longitude,
             imagens: imagensCloudinary,
-            // Agora pegamos a URL que veio do input hidden 'video_url' preenchido pelo script do front
-            video: video_url || null, 
+            // URL do vídeo vinda do input hidden preenchido pelo script do front
+            video: normalizarVideo(req.body.video_url),
             usuario: req.user._id
         };
 
@@ -286,6 +322,11 @@ router.post('/denuncias_sigilosas/abrir-denuncia', Limiter, isUser, async (req, 
 
 router.get('/denuncias_sigilosas/detalhes/:id', async (req, res) => { 
     try {
+        if (!idValido(req.params.id)) {
+            req.flash("error_msg", "Esta denúncia não foi encontrada.");
+            return res.redirect("/categories/denuncias_sigilosas/hub");
+        }
+
         const denuncia = await Denuncia.findById(req.params.id)
             .populate('usuario')
             .populate('comentarios.usuario')
@@ -325,7 +366,13 @@ router.post('/denuncias_sigilosas/like/:id', async (req, res) => {
         return res.redirect("/users/login");
     }
     try {
+        if (!idValido(req.params.id)) {
+            return res.redirect("/categories/denuncias_sigilosas/hub");
+        }
+
         const denuncia = await Denuncia.findById(req.params.id);
+        if (!denuncia) return res.redirect("/categories/denuncias_sigilosas/hub");
+
         const userIndex = denuncia.curtidas.indexOf(req.user._id);
 
         if (userIndex > -1) {
@@ -347,9 +394,15 @@ router.post('/denuncias_sigilosas/comentar/:id', async (req, res) => {
         return res.redirect("/users/login");
     }
     try {
+        const validacao = comentarioSchema.safeParse(req.body);
+        if (!idValido(req.params.id) || !validacao.success) {
+            req.flash("error_msg", "Comentário inválido.");
+            return res.redirect("/categories/denuncias_sigilosas/hub");
+        }
+
         const novaCita = {
             usuario: req.user._id,
-            texto: req.body.texto
+            texto: validacao.data.texto
         };
         await Denuncia.findByIdAndUpdate(req.params.id, {
             $push: { comentarios: novaCita }
@@ -401,6 +454,11 @@ router.get('/vitrine_do_trabalhador/hub', async (req, res) => {
 // Detalhes da Vitrine
 router.get('/vitrine_do_trabalhador/detalhes/:id', async (req, res) => {
     try {
+        if (!idValido(req.params.id)) {
+            req.flash("error_msg", "Esse anúncio não foi encontrado.");
+            return res.redirect("/categories/vitrine_do_trabalhador/hub");
+        }
+
         const vitrineDoc = await Vitrine.findById(req.params.id)
             .populate('usuario')
             .populate('comentarios.usuario')
@@ -437,8 +495,12 @@ router.get('/vitrine_do_trabalhador/detalhes/:id', async (req, res) => {
 // Curtir (Like)
 router.post('/vitrine_do_trabalhador/curtir/:id', isUser, async (req, res) => {
     try {
+        if (!idValido(req.params.id)) {
+            return res.redirect("/categories/vitrine_do_trabalhador/hub");
+        }
+
         const vitrine = await Vitrine.findById(req.params.id);
-        if(!vitrine) return res.redirect("back");
+        if (!vitrine) return res.redirect("/categories/vitrine_do_trabalhador/hub");
 
         const userIndex = vitrine.curtidas.indexOf(req.user._id);
 
@@ -459,13 +521,15 @@ router.post('/vitrine_do_trabalhador/curtir/:id', isUser, async (req, res) => {
 // Comentar
 router.post('/vitrine_do_trabalhador/comentar/:id', isUser, async (req, res) => {
     try {
-        if (!req.body.texto || req.body.texto.trim() === "") {
-            return res.redirect("back");
+        const validacao = comentarioSchema.safeParse(req.body);
+        if (!idValido(req.params.id) || !validacao.success) {
+            req.flash("error_msg", "Comentário inválido.");
+            return res.redirect("/categories/vitrine_do_trabalhador/hub");
         }
 
         const novoComentario = {
             usuario: req.user._id,
-            texto: req.body.texto,
+            texto: validacao.data.texto,
             createdAt: new Date()
         };
 
@@ -483,26 +547,31 @@ router.post('/vitrine_do_trabalhador/comentar/:id', isUser, async (req, res) => 
 // Criar Anúncio
 router.post('/vitrine_do_trabalhador/criar-vitrine', isUser, Limiter, upload.none(), async (req, res) => {
     try {
-        if (!req.body.titulo || !req.body.descricao) {
-            req.flash("error_msg", "Preencha todos os campos obrigatórios.");
-            return res.redirect('back');
+        const validacao = vitrineSchema.safeParse(req.body);
+
+        if (!validacao.success) {
+            req.flash("error_msg", primeiraMensagem(validacao.error));
+            return res.redirect('/categories/vitrine_do_trabalhador/criar-vitrine');
         }
 
-        // Tratamento das URLs das imagens
-        let imagensVitrine = req.body['imagens_urls[]'] || req.body.imagens_urls || [];
-        if (typeof imagensVitrine === 'string') imagensVitrine = [imagensVitrine];
+        const dados = validacao.data;
+
+        // Só entram no banco URLs originadas do nosso Cloudinary.
+        const imagensVitrine = normalizarMidias(
+            req.body['imagens_urls[]'] || req.body.imagens_urls
+        );
 
         const novoAnuncio = new Vitrine({
-            titulo: req.body.titulo,
-            categoria: req.body.categoria,
-            categoria_especificada: req.body.categoria === 'Outros' ? req.body.categoria_especificada : null,
-            descricao: req.body.descricao,
-            produtos: req.body.produtos,
-            servicos: req.body.servicos,
-            contato: req.body.contato,
-            localizacao: req.body.localizacao,
-            latitude: req.body.latitude ? parseFloat(req.body.latitude) : null,
-            longitude: req.body.longitude ? parseFloat(req.body.longitude) : null,
+            titulo: dados.titulo,
+            categoria: dados.categoria,
+            categoria_especificada: dados.categoria === 'Outros' ? dados.categoria_especificada : null,
+            descricao: dados.descricao,
+            produtos: dados.produtos,
+            servicos: dados.servicos,
+            contato: dados.contato,
+            localizacao: dados.localizacao,
+            latitude: dados.latitude,
+            longitude: dados.longitude,
             usuario: req.user._id,
             imagens: imagensVitrine,
             dataCriacao: new Date()

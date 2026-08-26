@@ -11,6 +11,7 @@
                     
                     <div class="card-body p-4 p-md-5 bg-white">
                         <form id="mainForm" action="/categories/denuncias_sigilosas/abrir-denuncia" method="POST">
+                        <input type="hidden" name="_csrf" value="{{csrfToken}}">
                             
                             <div class="mb-4">
                                 <label class="form-label fw-bold text-secondary small text-uppercase">Tipo de Ocorrência</label>

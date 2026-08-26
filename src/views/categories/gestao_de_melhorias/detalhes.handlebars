@@ -77,6 +77,7 @@
 
                 <div class="card border-0 shadow-sm rounded-4 p-3 mb-4 text-center bg-white">
                     <form action="/categories/gestao_de_melhorias/like/{{chamadoDoc._id}}" method="POST">
+                        <input type="hidden" name="_csrf" value="{{csrfToken}}">
                         {{#if jaCurtiu}} 
                             <button type="submit" class="btn btn-danger w-100 rounded-pill fw-bold py-2 shadow-sm transition-base">
                                 <i class="bi bi-heart-fill me-2"></i> Você apoiou isto ({{chamadoDoc.curtidas.length}})
@@ -141,6 +142,7 @@
 
                     <div class="p-3 bg-white border-top">
                         <form action="/categories/gestao_de_melhorias/comentar/{{chamadoDoc._id}}" method="POST">
+                        <input type="hidden" name="_csrf" value="{{csrfToken}}">
                             <div class="input-group">
                                 <input type="text" name="texto" class="form-control border-0 bg-light rounded-pill ps-4" placeholder="Escreva um comentário" required>
                                 <button class="btn btn-primary rounded-circle ms-2 d-flex align-items-center justify-content-center shadow" type="submit" style="width: 40px; height: 40px;">

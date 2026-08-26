@@ -11,6 +11,7 @@
                     
                     <div class="card-body p-4 p-md-5 bg-white">
                         <form action="/categories/vitrine_do_trabalhador/criar-vitrine" method="POST" id="formVitrine">
+                        <input type="hidden" name="_csrf" value="{{csrfToken}}">
                             
                             <div class="mb-4">
                                 <label class="form-label fw-bold text-secondary small text-uppercase">Título do Anúncio / Nome do Negócio</label>

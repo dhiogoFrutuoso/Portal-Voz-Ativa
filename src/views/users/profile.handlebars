@@ -39,6 +39,7 @@
 
 <section class="pb-5" style="background: #f4f7f9; min-height: 100vh;">
     <form id="mainForm" action="/users/profile/edit" method="POST">
+                        <input type="hidden" name="_csrf" value="{{csrfToken}}">
         <input type="hidden" name="croppedImage" id="croppedImage">
 
         <div class="position-relative" style="height: 250px; background: linear-gradient(45deg, #13315c, #0d6efd);">
@@ -165,6 +166,7 @@
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <form action="/users/profile/delete" method="POST">
+                        <input type="hidden" name="_csrf" value="{{csrfToken}}">
         <div class="modal-body p-4">
           <p class="text-dark fw-semibold mb-2">Tem certeza de que deseja excluir sua conta no Portal Voz Ativa?</p>
           <div class="alert alert-warning rounded-3 border-0 py-2 small mb-3">

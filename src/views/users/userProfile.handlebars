@@ -175,6 +175,7 @@
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <form action="/users/profile/delete" method="POST">
+                        <input type="hidden" name="_csrf" value="{{csrfToken}}">
         <div class="modal-body p-4">
           <p class="text-dark fw-semibold mb-2">Tem certeza de que deseja excluir sua conta no Portal Voz Ativa?</p>
           <div class="alert alert-warning rounded-3 border-0 py-2 small mb-3">

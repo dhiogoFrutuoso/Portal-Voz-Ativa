@@ -232,6 +232,7 @@
                                                 <div class="d-flex align-items-center gap-2">
                                                     
                                                     <form action="/categories/vitrine_do_trabalhador/curtir/{{_id}}" method="POST" class="m-0">
+                        <input type="hidden" name="_csrf" value="{{csrfToken}}">
                                                         <button type="submit" class="btn btn-sm rounded-pill border shadow-sm hover-lift px-3 transition-base 
                                                             {{#if jaCurtiu}}btn-danger text-white{{else}}btn-light text-danger{{/if}}">
                                                             <i class="bi {{#if jaCurtiu}}bi-heart-fill{{else}}bi-heart{{/if}} me-1"></i>
@@ -330,6 +331,7 @@
                                     <div class="d-flex align-items-center gap-2">
                                             
                                         <form action="/categories/vitrine_do_trabalhador/curtir/{{_id}}" method="POST" class="m-0">
+                        <input type="hidden" name="_csrf" value="{{csrfToken}}">
                                             <button type="submit" class="btn btn-sm rounded-pill border shadow-sm hover-lift px-3 transition-base 
                                                 {{#if jaCurtiu}}btn-danger text-white{{else}}btn-light text-danger{{/if}}">
                                                 <i class="bi {{#if jaCurtiu}}bi-heart-fill{{else}}bi-heart{{/if}} me-1"></i>

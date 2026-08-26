@@ -11,6 +11,7 @@ import { fileURLToPath } from 'url';
 import moment from 'moment';
 import { engine } from 'express-handlebars';
 import rateLimit from 'express-rate-limit';
+import { securityHeaders, forceHttps, sanitizeMongo, csrfProtection } from './config/security.js';
 import admin from "./routes/admin.js";
 import users from './routes/user.js';
 import categories from './routes/categories.js';
@@ -20,8 +21,12 @@ import db from './config/db.js';
 import './models/user.js';
 
 const app = express();
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ limit: '50mb', extended: true }));
+
+// A mídia sobe direto do navegador para o Cloudinary; pelo servidor passa apenas
+// a foto de perfil em base64, limitada a 5 MB no validador.
+app.use(express.json({ limit: '8mb' }));
+app.use(express.urlencoded({ limit: '8mb', extended: true }));
+app.use(sanitizeMongo);
 
 auth(passport);
 
@@ -52,8 +57,15 @@ if (!process.env.SESSION_SECRET) {
 // --- CONFIGURAÇÕES ---
 
 // Passport
-// O Render e a Vercel colocam o app atrás de um proxy: sem isso o cookie "secure" não é enviado.
+// O Render e a Vercel colocam o app atrás de um proxy: sem isso o cookie "secure"
+// não é enviado e o req.protocol não reflete o esquema original da requisição.
 app.set('trust proxy', 1);
+app.use(securityHeaders);
+app.use(forceHttps);
+
+// Arquivos estáticos (CSS, JS e imagens) vêm antes da sessão e do rate limit:
+// não devem criar sessão nem consumir a cota de requisições do visitante.
+app.use(express.static(path.join(__dirname, 'public'), { maxAge: '7d' }));
 
 app.use(session({
     secret: process.env.SESSION_SECRET || 'secretKeyVozAtiva', // Chave de segurança para o ecossistema digital
@@ -70,6 +82,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
+app.use(csrfProtection);
 
 // Middleware
 app.use((req, res, next) => {
@@ -124,9 +137,6 @@ app.engine('handlebars', handlebars.engine({
 
 app.set('view engine', 'handlebars');
 app.set('views', path.join(__dirname, 'views'));
-
-// Arquivos Estáticos (CSS, JS e Imagens dos Chamados)
-app.use(express.static(path.join(__dirname, 'public')));
 
 // Mongoose
 mongoose.set('strictQuery', true)

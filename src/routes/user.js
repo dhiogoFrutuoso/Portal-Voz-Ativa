@@ -10,6 +10,15 @@ import "../models/vitrine.js";
 import "../models/categories.js";
 import "../models/denuncias.js";
 import isUser from "../helpers/isUser.js";
+import {
+  registroSchema,
+  loginSchema,
+  perfilSchema,
+  trocaDeSenhaSchema,
+  validarImagemBase64,
+  primeiraMensagem,
+  todasAsMensagens,
+} from "../helpers/validators.js";
 
 const user = mongoose.model("users");
 const router = express.Router();
@@ -17,10 +26,32 @@ const RECAPTCHA_SECRET = process.env.RECAPTCHA_SECRET;
 
 // --- RATE LIMIT ---
 
+// Força bruta no login: 5 tentativas por IP a cada 15 minutos. Requisições bem
+// sucedidas não entram na conta, então quem acerta a senha não é penalizado.
 const loginLimiter = rateLimit({
-  windowMs: 5 * 60 * 1000,
-  max: 15,
-  message: "Muitas tentativas de login, tente novamente mais tarde.",
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  skipSuccessfulRequests: true,
+  message: "Muitas tentativas de login. Aguarde 15 minutos e tente novamente.",
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const registerLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 10,
+  message: "Muitas contas criadas a partir deste endereço. Tente novamente mais tarde.",
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Cobre troca de senha e exclusão de conta — ações sensíveis que conferem senha.
+const contaLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: "Muitas tentativas nesta operação. Aguarde alguns minutos.",
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 
 // --- CONFIGURAÇÃO DO CLOUDINARY ---
@@ -31,30 +62,37 @@ cloudinary.config({
 });
 
 // --- FUNÇÃO AUXILIAR PARA SUBIR PARA O CLOUDINARY ---
+// Só sobe para o Cloudinary o que passou pela checagem de mime, assinatura
+// binária (magic numbers) e tamanho. A transformação reencoda a imagem, o que
+// descarta metadados EXIF — inclusive a localização GPS embutida pela câmera.
 const uploadToCloudinary = async (imageInput) => {
-  try {
-    if (!imageInput || imageInput === "") {
-      return "/img/guest.jpg";
-    }
+  const checagem = validarImagemBase64(imageInput);
 
-    if (imageInput.startsWith("http")) {
-      return imageInput;
-    }
+  if (checagem.erro) {
+    throw new Error(checagem.erro);
+  }
 
-    if (imageInput.startsWith("data:image")) {
-      const result = await cloudinary.uploader.upload(imageInput, {
-        folder: "img_users",
-        transformation: [
-          { width: 500, height: 500, crop: "fill", gravity: "face" },
-        ],
-      });
-      return result.secure_url;
-    }
-
+  if (checagem.vazio) {
     return "/img/guest.jpg";
+  }
+
+  if (checagem.url) {
+    return checagem.url;
+  }
+
+  try {
+    const result = await cloudinary.uploader.upload(checagem.base64, {
+      folder: "img_users",
+      resource_type: "image",
+      allowed_formats: ["png", "jpg", "jpeg", "webp"],
+      transformation: [
+        { width: 500, height: 500, crop: "fill", gravity: "face" },
+      ],
+    });
+    return result.secure_url;
   } catch (error) {
     console.error("Erro no Cloudinary Backend:", error);
-    return "/img/guest.jpg";
+    throw new Error("Não foi possível processar a imagem enviada.");
   }
 };
 
@@ -63,9 +101,8 @@ router.get("/register", (req, res) => {
   res.render("users/register");
 });
 
-router.post("/register", async (req, res) => {
-  const { name, email, profession, bio, password, password_2, croppedImage } =
-    req.body;
+router.post("/register", registerLimiter, async (req, res) => {
+  const { name, email, profession, bio, croppedImage } = req.body;
   const token = req.body["g-recaptcha-response"];
 
   if (!token) {
@@ -115,17 +152,12 @@ router.post("/register", async (req, res) => {
     });
   }
 
-  let errors = [];
+  // Validação de esquema: formato, tamanho e limpeza de HTML dos campos livres.
+  const validacao = registroSchema.safeParse(req.body);
 
-  if (!name || name.trim() === "") errors.push({ text: "Nome inválido!" });
-  if (!email || email.trim() === "") errors.push({ text: "E-mail inválido!" });
-  if (!password || password.length < 4)
-    errors.push({ text: "Senha muito curta!" });
-  if (password != password_2) errors.push({ text: "As senhas não coincidem!" });
-
-  if (errors.length > 0) {
+  if (!validacao.success) {
     return res.render("users/register", {
-      errors,
+      errors: todasAsMensagens(validacao.error),
       name,
       email,
       profession,
@@ -133,8 +165,10 @@ router.post("/register", async (req, res) => {
     });
   }
 
+  const dados = validacao.data;
+
   try {
-    const userExists = await user.findOne({ email: email });
+    const userExists = await user.findOne({ email: dados.email });
     if (userExists) {
       return res.render("users/register", {
         error_msg: "Já existe uma conta com este e-mail.",
@@ -145,18 +179,29 @@ router.post("/register", async (req, res) => {
       });
     }
 
-    const profileImageUrl = await uploadToCloudinary(croppedImage);
+    let profileImageUrl;
+    try {
+      profileImageUrl = await uploadToCloudinary(croppedImage);
+    } catch (erroImagem) {
+      return res.render("users/register", {
+        error_msg: erroImagem.message,
+        name,
+        email,
+        profession,
+        bio,
+      });
+    }
 
     const newUser = new user({
-      name,
-      email,
-      password,
-      profession,
-      bio,
+      name: dados.name,
+      email: dados.email,
+      password: dados.password,
+      profession: dados.profession,
+      bio: dados.bio,
       profileImage: profileImageUrl,
     });
 
-    const salt = await bcrypt.genSalt(10);
+    const salt = await bcrypt.genSalt(12);
     newUser.password = await bcrypt.hash(newUser.password, salt);
     await newUser.save();
 
@@ -187,6 +232,19 @@ router.post("/login", loginLimiter, async (req, res, next) => {
       error_msg: "Por favor faça o reCAPTCHA para provar que você não é um robô!",
     });
   }
+
+  // Garante que email e senha sejam strings de formato conhecido: sem isso um
+  // objeto como {"$gt": ""} poderia chegar ao findOne do Mongo.
+  const credenciais = loginSchema.safeParse(req.body);
+
+  if (!credenciais.success) {
+    return res.render("users/login", {
+      error_msg: primeiraMensagem(credenciais.error),
+    });
+  }
+
+  req.body.email = credenciais.data.email;
+  req.body.password = credenciais.data.password;
 
   try {
     const params = new URLSearchParams();
@@ -225,16 +283,27 @@ router.post("/login", loginLimiter, async (req, res, next) => {
         });
       }
 
-      req.logIn(user, (err) => {
-        if (err) {
-          console.error("Erro no req.logIn:", err);
+      // Regenera a sessão no login para evitar fixação de sessão: o ID que o
+      // visitante trouxe é descartado e um novo é emitido já autenticado.
+      req.session.regenerate((erroSessao) => {
+        if (erroSessao) {
+          console.error("Erro ao regenerar a sessão:", erroSessao);
           return res.render("users/login", {
             error_msg: "Erro ao iniciar a sessão.",
           });
         }
 
-        req.flash("success_msg", "Login realizado com sucesso!");
-        return res.redirect("/");
+        req.logIn(user, (err) => {
+          if (err) {
+            console.error("Erro no req.logIn:", err);
+            return res.render("users/login", {
+              error_msg: "Erro ao iniciar a sessão.",
+            });
+          }
+
+          req.flash("success_msg", "Login realizado com sucesso!");
+          return res.redirect("/");
+        });
       });
     })(req, res, next);
   } catch (err) {
@@ -251,29 +320,32 @@ router.get("/logout", (req, res) => {
 });
 
 // --- PERFIL LOGADO ---
-router.get("/profile", (req, res) => {
-  if (!req.user) {
-    req.flash("error_msg", "Faça login para acessar.");
-    return res.redirect("/users/login");
-  }
+router.get("/profile", isUser, (req, res) => {
   const userData = JSON.parse(JSON.stringify(req.user));
+  delete userData.password; // O hash nunca deve chegar ao template
   res.render("users/profile", { user: userData });
 });
 
 // --- EDIÇÃO DE PERFIL ---
-router.post("/profile/edit", async (req, res) => {
+router.post("/profile/edit", isUser, async (req, res) => {
   try {
-    const { name, bio, profession, croppedImage } = req.body;
+    const { croppedImage } = req.body;
     const userId = req.user._id;
 
-    let updateData = { name, bio, profession };
+    const validacao = perfilSchema.safeParse(req.body);
+    if (!validacao.success) {
+      req.flash("error_msg", primeiraMensagem(validacao.error));
+      return res.redirect("/users/profile");
+    }
+
+    const updateData = { ...validacao.data };
 
     // Se houver algo no croppedImage (URL ou Base64), processa
     if (croppedImage && croppedImage !== "") {
       updateData.profileImage = await uploadToCloudinary(croppedImage);
     }
 
-    await user.findByIdAndUpdate(userId, updateData);
+    await user.findByIdAndUpdate(userId, updateData, { runValidators: true });
 
     req.flash("success_msg", "Perfil atualizado com sucesso!");
     res.redirect("/users/profile");
@@ -285,19 +357,15 @@ router.post("/profile/edit", async (req, res) => {
 });
 
 // --- TROCA DE SENHA ---
-router.post("/profile/change-password", async (req, res) => {
-  if (!req.user) return res.redirect("/users/login");
-  const { oldPassword, newPassword, newPassword2 } = req.body;
+router.post("/profile/change-password", isUser, contaLimiter, async (req, res) => {
+  const validacao = trocaDeSenhaSchema.safeParse(req.body);
 
-  if (!oldPassword || !newPassword || !newPassword2) {
-    req.flash("error_msg", "Preencha todos os campos de senha.");
+  if (!validacao.success) {
+    req.flash("error_msg", primeiraMensagem(validacao.error));
     return res.redirect("/users/profile");
   }
 
-  if (newPassword !== newPassword2) {
-    req.flash("error_msg", "A confirmação da nova senha não coincide.");
-    return res.redirect("/users/profile");
-  }
+  const { oldPassword, newPassword } = validacao.data;
 
   try {
     const usuario = await user.findById(req.user._id);
@@ -308,7 +376,7 @@ router.post("/profile/change-password", async (req, res) => {
       return res.redirect("/users/profile");
     }
 
-    const salt = await bcrypt.genSalt(10);
+    const salt = await bcrypt.genSalt(12);
     usuario.password = await bcrypt.hash(newPassword, salt);
 
     await usuario.save();
@@ -322,12 +390,7 @@ router.post("/profile/change-password", async (req, res) => {
 });
 
 // --- EXCLUSÃO DE CONTA PELO PRÓPRIO USUÁRIO ---
-router.post("/profile/delete", async (req, res) => {
-  if (!req.user) {
-    req.flash("error_msg", "Você precisa estar logado para realizar esta ação.");
-    return res.redirect("/users/login");
-  }
-
+router.post("/profile/delete", isUser, contaLimiter, async (req, res) => {
   const { confirmPassword } = req.body;
   const userId = req.user._id;
 
@@ -338,12 +401,16 @@ router.post("/profile/delete", async (req, res) => {
       return res.redirect("/");
     }
 
-    if (confirmPassword) {
-      const isMatch = await bcrypt.compare(confirmPassword, usuario.password);
-      if (!isMatch) {
-        req.flash("error_msg", "Senha incorreta! Não foi possível confirmar a exclusão da conta.");
-        return res.redirect("/users/profile");
-      }
+    // A confirmação por senha é obrigatória: exclusão é irreversível.
+    if (typeof confirmPassword !== "string" || confirmPassword === "") {
+      req.flash("error_msg", "Confirme sua senha para excluir a conta.");
+      return res.redirect("/users/profile");
+    }
+
+    const isMatch = await bcrypt.compare(confirmPassword, usuario.password);
+    if (!isMatch) {
+      req.flash("error_msg", "Senha incorreta! Não foi possível confirmar a exclusão da conta.");
+      return res.redirect("/users/profile");
     }
 
     const Chamado = mongoose.models.chamados || mongoose.model("chamados");
@@ -384,7 +451,9 @@ router.get("/perfil/:id", async (req, res) => {
     const Chamado = mongoose.model("chamados");
     const Vitrine = mongoose.model("vitrine");
 
-    const usuarioPerfil = await User.findById(req.params.id).lean();
+    const usuarioPerfil = await User.findById(req.params.id)
+      .select("-password")
+      .lean();
 
     if (!usuarioPerfil) {
       return res.render("users/perfil-indisponivel", {

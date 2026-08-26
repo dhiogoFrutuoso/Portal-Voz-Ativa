@@ -9,8 +9,9 @@ const User = mongoose.model("users");
 export default function configurePassport(passportInstance) { //recebe o passport como parâmetro
 
     passportInstance.use(new LocalStrategy({ usernameField: "email" }, (email, password, done) => { //Configura a estratégia local para verificar o login do usuario com email e senha
-        
-            User.findOne({ email: email }).lean().then((user) => { //procura o usuario pelo email no banco de dados
+
+            //String(email) evita que um objeto vire operador do Mongo dentro do findOne.
+            User.findOne({ email: String(email) }).lean().then((user) => { //procura o usuario pelo email no banco de dados
                 if (!user) {
                     return done(null, false, { message: "email inválido! essa conta não existe, tente novamente!" }); //se não encontrar, retorna uma mensagem de erro
                 };
@@ -33,7 +34,8 @@ export default function configurePassport(passportInstance) { //recebe o passpor
     });
 
     passportInstance.deserializeUser((id, done) => { //Recupera o usuario pelo ID salvo na sessão, para manter o usuario logado.
-        User.findById(id).lean().then((user) => { //Busca o usuario no banco de dados pelo ID
+        //O hash da senha fica de fora: req.user vai parar no res.locals e nas views.
+        User.findById(id).select("-password").lean().then((user) => { //Busca o usuario no banco de dados pelo ID
             done(null, user); //retorna o usuario
         }).catch((err) => done(err));
     });

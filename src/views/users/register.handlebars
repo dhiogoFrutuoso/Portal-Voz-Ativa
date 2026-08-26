@@ -134,6 +134,7 @@
         </div>
 
         <form id="mainForm" action="/users/register" method="POST">
+                        <input type="hidden" name="_csrf" value="{{csrfToken}}">
           <input type="hidden" name="croppedImage" id="croppedImage" />
 
           <div class="text-center mb-4">
