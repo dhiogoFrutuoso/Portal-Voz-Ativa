@@ -205,10 +205,90 @@
                                         </div>
                                     {{/if}}
 
-                                    <p class="mb-0">{{this.texto}}</p>
+                                    <div id="texto-{{this._id}}">
+                                        <p class="mb-0">{{this.texto}}</p>
 
-                                    {{#if this.imagem}}
-                                        <img src="{{this.imagem}}" alt="Anexo da resposta" class="img-fluid thread-imagem mt-3">
+                                        {{#if this.imagem}}
+                                            <img src="{{this.imagem}}" alt="Anexo da resposta" class="img-fluid thread-imagem mt-3">
+                                        {{/if}}
+
+                                        {{#if this.editadaEm}}
+                                            <div class="small text-muted fst-italic mt-2">
+                                                editada em {{formatDate this.editadaEm}}
+                                            </div>
+                                        {{/if}}
+                                    </div>
+
+                                    {{!-- Edição em linha, aberta só para quem escreveu a mensagem --}}
+                                    {{#if this.podeEditar}}
+                                        <form action="/protocolos/{{@root.protocolo.tipo}}/{{@root.protocolo._id}}/mensagem/{{this._id}}/editar"
+                                              method="POST" id="form-{{this._id}}" class="d-none mt-2">
+                                            <input type="hidden" name="_csrf" value="{{@root.csrfToken}}">
+
+                                            <textarea name="texto" class="form-control rounded-3 mb-2" rows="3"
+                                                      maxlength="2000" required>{{this.texto}}</textarea>
+
+                                            {{#if this.imagem}}
+                                                <div class="form-check form-switch mb-2">
+                                                    <input class="form-check-input" type="checkbox" name="remover_imagem"
+                                                           value="1" id="remover-{{this._id}}">
+                                                    <label class="form-check-label small" for="remover-{{this._id}}">
+                                                        remover a imagem anexada
+                                                    </label>
+                                                </div>
+                                            {{/if}}
+
+                                            <div class="d-flex gap-2">
+                                                <button type="submit" class="btn btn-primary btn-sm rounded-3 px-3 fw-bold">
+                                                    Salvar
+                                                </button>
+                                                <button type="button" class="btn btn-light btn-sm rounded-3 px-3"
+                                                        data-cancelar="{{this._id}}">
+                                                    Cancelar
+                                                </button>
+                                            </div>
+                                        </form>
+
+                                        <div class="d-flex gap-3 mt-3 pt-2 border-top" id="acoes-{{this._id}}">
+                                            <button type="button" class="btn btn-link btn-sm text-decoration-none p-0 text-secondary"
+                                                    data-editar="{{this._id}}">
+                                                <i class="bi bi-pencil me-1"></i>Editar
+                                            </button>
+
+                                            {{#if this.podeExcluir}}
+                                                <button type="button" class="btn btn-link btn-sm text-decoration-none p-0 text-danger"
+                                                        data-bs-toggle="modal" data-bs-target="#excluir-{{this._id}}">
+                                                    <i class="bi bi-trash me-1"></i>Excluir
+                                                </button>
+                                            {{else}}
+                                                <span class="small text-muted">
+                                                    <i class="bi bi-lock me-1"></i>registro de estágio não é excluído
+                                                </span>
+                                            {{/if}}
+                                        </div>
+
+                                        {{#if this.podeExcluir}}
+                                            <div class="modal fade" id="excluir-{{this._id}}" tabindex="-1">
+                                                <div class="modal-dialog modal-dialog-centered">
+                                                    <div class="modal-content rounded-4">
+                                                        <div class="modal-header border-0">
+                                                            <h5 class="modal-title fw-bold">Excluir mensagem?</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <p class="mb-0">A mensagem sai do histórico do protocolo e não volta.</p>
+                                                        </div>
+                                                        <div class="modal-footer border-0">
+                                                            <button type="button" class="btn btn-light rounded-3" data-bs-dismiss="modal">Cancelar</button>
+                                                            <form action="/protocolos/{{@root.protocolo.tipo}}/{{@root.protocolo._id}}/mensagem/{{this._id}}/excluir" method="POST">
+                                                                <input type="hidden" name="_csrf" value="{{@root.csrfToken}}">
+                                                                <button type="submit" class="btn btn-danger rounded-3 px-4 fw-bold">Excluir</button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {{/if}}
                                     {{/if}}
                                 </div>
                             </div>
@@ -335,6 +415,22 @@
 </section>
 
 <script>
+    // Alterna entre ler e editar uma mensagem, sem recarregar a pagina.
+    (function () {
+        document.addEventListener('click', function (evento) {
+            const paraEditar = evento.target.closest('[data-editar]');
+            const paraCancelar = evento.target.closest('[data-cancelar]');
+            const id = (paraEditar && paraEditar.dataset.editar) || (paraCancelar && paraCancelar.dataset.cancelar);
+
+            if (!id) return;
+
+            const editando = Boolean(paraEditar);
+            document.getElementById('texto-' + id).classList.toggle('d-none', editando);
+            document.getElementById('form-' + id).classList.toggle('d-none', !editando);
+            document.getElementById('acoes-' + id).classList.toggle('d-none', editando);
+        });
+    })();
+
     (function () {
         const cloudName = '{{cloudinaryCloudName}}';
         const unsignedPreset = '{{cloudinaryUploadPreset}}';

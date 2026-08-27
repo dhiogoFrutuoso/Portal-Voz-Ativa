@@ -181,7 +181,9 @@
                                                     <button type="button" class="btn btn-danger btn-sm btn-remover" title="Remover imagem">
                                                         <i class="bi bi-trash"></i>
                                                     </button>
-                                                    <input type="hidden" name="imagens_mantidas[]" value="{{this}}">
+                                                    {{!-- Índice, não URL: a URL da tela vem com a transformação
+                                                          de entrega e não corresponde ao que está salvo. --}}
+                                                    <input type="hidden" name="imagens_mantidas[]" value="{{@index}}">
                                                 </div>
                                             </div>
                                         {{/each}}

@@ -15,7 +15,9 @@ const GETS_RESTRITOS = [
     ['/admin/painel', '/'],
     [`/categories/gestao_de_melhorias/editar/${ID}`, '/users/login'],
     [`/categories/denuncias_sigilosas/editar/${ID}`, '/users/login'],
-    [`/categories/vitrine_do_trabalhador/editar/${ID}`, '/users/login']
+    [`/categories/vitrine_do_trabalhador/editar/${ID}`, '/users/login'],
+    ['/protocolos/buscar?q=teste', '/users/login'],
+    ['/admin/painel/buscar?q=teste', '/']
 ];
 
 const POSTS_RESTRITOS = [
@@ -24,7 +26,9 @@ const POSTS_RESTRITOS = [
     `/categories/gestao_de_melhorias/editar/${ID}`,
     `/categories/gestao_de_melhorias/excluir/${ID}`,
     `/categories/denuncias_sigilosas/excluir/${ID}`,
-    `/categories/vitrine_do_trabalhador/excluir/${ID}`
+    `/categories/vitrine_do_trabalhador/excluir/${ID}`,
+    `/protocolos/melhoria/${ID}/mensagem/${ID}/editar`,
+    `/protocolos/melhoria/${ID}/mensagem/${ID}/excluir`
 ];
 
 let falhas = 0;

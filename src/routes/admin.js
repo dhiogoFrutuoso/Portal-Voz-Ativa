@@ -20,6 +20,7 @@ import {
     prazoDoProtocolo,
     dataLimite,
     numeroDoProtocolo,
+    novidadesDoProtocolo,
     LISTA_ESTAGIOS
 } from '../helpers/protocolo.js';
 import {
@@ -55,6 +56,7 @@ function resumir(doc, tipo) {
         prazo,
         limite: dataLimite(doc.dataCriacao, prazo.dias),
         respostas: (doc.historico || []).length,
+        novidades: novidadesDoProtocolo(doc),
         imagemPrincipal: doc.imagens && doc.imagens.length > 0 ? doc.imagens[0] : null,
         numero: numeroDoProtocolo(doc, tipo),
         linkProtocolo: `/protocolos/${tipo}/${doc._id}`,
@@ -77,8 +79,48 @@ function filtroDeBusca(termo) {
     };
 }
 
+/*
+ * Consulta os protocolos do painel. Usada pela página e pela busca em tempo
+ * real, para as duas nunca divergirem.
+ */
+async function consultarProtocolos({ termo, tipoFiltro }) {
+    const filtro = filtroDeBusca(termo);
+    const tipos = tipoFiltro === 'todos' ? Object.keys(EIXOS_COM_PROTOCOLO) : [tipoFiltro];
+
+    const resultados = await Promise.all(
+        tipos.map((tipo) =>
+            modeloDo(tipo)
+                .find(filtro)
+                .populate('usuario', 'name profileImage profession')
+                .sort({ dataCriacao: -1 })
+                .limit(200)
+                .lean()
+                .then((docs) => docs.map((doc) => resumir(doc, tipo)))
+        )
+    );
+
+    return resultados.flat().sort((a, b) => new Date(b.dataCriacao) - new Date(a.dataCriacao));
+}
+
 router.get('/', isAdmin, (req, res) => {
     res.render('admin/index');
+});
+
+// --- BUSCA EM TEMPO REAL (devolve só as linhas da listagem) ---
+router.get('/painel/buscar', isAdmin, async (req, res) => {
+    try {
+        const busca = buscaSchema.safeParse(req.query);
+        const termo = busca.success ? busca.data.q : '';
+        const tipoFiltro = eixoValido(req.query.tipo) ? req.query.tipo : 'todos';
+
+        res.render('partials/_linhas_painel', {
+            layout: false,
+            protocolos: await consultarProtocolos({ termo, tipoFiltro })
+        });
+    } catch (err) {
+        console.error('Erro na busca do painel:', err);
+        res.status(500).send('');
+    }
 });
 
 // --- PAINEL: visão geral + filtros + busca ---
@@ -90,24 +132,7 @@ router.get('/painel', isAdmin, async (req, res) => {
         const tipoFiltro = eixoValido(req.query.tipo) ? req.query.tipo : 'todos';
         const statusFiltro = LISTA_ESTAGIOS.includes(req.query.status) ? req.query.status : 'todos';
 
-        const filtro = filtroDeBusca(termo);
-
-        const tiposConsultados =
-            tipoFiltro === 'todos' ? Object.keys(EIXOS_COM_PROTOCOLO) : [tipoFiltro];
-
-        const resultados = await Promise.all(
-            tiposConsultados.map((tipo) =>
-                modeloDo(tipo)
-                    .find(filtro)
-                    .populate('usuario', 'name profileImage profession')
-                    .sort({ dataCriacao: -1 })
-                    .limit(200)
-                    .lean()
-                    .then((docs) => docs.map((doc) => resumir(doc, tipo)))
-            )
-        );
-
-        const todos = resultados.flat().sort((a, b) => new Date(b.dataCriacao) - new Date(a.dataCriacao));
+        const todos = await consultarProtocolos({ termo, tipoFiltro });
 
         // A contagem por estágio reflete o filtro de tipo e a busca, para o
         // admin conseguir medir "quantas denúncias novas sobre queimada existem".

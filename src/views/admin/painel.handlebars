@@ -44,6 +44,25 @@
         object-fit: cover;
         border-radius: 50%;
     }
+
+    /* Chama atenção para a novidade sem virar distração */
+    .novidade-pulsa {
+        animation: novidade-pulso 2s ease-in-out infinite;
+    }
+
+    @keyframes novidade-pulso {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.45); }
+        50% { box-shadow: 0 0 0 6px rgba(220, 53, 69, 0); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .novidade-pulsa { animation: none; }
+    }
+
+    .linha-com-novidade {
+        border-color: #f5c2c7 !important;
+        background: #fffafa;
+    }
 </style>
 
 <header class="py-5 text-white shadow-lg" style="background: linear-gradient(145deg, #1d3557 0%, #e63946 100%); border-bottom: 5px solid #ffc107;">
@@ -71,154 +90,64 @@
 <section class="py-5 bg-light">
     <div class="container px-4">
 
-        {{!-- Visão geral por estágio: cada card filtra a lista abaixo --}}
+        {{!-- Visão geral por estágio: cada card filtra a lista na hora, sem recarregar --}}
+        <div data-busca-painel data-busca-rota="/admin/painel/buscar" data-busca-alvo="#resultados">
         <div class="row g-3 mb-4">
             {{#each resumo}}
                 <div class="col-6 col-lg">
-                    <a href="{{this.link}}" class="card-estagio p-3 h-100 shadow-sm border-{{this.cor}} {{#if this.ativo}}ativo{{/if}}">
+                    <button type="button"
+                            class="card-estagio p-3 h-100 shadow-sm border-{{this.cor}} w-100 text-start"
+                            data-filtro="status" data-valor="{{this.chave}}">
                         <div class="text-{{this.cor}} fs-4 mb-1"><i class="bi {{this.icone}}"></i></div>
                         <div class="h3 fw-bold mb-0">{{this.total}}</div>
                         <div class="small fw-bold">{{this.rotulo}}</div>
                         <div class="small text-muted lh-sm mt-1" style="font-size: 0.75rem;">{{this.descricao}}</div>
-                    </a>
+                    </button>
                 </div>
             {{/each}}
         </div>
 
-        {{!-- Filtros e busca --}}
+        {{!-- Busca em tempo real --}}
         <div class="card border-0 shadow-sm rounded-4 mb-4">
-            <div class="card-body p-4">
-                <form action="/admin/painel" method="GET" class="row g-3 align-items-end">
-                    <div class="col-lg-5">
-                        <label class="form-label small fw-bold text-uppercase text-muted">Buscar</label>
+            <div class="card-body p-3 p-md-4">
+                <form action="/admin/painel" method="GET" class="row g-2 align-items-center">
+                    <div class="col-md">
                         <div class="input-group">
-                            <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
-                            <input type="text" name="q" value="{{termo}}" maxlength="100"
-                                   class="form-control border-start-0 rounded-end-3"
+                            <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                            <input type="text" name="q" value="{{termo}}" maxlength="100" autocomplete="off"
+                                   class="form-control border-start-0 rounded-end-3" data-busca-campo
                                    placeholder="Título, descrição, local ou tipo de ocorrência...">
                         </div>
                     </div>
-
-                    <div class="col-lg-3">
-                        <label class="form-label small fw-bold text-uppercase text-muted">Categoria</label>
-                        <select name="tipo" class="form-select rounded-3">
-                            <option value="todos" {{#if (eq tipoFiltro 'todos')}}selected{{/if}}>Todas as categorias</option>
-                            {{#each eixos}}
-                                <option value="{{this.chave}}" {{#if (eq this.chave ../tipoFiltro)}}selected{{/if}}>
-                                    {{this.rotulo}}
-                                </option>
-                            {{/each}}
-                        </select>
-                    </div>
-
-                    <div class="col-lg-3">
-                        <label class="form-label small fw-bold text-uppercase text-muted">Estágio</label>
-                        <select name="status" class="form-select rounded-3">
-                            <option value="todos" {{#if (eq statusFiltro 'todos')}}selected{{/if}}>Todos os estágios</option>
-                            {{#each estagios}}
-                                <option value="{{this.chave}}" {{#if (eq this.chave ../statusFiltro)}}selected{{/if}}>
-                                    {{this.rotulo}}
-                                </option>
-                            {{/each}}
-                        </select>
-                    </div>
-
-                    <div class="col-lg-1 d-grid">
-                        <button type="submit" class="btn btn-dark rounded-3 fw-bold">Ir</button>
+                    <div class="col-md-auto d-grid">
+                        <button type="submit" class="btn btn-dark rounded-3 px-4 fw-bold">Buscar</button>
                     </div>
                 </form>
 
-                {{#if termo}}
-                    <div class="mt-3 small text-muted">
-                        Resultados para <strong>“{{termo}}”</strong>.
-                        <a href="/admin/painel" class="ms-2">limpar busca</a>
-                    </div>
-                {{/if}}
+                <div class="d-flex align-items-center flex-wrap gap-2 mt-3">
+                    <span class="small text-muted text-uppercase fw-bold me-1">Categoria</span>
+                    <button type="button" class="btn btn-sm btn-filtro ativo" data-filtro="tipo" data-valor="">Todas</button>
+                    {{#each eixos}}
+                        <button type="button" class="btn btn-sm btn-filtro" data-filtro="tipo" data-valor="{{this.chave}}">
+                            <i class="bi {{this.icone}} me-1"></i>{{this.rotuloCurto}}
+                        </button>
+                    {{/each}}
+                    <button type="button" class="btn btn-sm btn-filtro ms-lg-3" data-filtro="novidade" data-valor="sim">
+                        <i class="bi bi-bell-fill me-1"></i>Só com resposta nova
+                    </button>
+                </div>
+
+                <div class="small text-muted mt-3 mb-0">
+                    <span data-busca-contador>{{totalGeral}}</span> protocolo(s) em exibição.
+                    <span class="ms-2 fst-italic" data-busca-status></span>
+                </div>
             </div>
         </div>
 
         {{!-- Lista --}}
         {{#if protocolos.length}}
-            <div class="d-flex flex-column gap-3">
-                {{#each protocolos}}
-                    <div class="linha-protocolo shadow-sm overflow-hidden">
-                        <div class="d-flex">
-                            <div class="faixa-status bg-{{this.estagio.cor}}"></div>
-
-                            <div class="flex-grow-1 p-4">
-                                <div class="row g-3">
-                                    <div class="col-md-8">
-                                        <div class="d-flex align-items-center flex-wrap gap-2 mb-2">
-                                            <span class="badge bg-{{this.eixo.cor}} rounded-pill px-3">
-                                                <i class="bi {{this.eixo.icone}} me-1"></i>{{this.eixo.rotuloCurto}}
-                                            </span>
-                                            <span class="badge bg-{{this.estagio.cor}} rounded-pill px-3">{{this.estagio.rotulo}}</span>
-                                            {{#if this.tipoOcorrencia}}
-                                                <span class="badge bg-light text-dark border rounded-pill px-3">{{this.tipoOcorrencia}}</span>
-                                            {{/if}}
-                                            <span class="small text-muted font-monospace">{{this.numero}}</span>
-                                        </div>
-
-                                        <div class="d-flex gap-3">
-                                            {{#if this.imagemPrincipal}}
-                                                <img src="{{this.imagemPrincipal}}" alt="" class="miniatura flex-shrink-0">
-                                            {{/if}}
-
-                                            <div>
-                                                <h5 class="fw-bold mb-1">{{this.titulo}}</h5>
-                                                <p class="text-muted small mb-2">{{recortar this.descricao 180}}</p>
-
-                                                <div class="d-flex align-items-center flex-wrap gap-3 small text-muted">
-                                                    {{#if this.autor}}
-                                                        <span class="d-flex align-items-center">
-                                                            <img src="{{this.autor.profileImage}}" alt="" class="avatar-mini me-1">
-                                                            {{this.autor.name}}
-                                                        </span>
-                                                    {{else}}
-                                                        <span><i class="bi bi-person-x me-1"></i>Autor indisponível</span>
-                                                    {{/if}}
-                                                    <span><i class="bi bi-geo-alt me-1"></i>{{recortar this.localizacao 40}}</span>
-                                                    <span><i class="bi bi-calendar3 me-1"></i>{{formatDay this.dataCriacao}}</span>
-                                                    <span><i class="bi bi-chat-left-text me-1"></i>{{this.respostas}}</span>
-                                                    <span><i class="bi bi-hourglass-split me-1"></i>até {{formatDay this.limite}}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {{!-- Alteração rápida de estágio --}}
-                                    <div class="col-md-4">
-                                        <form action="/admin/protocolo/{{this.tipo}}/{{this._id}}/status" method="POST" class="bg-light rounded-3 p-3">
-                                            <input type="hidden" name="_csrf" value="{{@root.csrfToken}}">
-
-                                            <label class="form-label small fw-bold text-uppercase text-muted mb-1">Alterar estágio</label>
-                                            <select name="status" class="form-select form-select-sm rounded-3 mb-2">
-                                                {{#each @root.estagios}}
-                                                    <option value="{{this.chave}}" {{#if (eq this.chave ../status)}}selected{{/if}}>
-                                                        {{this.rotulo}}
-                                                    </option>
-                                                {{/each}}
-                                            </select>
-
-                                            <button type="submit" class="btn btn-dark btn-sm w-100 rounded-3 fw-bold mb-2">
-                                                Salvar estágio
-                                            </button>
-
-                                            <div class="d-grid gap-1">
-                                                <a href="{{this.linkProtocolo}}" class="btn btn-outline-dark btn-sm rounded-3">
-                                                    <i class="bi bi-chat-square-text me-1"></i> Abrir atendimento
-                                                </a>
-                                                <a href="{{this.linkPost}}" class="btn btn-link btn-sm text-decoration-none">
-                                                    ver publicação
-                                                </a>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                {{/each}}
+            <div class="d-flex flex-column gap-3" id="resultados">
+                {{> _linhas_painel protocolos=protocolos}}
             </div>
         {{else}}
             <div class="text-center py-5 bg-white rounded-4 shadow-sm">
@@ -227,5 +156,6 @@
                 <p class="text-muted mb-0">Ajuste os filtros ou limpe a busca para ver todos os registros.</p>
             </div>
         {{/if}}
+        </div>
     </div>
 </section>

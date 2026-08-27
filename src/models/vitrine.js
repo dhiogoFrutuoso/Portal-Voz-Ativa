@@ -85,6 +85,10 @@ const VitrineSchema = new Schema({
     dataCriacao: { 
         type: Date, 
         default: Date.now 
+    },
+    editadoEm: {
+        type: Date,
+        default: null
     }
 });
 

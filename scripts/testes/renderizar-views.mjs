@@ -65,8 +65,8 @@ const protocolo = {
     usuario, imagens: ['https://res.cloudinary.com/dnh7vok3r/image/upload/f_auto,q_auto/v1/a.png'],
     tipoOcorrencia: null,
     historico: [
-        { autor: usuario, papel: 'cidadao', ehAdmin: false, texto: 'Piorou com a chuva.', imagem: null, createdAt: new Date('2026-02-20') },
-        { autor: { name: 'Gestão', profileImage: '/img/guest.webp' }, papel: 'admin', ehAdmin: true, texto: 'Equipe enviada.', imagem: 'https://res.cloudinary.com/dnh7vok3r/image/upload/f_auto,q_auto/v1/b.png', statusAnterior: 'Novo', statusNovo: 'Em Atendimento', createdAt: new Date('2026-02-21') }
+        { _id: 'm1', autor: usuario, papel: 'cidadao', ehAdmin: false, texto: 'Piorou com a chuva.', imagem: null, createdAt: new Date('2026-02-20'), podeEditar: true, podeExcluir: true },
+        { _id: 'm2', autor: { name: 'Gestão', profileImage: '/img/guest.webp' }, papel: 'admin', ehAdmin: true, texto: 'Equipe enviada.', imagem: 'https://res.cloudinary.com/dnh7vok3r/image/upload/f_auto,q_auto/v1/b.png', statusAnterior: 'Novo', statusNovo: 'Em Atendimento', createdAt: new Date('2026-02-21'), podeEditar: false, podeExcluir: false, registroDeEstagio: true }
     ]
 };
 
@@ -74,18 +74,27 @@ const base = { csrfToken: 'token-de-teste', cloudinaryCloudName: 'dnh7vok3r', cl
 
 const casos = [
     ['protocolos/timeline.handlebars', { ...base, protocolo, eDono: true, eAdmin: false, estagios },
-     ['Asfalto desgastado', 'Prazo de atendimento', 'Equipe enviada', 'token-de-teste'],
-     ['Painel da gestão', '/admin/protocolo/', 'Atualizar protocolo']],
+     ['Asfalto desgastado', 'Prazo de atendimento', 'Equipe enviada', 'token-de-teste',
+      '/mensagem/m1/editar', '/mensagem/m1/excluir'],
+     ['Painel da gestão', '/admin/protocolo/', 'Atualizar protocolo',
+      '/mensagem/m2/editar', '/mensagem/m2/excluir']],
     ['protocolos/timeline.handlebars', { ...base, protocolo, eDono: false, eAdmin: true, estagios }, ['Painel da gestão', 'Atualizar protocolo']],
-    ['protocolos/lista.handlebars', { ...base, protocolos: [protocolo], resumo: estagios.map((e) => ({ ...e, total: 2 })) }, ['Meus Protocolos', 'Acompanhar']],
-    ['protocolos/lista.handlebars', { ...base, protocolos: [], resumo: estagios.map((e) => ({ ...e, total: 0 })) }, ['ainda não abriu nenhum protocolo']],
+    ['protocolos/lista.handlebars',
+     { ...base, protocolos: [{ ...protocolo, novidades: { paraOAutor: true, paraAGestao: false } }],
+       resumo: estagios.map((e) => ({ ...e, total: 2 })), termo: '', total: 1,
+       filtrosEstagio: estagios, filtrosTipo: [eixoMelhoria] },
+     ['Meus Protocolos', 'Acompanhar', 'nova resposta da gestão', 'btn-filtro', 'data-busca-painel']],
+    ['protocolos/lista.handlebars',
+     { ...base, protocolos: [], resumo: estagios.map((e) => ({ ...e, total: 0 })), termo: '', total: 0,
+       filtrosEstagio: estagios, filtrosTipo: [eixoMelhoria] },
+     ['ainda não abriu nenhum protocolo']],
     ['admin/painel.handlebars', {
         ...base,
-        protocolos: [{ ...protocolo, respostas: 2, autor: usuario, imagemPrincipal: null, linkProtocolo: '/protocolos/melhoria/p1', numero: 'MEL-2026-C5C5B8' }],
+        protocolos: [{ ...protocolo, respostas: 2, autor: usuario, imagemPrincipal: null, linkProtocolo: '/protocolos/melhoria/p1', numero: 'MEL-2026-C5C5B8', novidades: { paraAGestao: true, paraOAutor: false } }],
         resumo: estagios.map((e) => ({ ...e, total: 3, ativo: e.chave === 'Novo', link: '/admin/painel?status=' + e.chave })),
         totalGeral: 15, termo: 'asfalto', tipoFiltro: 'todos', statusFiltro: 'todos', estagios,
         eixos: [eixoMelhoria]
-    }, ['Painel de Protocolos', 'Alterar estágio', 'asfalto']],
+    }, ['Painel de Protocolos', 'Alterar estágio', 'o cidadão respondeu', 'data-filtro="status"', 'data-busca-rota="/admin/painel/buscar"']],
     ['categories/editar.handlebars', {
         ...base,
         eixo: { chave: 'gestao_de_melhorias', model: 'chamados', rotulo: 'Melhoria', rotuloLongo: 'Gestão de Melhorias', cor: 'primary', icone: 'bi-tools', temVideo: false, temProtocolo: true, hub: '/categories/gestao_de_melhorias/hub', detalhes: '/categories/gestao_de_melhorias/detalhes' },
@@ -123,21 +132,23 @@ const admin = { ...usuario, name: 'Admin', areAdmin: true };
 
 casos.push(
     ['categories/gestao_de_melhorias/hub.handlebars',
-     { ...base, chamados: [cardMelhoria], termo: 'asfalto', total: 1, estagios, tipoProtocolo: 'melhoria' },
-     ['Buscar por título', 'resultado(s) para', 'Em Atendimento'],
+     { ...base, chamados: [cardMelhoria], termo: 'asfalto', total: 1, estagios, filtrosEstagio: estagios, tipoProtocolo: 'melhoria' },
+     ['Buscar por título', 'Em Atendimento', 'item-filtravel', 'data-busca-rota="/categories/gestao_de_melhorias/hub/buscar"'],
      ['/admin/protocolo/', 'Alterar estágio do protocolo']],
 
     ['categories/gestao_de_melhorias/hub.handlebars',
-     { ...base, user: admin, chamados: [cardMelhoria], termo: '', total: 1, estagios, tipoProtocolo: 'melhoria' },
+     { ...base, user: admin, chamados: [cardMelhoria], termo: '', total: 1, estagios, filtrosEstagio: estagios, tipoProtocolo: 'melhoria' },
      ['/admin/protocolo/melhoria/c1/status', 'Salvar', 'Improcedente']],
 
     ['categories/denuncias_sigilosas/hub.handlebars',
-     { ...base, user: admin, denuncias: [{ ...cardMelhoria, tipoOcorrencia: 'Foco de Queimada' }], termo: '', total: 1, estagios, tipoProtocolo: 'denuncia' },
-     ['/admin/protocolo/denuncia/c1/status', 'Buscar por título']],
+     { ...base, user: admin, denuncias: [{ ...cardMelhoria, tipoOcorrencia: 'Foco de Queimada' }], termo: '', total: 1, estagios,
+       filtrosEstagio: estagios, filtrosOcorrencia: ['Foco de Queimada', 'Vandalismo'], tipoProtocolo: 'denuncia' },
+     ['/admin/protocolo/denuncia/c1/status', 'Buscar por título', 'data-filtro="ocorrencia"']],
 
     ['categories/vitrine_do_trabalhador/hub.handlebars',
-     { ...base, anuncios: [{ ...cardMelhoria, categoria: 'Alimentação' }], termo: 'bolo', total: 1 },
-     ['Buscar por serviço']],
+     { ...base, anuncios: [{ ...cardMelhoria, categoria: 'Alimentação' }], termo: 'bolo', total: 1,
+       filtrosCategoria: ['Alimentação', 'Artesanato'] },
+     ['Buscar por serviço', 'data-filtro="categoria"', 'item-filtravel']],
 
     ['categories/gestao_de_melhorias/detalhes.handlebars',
      { ...base, chamadoDoc: cardMelhoria, jaCurtiu: false, eDono: true, podeAcompanhar: true,

@@ -1,0 +1,86 @@
+{{!-- Linhas da lista de protocolos.
+
+     Fica em partial porque serve tanto à página completa quanto ao trecho que a
+     busca em tempo real devolve. --}}
+{{#each protocolos}}
+                    <div class="linha-protocolo shadow-sm overflow-hidden item-filtravel {{#if this.novidades.paraAGestao}}linha-com-novidade{{/if}}"
+                         data-status="{{this.status}}" data-tipo="{{this.tipo}}"
+                         data-novidade="{{#if this.novidades.paraAGestao}}sim{{else}}nao{{/if}}">
+                        <div class="d-flex">
+                            <div class="faixa-status bg-{{this.estagio.cor}}"></div>
+
+                            <div class="flex-grow-1 p-4">
+                                <div class="row g-3">
+                                    <div class="col-md-8">
+                                        <div class="d-flex align-items-center flex-wrap gap-2 mb-2">
+                                            <span class="badge bg-{{this.eixo.cor}} rounded-pill px-3">
+                                                <i class="bi {{this.eixo.icone}} me-1"></i>{{this.eixo.rotuloCurto}}
+                                            </span>
+                                            <span class="badge bg-{{this.estagio.cor}} rounded-pill px-3">{{this.estagio.rotulo}}</span>
+                                            {{#if this.tipoOcorrencia}}
+                                                <span class="badge bg-light text-dark border rounded-pill px-3">{{this.tipoOcorrencia}}</span>
+                                            {{/if}}
+                                            <span class="small text-muted font-monospace">{{this.numero}}</span>
+                                            {{> _novidade mostrar=this.novidades.paraAGestao texto="o cidadão respondeu"}}
+                                        </div>
+
+                                        <div class="d-flex gap-3">
+                                            {{#if this.imagemPrincipal}}
+                                                <img src="{{this.imagemPrincipal}}" alt="" class="miniatura flex-shrink-0">
+                                            {{/if}}
+
+                                            <div>
+                                                <h5 class="fw-bold mb-1">{{this.titulo}}</h5>
+                                                <p class="text-muted small mb-2">{{recortar this.descricao 180}}</p>
+
+                                                <div class="d-flex align-items-center flex-wrap gap-3 small text-muted">
+                                                    {{#if this.autor}}
+                                                        <span class="d-flex align-items-center">
+                                                            <img src="{{this.autor.profileImage}}" alt="" class="avatar-mini me-1">
+                                                            {{this.autor.name}}
+                                                        </span>
+                                                    {{else}}
+                                                        <span><i class="bi bi-person-x me-1"></i>Autor indisponível</span>
+                                                    {{/if}}
+                                                    <span><i class="bi bi-geo-alt me-1"></i>{{recortar this.localizacao 40}}</span>
+                                                    <span><i class="bi bi-calendar3 me-1"></i>{{formatDay this.dataCriacao}}</span>
+                                                    <span><i class="bi bi-chat-left-text me-1"></i>{{this.respostas}}</span>
+                                                    <span><i class="bi bi-hourglass-split me-1"></i>até {{formatDay this.limite}}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {{!-- Alteração rápida de estágio --}}
+                                    <div class="col-md-4">
+                                        <form action="/admin/protocolo/{{this.tipo}}/{{this._id}}/status" method="POST" class="bg-light rounded-3 p-3">
+                                            <input type="hidden" name="_csrf" value="{{@root.csrfToken}}">
+
+                                            <label class="form-label small fw-bold text-uppercase text-muted mb-1">Alterar estágio</label>
+                                            <select name="status" class="form-select form-select-sm rounded-3 mb-2">
+                                                {{#each @root.estagios}}
+                                                    <option value="{{this.chave}}" {{#if (eq this.chave ../status)}}selected{{/if}}>
+                                                        {{this.rotulo}}
+                                                    </option>
+                                                {{/each}}
+                                            </select>
+
+                                            <button type="submit" class="btn btn-dark btn-sm w-100 rounded-3 fw-bold mb-2">
+                                                Salvar estágio
+                                            </button>
+
+                                            <div class="d-grid gap-1">
+                                                <a href="{{this.linkProtocolo}}" class="btn btn-outline-dark btn-sm rounded-3">
+                                                    <i class="bi bi-chat-square-text me-1"></i> Abrir atendimento
+                                                </a>
+                                                <a href="{{this.linkPost}}" class="btn btn-link btn-sm text-decoration-none">
+                                                    ver publicação
+                                                </a>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {{/each}}

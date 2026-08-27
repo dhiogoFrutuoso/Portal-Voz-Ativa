@@ -1,0 +1,88 @@
+{{!-- Cards do hub de denuncias.
+
+     Vive num partial porque a mesma marcação serve a dois caminhos: a página
+     completa e o pedaço devolvido pela busca em tempo real. Assim o desenho do
+     card existe num lugar só. --}}
+{{#each denuncias}}
+                {{!-- Todo tipo de ocorrência aparece no hub. Antes só "Foco de
+                     Queimada" era renderizado e as demais denúncias ficavam
+                     invisíveis na listagem. --}}
+                    <div class="col-12 item-filtravel" data-status="{{this.status}}" data-ocorrencia="{{this.tipoOcorrencia}}" data-titulo="{{this.titulo}}">
+                        <div class="card shadow-lg border-top-primary border-1 rounded-4 overflow-hidden hover-lift bg-white">
+                            <div class="row g-0">
+                                <div class="col-md-4 position-relative">
+                                    {{#if imagemPrincipal}}
+                                        <img src="{{imagemPrincipal}}" alt="{{titulo}}" class="img-extensa" />
+                                        <div class="img-overlay"></div>
+                                    {{else}}
+                                        <div class="bg-dark d-flex flex-column align-items-center justify-content-center h-100 min-h-250">
+                                            <i class="bi bi-shield-slash text-white-50 display-4 mb-2"></i>
+                                            <span class="text-white-50 small">Sem evidência visual</span>
+                                        </div>
+                                    {{/if}}
+                                </div>
+
+                                <div class="col-md-8">
+                                    <div class="card-body p-4 p-lg-5 h-100 d-flex flex-column">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            {{> _estagio estagio=this.estagio status=this.status id=this._id tipo=@root.tipoProtocolo estagios=@root.estagios csrfToken=@root.csrfToken ehAdmin=@root.user.areAdmin}}
+                                            <div class="text-muted small">
+                                                <i class="bi bi-calendar3 me-1"></i> {{formatDate dataCriacao}}
+                                            </div>
+                                        </div>
+                                        
+                                        <h3 class="card-title fw-bold text-dark mb-3">
+                                            <i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>
+                                            {{#if (eq tipoOcorrencia 'Outro')}}{{titulo}}{{else}}{{tipoOcorrencia}}{{/if}}
+                                        </h3>
+                                        <p class="card-text text-secondary mb-4 leading-relaxed text-truncate-3">
+                                            {{descricao}}
+                                        </p>
+                                        
+                                        <div class="mt-auto pt-4 border-top">
+                                            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="icon-shape bg-danger-soft text-danger rounded-circle me-3">
+                                                        <i class="bi bi-geo-alt-fill"></i>
+                                                    </div>
+                                                    <div>
+                                                        <p class="text-muted small mb-0">Localização do Incidente</p>
+                                                        <span class="fw-bold text-dark">{{localizacao}}</span>
+                                                    </div>
+                                                </div>
+
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <form action="/categories/denuncias_sigilosas/like/{{_id}}" method="POST" class="m-0">
+                        <input type="hidden" name="_csrf" value="{{csrfToken}}">
+                                                        <button type="submit" class="btn btn-sm rounded-pill border shadow-sm hover-lift px-3 transition-base 
+                                                            {{#if jaCurtiu}}btn-danger text-white{{else}}btn-light text-danger{{/if}}">
+                                                            <i class="bi {{#if jaCurtiu}}bi-heart-fill{{else}}bi-heart{{/if}} me-1"></i>
+                                                            <span class="fw-bold">{{curtidas.length}}</span>
+                                                        </button>
+                                                    </form>
+                                                    
+                                                    <a href="/categories/denuncias_sigilosas/detalhes/{{_id}}#comentarios" class="btn btn-light btn-sm rounded-pill hover-lift border px-3 transition-base" title="Ver comentários">
+                                                        <i class="bi bi-chat-dots-fill text-primary me-1"></i>
+                                                        <span class="fw-bold">{{comentarios.length}}</span>
+                                                    </a>
+
+                                                    <a href="/categories/denuncias_sigilosas/detalhes/{{_id}}" class="btn btn-dark btn-sm rounded-pill px-4 fw-bold shadow-sm transition-base">
+                                                        Ver Protocolo <i class="bi bi-arrow-right ms-1"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            {{else}}
+                <div class="col-12 text-center py-5">
+                    <div class="card border-0 shadow-sm p-5 rounded-4 bg-white text-muted">
+                        <i class="bi bi-shield-check display-1 text-success opacity-25"></i>
+                        <h4 class="mt-4 fw-bold text-dark">Monitoramento Limpo</h4>
+                        <p>Não há ocorrências críticas registradas em Cariús neste momento.</p>
+                    </div>
+                </div>
+            {{/each}}

@@ -148,3 +148,50 @@ export function numeroDoProtocolo(doc, tipo) {
     const prefixo = tipo === 'denuncia' ? 'DEN' : 'MEL';
     return `${prefixo}-${ano}-${sufixo}`;
 }
+
+/*
+ * Avisos de novidade.
+ *
+ * Cada lado tem sua marca de leitura: o cidadão é avisado quando a gestão
+ * responde e a gestão é avisada quando o cidadão responde. Comparar a data da
+ * última mensagem do outro lado com a marca de leitura evita guardar contador.
+ */
+function ultimaMensagemDe(historico, papel) {
+    const mensagens = (historico || []).filter((item) => item.papel === papel);
+    if (mensagens.length === 0) return null;
+
+    return mensagens.reduce((maisRecente, item) =>
+        new Date(item.createdAt) > new Date(maisRecente.createdAt) ? item : maisRecente
+    );
+}
+
+function haNovidade(ultima, vistoEm) {
+    if (!ultima) return false;
+    if (!vistoEm) return true;
+    return new Date(ultima.createdAt) > new Date(vistoEm);
+}
+
+export function novidadesDoProtocolo(doc) {
+    const daGestao = ultimaMensagemDe(doc.historico, 'admin');
+    const doCidadao = ultimaMensagemDe(doc.historico, 'cidadao');
+
+    return {
+        paraOAutor: haNovidade(daGestao, doc.vistoPeloAutorEm),
+        paraAGestao: haNovidade(doCidadao, doc.vistoPelaGestaoEm),
+        ultimaDaGestao: daGestao ? daGestao.createdAt : null,
+        ultimaDoCidadao: doCidadao ? doCidadao.createdAt : null
+    };
+}
+
+// Só o autor da mensagem mexe nela: cidadão nunca edita ou apaga mensagem da
+// gestão, e a gestão nunca mexe na mensagem do cidadão.
+export function podeMexerNaMensagem(mensagem, usuario) {
+    if (!mensagem || !usuario) return false;
+
+    const autor = mensagem.autor?._id || mensagem.autor;
+    return Boolean(autor) && String(autor) === String(usuario._id);
+}
+
+// Mensagem que registra troca de estágio é histórico do atendimento: o texto
+// pode ser corrigido, mas o registro em si não é apagado.
+export const ehRegistroDeEstagio = (mensagem) => Boolean(mensagem && mensagem.statusNovo);

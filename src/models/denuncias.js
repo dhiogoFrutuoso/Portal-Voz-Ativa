@@ -73,9 +73,22 @@ const DenunciaSchema = new Schema({
         createdAt: {
             type: Date,
             default: Date.now
+        },
+        editadaEm: {
+            type: Date,
+            default: null
         }
     }],
     editadoEm: {
+        type: Date,
+        default: null
+    },
+    // Marcas de leitura: alimentam o aviso de "nova resposta" nas listagens.
+    vistoPeloAutorEm: {
+        type: Date,
+        default: null
+    },
+    vistoPelaGestaoEm: {
         type: Date,
         default: null
     },

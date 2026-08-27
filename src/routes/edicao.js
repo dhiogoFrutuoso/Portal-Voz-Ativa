@@ -36,6 +36,16 @@ const limiteEdicao = rateLimit({
 
 const idValido = (id) => mongoose.Types.ObjectId.isValid(id);
 
+// Índices das imagens que o autor decidiu manter, vindos do formulário.
+function indicesMantidos(entrada) {
+    let lista = entrada ?? [];
+    if (!Array.isArray(lista)) lista = [lista];
+
+    return lista
+        .map((valor) => Number.parseInt(valor, 10))
+        .filter((numero) => Number.isInteger(numero));
+}
+
 // As mesmas opções dos formulários de criação, para o editor não divergir deles.
 const TIPOS_OCORRENCIA = [
     'Foco de Queimada',
@@ -199,12 +209,18 @@ for (const eixo of Object.values(EIXOS_EDITAVEIS)) {
                 return res.redirect(destinoEditor);
             }
 
-            // As imagens mantidas chegam como URLs já salvas; as novas vêm do
-            // Cloudinary. Ambas passam pela mesma allowlist de origem.
-            const mantidas = normalizarMidias(
-                req.body['imagens_mantidas[]'] || req.body.imagens_mantidas,
-                5
-            );
+            // O formulário devolve o ÍNDICE de cada imagem que ficou, não a URL:
+            // a URL exibida na página carrega a transformação de entrega (WebP) e
+            // publicações antigas guardam a imagem em base64 — nos dois casos o
+            // valor da tela não bate com o que está salvo. Resolvendo por índice,
+            // a imagem original é preservada exatamente como está no banco.
+            const jaSalvas = Array.isArray(req.post.imagens) ? req.post.imagens : [];
+            const mantidas = indicesMantidos(req.body['imagens_mantidas[]'] || req.body.imagens_mantidas)
+                .filter((i) => i >= 0 && i < jaSalvas.length)
+                .map((i) => jaSalvas[i]);
+
+            // Já as imagens novas vêm do navegador, então continuam limitadas às
+            // URLs do nosso Cloudinary.
             const novas = normalizarMidias(req.body['imagens_urls[]'] || req.body.imagens_urls, 5);
             const imagens = [...mantidas, ...novas].slice(0, 5);
 

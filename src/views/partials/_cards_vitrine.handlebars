@@ -1,0 +1,223 @@
+{{!-- Cards do hub de anuncios.
+
+     Vive num partial porque a mesma marcação serve a dois caminhos: a página
+     completa e o pedaço devolvido pela busca em tempo real. Assim o desenho do
+     card existe num lugar só. --}}
+{{#each anuncios}}
+                {{#if imagemPrincipal}}
+                    <div class="col-12 item-filtravel" data-categoria="{{this.categoria}}" data-titulo="{{this.titulo}}">
+                        <div class="card shadow-lg border-top-success border-1 rounded-4 overflow-hidden hover-lift bg-white">
+                            <div class="row g-0">
+                                <div class="col-md-4 position-relative">
+                                    <img src="{{imagemPrincipal}}" class="card-img-top img-extensa" alt="{{this.titulo}}">
+                                    <div class="img-overlay"></div>
+                                </div>
+
+                                <div class="col-md-8">
+                                    <div class="card-body p-4 p-lg-5 h-100 d-flex flex-column">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <span class="badge bg-success-soft text-success px-3 py-2 rounded-pill fw-bold">
+                                                <i class="bi bi-patch-check-fill me-2 small"></i>{{categoria}}
+                                            </span>
+                                            <div class="text-muted small">
+                                                <i class="bi bi-calendar3 me-1"></i> {{formatDate dataCriacao}}
+                                            </div>
+                                        </div>
+                                        
+                                        <h3 class="card-title fw-bold text-dark mb-3">
+                                            <i class="bi bi-briefcase-fill text-success me-2"></i>
+                                            {{titulo}}
+                                        </h3>
+                                        <p class="card-text text-secondary mb-4 leading-relaxed">
+                                            {{descricao}}
+                                        </p>
+
+                                        <div class="col-20">
+                                            <div class="p-3 border rounded-3 bg-light border-start-success">
+                                                {{#if usuario.isDeleted}}
+                                                    <div class="d-flex align-items-center opacity-75">
+                                                        <div class="icon-shape rounded-circle me-3 overflow-hidden" style="width: 45px; height: 45px; flex-shrink: 0; border: 1px solid #ddd;">
+                                                            <img src="/img/guest.webp" alt="Usuário Indisponível" style="width: 100%; height: 100%; object-fit: cover;">
+                                                        </div>
+                                                        <div>
+                                                            <p class="text-muted small mb-0 lh-2 fw-bold" style="font-size: 0.75rem;">Anunciante: </p>
+                                                            <p class="text-muted small mb-0">Conta Excluída</p>
+                                                            <span class="fw-bold text-muted fst-italic"><i class="bi bi-person-x me-1"></i>Usuário Indisponível</span>
+                                                        </div>
+                                                    </div>
+                                                {{else}}
+                                                    <a href="/users/perfil/{{usuario._id}}" class="text-decoration-none d-flex align-items-center hover-opacity">
+                                                        <div class="icon-shape rounded-circle me-3 overflow-hidden" style="width: 45px; height: 45px; flex-shrink: 0;">
+                                                            <img src="{{#if usuario.profileImage}}{{usuario.profileImage}}{{else}}/img/guest.webp{{/if}}" 
+                                                                 alt="{{usuario.name}}" 
+                                                                 style="width: 100%; height: 100%; object-fit: cover;"
+                                                                 onerror="this.src='/img/guest.webp'">
+                                                        </div>
+
+                                                        {{!-- NOME E RÓTULO --}}
+                                                        <div>
+                                                            <p class="text-muted small mb-0 lh-2 fw-bold" style="font-size: 0.75rem;">Anunciante: </p>
+                                                            <p class="text-muted small mb-0">{{#if usuario.profession}}{{usuario.profession}}{{else}}Profissional{{/if}}</p>
+                                                            <span class="fw-bold text-dark">{{usuario.name}}</span>
+                                                        </div>
+                                                    </a>
+                                                {{/if}}
+                                            </div>
+                                        </div>
+                                        <br>
+
+                                        <div class="mt-auto pt-4 border-top">
+                                            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+
+                                                <div class="d-flex align-items-center">
+                                                    <div class="icon-shape bg-danger-soft text-danger rounded-circle me-3">
+                                                        <i class="bi bi-geo-alt-fill"></i>
+                                                    </div>
+                                                    <div>
+                                                        <p class="text-muted small mb-0">Localização</p>
+                                                        <span class="fw-bold text-dark">{{localizacao}}</span>
+                                                    </div>
+                                                </div>
+
+                                                <div class="d-flex align-items-center gap-2">
+                                                    
+                                                    <form action="/categories/vitrine_do_trabalhador/curtir/{{_id}}" method="POST" class="m-0">
+                        <input type="hidden" name="_csrf" value="{{csrfToken}}">
+                                                        <button type="submit" class="btn btn-sm rounded-pill border shadow-sm hover-lift px-3 transition-base 
+                                                            {{#if jaCurtiu}}btn-danger text-white{{else}}btn-light text-danger{{/if}}">
+                                                            <i class="bi {{#if jaCurtiu}}bi-heart-fill{{else}}bi-heart{{/if}} me-1"></i>
+                                                            <span class="fw-bold">{{curtidas.length}}</span>
+                                                        </button>
+                                                    </form>
+
+                                                    <a href="/categories/vitrine_do_trabalhador/detalhes/{{_id}}" class="btn btn-light btn-sm rounded-pill hover-lift border px-3 transition-base">
+                                                        <i class="bi bi-chat-dots-fill text-primary me-1"></i>
+                                                        <span class="fw-bold">{{comentarios.length}}</span>
+                                                    </a>
+
+                                                    <a href="https://wa.me/{{contato}}" target="_blank" class="btn btn-outline-success btn-sm rounded-pill px-4 fw-bold">
+                                                        <i class="bi bi-whatsapp me-2"></i>Contato
+                                                    </a>
+
+                                                    <a href="/categories/vitrine_do_trabalhador/detalhes/{{_id}}" class="btn btn-primary btn-sm rounded-pill px-4 fw-bold shadow-sm transition-base">
+                                                        Detalhes <i class="bi bi-arrow-right ms-1"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {{else}}
+                    <div class="col-12 mb-4 item-filtravel" data-categoria="{{this.categoria}}" data-titulo="{{this.titulo}}">
+                        <div class="conteudo-recuado card border-0 shadow-sm rounded-4 overflow-hidden hover-lift bg-white border-start border-4 border-success">
+                            <div class="card-body p-4 p-lg-4">
+                                
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill fw-bold">
+                                        <i class="bi bi-patch-check-fill me-1"></i> {{categoria}}
+                                    </span>
+                                    <div class="text-muted small">
+                                        <i class="bi bi-calendar3 me-1"></i> {{formatDate dataCriacao}}
+                                    </div>
+                                </div>
+
+                                <h3 class="card-title fw-bold text-dark mb-3">
+                                    <i class="bi bi-briefcase-fill text-success me-2"></i>
+                                    {{titulo}}
+                                </h3>
+                                <p class="card-text text-secondary mb-4 leading-relaxed">
+                                    {{descricao}}
+                                </p>
+
+                                <div class="col-20">
+                                    <div class="p-3 border rounded-3 bg-light border-start-success">
+                                        {{#if usuario.isDeleted}}
+                                            <div class="d-flex align-items-center opacity-75">
+                                                <div class="icon-shape rounded-circle me-3 overflow-hidden" style="width: 45px; height: 45px; flex-shrink: 0; border: 1px solid #ddd;">
+                                                    <img src="/img/guest.webp" alt="Usuário Indisponível" style="width: 100%; height: 100%; object-fit: cover;">
+                                                </div>
+                                                <div>
+                                                    <p class="text-muted small mb-0 lh-2 fw-bold" style="font-size: 0.75rem;">Anunciante: </p>
+                                                    <p class="text-muted small mb-0">Conta Excluída</p>
+                                                    <span class="fw-bold text-muted fst-italic"><i class="bi bi-person-x me-1"></i>Usuário Indisponível</span>
+                                                </div>
+                                            </div>
+                                        {{else}}
+                                            <a href="/users/perfil/{{usuario._id}}" class="text-decoration-none d-flex align-items-center hover-opacity">
+                                                <div class="icon-shape rounded-circle me-3 overflow-hidden" style="width: 45px; height: 45px; flex-shrink: 0;">
+                                                    <img src="{{#if usuario.profileImage}}{{usuario.profileImage}}{{else}}/img/guest.webp{{/if}}" 
+                                                         alt="{{usuario.name}}" 
+                                                         style="width: 100%; height: 100%; object-fit: cover;"
+                                                         onerror="this.src='/img/guest.webp'">
+                                                </div>
+
+                                                {{!-- NOME E RÓTULO --}}
+                                                <div>
+                                                    <p class="text-muted small mb-0 lh-2 fw-bold" style="font-size: 0.75rem;">Anunciante: </p>
+                                                    <p class="text-muted small mb-0">{{#if usuario.profession}}{{usuario.profession}}{{else}}Profissional{{/if}}</p>
+                                                    <span class="fw-bold text-dark">{{usuario.name}}</span>
+                                                </div>
+                                            </a>
+                                        {{/if}}
+                                    </div>
+                                </div>
+                                <br>
+
+                                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 pt-3 border-top">
+
+                                    <div class="d-flex align-items-center">
+                                        <div class="icon-shape bg-danger-soft text-danger rounded-circle me-3">
+                                            <i class="bi bi-geo-alt-fill"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-muted small mb-0">Localização</p>
+                                            <span class="fw-bold text-dark">{{localizacao}}</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="d-flex align-items-center gap-2">
+                                            
+                                        <form action="/categories/vitrine_do_trabalhador/curtir/{{_id}}" method="POST" class="m-0">
+                        <input type="hidden" name="_csrf" value="{{csrfToken}}">
+                                            <button type="submit" class="btn btn-sm rounded-pill border shadow-sm hover-lift px-3 transition-base 
+                                                {{#if jaCurtiu}}btn-danger text-white{{else}}btn-light text-danger{{/if}}">
+                                                <i class="bi {{#if jaCurtiu}}bi-heart-fill{{else}}bi-heart{{/if}} me-1"></i>
+                                                <span class="fw-bold">{{curtidas.length}}</span>
+                                            </button>
+                                        </form>
+
+                                        <a href="/categories/vitrine_do_trabalhador/detalhes/{{_id}}" class="btn btn-light btn-sm rounded-pill hover-lift border px-3 transition-base">
+                                            <i class="bi bi-chat-dots-fill text-primary me-1"></i>
+                                            <span class="fw-bold">{{comentarios.length}}</span>
+                                        </a>
+                                    </div>
+
+                                    <div class="d-flex align-items-center gap-2">
+                                        <a href="https://wa.me/{{contato}}" target="_blank" class="btn btn-outline-success btn-sm rounded-pill px-4 fw-bold">
+                                            <i class="bi bi-whatsapp me-2"></i>Contato
+                                        </a>
+
+                                        <a href="/categories/vitrine_do_trabalhador/detalhes/{{_id}}" class="btn btn-primary btn-sm rounded-pill px-4 fw-bold shadow-sm transition-base">
+                                            Detalhes <i class="bi bi-arrow-right ms-1"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                                <br>
+
+                            </div>
+                        </div>
+                    </div>
+                {{/if}}
+            {{else}}
+                {{!-- MENSAGEM CASO ESTEJA VAZIO --}}
+                <div class="col-12 text-center py-5">
+                    <div class="card border-0 shadow-sm p-5 rounded-4 bg-white text-muted">
+                        <i class="bi bi-search display-1 opacity-25"></i>
+                        <h4 class="mt-4 fw-bold text-dark">Nenhum anúncio hoje</h4>
+                        <p>Seja o primeiro a divulgar seus serviços na Vitrine!</p>
+                    </div>
+                </div>
+            {{/each}}

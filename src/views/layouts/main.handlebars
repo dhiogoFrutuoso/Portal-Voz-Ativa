@@ -18,15 +18,9 @@
     {{>_navbar}}
     {{> _msg}}
 
-    {{!-- As páginas trazem o próprio .container; só as que precisam de margem
-          lateral no bloco inteiro pedem o wrapper via pageContained. --}}
-    {{#if pageContained}}
-        <div class="container mt-4">
-            {{{body}}}
-        </div>
-    {{else}}
+    <div class="container mt-4">
         {{{body}}}
-    {{/if}}
+    </div>
 
     {{>_footer}}
 
@@ -36,6 +30,9 @@
 
     {{!-- Valida tipo e tamanho dos arquivos antes de qualquer envio ao Cloudinary --}}
     <script src="/js/upload-guard.js"></script>
+
+    {{!-- Filtros instantâneos e busca com debounce nos hubs e painéis --}}
+    <script src="/js/busca-viva.js"></script>
 
     </body>
 </html>

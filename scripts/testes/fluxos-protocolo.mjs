@@ -35,6 +35,7 @@ const { default: protocolos } = await import('../../src/routes/protocolos.js');
 const { default: admin } = await import('../../src/routes/admin.js');
 const { default: edicao } = await import('../../src/routes/edicao.js');
 const { otimizarMidiaNaRenderizacao } = await import('../../src/helpers/midia.js');
+const { novidadesDoProtocolo } = await import('../../src/helpers/protocolo.js');
 
 const User = mongoose.model('users');
 const Chamado = mongoose.model('chamados');
@@ -184,6 +185,90 @@ try {
     const painelVazio = await (await pedir('/admin/painel?q=inexistentexyz', { como: 'gestor' })).text();
     checar(!painelVazio.includes('Buraco na rua principal'), 'busca sem correspondência não lista o protocolo');
 
+    console.log('\n--- Aviso de novidade ---');
+    doc = await Chamado.findById(id).lean();
+    let novidades = novidadesDoProtocolo(doc);
+    checar(novidades.paraOAutor === true, 'autor é avisado da resposta da gestão');
+
+    await pedir(`/protocolos/melhoria/${id}`, { como: 'autor' });
+    doc = await Chamado.findById(id).lean();
+    novidades = novidadesDoProtocolo(doc);
+    checar(novidades.paraOAutor === false, 'aviso some depois que o autor abre o protocolo');
+
+    await pedir(`/protocolos/melhoria/${id}/responder`, {
+        como: 'autor', metodo: 'POST', corpo: { texto: 'Obrigado pelo retorno da equipe.' }
+    });
+    doc = await Chamado.findById(id).lean();
+    novidades = novidadesDoProtocolo(doc);
+    checar(novidades.paraAGestao === true, 'gestão é avisada da resposta do cidadão');
+
+    await pedir(`/protocolos/melhoria/${id}`, { como: 'gestor' });
+    doc = await Chamado.findById(id).lean();
+    checar(novidadesDoProtocolo(doc).paraAGestao === false, 'aviso some depois que a gestão abre');
+
+    console.log('\n--- Edição de mensagem: só o autor dela ---');
+    doc = await Chamado.findById(id).lean();
+    const msgDoCidadao = doc.historico.find((m) => m.papel === 'cidadao' && !m.statusNovo);
+    const msgDaGestao = doc.historico.find((m) => m.papel === 'admin');
+
+    await pedir(`/protocolos/melhoria/${id}/mensagem/${msgDoCidadao._id}/editar`, {
+        como: 'autor', metodo: 'POST', corpo: { texto: 'Texto corrigido pelo próprio autor.' }
+    });
+    doc = await Chamado.findById(id).lean();
+    let atualizada = doc.historico.find((m) => String(m._id) === String(msgDoCidadao._id));
+    checar(atualizada.texto === 'Texto corrigido pelo próprio autor.', 'autor edita a própria mensagem');
+    checar(Boolean(atualizada.editadaEm), 'marca de edição registrada na mensagem');
+
+    await pedir(`/protocolos/melhoria/${id}/mensagem/${msgDoCidadao._id}/editar`, {
+        como: 'gestor', metodo: 'POST', corpo: { texto: 'Gestão tentando reescrever o cidadão.' }
+    });
+    doc = await Chamado.findById(id).lean();
+    atualizada = doc.historico.find((m) => String(m._id) === String(msgDoCidadao._id));
+    checar(atualizada.texto === 'Texto corrigido pelo próprio autor.', 'gestão NÃO edita mensagem do cidadão');
+
+    await pedir(`/protocolos/melhoria/${id}/mensagem/${msgDaGestao._id}/editar`, {
+        como: 'autor', metodo: 'POST', corpo: { texto: 'Cidadão tentando reescrever a gestão.' }
+    });
+    doc = await Chamado.findById(id).lean();
+    const daGestao = doc.historico.find((m) => String(m._id) === String(msgDaGestao._id));
+    checar(!daGestao.texto.includes('tentando'), 'cidadão NÃO edita mensagem da gestão');
+
+    console.log('\n--- Exclusão de mensagem ---');
+    const totalAntes = doc.historico.length;
+
+    await pedir(`/protocolos/melhoria/${id}/mensagem/${msgDaGestao._id}/excluir`, { como: 'autor', metodo: 'POST' });
+    doc = await Chamado.findById(id).lean();
+    checar(doc.historico.length === totalAntes, 'cidadão NÃO exclui mensagem da gestão');
+
+    await pedir(`/protocolos/melhoria/${id}/mensagem/${msgDaGestao._id}/excluir`, { como: 'gestor', metodo: 'POST' });
+    doc = await Chamado.findById(id).lean();
+    checar(doc.historico.length === totalAntes, 'registro de mudança de estágio não é excluído nem pelo autor dele');
+
+    await pedir(`/protocolos/melhoria/${id}/mensagem/${msgDoCidadao._id}/excluir`, { como: 'gestor', metodo: 'POST' });
+    doc = await Chamado.findById(id).lean();
+    checar(doc.historico.length === totalAntes, 'gestão NÃO exclui mensagem do cidadão');
+
+    await pedir(`/protocolos/melhoria/${id}/mensagem/${msgDoCidadao._id}/excluir`, { como: 'autor', metodo: 'POST' });
+    doc = await Chamado.findById(id).lean();
+    checar(doc.historico.length === totalAntes - 1, 'autor exclui a própria mensagem');
+
+    console.log('\n--- Busca em tempo real ---');
+    const trechoAdmin = await (await pedir('/admin/painel/buscar?q=buraco', { como: 'gestor' })).text();
+    checar(trechoAdmin.includes('Buraco na rua principal'), 'trecho do painel traz o protocolo buscado');
+    checar(!trechoAdmin.includes('<html'), 'trecho vem sem o layout da página');
+
+    const trechoVazio = await (await pedir('/admin/painel/buscar?q=naoexistexyz', { como: 'gestor' })).text();
+    checar(!trechoVazio.includes('Buraco na rua principal'), 'busca sem correspondência devolve trecho vazio');
+
+    const trechoUsuario = await (await pedir('/protocolos/buscar?q=buraco', { como: 'autor' })).text();
+    checar(trechoUsuario.includes('Buraco na rua principal'), 'cidadão busca nos próprios protocolos');
+
+    const trechoAlheio = await (await pedir('/protocolos/buscar?q=buraco', { como: 'outro' })).text();
+    checar(!trechoAlheio.includes('Buraco na rua principal'), 'busca não vaza protocolo de outra pessoa');
+
+    const buscaSemLogin = await pedir('/protocolos/buscar?q=buraco');
+    checar(buscaSemLogin.status === 302, 'busca de protocolos exige login');
+
     console.log('\n--- Editor restrito ao autor ---');
     checar((await pedir(`/categories/gestao_de_melhorias/editar/${id}`, { como: 'autor' })).status === 200, 'autor abre o editor');
     checar((await pedir(`/categories/gestao_de_melhorias/editar/${id}`, { como: 'outro' })).status === 302, 'terceiro é barrado do editor');
@@ -203,7 +288,8 @@ try {
             descricao: 'Descrição revisada pelo autor.',
             localizacao: 'Centro, Cariús',
             latitude: '-6.5372', longitude: '-39.4936',
-            'imagens_mantidas[]': IMG
+            // O formulário devolve o índice da imagem, não a URL
+            'imagens_mantidas[]': '0'
         }
     });
     doc = await Chamado.findById(id).lean();

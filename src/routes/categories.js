@@ -61,6 +61,68 @@ const comEstagio = (doc) => {
 
 const estagiosParaSelect = () => LISTA_ESTAGIOS.map((chave) => estagioDe(chave));
 
+// Valores dos botões de filtro dos hubs. São os mesmos das telas de criação.
+const TIPOS_OCORRENCIA = [
+    'Foco de Queimada',
+    'Descarte Irregular de Lixo',
+    'Maus-tratos contra Animais',
+    'Poluição Sonora',
+    'Vandalismo',
+    'Tráfico ou Uso de Drogas',
+    'Outro'
+];
+
+const CATEGORIAS_VITRINE = [
+    'Serviços Gerais',
+    'Alimentação',
+    'Construção Civil',
+    'Educação/Aulas',
+    'Artesanato',
+    'Outros'
+];
+
+/*
+ * Busca dos hubs: devolve só o pedaço de HTML com os cards, para a página
+ * trocar a lista sem recarregar. O mesmo partial usado na página completa é
+ * renderizado aqui, então o desenho do card não é duplicado.
+ */
+function montarBuscaDeHub({ Modelo, campos, colecao, partial, preparar }) {
+    return async (req, res) => {
+        try {
+            const { filtro } = filtroDoHub(req.query, campos);
+
+            const docs = await Modelo.find(filtro)
+                .populate('usuario', 'name profileImage profession')
+                .sort({ dataCriacao: -1 })
+                .limit(60)
+                .lean();
+
+            res.render(`partials/${partial}`, {
+                layout: false,
+                [colecao]: docs.map((doc) => preparar(doc, req))
+            });
+        } catch (err) {
+            console.error('Erro na busca do hub:', err);
+            res.status(500).send('');
+        }
+    };
+}
+
+// Prepara um chamado/denúncia/anúncio para os cards do hub.
+const prepararChamado = (doc, req) => comEstagio({
+    ...doc,
+    jaCurtiu: req.user ? (doc.curtidas || []).some((id) => id.toString() === req.user._id.toString()) : false,
+    imagemPrincipal: doc.imagens && doc.imagens.length > 0 ? doc.imagens[0] : null
+});
+
+const prepararVitrine = (doc, req) => ({
+    ...doc,
+    usuario: formatAuthor(doc.usuario),
+    curtidas: doc.curtidas || [],
+    imagemPrincipal: doc.imagens && doc.imagens.length > 0 ? doc.imagens[0] : null,
+    jaCurtiu: req.user ? (doc.curtidas || []).some((id) => id.toString() === req.user._id.toString()) : false
+});
+
 // Dono do post: só ele vê o botão de editar/excluir no detalhe.
 const ehDonoDoPost = (req, doc) => {
     const autor = doc?.usuario?._id || doc?.usuario;
@@ -117,7 +179,7 @@ router.get('/', (req, res) => {
 // --- GESTÃO DE MELHORIAS ---
 
 router.get('/gestao_de_melhorias/saiba-mais', (req, res) => {
-    res.render('categories/gestao_de_melhorias/saiba-mais', { pageContained: true });
+    res.render('categories/gestao_de_melhorias/saiba-mais');
 });
 
 router.get('/gestao_de_melhorias/abrir-chamado', isUser, (req, res) => {
@@ -156,6 +218,17 @@ router.post('/gestao_de_melhorias/abrir-chamado', isUser, Limiter, upload.none()
     }
 });
 
+router.get(
+    '/gestao_de_melhorias/hub/buscar',
+    montarBuscaDeHub({
+        Modelo: Chamado,
+        campos: ['titulo', 'descricao', 'localizacao'],
+        colecao: 'chamados',
+        partial: '_cards_melhorias',
+        preparar: prepararChamado
+    })
+);
+
 router.get('/gestao_de_melhorias/hub', async (req, res) => {
     try {
         const { termo, filtro } = filtroDoHub(req.query, ['titulo', 'descricao', 'localizacao']);
@@ -177,6 +250,7 @@ router.get('/gestao_de_melhorias/hub', async (req, res) => {
             termo,
             total: chamados.length,
             estagios: estagiosParaSelect(),
+            filtrosEstagio: estagiosParaSelect(),
             tipoProtocolo: 'melhoria'
         });
     } catch (err) {
@@ -298,12 +372,23 @@ router.post('/gestao_de_melhorias/comentar/:id', async (req, res) => {
 // --- DENÚNCIAS SIGILOSAS ---
 
 router.get('/denuncias_sigilosas/saiba-mais', (req, res) => {
-    res.render('categories/denuncias_sigilosas/saiba-mais', { pageContained: true });
+    res.render('categories/denuncias_sigilosas/saiba-mais');
 });
 
 router.get('/denuncias_sigilosas/abrir-denuncia', isUser, (req, res) => {
     res.render('categories/denuncias_sigilosas/abrir-denuncia');
 });
+
+router.get(
+    '/denuncias_sigilosas/hub/buscar',
+    montarBuscaDeHub({
+        Modelo: Denuncia,
+        campos: ['titulo', 'descricao', 'localizacao', 'tipoOcorrencia'],
+        colecao: 'denuncias',
+        partial: '_cards_denuncias',
+        preparar: prepararChamado
+    })
+);
 
 router.get('/denuncias_sigilosas/hub', async (req, res) => {
     try {
@@ -332,6 +417,8 @@ router.get('/denuncias_sigilosas/hub', async (req, res) => {
             termo,
             total: denunciasComLike.length,
             estagios: estagiosParaSelect(),
+            filtrosEstagio: estagiosParaSelect(),
+            filtrosOcorrencia: TIPOS_OCORRENCIA,
             tipoProtocolo: 'denuncia'
         });
     } catch (err) {
@@ -485,7 +572,7 @@ router.post('/denuncias_sigilosas/comentar/:id', async (req, res) => {
 // --- VITRINE DO TRABALHADOR ---
 
 router.get("/vitrine_do_trabalhador/saiba-mais", (req, res) => {
-    res.render("categories/vitrine_do_trabalhador/saiba-mais", { pageContained: true });
+    res.render("categories/vitrine_do_trabalhador/saiba-mais");
 });
 
 router.get("/vitrine_do_trabalhador/criar-vitrine", isUser, (req, res) => {
@@ -493,6 +580,17 @@ router.get("/vitrine_do_trabalhador/criar-vitrine", isUser, (req, res) => {
 });
 
 // HUB da Vitrine
+router.get(
+    '/vitrine_do_trabalhador/hub/buscar',
+    montarBuscaDeHub({
+        Modelo: Vitrine,
+        campos: ['titulo', 'descricao', 'localizacao', 'categoria', 'produtos', 'servicos'],
+        colecao: 'anuncios',
+        partial: '_cards_vitrine',
+        preparar: prepararVitrine
+    })
+);
+
 router.get('/vitrine_do_trabalhador/hub', async (req, res) => {
     try {
         const { termo, filtro } = filtroDoHub(req.query, [
@@ -524,7 +622,8 @@ router.get('/vitrine_do_trabalhador/hub', async (req, res) => {
         res.render('categories/vitrine_do_trabalhador/hub', {
             anuncios: vitrinesCompletas,
             termo,
-            total: vitrinesCompletas.length
+            total: vitrinesCompletas.length,
+            filtrosCategoria: CATEGORIAS_VITRINE
         });
     } catch (err) {
         console.error(err);
