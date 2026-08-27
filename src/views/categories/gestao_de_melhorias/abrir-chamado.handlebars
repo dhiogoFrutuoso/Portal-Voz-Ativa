@@ -12,6 +12,19 @@
                     <div class="card-body p-4 p-md-5 bg-white">
                         <form id="mainForm" action="/categories/gestao_de_melhorias/abrir-chamado" method="POST">
                         <input type="hidden" name="_csrf" value="{{csrfToken}}">
+
+                        {{!-- Cláusula de atendimento: prazo que a gestão assume ao receber a demanda --}}
+                        <div class="alert border-0 rounded-3 mb-4 d-flex gap-3"
+                             style="background: #fffdf5; border-left: 4px solid #ffc107 !important;">
+                            <i class="bi bi-info-circle-fill text-warning fs-5"></i>
+                            <div class="small">
+                                <strong class="d-block mb-1">Como funciona o atendimento</strong>
+                                Ao registrar, você recebe um número de protocolo e a gestão municipal
+                                responde em <strong>até 10 dias úteis</strong>. Obras de maior porte podem
+                                ter o prazo ajustado pela gestão, e você acompanha cada resposta em
+                                <a href="/protocolos" class="fw-bold">Meus Protocolos</a>.
+                            </div>
+                        </div>
                             
                             <div class="mb-4">
                                 <label class="form-label fw-bold text-secondary small text-uppercase">O que precisa de atenção?</label>

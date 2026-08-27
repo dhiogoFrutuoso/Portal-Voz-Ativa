@@ -1,0 +1,47 @@
+{{!-- Ações da publicação: acompanhar o protocolo (autor e gestão) e editar
+      (somente o autor). Recebe: eDono, podeAcompanhar, linkProtocolo,
+      linkEditar, estagio e temProtocolo. --}}
+{{#if eDono}}
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <div>
+                    <h6 class="fw-bold mb-1">
+                        <i class="bi bi-person-check me-1"></i> Esta publicação é sua
+                    </h6>
+                    <p class="text-muted small mb-0">
+                        {{#if temProtocolo}}
+                            Acompanhe a resposta da gestão ou ajuste o conteúdo publicado.
+                        {{else}}
+                            Você pode atualizar as informações ou remover o anúncio.
+                        {{/if}}
+                    </p>
+                </div>
+
+                <div class="d-flex gap-2 flex-wrap">
+                    {{#if temProtocolo}}
+                        <a href="{{linkProtocolo}}" class="btn btn-primary rounded-3 px-4 fw-bold">
+                            <i class="bi bi-clock-history me-1"></i> Acompanhar protocolo
+                        </a>
+                    {{/if}}
+                    <a href="{{linkEditar}}" class="btn btn-outline-secondary rounded-3 px-4">
+                        <i class="bi bi-pencil me-1"></i> Editar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{{else if podeAcompanhar}}
+    {{!-- Administrador vendo a publicação de outra pessoa --}}
+    <div class="card border-0 shadow-sm rounded-4 mb-4 bg-dark text-white">
+        <div class="card-body p-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div>
+                <h6 class="fw-bold mb-1"><i class="bi bi-shield-lock me-1"></i> Acesso da gestão</h6>
+                <p class="small mb-0 opacity-75">Abra o atendimento para responder e alterar o estágio.</p>
+            </div>
+            <a href="{{linkProtocolo}}" class="btn btn-warning rounded-3 px-4 fw-bold">
+                <i class="bi bi-chat-square-text me-1"></i> Abrir atendimento
+            </a>
+        </div>
+    </div>
+{{/if}}

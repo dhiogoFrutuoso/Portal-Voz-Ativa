@@ -1,0 +1,403 @@
+<style>
+    .protocolo-hero {
+        background: linear-gradient(145deg, #13315c 0%, #0056b3 100%);
+        border-bottom: 5px solid #ffc107;
+    }
+
+    .protocolo-hero.is-denuncia {
+        background: linear-gradient(145deg, #1d3557 0%, #e63946 100%);
+    }
+
+    /* Linha do tempo em coluna única, com o traço vertical ligando os eventos */
+    .thread {
+        position: relative;
+        padding-left: 2.75rem;
+    }
+
+    .thread::before {
+        content: "";
+        position: absolute;
+        left: 1.05rem;
+        top: 0.5rem;
+        bottom: 0.5rem;
+        width: 2px;
+        background: #dee2e6;
+    }
+
+    .thread-item {
+        position: relative;
+        margin-bottom: 1.75rem;
+    }
+
+    .thread-bolinha {
+        position: absolute;
+        left: -2.75rem;
+        top: 0.35rem;
+        width: 2.15rem;
+        height: 2.15rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 0.9rem;
+        box-shadow: 0 0 0 4px #fff;
+    }
+
+    .thread-card {
+        border: 1px solid #e9ecef;
+        border-radius: 0.9rem;
+        background: #fff;
+    }
+
+    .thread-card .thread-cabecalho {
+        border-bottom: 1px solid #f1f3f5;
+        background: #f8f9fa;
+        border-radius: 0.9rem 0.9rem 0 0;
+    }
+
+    .thread-card.is-admin {
+        border-color: #ffe08a;
+    }
+
+    .thread-card.is-admin .thread-cabecalho {
+        background: #fff8e1;
+        border-bottom-color: #ffe08a;
+    }
+
+    .avatar-mini {
+        width: 32px;
+        height: 32px;
+        object-fit: cover;
+        border-radius: 50%;
+    }
+
+    .thread-imagem {
+        max-height: 320px;
+        object-fit: cover;
+        border-radius: 0.6rem;
+    }
+
+    .clausula {
+        border-left: 4px solid #ffc107;
+        background: #fffdf5;
+    }
+</style>
+
+<header class="protocolo-hero py-5 text-white shadow-lg {{#if (eq protocolo.tipo 'denuncia')}}is-denuncia{{/if}}">
+    <div class="container px-4">
+        <a href="/protocolos" class="text-white-50 text-decoration-none small d-inline-block mb-3">
+            <i class="bi bi-arrow-left me-1"></i> Meus protocolos
+        </a>
+
+        <div class="row align-items-center g-4">
+            <div class="col-lg-8">
+                <div class="d-flex align-items-center flex-wrap gap-2 mb-3">
+                    <span class="badge bg-white text-dark px-3 py-2 rounded-pill fw-bold">
+                        <i class="bi {{protocolo.eixo.icone}} me-1"></i> {{protocolo.eixo.rotuloCurto}}
+                    </span>
+                    <span class="badge bg-{{protocolo.estagio.cor}} px-3 py-2 rounded-pill fw-bold">
+                        <i class="bi {{protocolo.estagio.icone}} me-1"></i> {{protocolo.estagio.rotulo}}
+                    </span>
+                    <span class="text-white-50 small font-monospace">{{protocolo.numero}}</span>
+                </div>
+
+                <h1 class="fw-bolder mb-2">{{protocolo.titulo}}</h1>
+                <p class="mb-0 opacity-75">
+                    <i class="bi bi-geo-alt-fill me-1"></i> {{protocolo.localizacao}}
+                </p>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="bg-white bg-opacity-10 border border-light border-opacity-25 rounded-4 p-4">
+                    <div class="small text-uppercase text-white-50 fw-bold mb-2">Situação atual</div>
+                    <div class="h4 fw-bold mb-3">{{protocolo.estagio.rotulo}}</div>
+                    <div class="small opacity-75">{{protocolo.estagio.descricao}}</div>
+                    <hr class="border-light opacity-25">
+                    <div class="small">
+                        <i class="bi bi-calendar-check me-1"></i>
+                        Aberto em {{formatDay protocolo.dataCriacao}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<section class="py-5 bg-light">
+    <div class="container px-4">
+        <div class="row g-4">
+            <div class="col-lg-8">
+
+                {{!-- Cláusula de atendimento --}}
+                <div class="clausula rounded-3 p-3 mb-4 shadow-sm">
+                    <div class="fw-bold mb-1">
+                        <i class="bi bi-info-circle-fill text-warning me-1"></i> Prazo de atendimento
+                    </div>
+                    <div class="small text-muted mb-1">{{protocolo.prazo.texto}}</div>
+                    <div class="small text-muted">
+                        Previsão de resposta até <strong>{{formatDay protocolo.limite}}</strong>.
+                        {{#if protocolo.prazo.ajustadoPelaGestao}}
+                            <span class="badge bg-secondary ms-1">prazo ajustado pela gestão</span>
+                        {{/if}}
+                    </div>
+                </div>
+
+                <h5 class="fw-bold mb-4">
+                    <i class="bi bi-clock-history me-2"></i>Histórico do atendimento
+                </h5>
+
+                <div class="thread">
+                    {{!-- Abertura do protocolo --}}
+                    <div class="thread-item">
+                        <div class="thread-bolinha bg-primary"><i class="bi bi-flag-fill"></i></div>
+                        <div class="thread-card shadow-sm">
+                            <div class="thread-cabecalho px-3 py-2 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                                <div class="d-flex align-items-center">
+                                    <img src="{{protocolo.usuario.profileImage}}" alt="" class="avatar-mini me-2">
+                                    <span class="fw-bold small">{{protocolo.usuario.name}}</span>
+                                    <span class="badge bg-light text-dark border ms-2 small">cidadão</span>
+                                </div>
+                                <span class="text-muted small">{{formatDate protocolo.dataCriacao}}</span>
+                            </div>
+                            <div class="px-3 py-3">
+                                <p class="mb-0">{{protocolo.descricao}}</p>
+                                {{#if protocolo.imagens.length}}
+                                    <div class="row g-2 mt-2">
+                                        {{#each protocolo.imagens}}
+                                            <div class="col-4">
+                                                <img src="{{this}}" alt="Anexo do protocolo" class="img-fluid thread-imagem w-100">
+                                            </div>
+                                        {{/each}}
+                                    </div>
+                                {{/if}}
+                            </div>
+                        </div>
+                    </div>
+
+                    {{!-- Respostas --}}
+                    {{#each protocolo.historico}}
+                        <div class="thread-item">
+                            <div class="thread-bolinha {{#if this.ehAdmin}}bg-warning text-dark{{else}}bg-secondary{{/if}}">
+                                <i class="bi {{#if this.ehAdmin}}bi-shield-fill-check{{else}}bi-chat-left-text-fill{{/if}}"></i>
+                            </div>
+
+                            <div class="thread-card shadow-sm {{#if this.ehAdmin}}is-admin{{/if}}">
+                                <div class="thread-cabecalho px-3 py-2 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                                    <div class="d-flex align-items-center">
+                                        <img src="{{this.autor.profileImage}}" alt="" class="avatar-mini me-2">
+                                        <span class="fw-bold small">{{this.autor.name}}</span>
+                                        {{#if this.ehAdmin}}
+                                            <span class="badge bg-warning text-dark ms-2 small">gestão municipal</span>
+                                        {{else}}
+                                            <span class="badge bg-light text-dark border ms-2 small">cidadão</span>
+                                        {{/if}}
+                                    </div>
+                                    <span class="text-muted small" title="{{formatDate this.createdAt}}">{{fromNow this.createdAt}}</span>
+                                </div>
+
+                                <div class="px-3 py-3">
+                                    {{#if this.statusNovo}}
+                                        <div class="small text-muted mb-2">
+                                            <i class="bi bi-arrow-right-circle me-1"></i>
+                                            Estágio alterado de <strong>{{this.statusAnterior}}</strong>
+                                            para <strong>{{this.statusNovo}}</strong>
+                                        </div>
+                                    {{/if}}
+
+                                    <p class="mb-0">{{this.texto}}</p>
+
+                                    {{#if this.imagem}}
+                                        <img src="{{this.imagem}}" alt="Anexo da resposta" class="img-fluid thread-imagem mt-3">
+                                    {{/if}}
+                                </div>
+                            </div>
+                        </div>
+                    {{/each}}
+                </div>
+
+                {{!-- Nova mensagem --}}
+                <div class="card border-0 shadow-sm rounded-4 mt-4">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-3">
+                            <i class="bi bi-pencil-square me-2"></i>
+                            {{#if eAdmin}}Responder como gestão{{else}}Acrescentar informação{{/if}}
+                        </h6>
+
+                        <form action="/protocolos/{{protocolo.tipo}}/{{protocolo._id}}/responder" method="POST" id="formResposta">
+                            <input type="hidden" name="_csrf" value="{{csrfToken}}">
+                            <input type="hidden" name="imagem_url" id="imagemUrlResposta">
+
+                            <textarea name="texto" class="form-control rounded-3 mb-3" rows="3" maxlength="2000"
+                                      placeholder="Descreva o que mudou, acrescente detalhes ou responda a gestão..." required></textarea>
+
+                            <div class="d-flex align-items-center flex-wrap gap-2">
+                                <label class="btn btn-outline-secondary btn-sm rounded-3 mb-0">
+                                    <i class="bi bi-image me-1"></i> Anexar 1 imagem
+                                    <input type="file" id="imagemResposta" accept="image/*" hidden>
+                                </label>
+                                <span class="small text-muted" id="statusUpload"></span>
+                                <button type="submit" class="btn btn-primary btn-sm rounded-3 ms-auto px-4 fw-bold" id="btnEnviarResposta">
+                                    Enviar
+                                </button>
+                            </div>
+
+                            <div id="previewResposta" class="mt-3 d-none">
+                                <img src="" alt="Pré-visualização" class="img-fluid thread-imagem" style="max-height: 180px;">
+                                <button type="button" class="btn btn-sm btn-outline-danger rounded-3 ms-2" id="removerImagem">
+                                    <i class="bi bi-trash"></i> Remover
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            {{!-- Coluna lateral --}}
+            <div class="col-lg-4">
+                {{#if eAdmin}}
+                    <div class="card border-0 shadow-sm rounded-4 mb-4">
+                        <div class="card-header bg-dark text-white rounded-top-4 py-3">
+                            <i class="bi bi-shield-lock me-2"></i> <span class="fw-bold">Painel da gestão</span>
+                        </div>
+                        <div class="card-body p-4">
+                            <form action="/admin/protocolo/{{protocolo.tipo}}/{{protocolo._id}}/status" method="POST">
+                                <input type="hidden" name="_csrf" value="{{csrfToken}}">
+
+                                <label class="form-label small fw-bold text-uppercase text-muted">Estágio</label>
+                                <select name="status" class="form-select rounded-3 mb-3" required>
+                                    {{#each estagios}}
+                                        <option value="{{this.chave}}" {{#if (eq this.chave ../protocolo.status)}}selected{{/if}}>
+                                            {{this.rotulo}} — {{this.descricao}}
+                                        </option>
+                                    {{/each}}
+                                </select>
+
+                                <label class="form-label small fw-bold text-uppercase text-muted">
+                                    Prazo de resposta (dias úteis)
+                                </label>
+                                <input type="number" name="prazoDias" class="form-control rounded-3 mb-1"
+                                       min="1" max="365" value="{{protocolo.prazo.dias}}">
+                                <div class="form-text mb-3">
+                                    Padrão do tipo de demanda. Alterar aqui vale só para este protocolo.
+                                </div>
+
+                                <label class="form-label small fw-bold text-uppercase text-muted">Mensagem ao cidadão</label>
+                                <textarea name="texto" class="form-control rounded-3 mb-3" rows="3" maxlength="2000"
+                                          placeholder="Opcional — se vazio, registramos apenas a mudança de estágio."></textarea>
+
+                                <button type="submit" class="btn btn-dark w-100 rounded-3 fw-bold py-2">
+                                    Atualizar protocolo
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                {{/if}}
+
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-3">Dados do protocolo</h6>
+                        <dl class="row small mb-0">
+                            <dt class="col-5 text-muted fw-normal">Número</dt>
+                            <dd class="col-7 font-monospace">{{protocolo.numero}}</dd>
+
+                            <dt class="col-5 text-muted fw-normal">Categoria</dt>
+                            <dd class="col-7">{{protocolo.eixo.rotulo}}</dd>
+
+                            {{#if protocolo.tipoOcorrencia}}
+                                <dt class="col-5 text-muted fw-normal">Ocorrência</dt>
+                                <dd class="col-7">{{protocolo.tipoOcorrencia}}</dd>
+                            {{/if}}
+
+                            <dt class="col-5 text-muted fw-normal">Abertura</dt>
+                            <dd class="col-7">{{formatDate protocolo.dataCriacao}}</dd>
+
+                            <dt class="col-5 text-muted fw-normal">Respostas</dt>
+                            <dd class="col-7">{{protocolo.historico.length}}</dd>
+                        </dl>
+
+                        <hr>
+
+                        <a href="{{protocolo.linkPost}}" class="btn btn-outline-primary btn-sm w-100 rounded-3">
+                            <i class="bi bi-box-arrow-up-right me-1"></i> Ver publicação no hub
+                        </a>
+
+                        {{#if eDono}}
+                            <a href="{{protocolo.eixo.rotaEditar}}/{{protocolo._id}}" class="btn btn-outline-secondary btn-sm w-100 rounded-3 mt-2">
+                                <i class="bi bi-pencil me-1"></i> Editar publicação
+                            </a>
+                        {{/if}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    (function () {
+        const cloudName = '{{cloudinaryCloudName}}';
+        const unsignedPreset = '{{cloudinaryUploadPreset}}';
+        const LIMITE_BYTES = 5 * 1024 * 1024;
+
+        const input = document.getElementById('imagemResposta');
+        const campoUrl = document.getElementById('imagemUrlResposta');
+        const preview = document.getElementById('previewResposta');
+        const statusUpload = document.getElementById('statusUpload');
+        const botaoEnviar = document.getElementById('btnEnviarResposta');
+        const botaoRemover = document.getElementById('removerImagem');
+
+        function limpar() {
+            campoUrl.value = '';
+            input.value = '';
+            preview.classList.add('d-none');
+            statusUpload.textContent = '';
+        }
+
+        botaoRemover.addEventListener('click', limpar);
+
+        input.addEventListener('change', async function () {
+            const arquivo = this.files[0];
+            if (!arquivo) return;
+
+            if (!arquivo.type.startsWith('image/')) {
+                statusUpload.textContent = 'Envie um arquivo de imagem.';
+                limpar();
+                return;
+            }
+
+            if (arquivo.size > LIMITE_BYTES) {
+                statusUpload.textContent = 'A imagem passa de 5 MB.';
+                limpar();
+                return;
+            }
+
+            statusUpload.textContent = 'Enviando imagem...';
+            botaoEnviar.disabled = true;
+
+            const dados = new FormData();
+            dados.append('file', arquivo);
+            dados.append('upload_preset', unsignedPreset);
+
+            try {
+                const resposta = await fetch('https://api.cloudinary.com/v1_1/' + cloudName + '/upload', {
+                    method: 'POST',
+                    body: dados
+                });
+                const json = await resposta.json();
+
+                if (!json.secure_url) throw new Error('sem URL');
+
+                campoUrl.value = json.secure_url;
+                preview.querySelector('img').src = json.secure_url;
+                preview.classList.remove('d-none');
+                statusUpload.textContent = 'Imagem anexada.';
+            } catch (erro) {
+                statusUpload.textContent = 'Falha ao enviar a imagem.';
+                limpar();
+            } finally {
+                botaoEnviar.disabled = false;
+            }
+        });
+    })();
+</script>

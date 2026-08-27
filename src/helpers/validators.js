@@ -20,21 +20,28 @@ const textoLimpo = (min, max, campo) =>
         .refine((v) => v.length >= min, { message: `${campo} precisa ter ao menos ${min} caractere(s).` })
         .refine((v) => v.length <= max, { message: `${campo} pode ter no máximo ${max} caracteres.` });
 
+// z.preprocess (e não union com z.undefined) porque no Zod 4 uma chave ausente
+// no corpo da requisição não satisfaz z.undefined dentro de union.
 const textoOpcional = (max, campo) =>
-    z
-        .union([z.string(), z.undefined(), z.null()])
-        .transform((v) => (v === undefined || v === null ? '' : removerTags(v)))
-        .refine((v) => v.length <= max, { message: `${campo} pode ter no máximo ${max} caracteres.` });
+    z.preprocess(
+        (v) => (v === undefined || v === null ? '' : removerTags(v)),
+        z.string().max(max, { message: `${campo} pode ter no máximo ${max} caracteres.` })
+    );
 
 const coordenada = (limite) =>
-    z
-        .union([z.string(), z.number(), z.undefined(), z.null()])
-        .transform((v) => {
+    z.preprocess(
+        (v) => {
             if (v === undefined || v === null || v === '') return null;
             const numero = Number(v);
-            return Number.isFinite(numero) ? numero : null;
-        })
-        .refine((v) => v === null || Math.abs(v) <= limite, { message: 'Coordenada fora do intervalo válido.' });
+            return Number.isFinite(numero) ? numero : NaN;
+        },
+        z
+            .number()
+            .nullable()
+            .refine((v) => v === null || Math.abs(v) <= limite, {
+                message: 'Coordenada fora do intervalo válido.'
+            })
+    );
 
 // --- Cloudinary: só aceitamos URLs da nossa própria conta ---
 const CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME || 'dnh7vok3r';
@@ -195,4 +202,39 @@ export function primeiraMensagem(erro) {
 
 export function todasAsMensagens(erro) {
     return (erro?.issues || []).map((i) => ({ text: i.message }));
+}
+
+// --- Protocolo de atendimento ---
+export const LISTA_ESTAGIOS_VALIDOS = ['Novo', 'Em Atendimento', 'Reaberto', 'Resolvido', 'Improcedente'];
+
+export const respostaProtocoloSchema = z.object({
+    texto: textoLimpo(2, 2000, 'Mensagem')
+});
+
+export const statusProtocoloSchema = z.object({
+    status: z.enum(LISTA_ESTAGIOS_VALIDOS, { error: () => 'Estágio de protocolo inválido.' }),
+    texto: textoOpcional(2000, 'Mensagem'),
+    prazoDias: z.preprocess(
+        (v) => {
+            if (v === undefined || v === null || v === '') return null;
+            const n = Number(v);
+            return Number.isInteger(n) ? n : NaN;
+        },
+        z
+            .number()
+            .nullable()
+            .refine((v) => v === null || (v >= 1 && v <= 365), {
+                message: 'O prazo deve ser um número de dias entre 1 e 365.'
+            })
+    )
+});
+
+// Busca: o termo vai virar expressão regular no Mongo, então escapamos tudo que
+// tem significado especial — sem isso um ".*" do usuário varreria a coleção.
+export const buscaSchema = z.object({
+    q: textoOpcional(100, 'Busca')
+});
+
+export function escaparRegex(termo) {
+    return String(termo).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }

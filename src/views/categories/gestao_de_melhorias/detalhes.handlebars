@@ -7,6 +7,8 @@
             </ol>
         </nav>
 
+        {{> _acoes_post eDono=eDono podeAcompanhar=podeAcompanhar linkProtocolo=linkProtocolo linkEditar=linkEditar temProtocolo=true}}
+
         <div class="row gx-5">
             <div class="col-lg-8">
                 <div class="card shadow-lg border-0 rounded-4 overflow-hidden mb-4 bg-white">
@@ -100,18 +102,18 @@
                             <div class="d-flex align-items-start mb-3">
                                 {{#if this.usuario.isDeleted}}
                                     <span class="me-3 flex-shrink-0">
-                                        <img src="/img/guest.jpg" 
+                                        <img src="/img/guest.webp" 
                                              alt="Usuário Indisponível" 
                                              class="rounded-circle shadow-sm opacity-75" 
                                              style="width: 45px; height: 45px; object-fit: cover; border: 2px solid #ccc;">
                                     </span>
                                 {{else}}
                                     <a href="/users/perfil/{{this.usuario._id}}" class="me-3 flex-shrink-0">
-                                        <img src="{{#if this.usuario.profileImage}}{{this.usuario.profileImage}}{{else}}/img/guest.jpg{{/if}}" 
+                                        <img src="{{#if this.usuario.profileImage}}{{this.usuario.profileImage}}{{else}}/img/guest.webp{{/if}}" 
                                              alt="{{this.usuario.name}}" 
                                              class="rounded-circle shadow-sm" 
                                              style="width: 45px; height: 45px; object-fit: cover; border: 2px solid #13315c;"
-                                             onerror="this.src='/img/guest.jpg'">
+                                             onerror="this.src='/img/guest.webp'">
                                     </a>
                                 {{/if}}
                                 

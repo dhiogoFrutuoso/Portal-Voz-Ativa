@@ -36,9 +36,52 @@ const ChamadoSchema = new mongoose.Schema({
         default: []
     }, 
     status: {
-         type: String, 
-         default: 'Aberto' 
-        }, 
+         type: String,
+         default: 'Novo'
+        },
+
+    // --- PROTOCOLO DE ATENDIMENTO ---
+    // Estágios: Novo, Em Atendimento, Reaberto, Resolvido, Improcedente
+    // (ver src/helpers/protocolo.js).
+    prazoDias: {
+        type: Number,
+        min: 1,
+        max: 365
+    },
+    prazoAjustado: {
+        type: Boolean,
+        default: false
+    },
+    historico: [{
+        autor: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'users'
+        },
+        papel: {
+            type: String,
+            enum: ['cidadao', 'admin'],
+            required: true
+        },
+        texto: {
+            type: String,
+            required: true
+        },
+        imagem: {
+            type: String,
+            default: null
+        },
+        statusAnterior: { type: String, default: null },
+        statusNovo: { type: String, default: null },
+        createdAt: {
+            type: Date,
+            default: Date.now
+        }
+    }],
+    editadoEm: {
+        type: Date,
+        default: null
+    },
+
     dataCriacao: {
          type: Date, 
          default: Date.now 

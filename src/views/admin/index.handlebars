@@ -129,12 +129,25 @@
                     Este ambiente contém dados sensíveis. Sua conduta aqui define a integridade do <strong>Voz Ativa</strong>.
                 </p>
                 <div class="d-grid gap-3 d-sm-flex justify-content-lg-start">
-                    <a class="btn btn-danger btn-round shadow-lg btn-lg btn-light-effect" href="#recursos">Ver Protocolos de Dados</a>
-                    <a class="btn btn-outline-dark btn-round btn-lg" href="/admin/painel">Acessar Painel</a>
+                    <a class="btn btn-danger btn-round shadow-lg btn-lg btn-light-effect" href="/admin/painel">Acessar Painel</a>
+                    <a class="btn btn-outline-dark btn-round btn-lg" href="#recursos">Ver Protocolos de Dados</a>
+                </div>
+
+                {{!-- Atalhos para os recortes mais usados do painel --}}
+                <div class="d-flex flex-wrap gap-2 mt-4">
+                    <a href="/admin/painel?status=Novo" class="btn btn-sm btn-light border rounded-pill px-3">
+                        <i class="bi bi-inbox-fill me-1 text-primary"></i> Aguardando resposta
+                    </a>
+                    <a href="/admin/painel?tipo=denuncia" class="btn btn-sm btn-light border rounded-pill px-3">
+                        <i class="bi bi-shield-lock-fill me-1 text-danger"></i> Só denúncias
+                    </a>
+                    <a href="/admin/painel?tipo=melhoria" class="btn btn-sm btn-light border rounded-pill px-3">
+                        <i class="bi bi-tools me-1 text-primary"></i> Só melhorias
+                    </a>
                 </div>
             </div>
             <div class="col-lg-5 d-none d-lg-block">
-                <img src="/img/pessoas-socialiazando.png" class="img-fluid" alt="Cidadãos" style="filter: drop-shadow(0 20px 30px rgba(0,0,0,0.1));">
+                <img src="/img/pessoas-socialiazando.webp" class="img-fluid" alt="Cidadãos" style="filter: drop-shadow(0 20px 30px rgba(0,0,0,0.1));">
             </div>
         </div>
     </div>

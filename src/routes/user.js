@@ -73,7 +73,7 @@ const uploadToCloudinary = async (imageInput) => {
   }
 
   if (checagem.vazio) {
-    return "/img/guest.jpg";
+    return "/img/guest.webp";
   }
 
   if (checagem.url) {
@@ -85,8 +85,9 @@ const uploadToCloudinary = async (imageInput) => {
       folder: "img_users",
       resource_type: "image",
       allowed_formats: ["png", "jpg", "jpeg", "webp"],
+      format: "webp", // Guarda já convertido, no formato mais leve
       transformation: [
-        { width: 500, height: 500, crop: "fill", gravity: "face" },
+        { width: 500, height: 500, crop: "fill", gravity: "face", quality: "auto" },
       ],
     });
     return result.secure_url;

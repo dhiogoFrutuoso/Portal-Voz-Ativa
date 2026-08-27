@@ -12,6 +12,21 @@
                     <div class="card-body p-4 p-md-5 bg-white">
                         <form id="mainForm" action="/categories/denuncias_sigilosas/abrir-denuncia" method="POST">
                         <input type="hidden" name="_csrf" value="{{csrfToken}}">
+
+                        {{!-- Cláusula de atendimento: prazos por gravidade da ocorrência --}}
+                        <div class="alert border-0 rounded-3 mb-4 d-flex gap-3"
+                             style="background: #fff5f5; border-left: 4px solid #e63946 !important;">
+                            <i class="bi bi-shield-exclamation text-danger fs-5"></i>
+                            <div class="small">
+                                <strong class="d-block mb-1">Como funciona o atendimento</strong>
+                                A denúncia gera um número de protocolo e o prazo de resposta varia com a
+                                urgência: <strong>2 dias úteis</strong> para focos de queimada,
+                                <strong>3 dias</strong> para maus-tratos a animais e
+                                <strong>5 dias úteis</strong> para as demais ocorrências. O acompanhamento
+                                fica em <a href="/protocolos" class="fw-bold">Meus Protocolos</a>, visível
+                                só para você e para a gestão.
+                            </div>
+                        </div>
                             
                             <div class="mb-4">
                                 <label class="form-label fw-bold text-secondary small text-uppercase">Tipo de Ocorrência</label>

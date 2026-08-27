@@ -131,7 +131,7 @@
                             </p>
                             <hr class="opacity-25">
                             <div class="d-flex align-items-center">
-                                <img src="/img/ceará.png" style="height: 40px;" alt="Ceará">
+                                <img src="/img/ceará.webp" style="height: 40px;" alt="Ceará">
                                 <span class="ms-3 small fw-bold">PROJETO CEARÁ DE VALORES</span>
                             </div>
                         </div>
@@ -152,6 +152,8 @@
             <div class="badge bg-primary rounded-pill px-3 py-2 shadow-sm" style="margin-top: 10px;">Últimas Atualizações</div>
         </div>
 
+        {{> _busca acao="/categories/gestao_de_melhorias/hub" termo=termo total=total placeholder="Buscar por título, descrição ou local da melhoria..."}}
+
         <div class="row g-4">
             {{#each chamados}}
                 {{#if imagemPrincipal}}
@@ -160,7 +162,7 @@
                             <div class="row g-0">
                                 <div class="col-md-4 position-relative">
                                     {{#if imagemPrincipal}}
-                                        <img src="{{imagemPrincipal}}" alt="{{this.titulo}}" onerror="this.src='/img/default-placeholder.png'" class="img-extensa">
+                                        <img src="{{imagemPrincipal}}" alt="{{this.titulo}}" onerror="this.src='/img/guest.webp'" class="img-extensa">
                                         <div class="img-overlay"></div>
                                     {{else}}
                                         <div class="bg-dark d-flex flex-column align-items-center justify-content-center h-100 min-h-250">
@@ -173,9 +175,7 @@
                                 <div class="col-md-8">
                                     <div class="card-body p-4 p-lg-5 h-100 d-flex flex-column">
                                         <div class="d-flex justify-content-between align-items-center mb-3">
-                                            <span class="badge bg-success-soft text-success px-3 py-2 rounded-pill fw-bold">
-                                                <i class="bi bi-circle-fill me-2 small"></i>{{status}}
-                                            </span>
+                                            {{> _estagio estagio=this.estagio status=this.status id=this._id tipo=@root.tipoProtocolo estagios=@root.estagios csrfToken=@root.csrfToken ehAdmin=@root.user.areAdmin}}
                                             <div class="text-muted small">
                                                 <i class="bi bi-calendar3 me-1"></i> {{formatDate dataCriacao}}
                                             </div>
@@ -233,9 +233,7 @@
                             <div class="card-body p-4 p-lg-5 d-flex flex-column">
                                 
                                 <div class="d-flex justify-content-between align-items-center mb-4">
-                                    <span class="badge bg-success-soft text-success px-3 py-2 rounded-pill fw-bold">
-                                        <i class="bi bi-circle-fill me-2 small"></i>{{status}}
-                                    </span>
+                                    {{> _estagio estagio=this.estagio status=this.status id=this._id tipo=@root.tipoProtocolo estagios=@root.estagios csrfToken=@root.csrfToken ehAdmin=@root.user.areAdmin}}
                                     <div class="text-muted small">
                                         <i class="bi bi-calendar3 me-1"></i> {{formatDate dataCriacao}}
                                     </div>

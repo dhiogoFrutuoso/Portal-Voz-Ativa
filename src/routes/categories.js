@@ -33,8 +33,39 @@ import {
     comentarioSchema,
     normalizarMidias,
     normalizarVideo,
-    primeiraMensagem
+    primeiraMensagem,
+    buscaSchema,
+    escaparRegex
 } from '../helpers/validators.js';
+import { estagioDe, normalizarStatus, LISTA_ESTAGIOS } from '../helpers/protocolo.js';
+
+/*
+ * Busca dos hubs: o termo vira expressão regular no Mongo, então é validado
+ * (tamanho e tags) e escapado antes de chegar à query.
+ */
+function filtroDoHub(query, campos) {
+    const validacao = buscaSchema.safeParse(query);
+    const termo = validacao.success ? validacao.data.q : '';
+
+    if (!termo) return { termo: '', filtro: {} };
+
+    const expressao = new RegExp(escaparRegex(termo), 'i');
+    return { termo, filtro: { $or: campos.map((campo) => ({ [campo]: expressao })) } };
+}
+
+// Dados de estágio que os cards do hub exibem (e que o admin pode alterar ali mesmo).
+const comEstagio = (doc) => {
+    const status = normalizarStatus(doc.status);
+    return { ...doc, status, estagio: estagioDe(status) };
+};
+
+const estagiosParaSelect = () => LISTA_ESTAGIOS.map((chave) => estagioDe(chave));
+
+// Dono do post: só ele vê o botão de editar/excluir no detalhe.
+const ehDonoDoPost = (req, doc) => {
+    const autor = doc?.usuario?._id || doc?.usuario;
+    return Boolean(req.user && autor && String(autor) === String(req.user._id));
+};
 
 // Um :id fora do formato ObjectId derruba a query com CastError; barramos antes.
 const idValido = (id) => mongoose.Types.ObjectId.isValid(id);
@@ -50,7 +81,7 @@ const formatAuthor = (u) => {
         return {
             _id: null,
             name: "Usuário Indisponível",
-            profileImage: "/img/guest.jpg",
+            profileImage: "/img/guest.webp",
             profession: "Conta Indisponível",
             isDeleted: true
         };
@@ -58,7 +89,7 @@ const formatAuthor = (u) => {
     return {
         ...u,
         name: u.name || "Usuário do Voz Ativa",
-        profileImage: u.profileImage || "/img/guest.jpg",
+        profileImage: u.profileImage || "/img/guest.webp",
         profession: u.profession || "Cidadão",
         isDeleted: false
     };
@@ -86,7 +117,7 @@ router.get('/', (req, res) => {
 // --- GESTÃO DE MELHORIAS ---
 
 router.get('/gestao_de_melhorias/saiba-mais', (req, res) => {
-    res.render('categories/gestao_de_melhorias/saiba-mais');
+    res.render('categories/gestao_de_melhorias/saiba-mais', { pageContained: true });
 });
 
 router.get('/gestao_de_melhorias/abrir-chamado', isUser, (req, res) => {
@@ -127,20 +158,27 @@ router.post('/gestao_de_melhorias/abrir-chamado', isUser, Limiter, upload.none()
 
 router.get('/gestao_de_melhorias/hub', async (req, res) => {
     try {
-        // Ordena por data de criação decrescente
-        const chamadosDocs = await Chamado.find().sort({ createdAt: -1 }).lean();
-        
+        const { termo, filtro } = filtroDoHub(req.query, ['titulo', 'descricao', 'localizacao']);
+
+        const chamadosDocs = await Chamado.find(filtro).sort({ dataCriacao: -1 }).lean();
+
         const chamados = chamadosDocs.map(doc => {
             // Lógica de curtidas
             doc.jaCurtiu = req.user ? doc.curtidas.some(id => id.toString() === req.user._id.toString()) : false;
-            
+
             // Define a imagem principal para o card (primeira posição do array)
             doc.imagemPrincipal = (doc.imagens && doc.imagens.length > 0) ? doc.imagens[0] : null;
-            
-            return doc;
+
+            return comEstagio(doc);
         });
 
-        res.render('categories/gestao_de_melhorias/hub', { chamados });
+        res.render('categories/gestao_de_melhorias/hub', {
+            chamados,
+            termo,
+            total: chamados.length,
+            estagios: estagiosParaSelect(),
+            tipoProtocolo: 'melhoria'
+        });
     } catch (err) {
         console.error("Erro no Hub:", err);
         res.redirect('/');
@@ -167,15 +205,24 @@ router.get('/gestao_de_melhorias/detalhes/:id', async (req, res) => {
         const curtidas = chamadoDoc.curtidas || [];
         const jaCurtiu = req.user ? curtidas.some(id => id.toString() === req.user._id.toString()) : false;
 
-        res.render("categories/gestao_de_melhorias/detalhes", { 
+        const eDono = ehDonoDoPost(req, chamadoDoc);
+        const status = normalizarStatus(chamadoDoc.status);
+
+        res.render("categories/gestao_de_melhorias/detalhes", {
             chamadoDoc: {
                 ...chamadoDoc,
                 usuario: formatAuthor(chamadoDoc.usuario),
                 curtidas: curtidas,
                 comentarios: formatComments(chamadoDoc.comentarios),
-                imagens: chamadoDoc.imagens || [] 
-            }, 
-            jaCurtiu 
+                imagens: chamadoDoc.imagens || [],
+                status,
+                estagio: estagioDe(status)
+            },
+            jaCurtiu,
+            eDono,
+            podeAcompanhar: eDono || Boolean(req.user && req.user.areAdmin),
+            linkProtocolo: `/protocolos/melhoria/${chamadoDoc._id}`,
+            linkEditar: `/categories/gestao_de_melhorias/editar/${chamadoDoc._id}`
         });
 
     } catch (err) {
@@ -251,7 +298,7 @@ router.post('/gestao_de_melhorias/comentar/:id', async (req, res) => {
 // --- DENÚNCIAS SIGILOSAS ---
 
 router.get('/denuncias_sigilosas/saiba-mais', (req, res) => {
-    res.render('categories/denuncias_sigilosas/saiba-mais')
+    res.render('categories/denuncias_sigilosas/saiba-mais', { pageContained: true });
 });
 
 router.get('/denuncias_sigilosas/abrir-denuncia', isUser, (req, res) => {
@@ -260,20 +307,33 @@ router.get('/denuncias_sigilosas/abrir-denuncia', isUser, (req, res) => {
 
 router.get('/denuncias_sigilosas/hub', async (req, res) => {
     try {
-        const denunciasDocs = await Denuncia.find().sort({ dataCriacao: -1 }).lean();
-        
+        const { termo, filtro } = filtroDoHub(req.query, [
+            'titulo',
+            'descricao',
+            'localizacao',
+            'tipoOcorrencia'
+        ]);
+
+        const denunciasDocs = await Denuncia.find(filtro).sort({ dataCriacao: -1 }).lean();
+
         const denunciasComLike = denunciasDocs.map(denuncia => {
-            const curtidasArray = denuncia.curtidas || []; 
-            return {
+            const curtidasArray = denuncia.curtidas || [];
+            return comEstagio({
                 ...denuncia,
                 curtidas: curtidasArray,
                 // Mapeia a primeira URL do Cloudinary para imagemPrincipal
                 imagemPrincipal: denuncia.imagens && denuncia.imagens.length > 0 ? denuncia.imagens[0] : null,
                 jaCurtiu: req.user ? curtidasArray.some(id => id.toString() === req.user._id.toString()) : false
-            };
+            });
         });
 
-        res.render('categories/denuncias_sigilosas/hub', { denuncias: denunciasComLike });
+        res.render('categories/denuncias_sigilosas/hub', {
+            denuncias: denunciasComLike,
+            termo,
+            total: denunciasComLike.length,
+            estagios: estagiosParaSelect(),
+            tipoProtocolo: 'denuncia'
+        });
     } catch (err) {
         console.error(err);
         req.flash("error_msg", "Erro ao carregar o painel");
@@ -340,7 +400,10 @@ router.get('/denuncias_sigilosas/detalhes/:id', async (req, res) => {
         const curtidas = denuncia.curtidas || [];
         const jaCurtiu = req.user ? curtidas.some(id => id.toString() === req.user._id.toString()) : false;
 
-        res.render("categories/denuncias_sigilosas/detalhes", { 
+        const eDono = ehDonoDoPost(req, denuncia);
+        const status = normalizarStatus(denuncia.status);
+
+        res.render("categories/denuncias_sigilosas/detalhes", {
             denuncia: {
                 ...denuncia,
                 usuario: formatAuthor(denuncia.usuario),
@@ -348,9 +411,15 @@ router.get('/denuncias_sigilosas/detalhes/:id', async (req, res) => {
                 comentarios: formatComments(denuncia.comentarios),
                 imagens: denuncia.imagens || [],
                 // Garante que o campo video chegue ao template (pode ser a URL do Cloudinary)
-                video: denuncia.video || null 
-            }, 
-            jaCurtiu 
+                video: denuncia.video || null,
+                status,
+                estagio: estagioDe(status)
+            },
+            jaCurtiu,
+            eDono,
+            podeAcompanhar: eDono || Boolean(req.user && req.user.areAdmin),
+            linkProtocolo: `/protocolos/denuncia/${denuncia._id}`,
+            linkEditar: `/categories/denuncias_sigilosas/editar/${denuncia._id}`
         });
 
     } catch (err) {
@@ -416,7 +485,7 @@ router.post('/denuncias_sigilosas/comentar/:id', async (req, res) => {
 // --- VITRINE DO TRABALHADOR ---
 
 router.get("/vitrine_do_trabalhador/saiba-mais", (req, res) => {
-    res.render("categories/vitrine_do_trabalhador/saiba-mais")
+    res.render("categories/vitrine_do_trabalhador/saiba-mais", { pageContained: true });
 });
 
 router.get("/vitrine_do_trabalhador/criar-vitrine", isUser, (req, res) => {
@@ -426,8 +495,17 @@ router.get("/vitrine_do_trabalhador/criar-vitrine", isUser, (req, res) => {
 // HUB da Vitrine
 router.get('/vitrine_do_trabalhador/hub', async (req, res) => {
     try {
-        const anunciosDocs = await Vitrine.find()
-            .populate('usuario', 'name profileImage profession') 
+        const { termo, filtro } = filtroDoHub(req.query, [
+            'titulo',
+            'descricao',
+            'localizacao',
+            'categoria',
+            'produtos',
+            'servicos'
+        ]);
+
+        const anunciosDocs = await Vitrine.find(filtro)
+            .populate('usuario', 'name profileImage profession')
             .sort({ dataCriacao: -1 })
             .lean(); 
 
@@ -443,7 +521,11 @@ router.get('/vitrine_do_trabalhador/hub', async (req, res) => {
             };
         });
             
-        res.render('categories/vitrine_do_trabalhador/hub', { anuncios: vitrinesCompletas });
+        res.render('categories/vitrine_do_trabalhador/hub', {
+            anuncios: vitrinesCompletas,
+            termo,
+            total: vitrinesCompletas.length
+        });
     } catch (err) {
         console.error(err);
         req.flash("error_msg", "Erro ao carregar a Vitrine.");
@@ -472,7 +554,11 @@ router.get('/vitrine_do_trabalhador/detalhes/:id', async (req, res) => {
         const curtidas = vitrineDoc.curtidas || [];
         const jaCurtiu = req.user ? curtidas.some(id => id.toString() === req.user._id.toString()) : false;
 
-        res.render("categories/vitrine_do_trabalhador/detalhes", { 
+        const eDono = ehDonoDoPost(req, vitrineDoc);
+
+        res.render("categories/vitrine_do_trabalhador/detalhes", {
+            eDono,
+            linkEditar: `/categories/vitrine_do_trabalhador/editar/${vitrineDoc._id}`,
             vitrine: {
                 ...vitrineDoc,
                 usuario: formatAuthor(vitrineDoc.usuario),

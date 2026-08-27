@@ -8,8 +8,12 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "test": ".",
-    "dev": "nodemon src/index.js"
+    "test": "node scripts/testes/renderizar-views.mjs && node scripts/testes/fluxos-protocolo.mjs",
+    "dev": "nodemon src/index.js",
+    "test:rotas": "node scripts/testes/rotas-protegidas.mjs",
+    "imagens:webp": "node scripts/converter-imagens-webp.js",
+    "migrar:status": "node scripts/migrar-status-protocolo.js",
+    "migrar:imagens": "node scripts/migrar-imagens-base64.js"
   },
   "engines": {
     "node": ">=22.22.2"
@@ -34,6 +38,8 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "nodemon": "^3.1.11"
+    "mongodb-memory-server": "^11.2.0",
+    "nodemon": "^3.1.11",
+    "sharp": "^0.35.4"
   }
 }

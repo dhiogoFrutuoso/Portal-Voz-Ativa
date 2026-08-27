@@ -1,0 +1,30 @@
+{{!-- Selo do estágio do protocolo. Para administradores, permite alterar o
+      estágio sem sair do hub. Recebe: estagio, status, id, tipo, estagios,
+      csrfToken e ehAdmin. --}}
+<div class="d-flex align-items-center gap-2 flex-wrap">
+    <span class="badge bg-{{estagio.cor}} px-3 py-2 rounded-pill fw-bold" title="{{estagio.descricao}}">
+        <i class="bi {{estagio.icone}} me-2 small"></i>{{estagio.rotulo}}
+    </span>
+
+    {{#if ehAdmin}}
+        <form action="/admin/protocolo/{{tipo}}/{{id}}/status" method="POST"
+              class="d-flex align-items-center gap-1 bg-light border rounded-pill ps-2 pe-1 py-1">
+            <input type="hidden" name="_csrf" value="{{csrfToken}}">
+
+            <i class="bi bi-shield-lock text-dark small"></i>
+
+            <select name="status" class="form-select form-select-sm border-0 bg-transparent fw-bold"
+                    style="width: auto; box-shadow: none;" aria-label="Alterar estágio do protocolo">
+                {{#each estagios}}
+                    <option value="{{this.chave}}" {{#if (eq this.chave ../status)}}selected{{/if}}>
+                        {{this.rotulo}}
+                    </option>
+                {{/each}}
+            </select>
+
+            <button type="submit" class="btn btn-dark btn-sm rounded-pill px-3 fw-bold">
+                Salvar
+            </button>
+        </form>
+    {{/if}}
+</div>

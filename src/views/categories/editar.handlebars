@@ -1,0 +1,434 @@
+<style>
+    .editor-card {
+        border: none;
+        border-radius: 1rem;
+    }
+
+    #map {
+        height: 260px;
+        border-radius: 0.75rem;
+        z-index: 0;
+    }
+
+    .imagem-slot {
+        position: relative;
+        border-radius: 0.6rem;
+        overflow: hidden;
+        aspect-ratio: 4 / 3;
+        background: #f1f3f5;
+    }
+
+    .imagem-slot img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .imagem-slot .btn-remover {
+        position: absolute;
+        top: 0.4rem;
+        right: 0.4rem;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+    }
+
+    .imagem-slot.removida img {
+        filter: grayscale(1) brightness(0.55);
+    }
+
+    .imagem-slot .marca-removida {
+        position: absolute;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-weight: 700;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .imagem-slot.removida .marca-removida {
+        display: flex;
+    }
+
+    .zona-upload {
+        border: 2px dashed #ced4da;
+        border-radius: 0.75rem;
+        cursor: pointer;
+        transition: border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .zona-upload:hover {
+        border-color: #0d6efd;
+        background: #f8f9ff;
+    }
+</style>
+
+<section class="py-5 bg-light" style="min-height: 90vh;">
+    <div class="container px-4">
+
+        <a href="{{eixo.detalhes}}/{{post._id}}" class="text-muted text-decoration-none small d-inline-block mb-3">
+            <i class="bi bi-arrow-left me-1"></i> Voltar para a publicação
+        </a>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-9">
+
+                <div class="card editor-card shadow-sm mb-4">
+                    <div class="card-body p-4 p-md-5">
+
+                        <div class="d-flex align-items-center flex-wrap gap-2 mb-4">
+                            <span class="badge bg-{{eixo.cor}} rounded-pill px-3 py-2">
+                                <i class="bi {{eixo.icone}} me-1"></i>{{eixo.rotuloLongo}}
+                            </span>
+                            <span class="text-muted small">Editando sua publicação</span>
+                        </div>
+
+                        <h2 class="fw-bolder mb-1">Editar {{eixo.rotulo}}</h2>
+                        <p class="text-muted mb-4">
+                            Só você, que publicou, enxerga esta tela. As alterações aparecem no hub imediatamente.
+                        </p>
+
+                        <form action="/categories/{{eixo.chave}}/editar/{{post._id}}" method="POST" id="formEdicao">
+                            <input type="hidden" name="_csrf" value="{{csrfToken}}">
+
+                            {{#if (eq eixo.chave 'denuncias_sigilosas')}}
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Tipo de ocorrência</label>
+                                    <select name="tipoOcorrencia" id="tipoOcorrencia" class="form-select rounded-3" required>
+                                        {{#each tiposOcorrencia}}
+                                            <option value="{{this}}" {{#if (eq this ../post.tipoOcorrencia)}}selected{{/if}}>{{this}}</option>
+                                        {{/each}}
+                                    </select>
+                                </div>
+                            {{/if}}
+
+                            {{#if (eq eixo.chave 'vitrine_do_trabalhador')}}
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Categoria</label>
+                                    <select name="categoria" id="categoriaVitrine" class="form-select rounded-3" required>
+                                        {{#each categoriasVitrine}}
+                                            <option value="{{this}}" {{#if (eq this ../post.categoria)}}selected{{/if}}>{{this}}</option>
+                                        {{/each}}
+                                    </select>
+                                </div>
+
+                                <div class="mb-3 {{#unless (eq post.categoria 'Outros')}}d-none{{/unless}}" id="campoCategoriaOutros">
+                                    <label class="form-label fw-bold">Especifique a categoria</label>
+                                    <input type="text" name="categoria_especificada" maxlength="60"
+                                           value="{{post.categoria_especificada}}" class="form-control rounded-3">
+                                </div>
+                            {{/if}}
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Título</label>
+                                <input type="text" name="titulo" value="{{post.titulo}}" maxlength="120"
+                                       class="form-control rounded-3"
+                                       {{#unless (eq eixo.chave 'denuncias_sigilosas')}}required{{/unless}}>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Descrição</label>
+                                <textarea name="descricao" rows="5" maxlength="5000" class="form-control rounded-3" required>{{post.descricao}}</textarea>
+                            </div>
+
+                            {{#if (eq eixo.chave 'vitrine_do_trabalhador')}}
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Produtos</label>
+                                        <input type="text" name="produtos" value="{{post.produtos}}" maxlength="500" class="form-control rounded-3">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Serviços</label>
+                                        <input type="text" name="servicos" value="{{post.servicos}}" maxlength="500" class="form-control rounded-3">
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Contato</label>
+                                    <input type="text" name="contato" value="{{post.contato}}" maxlength="120" class="form-control rounded-3" required>
+                                </div>
+                            {{/if}}
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Localização</label>
+                                <input type="text" name="localizacao" id="localizacao" value="{{post.localizacao}}"
+                                       maxlength="300" class="form-control rounded-3 mb-2" required>
+                                <div id="map" class="mb-2"></div>
+                                <div class="form-text">Arraste o marcador para corrigir o ponto no mapa.</div>
+                                <input type="hidden" name="latitude" id="latitude" value="{{post.latitude}}">
+                                <input type="hidden" name="longitude" id="longitude" value="{{post.longitude}}">
+                            </div>
+
+                            {{!-- Imagens já publicadas --}}
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Imagens da publicação</label>
+
+                                {{#if imagensAtuais.length}}
+                                    <div class="row g-2 mb-3" id="imagensAtuais">
+                                        {{#each imagensAtuais}}
+                                            <div class="col-6 col-md-4">
+                                                <div class="imagem-slot shadow-sm" data-url="{{this}}">
+                                                    <img src="{{this}}" alt="Imagem da publicação">
+                                                    <div class="marca-removida bg-dark bg-opacity-50">removida</div>
+                                                    <button type="button" class="btn btn-danger btn-sm btn-remover" title="Remover imagem">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                    <input type="hidden" name="imagens_mantidas[]" value="{{this}}">
+                                                </div>
+                                            </div>
+                                        {{/each}}
+                                    </div>
+                                {{else}}
+                                    <p class="text-muted small">Esta publicação ainda não tem imagens.</p>
+                                {{/if}}
+
+                                {{!-- Novas imagens --}}
+                                <div class="zona-upload text-center p-4" id="zonaUpload">
+                                    <div class="fs-3 text-muted mb-1"><i class="bi bi-cloud-arrow-up"></i></div>
+                                    <div class="fw-bold">Adicionar novas imagens</div>
+                                    <div class="small text-muted">Até 5 no total, 5 MB por imagem</div>
+                                    <input type="file" id="novasImagens" accept="image/*" multiple hidden>
+                                </div>
+
+                                <div class="row g-2 mt-2" id="previewNovas"></div>
+                                <div id="urlsNovas"></div>
+                                <div class="small text-muted mt-2" id="statusUpload"></div>
+                            </div>
+
+                            {{#if eixo.temVideo}}
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold">Vídeo</label>
+                                    {{#if video}}
+                                        <div class="d-flex align-items-center gap-3 bg-light rounded-3 p-3">
+                                            <i class="bi bi-camera-video fs-4 text-danger"></i>
+                                            <div class="flex-grow-1 small text-muted">Há um vídeo anexado a esta denúncia.</div>
+                                            <div class="form-check form-switch mb-0">
+                                                <input class="form-check-input" type="checkbox" name="manter_video" value="1" id="manterVideo" checked>
+                                                <label class="form-check-label small" for="manterVideo">manter</label>
+                                            </div>
+                                        </div>
+                                    {{else}}
+                                        <p class="text-muted small mb-0">Nenhum vídeo anexado.</p>
+                                    {{/if}}
+                                </div>
+                            {{/if}}
+
+                            <div class="d-flex flex-wrap gap-2 pt-2">
+                                <button type="submit" class="btn btn-{{eixo.cor}} rounded-3 px-4 fw-bold" id="btnSalvar">
+                                    <i class="bi bi-check-lg me-1"></i> Salvar alterações
+                                </button>
+                                <a href="{{eixo.detalhes}}/{{post._id}}" class="btn btn-outline-secondary rounded-3 px-4">
+                                    Cancelar
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                {{!-- Exclusão --}}
+                <div class="card editor-card border border-danger border-opacity-25 shadow-sm">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold text-danger mb-1">
+                            <i class="bi bi-exclamation-triangle me-1"></i> Excluir publicação
+                        </h6>
+                        <p class="text-muted small mb-3">
+                            A publicação, suas curtidas e seus comentários somem para sempre.
+                            {{#if eixo.temProtocolo}}O histórico de atendimento também é apagado.{{/if}}
+                        </p>
+
+                        <button type="button" class="btn btn-outline-danger rounded-3 px-4"
+                                data-bs-toggle="modal" data-bs-target="#modalExcluir">
+                            Excluir esta publicação
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{{!-- Confirmação de exclusão --}}
+<div class="modal fade" id="modalExcluir" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold">Excluir publicação?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-0">
+                    Esta ação não pode ser desfeita. <strong>{{post.titulo}}</strong> será removida do portal.
+                </p>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-light rounded-3" data-bs-dismiss="modal">Cancelar</button>
+                <form action="/categories/{{eixo.chave}}/excluir/{{post._id}}" method="POST">
+                    <input type="hidden" name="_csrf" value="{{csrfToken}}">
+                    <button type="submit" class="btn btn-danger rounded-3 px-4 fw-bold">Excluir definitivamente</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        const cloudName = '{{cloudinaryCloudName}}';
+        const unsignedPreset = '{{cloudinaryUploadPreset}}';
+        const LIMITE_BYTES = 5 * 1024 * 1024;
+        const MAXIMO_IMAGENS = 5;
+
+        // --- Mapa ---
+        const latInicial = parseFloat(document.getElementById('latitude').value) || -6.5372;
+        const lngInicial = parseFloat(document.getElementById('longitude').value) || -39.4936;
+
+        const map = L.map('map').setView([latInicial, lngInicial], 15);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap'
+        }).addTo(map);
+
+        const marcador = L.marker([latInicial, lngInicial], { draggable: true }).addTo(map);
+
+        marcador.on('dragend', function () {
+            const pos = marcador.getLatLng();
+            document.getElementById('latitude').value = pos.lat;
+            document.getElementById('longitude').value = pos.lng;
+
+            fetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=' + pos.lat + '&lon=' + pos.lng)
+                .then((r) => r.json())
+                .then((dados) => {
+                    if (dados && dados.display_name) {
+                        document.getElementById('localizacao').value = dados.display_name;
+                    }
+                })
+                .catch(() => {});
+        });
+
+        setTimeout(() => map.invalidateSize(), 200);
+
+        // --- Remoção das imagens existentes ---
+        const slots = document.querySelectorAll('.imagem-slot');
+
+        slots.forEach((slot) => {
+            const botao = slot.querySelector('.btn-remover');
+            const campo = slot.querySelector('input[type="hidden"]');
+
+            botao.addEventListener('click', () => {
+                const removida = slot.classList.toggle('removida');
+
+                // Campo desabilitado não é enviado: a imagem sai da publicação.
+                campo.disabled = removida;
+                botao.innerHTML = removida
+                    ? '<i class="bi bi-arrow-counterclockwise"></i>'
+                    : '<i class="bi bi-trash"></i>';
+                botao.classList.toggle('btn-danger', !removida);
+                botao.classList.toggle('btn-secondary', removida);
+                atualizarContador();
+            });
+        });
+
+        // --- Novas imagens ---
+        const zona = document.getElementById('zonaUpload');
+        const input = document.getElementById('novasImagens');
+        const preview = document.getElementById('previewNovas');
+        const urls = document.getElementById('urlsNovas');
+        const statusUpload = document.getElementById('statusUpload');
+        const botaoSalvar = document.getElementById('btnSalvar');
+
+        const mantidas = () =>
+            document.querySelectorAll('.imagem-slot:not(.removida) input[type="hidden"]').length;
+        const novas = () => urls.querySelectorAll('input').length;
+
+        function atualizarContador() {
+            const total = mantidas() + novas();
+            statusUpload.textContent = total + ' de ' + MAXIMO_IMAGENS + ' imagens nesta publicação.';
+        }
+
+        zona.addEventListener('click', () => input.click());
+
+        input.addEventListener('change', async function () {
+            const arquivos = Array.from(this.files);
+            if (arquivos.length === 0) return;
+
+            botaoSalvar.disabled = true;
+
+            for (const arquivo of arquivos) {
+                if (mantidas() + novas() >= MAXIMO_IMAGENS) {
+                    statusUpload.textContent = 'Limite de ' + MAXIMO_IMAGENS + ' imagens atingido.';
+                    break;
+                }
+
+                if (!arquivo.type.startsWith('image/')) {
+                    statusUpload.textContent = 'Apenas imagens são aceitas.';
+                    continue;
+                }
+
+                if (arquivo.size > LIMITE_BYTES) {
+                    statusUpload.textContent = arquivo.name + ' passa de 5 MB.';
+                    continue;
+                }
+
+                statusUpload.textContent = 'Enviando ' + arquivo.name + '...';
+
+                const dados = new FormData();
+                dados.append('file', arquivo);
+                dados.append('upload_preset', unsignedPreset);
+
+                try {
+                    const resposta = await fetch('https://api.cloudinary.com/v1_1/' + cloudName + '/upload', {
+                        method: 'POST',
+                        body: dados
+                    });
+                    const json = await resposta.json();
+                    if (!json.secure_url) throw new Error('sem URL');
+
+                    const campo = document.createElement('input');
+                    campo.type = 'hidden';
+                    campo.name = 'imagens_urls[]';
+                    campo.value = json.secure_url;
+                    urls.appendChild(campo);
+
+                    const coluna = document.createElement('div');
+                    coluna.className = 'col-6 col-md-4';
+                    coluna.innerHTML =
+                        '<div class="imagem-slot shadow-sm">' +
+                        '<img src="' + json.secure_url + '" alt="Nova imagem">' +
+                        '<button type="button" class="btn btn-danger btn-sm btn-remover"><i class="bi bi-trash"></i></button>' +
+                        '</div>';
+
+                    coluna.querySelector('button').addEventListener('click', () => {
+                        campo.remove();
+                        coluna.remove();
+                        atualizarContador();
+                    });
+
+                    preview.appendChild(coluna);
+                    atualizarContador();
+                } catch (erro) {
+                    statusUpload.textContent = 'Falha ao enviar ' + arquivo.name + '.';
+                }
+            }
+
+            this.value = '';
+            botaoSalvar.disabled = false;
+        });
+
+        // --- Campo "Outros" da vitrine ---
+        const seletorCategoria = document.getElementById('categoriaVitrine');
+        if (seletorCategoria) {
+            seletorCategoria.addEventListener('change', function () {
+                document.getElementById('campoCategoriaOutros').classList.toggle('d-none', this.value !== 'Outros');
+            });
+        }
+
+        atualizarContador();
+    })();
+</script>

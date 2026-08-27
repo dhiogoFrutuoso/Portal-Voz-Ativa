@@ -12,10 +12,13 @@ import moment from 'moment';
 import { engine } from 'express-handlebars';
 import rateLimit from 'express-rate-limit';
 import { securityHeaders, forceHttps, sanitizeMongo, csrfProtection } from './config/security.js';
+import { otimizarMidiaNaRenderizacao } from './helpers/midia.js';
 import admin from "./routes/admin.js";
 import users from './routes/user.js';
 import categories from './routes/categories.js';
 import project from './routes/project.js';
+import protocolos from './routes/protocolos.js';
+import edicao from './routes/edicao.js';
 import auth from './config/auth.js';
 import db from './config/db.js';
 import './models/user.js';
@@ -84,6 +87,9 @@ app.use(passport.session());
 app.use(flash());
 app.use(csrfProtection);
 
+// Entrega as imagens do Cloudinary em WebP/AVIF, sem alterar o que está no banco.
+app.use(otimizarMidiaNaRenderizacao);
+
 // Middleware
 app.use((req, res, next) => {
     res.locals.success_msg = req.flash("success_msg");
@@ -127,6 +133,23 @@ app.engine('handlebars', handlebars.engine({
         },
         formatDate: (date) => {
             return moment(date).format('DD/MM/YYYY [às] HH:mm');
+        },
+        formatDay: (date) => {
+            return moment(date).format('DD/MM/YYYY');
+        },
+        // "há 3 dias", usado na linha do tempo do protocolo
+        fromNow: (date) => {
+            return moment(date).locale('pt-br').fromNow();
+        },
+        // Concatena valores para montar links e ids nas views
+        concat: (...args) => {
+            return args.slice(0, -1).join('');
+        },
+        // Recorta um texto longo preservando a palavra final
+        recortar: (texto, limite) => {
+            const maximo = typeof limite === 'number' ? limite : 140;
+            if (typeof texto !== 'string' || texto.length <= maximo) return texto || '';
+            return texto.slice(0, texto.lastIndexOf(' ', maximo)) + '…';
         }
     },
     runtimeOptions: {
@@ -154,10 +177,12 @@ app.get('/', (req, res) => {
     res.render('index');
 });
 
+app.use('/categories', edicao);
 app.use('/categories', categories);
 app.use('/admin', admin);
 app.use('/users', users);
 app.use('/project', project);
+app.use('/protocolos', protocolos);
 
 // --- INICIALIZAÇÃO ---
 const PORT = process.env.PORT || 8080;

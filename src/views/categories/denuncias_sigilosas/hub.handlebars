@@ -130,7 +130,7 @@
                                 "Garantir que dados sensíveis de denúncias sejam protegidos, transformando a fiscalização cidadã em ação."
                             </p>
                             <hr class="opacity-25">
-                            <img src="/img/ceará.png" style="height: 50px; filter: brightness(0) invert(1); opacity: 0.7;" alt="Ceará">
+                            <img src="/img/ceará.webp" style="height: 50px; filter: brightness(0) invert(1); opacity: 0.7;" alt="Ceará">
                         </div>
                     </div>
                 </div>
@@ -155,6 +155,8 @@
             </div>
         </div>
 
+        {{> _busca acao="/categories/denuncias_sigilosas/hub" termo=termo total=total placeholder="Buscar por título, descrição, local ou tipo de ocorrência..."}}
+
         <div class="row g-4">
             {{#each denuncias}}
                 {{#if (eq tipoOcorrencia 'Foco de Queimada')}}
@@ -176,9 +178,7 @@
                                 <div class="col-md-8">
                                     <div class="card-body p-4 p-lg-5 h-100 d-flex flex-column">
                                         <div class="d-flex justify-content-between align-items-center mb-3">
-                                            <span class="badge {{#if (eq status 'Em Análise')}}bg-warning-soft text-warning{{else}}bg-success-soft text-success{{/if}} px-3 py-2 rounded-pill fw-bold">
-                                                <i class="bi bi-circle-fill me-2 small"></i>{{status}}
-                                            </span>
+                                            {{> _estagio estagio=this.estagio status=this.status id=this._id tipo=@root.tipoProtocolo estagios=@root.estagios csrfToken=@root.csrfToken ehAdmin=@root.user.areAdmin}}
                                             <div class="text-muted small">
                                                 <i class="bi bi-calendar3 me-1"></i> {{formatDate dataCriacao}}
                                             </div>

@@ -131,7 +131,7 @@
                             </p>
                             <hr class="opacity-25">
                             <div class="d-flex align-items-center">
-                                <img src="/img/ceará.png" style="height: 40px;" alt="Ceará">
+                                <img src="/img/ceará.webp" style="height: 40px;" alt="Ceará">
                                 <span class="ms-3 small fw-bold">HUB DE OPORTUNIDADES 2026</span>
                             </div>
                         </div>
@@ -151,6 +151,8 @@
             </div>
             <div class="badge bg-success rounded-pill px-3 py-2 shadow-sm" style="margin-top: 10px;">Recém Adicionados</div>
         </div>
+
+        {{> _busca acao="/categories/vitrine_do_trabalhador/hub" termo=termo total=total placeholder="Buscar por serviço, produto, categoria ou local..."}}
 
         <div class="row g-4">
             {{#each anuncios}}
@@ -187,7 +189,7 @@
                                                 {{#if usuario.isDeleted}}
                                                     <div class="d-flex align-items-center opacity-75">
                                                         <div class="icon-shape rounded-circle me-3 overflow-hidden" style="width: 45px; height: 45px; flex-shrink: 0; border: 1px solid #ddd;">
-                                                            <img src="/img/guest.jpg" alt="Usuário Indisponível" style="width: 100%; height: 100%; object-fit: cover;">
+                                                            <img src="/img/guest.webp" alt="Usuário Indisponível" style="width: 100%; height: 100%; object-fit: cover;">
                                                         </div>
                                                         <div>
                                                             <p class="text-muted small mb-0 lh-2 fw-bold" style="font-size: 0.75rem;">Anunciante: </p>
@@ -198,10 +200,10 @@
                                                 {{else}}
                                                     <a href="/users/perfil/{{usuario._id}}" class="text-decoration-none d-flex align-items-center hover-opacity">
                                                         <div class="icon-shape rounded-circle me-3 overflow-hidden" style="width: 45px; height: 45px; flex-shrink: 0;">
-                                                            <img src="{{#if usuario.profileImage}}{{usuario.profileImage}}{{else}}/img/guest.jpg{{/if}}" 
+                                                            <img src="{{#if usuario.profileImage}}{{usuario.profileImage}}{{else}}/img/guest.webp{{/if}}" 
                                                                  alt="{{usuario.name}}" 
                                                                  style="width: 100%; height: 100%; object-fit: cover;"
-                                                                 onerror="this.src='/img/guest.jpg'">
+                                                                 onerror="this.src='/img/guest.webp'">
                                                         </div>
 
                                                         {{!-- NOME E RÓTULO --}}
@@ -287,7 +289,7 @@
                                         {{#if usuario.isDeleted}}
                                             <div class="d-flex align-items-center opacity-75">
                                                 <div class="icon-shape rounded-circle me-3 overflow-hidden" style="width: 45px; height: 45px; flex-shrink: 0; border: 1px solid #ddd;">
-                                                    <img src="/img/guest.jpg" alt="Usuário Indisponível" style="width: 100%; height: 100%; object-fit: cover;">
+                                                    <img src="/img/guest.webp" alt="Usuário Indisponível" style="width: 100%; height: 100%; object-fit: cover;">
                                                 </div>
                                                 <div>
                                                     <p class="text-muted small mb-0 lh-2 fw-bold" style="font-size: 0.75rem;">Anunciante: </p>
@@ -298,10 +300,10 @@
                                         {{else}}
                                             <a href="/users/perfil/{{usuario._id}}" class="text-decoration-none d-flex align-items-center hover-opacity">
                                                 <div class="icon-shape rounded-circle me-3 overflow-hidden" style="width: 45px; height: 45px; flex-shrink: 0;">
-                                                    <img src="{{#if usuario.profileImage}}{{usuario.profileImage}}{{else}}/img/guest.jpg{{/if}}" 
+                                                    <img src="{{#if usuario.profileImage}}{{usuario.profileImage}}{{else}}/img/guest.webp{{/if}}" 
                                                          alt="{{usuario.name}}" 
                                                          style="width: 100%; height: 100%; object-fit: cover;"
-                                                         onerror="this.src='/img/guest.jpg'">
+                                                         onerror="this.src='/img/guest.webp'">
                                                 </div>
 
                                                 {{!-- NOME E RÓTULO --}}

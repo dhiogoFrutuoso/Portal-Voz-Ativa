@@ -41,6 +41,17 @@
     }
 
     /* Decoração de Círculos ao Fundo */
+    .circle-bg-wrapper {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        pointer-events: none;
+        z-index: -1;
+    }
+
     .circle-bg {
         position: absolute;
         border-radius: 50%;
@@ -55,8 +66,12 @@
     }
 </style>
 
-<div class="circle-bg" style="width: 300px; height: 300px; top: -50px; left: -50px;"></div>
-<div class="circle-bg" style="width: 200px; height: 200px; bottom: 50px; right: -30px;"></div>
+{{!-- Os círculos decorativos sangram para fora da tela; o wrapper com overflow
+      hidden evita a barra de rolagem horizontal que isso criava. --}}
+<div class="circle-bg-wrapper">
+    <div class="circle-bg" style="width: 300px; height: 300px; top: -50px; left: -50px;"></div>
+    <div class="circle-bg" style="width: 200px; height: 200px; bottom: 50px; right: -30px;"></div>
+</div>
 
 <section class="container d-flex flex-column align-items-center justify-content-center" style="min-height: 85vh;">
 
