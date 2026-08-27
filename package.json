@@ -13,7 +13,8 @@
     "test:rotas": "node scripts/testes/rotas-protegidas.mjs",
     "imagens:webp": "node scripts/converter-imagens-webp.js",
     "migrar:status": "node scripts/migrar-status-protocolo.js",
-    "migrar:imagens": "node scripts/migrar-imagens-base64.js"
+    "migrar:imagens": "node scripts/migrar-imagens-base64.js",
+    "migrar:sigilo": "node scripts/migrar-sigilo-denuncias.js"
   },
   "engines": {
     "node": ">=22.22.2"

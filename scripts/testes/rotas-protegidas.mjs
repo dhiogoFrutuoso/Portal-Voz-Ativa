@@ -28,7 +28,8 @@ const POSTS_RESTRITOS = [
     `/categories/denuncias_sigilosas/excluir/${ID}`,
     `/categories/vitrine_do_trabalhador/excluir/${ID}`,
     `/protocolos/melhoria/${ID}/mensagem/${ID}/editar`,
-    `/protocolos/melhoria/${ID}/mensagem/${ID}/excluir`
+    `/protocolos/melhoria/${ID}/mensagem/${ID}/excluir`,
+    `/admin/protocolo/denuncia/${ID}/sigilo`
 ];
 
 let falhas = 0;

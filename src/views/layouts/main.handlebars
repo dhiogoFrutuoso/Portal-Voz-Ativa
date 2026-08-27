@@ -12,13 +12,16 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    {{!-- Estilos do portal: espaçamento, filtros e adaptação ao celular --}}
+    <link rel="stylesheet" href="/css/portal.css?v={{versaoEstaticos}}">
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
     {{>_navbar}}
     {{> _msg}}
 
-    <div class="container mt-4">
+    <div class="container conteudo-principal">
         {{{body}}}
     </div>
 
@@ -29,10 +32,10 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     {{!-- Valida tipo e tamanho dos arquivos antes de qualquer envio ao Cloudinary --}}
-    <script src="/js/upload-guard.js"></script>
+    <script src="/js/upload-guard.js?v={{versaoEstaticos}}"></script>
 
     {{!-- Filtros instantâneos e busca com debounce nos hubs e painéis --}}
-    <script src="/js/busca-viva.js"></script>
+    <script src="/js/busca-viva.js?v={{versaoEstaticos}}"></script>
 
     </body>
 </html>

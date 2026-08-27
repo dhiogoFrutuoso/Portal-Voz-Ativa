@@ -37,7 +37,30 @@ import {
     buscaSchema,
     escaparRegex
 } from '../helpers/validators.js';
-import { estagioDe, normalizarStatus, LISTA_ESTAGIOS } from '../helpers/protocolo.js';
+import {
+    estagioDe,
+    normalizarStatus,
+    LISTA_ESTAGIOS,
+    filtroDeSigilo,
+    podeVerDenuncia,
+    nasceSigilosa
+} from '../helpers/protocolo.js';
+
+/*
+ * Junta filtros do Mongo sem perder nenhum.
+ *
+ * Espalhar dois objetos que usam `$or` (o recorte de sigilo e a busca textual)
+ * fazia o segundo sobrescrever o primeiro em silêncio — e a busca acabava
+ * revelando denúncia sigilosa. Com `$and` as duas condições precisam valer.
+ */
+function combinarFiltros(...filtros) {
+    const usados = filtros.filter((f) => f && Object.keys(f).length > 0);
+
+    if (usados.length === 0) return {};
+    if (usados.length === 1) return usados[0];
+
+    return { $and: usados };
+}
 
 /*
  * Busca dos hubs: o termo vira expressão regular no Mongo, então é validado
@@ -86,12 +109,13 @@ const CATEGORIAS_VITRINE = [
  * trocar a lista sem recarregar. O mesmo partial usado na página completa é
  * renderizado aqui, então o desenho do card não é duplicado.
  */
-function montarBuscaDeHub({ Modelo, campos, colecao, partial, preparar }) {
+function montarBuscaDeHub({ Modelo, campos, colecao, partial, preparar, tipoProtocolo = null, aplicarSigilo = false }) {
     return async (req, res) => {
         try {
             const { filtro } = filtroDoHub(req.query, campos);
+            const recorte = aplicarSigilo ? filtroDeSigilo(req.user) : {};
 
-            const docs = await Modelo.find(filtro)
+            const docs = await Modelo.find(combinarFiltros(recorte, filtro))
                 .populate('usuario', 'name profileImage profession')
                 .sort({ dataCriacao: -1 })
                 .limit(60)
@@ -99,7 +123,11 @@ function montarBuscaDeHub({ Modelo, campos, colecao, partial, preparar }) {
 
             res.render(`partials/${partial}`, {
                 layout: false,
-                [colecao]: docs.map((doc) => preparar(doc, req))
+                [colecao]: docs.map((doc) => preparar(doc, req)),
+                // O card do hub traz o seletor de estágio do admin: sem estes
+                // valores o seletor sairia vazio e o formulário, quebrado.
+                tipoProtocolo,
+                estagios: estagiosParaSelect()
             });
         } catch (err) {
             console.error('Erro na busca do hub:', err);
@@ -225,7 +253,8 @@ router.get(
         campos: ['titulo', 'descricao', 'localizacao'],
         colecao: 'chamados',
         partial: '_cards_melhorias',
-        preparar: prepararChamado
+        preparar: prepararChamado,
+        tipoProtocolo: 'melhoria'
     })
 );
 
@@ -386,7 +415,9 @@ router.get(
         campos: ['titulo', 'descricao', 'localizacao', 'tipoOcorrencia'],
         colecao: 'denuncias',
         partial: '_cards_denuncias',
-        preparar: prepararChamado
+        preparar: prepararChamado,
+        tipoProtocolo: 'denuncia',
+        aplicarSigilo: true
     })
 );
 
@@ -399,7 +430,10 @@ router.get('/denuncias_sigilosas/hub', async (req, res) => {
             'tipoOcorrencia'
         ]);
 
-        const denunciasDocs = await Denuncia.find(filtro).sort({ dataCriacao: -1 }).lean();
+        // Denúncia sigilosa não aparece para quem não é o autor nem a gestão.
+        const denunciasDocs = await Denuncia.find(combinarFiltros(filtroDeSigilo(req.user), filtro))
+            .sort({ dataCriacao: -1 })
+            .lean();
 
         const denunciasComLike = denunciasDocs.map(denuncia => {
             const curtidasArray = denuncia.curtidas || [];
@@ -452,6 +486,8 @@ router.post('/denuncias_sigilosas/abrir-denuncia', Limiter, isUser, async (req, 
             latitude,
             longitude,
             imagens: imagensCloudinary,
+            // Só foco de incêndio nasce público; o resto fica sob sigilo.
+            privada: nasceSigilosa(tipoOcorrencia),
             // URL do vídeo vinda do input hidden preenchido pelo script do front
             video: normalizarVideo(req.body.video_url),
             usuario: req.user._id
@@ -481,6 +517,12 @@ router.get('/denuncias_sigilosas/detalhes/:id', async (req, res) => {
 
         if (!denuncia) {
             req.flash("error_msg", "Esta denúncia não foi encontrada.");
+            return res.redirect("/categories/denuncias_sigilosas/hub");
+        }
+
+        // Sigilo vale também no acesso direto pela URL.
+        if (!podeVerDenuncia(denuncia, req.user)) {
+            req.flash("error_msg", "Esta denúncia é sigilosa: só o autor e a gestão municipal têm acesso.");
             return res.redirect("/categories/denuncias_sigilosas/hub");
         }
 

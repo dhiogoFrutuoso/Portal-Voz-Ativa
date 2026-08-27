@@ -46,6 +46,13 @@ const CLOUDINARY_UPLOAD_PRESET = process.env.CLOUDINARY_UPLOAD_PRESET || 'Portal
 const RECAPTCHA_SITE_KEY = process.env.RECAPTCHA_SITE_KEY || '6LcE53YtAAAAABUiDGr2DSTfhu3oCFhPEkOa8LCV';
 
 // Já os segredos não têm padrão seguro: avisamos alto e claro se faltarem.
+/*
+ * Os estáticos são servidos com cache de 7 dias. Sem uma marca na URL, um CSS
+ * corrigido só chegaria ao visitante depois que o cache expirasse — por isso a
+ * versão entra como parâmetro nos links do layout.
+ */
+const VERSAO_ESTATICOS = process.env.RENDER_GIT_COMMIT || String(Date.now());
+
 const requiredEnv = ['CLOUDINARY_API_KEY', 'CLOUDINARY_API_SECRET', 'RECAPTCHA_SECRET', 'SESSION_SECRET'];
 const missingEnv = requiredEnv.filter((key) => !process.env[key]);
 
@@ -99,6 +106,7 @@ app.use((req, res, next) => {
     res.locals.cloudinaryCloudName = CLOUDINARY_CLOUD_NAME;
     res.locals.cloudinaryUploadPreset = CLOUDINARY_UPLOAD_PRESET;
     res.locals.recaptchaSiteKey = RECAPTCHA_SITE_KEY;
+    res.locals.versaoEstaticos = VERSAO_ESTATICOS;
     next();
 });
 

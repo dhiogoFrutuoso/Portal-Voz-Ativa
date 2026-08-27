@@ -4,7 +4,7 @@
      busca em tempo real devolve. --}}
 {{#each protocolos}}
                     <div class="linha-protocolo shadow-sm overflow-hidden item-filtravel {{#if this.novidades.paraAGestao}}linha-com-novidade{{/if}}"
-                         data-status="{{this.status}}" data-tipo="{{this.tipo}}"
+                         data-status="{{this.status}}" data-tipo="{{this.tipo}}" data-sigilo="{{#if this.privada}}sigilosa{{else}}publica{{/if}}"
                          data-novidade="{{#if this.novidades.paraAGestao}}sim{{else}}nao{{/if}}">
                         <div class="d-flex">
                             <div class="faixa-status bg-{{this.estagio.cor}}"></div>
@@ -68,6 +68,12 @@
                                             <button type="submit" class="btn btn-dark btn-sm w-100 rounded-3 fw-bold mb-2">
                                                 Salvar estágio
                                             </button>
+
+                                            {{#if this.podeMudarSigilo}}
+                                                <div class="d-flex align-items-center gap-2 flex-wrap mb-2 pt-2 border-top">
+                                                    {{> _sigilo privada=this.privada id=this._id csrfToken=@root.csrfToken ehAdmin=true}}
+                                                </div>
+                                            {{/if}}
 
                                             <div class="d-grid gap-1">
                                                 <a href="{{this.linkProtocolo}}" class="btn btn-outline-dark btn-sm rounded-3">

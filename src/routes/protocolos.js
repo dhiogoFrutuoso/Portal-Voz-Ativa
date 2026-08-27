@@ -98,6 +98,7 @@ function montarProtocolo(doc, tipo, usuario = null) {
         numero: numeroDoProtocolo(doc, tipo),
         linkPost: `${eixo.rotaDetalhes}/${doc._id}`,
         novidades: novidadesDoProtocolo(doc),
+        privada: Boolean(doc.privada),
         historico: (doc.historico || []).map((item) => {
             const minha = podeMexerNaMensagem(item, usuario);
             const registroDeEstagio = ehRegistroDeEstagio(item);

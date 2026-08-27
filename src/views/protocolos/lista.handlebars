@@ -1,10 +1,4 @@
 <style>
-    .estagio-chip {
-        border: 1px solid #e9ecef;
-        border-radius: 0.9rem;
-        background: #fff;
-    }
-
     .protocolo-linha {
         border: 1px solid #e9ecef;
         border-radius: 0.9rem;
@@ -20,25 +14,6 @@
     .faixa-status {
         width: 6px;
         border-radius: 0.9rem 0 0 0.9rem;
-    }
-
-    /* Chama atenção para a novidade sem virar distração */
-    .novidade-pulsa {
-        animation: novidade-pulso 2s ease-in-out infinite;
-    }
-
-    @keyframes novidade-pulso {
-        0%, 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.45); }
-        50% { box-shadow: 0 0 0 6px rgba(220, 53, 69, 0); }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        .novidade-pulsa { animation: none; }
-    }
-
-    .linha-com-novidade {
-        border-color: #f5c2c7 !important;
-        background: #fffafa;
     }
 </style>
 
@@ -57,15 +32,24 @@
 <section class="py-5 bg-light">
     <div class="container px-4">
 
-        {{!-- Resumo por estágio --}}
-        <div class="row g-3 mb-4">
+        {{!-- Resumo por estágio: também filtra a lista na hora --}}
+        <div class="row g-3 mb-4 filtros-com-selecao">
+            <div class="col-6 col-lg">
+                <button type="button" class="card-estagio p-3 h-100 shadow-sm ativo" data-filtro="status" data-valor="">
+                    <div class="text-dark fs-4 mb-1"><i class="bi bi-collection-fill"></i></div>
+                    <div class="h4 fw-bold mb-0">{{total}}</div>
+                    <div class="small text-muted">Todos</div>
+                </button>
+            </div>
+
             {{#each resumo}}
                 <div class="col-6 col-lg">
-                    <div class="estagio-chip p-3 h-100 shadow-sm">
+                    <button type="button" class="card-estagio p-3 h-100 shadow-sm border-{{this.cor}}"
+                            data-filtro="status" data-valor="{{this.chave}}">
                         <div class="text-{{this.cor}} fs-4 mb-1"><i class="bi {{this.icone}}"></i></div>
                         <div class="h4 fw-bold mb-0">{{this.total}}</div>
                         <div class="small text-muted">{{this.rotulo}}</div>
-                    </div>
+                    </button>
                 </div>
             {{/each}}
         </div>

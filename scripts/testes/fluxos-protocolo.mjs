@@ -34,11 +34,13 @@ await import('../../src/models/vitrine.js');
 const { default: protocolos } = await import('../../src/routes/protocolos.js');
 const { default: admin } = await import('../../src/routes/admin.js');
 const { default: edicao } = await import('../../src/routes/edicao.js');
+const { default: categorias } = await import('../../src/routes/categories.js');
 const { otimizarMidiaNaRenderizacao } = await import('../../src/helpers/midia.js');
 const { novidadesDoProtocolo } = await import('../../src/helpers/protocolo.js');
 
 const User = mongoose.model('users');
 const Chamado = mongoose.model('chamados');
+const Denuncia = mongoose.model('denuncias');
 
 // --- Usuários de teste ---
 const autor = await User.create({ name: 'Autor Teste', email: `autor${Date.now()}@teste.local`, password: 'x', areAdmin: false });
@@ -88,6 +90,7 @@ app.use(otimizarMidiaNaRenderizacao);
 app.use('/protocolos', protocolos);
 app.use('/admin', admin);
 app.use('/categories', edicao);
+app.use('/categories', categorias);
 
 const servidor = app.listen(0);
 const PORTA = servidor.address().port;
@@ -251,6 +254,66 @@ try {
     await pedir(`/protocolos/melhoria/${id}/mensagem/${msgDoCidadao._id}/excluir`, { como: 'autor', metodo: 'POST' });
     doc = await Chamado.findById(id).lean();
     checar(doc.historico.length === totalAntes - 1, 'autor exclui a própria mensagem');
+
+    console.log('\n--- Sigilo das denúncias ---');
+    const queimada = await Denuncia.create({
+        tipoOcorrencia: 'Foco de Queimada', titulo: 'Foco de Queimada',
+        descricao: 'Fogo na vegetação perto da estrada.', localizacao: 'Serra',
+        usuario: autor._id, privada: false
+    });
+    const vandalismo = await Denuncia.create({
+        tipoOcorrencia: 'Vandalismo', titulo: 'Vandalismo',
+        descricao: 'Depredação de patrimônio com envolvidos identificáveis.', localizacao: 'Praça',
+        usuario: autor._id, privada: true
+    });
+
+    const hubAnonimo = await (await pedir('/categories/denuncias_sigilosas/hub')).text();
+    checar(hubAnonimo.includes('Foco de Queimada'), 'incêndio aparece no hub público');
+    checar(!hubAnonimo.includes('Depredação de patrimônio'), 'denúncia sigilosa não aparece para visitante');
+
+    const hubTerceiro = await (await pedir('/categories/denuncias_sigilosas/hub', { como: 'outro' })).text();
+    checar(!hubTerceiro.includes('Depredação de patrimônio'), 'sigilosa não aparece para outro usuário logado');
+
+    const hubAutor = await (await pedir('/categories/denuncias_sigilosas/hub', { como: 'autor' })).text();
+    checar(hubAutor.includes('Depredação de patrimônio'), 'autor enxerga a própria denúncia sigilosa');
+
+    const hubGestor = await (await pedir('/categories/denuncias_sigilosas/hub', { como: 'gestor' })).text();
+    checar(hubGestor.includes('Depredação de patrimônio'), 'gestão enxerga a denúncia sigilosa');
+
+    const detalheAlheio = await pedir(`/categories/denuncias_sigilosas/detalhes/${vandalismo._id}`, { como: 'outro' });
+    checar(detalheAlheio.status === 302, 'acesso direto à sigilosa por terceiro é barrado');
+
+    const buscaAnonima = await (await pedir('/categories/denuncias_sigilosas/hub/buscar?q=depreda')).text();
+    checar(!buscaAnonima.includes('Depredação de patrimônio'), 'busca pública não revela denúncia sigilosa');
+
+    const buscaAdmin = await (await pedir('/categories/denuncias_sigilosas/hub/buscar?q=depreda', { como: 'gestor' })).text();
+    checar(buscaAdmin.includes('Depredação de patrimônio'), 'busca da gestão encontra a sigilosa');
+    checar(buscaAdmin.includes('<option value="Resolvido"'), 'seletor de estágio vem completo no resultado da busca');
+
+    await pedir(`/admin/protocolo/denuncia/${vandalismo._id}/sigilo`, {
+        como: 'outro', metodo: 'POST', corpo: { privada: '0' }
+    });
+    let vandalismoAtual = await Denuncia.findById(vandalismo._id).lean();
+    checar(vandalismoAtual.privada === true, 'usuário comum não muda o sigilo');
+
+    await pedir(`/admin/protocolo/denuncia/${vandalismo._id}/sigilo`, {
+        como: 'gestor', metodo: 'POST', corpo: { privada: '0' }
+    });
+    vandalismoAtual = await Denuncia.findById(vandalismo._id).lean();
+    checar(vandalismoAtual.privada === false, 'gestão libera a denúncia para o hub público');
+    checar(
+        vandalismoAtual.historico.some((m) => m.texto.includes('hub público')),
+        'mudança de sigilo fica registrada no histórico'
+    );
+
+    const hubDepois = await (await pedir('/categories/denuncias_sigilosas/hub')).text();
+    checar(hubDepois.includes('Depredação de patrimônio'), 'liberada, passa a aparecer publicamente');
+
+    await pedir(`/admin/protocolo/denuncia/${queimada._id}/sigilo`, {
+        como: 'gestor', metodo: 'POST', corpo: { privada: '1' }
+    });
+    const queimadaAtual = await Denuncia.findById(queimada._id).lean();
+    checar(queimadaAtual.privada === true, 'gestão também consegue tornar sigilosa uma pública');
 
     console.log('\n--- Busca em tempo real ---');
     const trechoAdmin = await (await pedir('/admin/painel/buscar?q=buraco', { como: 'gestor' })).text();

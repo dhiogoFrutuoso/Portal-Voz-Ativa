@@ -1,0 +1,433 @@
+/*
+ * Estilos próprios do Portal Voz Ativa.
+ *
+ * Carregado depois do Bootstrap, em todas as páginas. Reúne o que antes estava
+ * espalhado em blocos <style> dentro das views: espaçamento entre blocos,
+ * botões de filtro e, principalmente, o comportamento em telas pequenas.
+ *
+ * A intenção não é redesenhar o portal, e sim fazer o desenho que já existe
+ * caber bem no celular.
+ */
+
+/* ==========================================================================
+   1. Espaçamento geral
+   ========================================================================== */
+
+/* O contêiner do layout não precisa de margem própria: cada página já traz o
+   próprio respiro (header com padding, section py-5). A margem de 24px criava
+   uma faixa vazia abaixo da barra de navegação em todas as telas. */
+.conteudo-principal {
+    margin-top: 0;
+}
+
+/* Duas seções "py-5" seguidas somavam 96px de vão entre o topo da página e a
+   área de posts. Encostando-as, o corte fica no tamanho de uma só. */
+section.py-5 + section.py-5 {
+    padding-top: 0 !important;
+}
+
+/* ==========================================================================
+   2. Botões de filtro
+   ========================================================================== */
+
+/*
+ * Ficavam definidos dentro de um partial, então as telas que montavam os
+ * próprios filtros (o painel do admin) exibiam os botões sem estilo nenhum.
+ * Agora valem para o site inteiro.
+ */
+.filtros-grupo {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.filtros-rotulo {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #6c757d;
+    margin-right: 0.25rem;
+}
+
+.btn-filtro {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    border: 1px solid #dee2e6;
+    border-radius: 2rem;
+    background: #fff;
+    color: #495057;
+    padding: 0.3rem 0.9rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    line-height: 1.4;
+    white-space: nowrap;
+    transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+
+.btn-filtro:hover {
+    border-color: #adb5bd;
+    background: #f1f3f5;
+    color: #212529;
+}
+
+.btn-filtro:focus-visible {
+    outline: 2px solid #13315c;
+    outline-offset: 2px;
+}
+
+/* Marcação clara de onde o usuário está */
+.btn-filtro.ativo {
+    background: #13315c;
+    border-color: #13315c;
+    color: #fff;
+    box-shadow: 0 2px 6px rgba(19, 49, 92, 0.25);
+}
+
+.btn-filtro.ativo::before {
+    content: "\F26E"; /* bi-check-lg */
+    font-family: "bootstrap-icons";
+    font-size: 0.7rem;
+}
+
+/* ==========================================================================
+   3. Cartões de estágio (painel do admin e lista do cidadão)
+   ========================================================================== */
+
+.card-estagio {
+    display: block;
+    width: 100%;
+    text-align: left;
+    border: 1px solid #e9ecef;
+    border-radius: 0.9rem;
+    background: #fff;
+    color: inherit;
+    text-decoration: none;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.card-estagio:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08);
+    color: inherit;
+}
+
+/* O estágio selecionado se destaca dos demais, que ficam recuados */
+.card-estagio.ativo {
+    border-width: 2px;
+    border-color: #13315c;
+    box-shadow: 0 0.5rem 1.25rem rgba(19, 49, 92, 0.18);
+    transform: translateY(-2px);
+}
+
+.card-estagio.ativo::after {
+    content: "";
+    display: block;
+    height: 3px;
+    border-radius: 2px;
+    background: #13315c;
+    margin-top: 0.65rem;
+}
+
+.filtros-com-selecao .card-estagio:not(.ativo) {
+    opacity: 0.62;
+}
+
+/* ==========================================================================
+   4. Avisos de novidade
+   ========================================================================== */
+
+.novidade-pulsa {
+    animation: novidade-pulso 2s ease-in-out infinite;
+}
+
+@keyframes novidade-pulso {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.45); }
+    50% { box-shadow: 0 0 0 6px rgba(220, 53, 69, 0); }
+}
+
+.linha-com-novidade {
+    border-color: #f5c2c7 !important;
+    background: #fffafa;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .novidade-pulsa,
+    .card-estagio,
+    .btn-filtro {
+        animation: none;
+        transition: none;
+    }
+}
+
+/* ==========================================================================
+   5. Barra de navegação no celular
+   ========================================================================== */
+
+@media (max-width: 991.98px) {
+    /* O menu aberto virava uma pilha de links soltos. Aqui ele vira um painel
+       com respiro, separadores e alvos de toque de tamanho decente. */
+    #navGov {
+        margin-top: 0.75rem;
+        border-top: 1px solid #e9ecef;
+        padding-top: 0.5rem;
+    }
+
+    /* Sem largura, os links encolhiam até o texto quebrar letra a letra */
+    #navGov .navbar-nav {
+        width: 100%;
+        gap: 0.15rem;
+    }
+
+    #navGov .nav-item {
+        width: 100%;
+        margin: 0;
+    }
+
+    #navGov .nav-link {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.75rem 0.5rem !important;
+        border-radius: 0.6rem;
+        font-size: 0.95rem;
+    }
+
+    #navGov .nav-link:hover,
+    #navGov .nav-link:focus {
+        background: #f1f3f5;
+        color: #13315c !important;
+    }
+
+    /* Os botões de entrar/sair ocupam a largura toda, longe dos links */
+    #navGov .btn {
+        display: block;
+        width: 100%;
+        margin-top: 0.5rem;
+        padding: 0.7rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    #navGov .register {
+        padding: 0;
+    }
+
+    .navbar-toggler {
+        padding: 0.4rem 0.6rem;
+        border: 1px solid #dee2e6 !important;
+        border-radius: 0.5rem;
+    }
+
+    .navbar-toggler:focus {
+        box-shadow: 0 0 0 0.2rem rgba(19, 49, 92, 0.15);
+    }
+
+    /* Sublinhado animado é efeito de mouse; no toque só atrapalha */
+    #navGov .border-hover::after {
+        display: none;
+    }
+}
+
+/* ==========================================================================
+   6. Telas pequenas — o portal inteiro
+   ========================================================================== */
+
+@media (max-width: 767.98px) {
+    /* --- Respiro geral: py-5 e px-5 são grandes demais num celular --- */
+    .container.px-5,
+    .container.px-4 {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+
+    section.py-5 {
+        padding-top: 2rem !important;
+        padding-bottom: 2rem !important;
+    }
+
+    header.py-5 {
+        padding-top: 2.25rem !important;
+        padding-bottom: 2.25rem !important;
+    }
+
+    /* --- Tipografia: os títulos display estouram a linha --- */
+    .display-1 { font-size: 2.6rem !important; }
+    .display-2 { font-size: 2.3rem !important; }
+    .display-3 { font-size: 2rem !important; }
+    .display-4 { font-size: 1.85rem !important; }
+    .display-5 { font-size: 1.7rem !important; }
+    .display-6 { font-size: 1.45rem !important; }
+
+    h1 { font-size: 1.7rem; }
+    h2 { font-size: 1.45rem; }
+    h3 { font-size: 1.3rem; }
+    h4 { font-size: 1.15rem; }
+
+    .lead {
+        font-size: 1rem;
+        line-height: 1.55;
+    }
+
+    /* --- Cards dos hubs: imagem em cima, texto embaixo --- */
+    .img-extensa {
+        min-height: 190px !important;
+        max-height: 220px;
+    }
+
+    .min-h-250 {
+        min-height: 180px !important;
+    }
+
+    .card-body.p-lg-5,
+    .card-body.p-4 {
+        padding: 1.1rem !important;
+    }
+
+    /* Blocos que sobem sobre a seção anterior ficam mal em tela estreita */
+    .mt-n5-custom {
+        margin-top: 0 !important;
+    }
+
+    .cards-height {
+        height: auto !important;
+    }
+
+    /* --- Botões: alvo de toque confortável, sem quebrar no meio --- */
+    .btn-lg {
+        padding: 0.7rem 1.25rem;
+        font-size: 1rem;
+    }
+
+    .btn.px-5 {
+        padding-left: 1.25rem !important;
+        padding-right: 1.25rem !important;
+    }
+
+    .btn.rounded-pill.px-4,
+    .btn.rounded-3.px-4 {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+
+    /* --- Filtros: rolagem lateral em vez de empilhar dez linhas --- */
+    .filtros-grupo {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 0.35rem;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .filtros-grupo::-webkit-scrollbar {
+        display: none;
+    }
+
+    .filtros-rotulo {
+        position: sticky;
+        left: 0;
+        background: #fff;
+        padding-right: 0.35rem;
+        z-index: 1;
+    }
+
+    /* --- Mapa e mídia --- */
+    #map {
+        height: 200px !important;
+    }
+
+    .thread-imagem {
+        max-height: 220px;
+    }
+
+    /* --- Linha do tempo do protocolo: menos recuo lateral --- */
+    .thread {
+        padding-left: 2rem;
+    }
+
+    .thread::before {
+        left: 0.7rem;
+    }
+
+    .thread-bolinha {
+        left: -2rem;
+        width: 1.6rem;
+        height: 1.6rem;
+        font-size: 0.7rem;
+    }
+
+    /* --- Tabelas e blocos largos rolam sozinhos, sem empurrar a página --- */
+    .table-responsive,
+    pre {
+        overflow-x: auto;
+    }
+
+    /* Nada deve criar rolagem horizontal na página */
+    img,
+    iframe,
+    video {
+        max-width: 100%;
+        height: auto;
+    }
+}
+
+/*
+ * Colunas fixas (col-6, col-4) sem variante responsiva continuavam estreitas no
+ * celular e espremiam o texto. Só as que não declaram breakpoint são afetadas —
+ * "col-6 col-lg" e afins seguem como estão.
+ */
+@media (max-width: 575.98px) {
+    .row > .col-6:not([class*="col-sm"]):not([class*="col-md"]):not([class*="col-lg"]):not([class*="col-xl"]),
+    .row > .col-5:not([class*="col-sm"]):not([class*="col-md"]):not([class*="col-lg"]):not([class*="col-xl"]),
+    .row > .col-4:not([class*="col-sm"]):not([class*="col-md"]):not([class*="col-lg"]):not([class*="col-xl"]) {
+        flex: 0 0 auto;
+        width: 100%;
+    }
+
+    /* Listas de definição do protocolo (rótulo e valor) empilham */
+    dl.row > dt,
+    dl.row > dd {
+        width: 100%;
+    }
+
+    dl.row > dd {
+        margin-bottom: 0.6rem;
+    }
+}
+
+/* Telas bem estreitas (≤ 400px) */
+@media (max-width: 400px) {
+    .display-3 { font-size: 1.75rem !important; }
+    .display-5 { font-size: 1.5rem !important; }
+
+    .badge {
+        font-size: 0.68rem;
+    }
+
+    .btn-filtro {
+        font-size: 0.75rem;
+        padding: 0.28rem 0.75rem;
+    }
+
+    .card-body {
+        padding: 1rem !important;
+    }
+}
+
+/* ==========================================================================
+   7. Tabelas de dados e listas do painel em telas médias
+   ========================================================================== */
+
+@media (max-width: 991.98px) {
+    /* No painel, o bloco de ações do admin fica embaixo do texto em vez de
+       espremido numa coluna estreita. */
+    .linha-protocolo .row > [class*="col-md-4"] {
+        margin-top: 0.75rem;
+    }
+
+    .faixa-status {
+        width: 4px;
+    }
+}

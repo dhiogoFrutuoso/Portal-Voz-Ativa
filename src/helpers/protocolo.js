@@ -195,3 +195,55 @@ export function podeMexerNaMensagem(mensagem, usuario) {
 // Mensagem que registra troca de estágio é histórico do atendimento: o texto
 // pode ser corrigido, mas o registro em si não é apagado.
 export const ehRegistroDeEstagio = (mensagem) => Boolean(mensagem && mensagem.statusNovo);
+
+/*
+ * Sigilo das denúncias.
+ *
+ * Uma denúncia expõe a moral de quem denuncia e de quem é acusado, então o
+ * padrão é ficar restrita ao autor e à gestão municipal. Foco de incêndio é a
+ * exceção: é risco coletivo e serve de alerta, então nasce público.
+ */
+export const OCORRENCIAS_PUBLICAS = ['Foco de Queimada'];
+
+export const nasceSigilosa = (tipoOcorrencia) => !OCORRENCIAS_PUBLICAS.includes(tipoOcorrencia);
+
+/*
+ * O que é público.
+ *
+ * Denúncias gravadas antes deste campo não têm `privada` definido. Tratá-las
+ * como públicas exporia justamente o que precisa de sigilo, então o critério
+ * para elas é o tipo de ocorrência — só incêndio passa. Assim a regra vale de
+ * imediato, sem depender de rodar a migração.
+ */
+const EH_PUBLICA = {
+    $or: [
+        { privada: false },
+        { privada: { $exists: false }, tipoOcorrencia: { $in: OCORRENCIAS_PUBLICAS } }
+    ]
+};
+
+// Filtro do Mongo com o que cada visitante tem direito de ver no hub.
+export function filtroDeSigilo(usuario) {
+    if (usuario && usuario.areAdmin) return {};
+
+    if (usuario) {
+        // Quem denunciou continua enxergando a própria denúncia.
+        return { $or: [EH_PUBLICA, { usuario: usuario._id }] };
+    }
+
+    return EH_PUBLICA;
+}
+
+// Mesma regra, aplicada a um documento já carregado.
+export function podeVerDenuncia(doc, usuario) {
+    const ehPublica =
+        doc?.privada === false ||
+        (doc?.privada === undefined && OCORRENCIAS_PUBLICAS.includes(doc?.tipoOcorrencia));
+
+    if (ehPublica) return true;
+    if (!usuario) return false;
+    if (usuario.areAdmin) return true;
+
+    const autor = doc.usuario?._id || doc.usuario;
+    return Boolean(autor) && String(autor) === String(usuario._id);
+}

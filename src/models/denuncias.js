@@ -37,6 +37,18 @@ const DenunciaSchema = new Schema({
         type: String,
         default: "Novo"
     },
+    /*
+     * Sigilo da denúncia.
+     *
+     * Denúncia costuma envolver a moral da vítima e a do acusado, então o
+     * padrão é ficar restrita ao autor e à gestão. A exceção são os focos de
+     * incêndio: são risco coletivo e ajudam mais sendo vistos por todos.
+     * A gestão pode rever caso a caso.
+     */
+    privada: {
+        type: Boolean,
+        default: true
+    },
 
     // --- PROTOCOLO DE ATENDIMENTO ---
     // Estágios: Novo, Em Atendimento, Reaberto, Resolvido, Improcedente

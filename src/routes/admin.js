@@ -57,6 +57,8 @@ function resumir(doc, tipo) {
         limite: dataLimite(doc.dataCriacao, prazo.dias),
         respostas: (doc.historico || []).length,
         novidades: novidadesDoProtocolo(doc),
+        privada: Boolean(doc.privada),
+        podeMudarSigilo: tipo === 'denuncia',
         imagemPrincipal: doc.imagens && doc.imagens.length > 0 ? doc.imagens[0] : null,
         numero: numeroDoProtocolo(doc, tipo),
         linkProtocolo: `/protocolos/${tipo}/${doc._id}`,
@@ -228,6 +230,52 @@ router.post('/protocolo/:tipo/:id/status', isAdmin, async (req, res) => {
     } catch (err) {
         console.error('Erro ao alterar estágio do protocolo:', err);
         req.flash('error_msg', 'Erro ao atualizar o protocolo.');
+        res.redirect(voltarPara);
+    }
+});
+
+// --- SIGILO DA DENÚNCIA ---
+// A gestão decide, caso a caso, se uma denúncia fica restrita ou vai ao hub
+// público. O padrão continua sendo sigilosa, menos para foco de incêndio.
+router.post('/protocolo/denuncia/:id/sigilo', isAdmin, async (req, res) => {
+    const { id } = req.params;
+    const voltarPara = req.get('referer') || '/admin/painel';
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        req.flash('error_msg', 'Denúncia não encontrada.');
+        return res.redirect('/admin/painel');
+    }
+
+    const deveSerPrivada = req.body.privada === '1';
+
+    try {
+        const Modelo = modeloDo('denuncia');
+        const doc = await Modelo.findById(id).lean();
+
+        if (!doc) {
+            req.flash('error_msg', 'Denúncia não encontrada.');
+            return res.redirect('/admin/painel');
+        }
+
+        await Modelo.findByIdAndUpdate(id, {
+            $set: { privada: deveSerPrivada },
+            $push: {
+                historico: {
+                    autor: req.user._id,
+                    papel: 'admin',
+                    texto: deveSerPrivada
+                        ? 'A gestão marcou esta denúncia como sigilosa: ela deixa de aparecer no hub público.'
+                        : 'A gestão liberou esta denúncia para o hub público.',
+                    createdAt: new Date()
+                }
+            }
+        });
+
+        req.flash('success_msg', deveSerPrivada ? 'Denúncia marcada como sigilosa.' : 'Denúncia liberada para o hub público.');
+        res.redirect(voltarPara);
+    } catch (err) {
+        console.error('Erro ao alterar o sigilo da denúncia:', err);
+        req.flash('error_msg', 'Erro ao alterar o sigilo da denúncia.');
         res.redirect(voltarPara);
     }
 });

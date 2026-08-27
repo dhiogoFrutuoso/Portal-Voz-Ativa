@@ -179,6 +179,34 @@ casos.push(
      { ...base }, ['Como funciona o atendimento', '2 dias úteis']]
 );
 
+// --- Fragmentos devolvidos pela busca em tempo real ---
+// O card traz o seletor de estágio do admin; sem os dados de contexto ele sairia
+// vazio e quebraria a lista (era o que acontecia ao pesquisar).
+casos.push(
+    ['partials/_cards_melhorias.handlebars',
+     { ...base, layout: false, user: admin, chamados: [cardMelhoria], estagios, tipoProtocolo: 'melhoria' },
+     ['<option value="Resolvido"', '/admin/protocolo/melhoria/c1/status', 'item-filtravel'],
+     ['<html']],
+
+    ['partials/_cards_melhorias.handlebars',
+     { ...base, layout: false, user: null, chamados: [cardMelhoria], estagios, tipoProtocolo: 'melhoria' },
+     ['item-filtravel'],
+     ['/admin/protocolo/', '<option value="Resolvido"']],
+
+    ['partials/_cards_denuncias.handlebars',
+     { ...base, layout: false, user: admin,
+       denuncias: [{ ...cardMelhoria, tipoOcorrencia: 'Vandalismo', privada: true }],
+       estagios, tipoProtocolo: 'denuncia' },
+     ['Sigilosa', 'Tornar pública', '/admin/protocolo/denuncia/c1/sigilo']],
+
+    ['partials/_cards_denuncias.handlebars',
+     { ...base, layout: false, user: usuario,
+       denuncias: [{ ...cardMelhoria, tipoOcorrencia: 'Foco de Queimada', privada: false }],
+       estagios, tipoProtocolo: 'denuncia' },
+     ['Pública'],
+     ['Tornar sigilosa', '/sigilo']]
+);
+
 let falhas = 0;
 
 for (const [view, contexto, esperados, proibidos = []] of casos) {

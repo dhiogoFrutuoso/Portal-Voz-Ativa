@@ -66,41 +66,27 @@
 </nav>
 
 <style>
-  @media screen and (max-width: 800px){
-    /* Efeito de linha amarela embaixo ao passar o mouse */
-    .border-hover {
-      border-bottom: 3px solid transparent;
-      max-width: 0px;
-      transition: all 0.3s ease;
-    }
-    .border-hover:hover {
-      border-bottom: 3px solid #f9ca24;
-      max-width: 140px;
-      color: #13315c !important;
-    }
-    .navbar-brand:hover {
-      opacity: 0.8;
-    }
-  }
-
-  @media screen and (min-width: 801px){
+  /*
+   * O sublinhado amarelo é um efeito de mouse, então só existe onde há mouse.
+   * A versão anterior aplicava `max-width: 0` aos links em telas até 800px, o
+   * que espremia cada item do menu a uns 16px e quebrava o texto letra a letra
+   * quando o menu era aberto no celular.
+   */
+  @media (hover: hover) and (min-width: 992px) {
     .border-hover {
       position: relative;
-      transition: all 0.2s ease;
+      transition: color 0.2s ease;
       text-decoration: none;
     }
 
-    .border-hover:after {
+    .border-hover::after {
       content: "";
       position: absolute;
-      display: flex;
       left: 0;
       bottom: -3px;
       width: 100%;
-      justify-content: ;
       height: 3px;
       background-color: #f9ca24;
-
       transform: scaleX(0);
       transform-origin: center;
       transition: transform 0.15s ease-in-out;
@@ -116,12 +102,6 @@
 
     .navbar-brand:hover {
       opacity: 0.8;
-    }
-  }
-
-  @media screen and (max-width: 800px){
-    .register {
-      padding: 7px;
     }
   }
 </style>

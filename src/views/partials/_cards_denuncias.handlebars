@@ -7,7 +7,7 @@
                 {{!-- Todo tipo de ocorrência aparece no hub. Antes só "Foco de
                      Queimada" era renderizado e as demais denúncias ficavam
                      invisíveis na listagem. --}}
-                    <div class="col-12 item-filtravel" data-status="{{this.status}}" data-ocorrencia="{{this.tipoOcorrencia}}" data-titulo="{{this.titulo}}">
+                    <div class="col-12 item-filtravel" data-status="{{this.status}}" data-ocorrencia="{{this.tipoOcorrencia}}" data-sigilo="{{#if this.privada}}sigilosa{{else}}publica{{/if}}" data-titulo="{{this.titulo}}">
                         <div class="card shadow-lg border-top-primary border-1 rounded-4 overflow-hidden hover-lift bg-white">
                             <div class="row g-0">
                                 <div class="col-md-4 position-relative">
@@ -26,6 +26,7 @@
                                     <div class="card-body p-4 p-lg-5 h-100 d-flex flex-column">
                                         <div class="d-flex justify-content-between align-items-center mb-3">
                                             {{> _estagio estagio=this.estagio status=this.status id=this._id tipo=@root.tipoProtocolo estagios=@root.estagios csrfToken=@root.csrfToken ehAdmin=@root.user.areAdmin}}
+                                            {{> _sigilo privada=this.privada id=this._id csrfToken=@root.csrfToken ehAdmin=@root.user.areAdmin}}
                                             <div class="text-muted small">
                                                 <i class="bi bi-calendar3 me-1"></i> {{formatDate dataCriacao}}
                                             </div>
