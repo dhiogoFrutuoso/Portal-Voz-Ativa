@@ -8,7 +8,7 @@
                     <div class="col-12 item-filtravel" data-status="{{this.status}}" data-titulo="{{this.titulo}}">
                         <div class="card shadow-lg border-top-primary border-1 rounded-4 overflow-hidden hover-lift bg-white">
                             <div class="row g-0">
-                                <div class="col-md-4 position-relative">
+                                <div class="col-12 col-md-4 position-relative">
                                     {{#if imagemPrincipal}}
                                         <img src="{{imagemPrincipal}}" alt="{{this.titulo}}" onerror="this.src='/img/guest.webp'" class="img-extensa">
                                         <div class="img-overlay"></div>
@@ -20,7 +20,7 @@
                                     {{/if}}
                                 </div>
 
-                                <div class="col-md-8">
+                                <div class="col-12 col-md-8">
                                     <div class="card-body p-4 p-lg-5 h-100 d-flex flex-column">
                                         <div class="d-flex justify-content-between align-items-center mb-3">
                                             {{> _estagio estagio=this.estagio status=this.status id=this._id tipo=@root.tipoProtocolo estagios=@root.estagios csrfToken=@root.csrfToken ehAdmin=@root.user.areAdmin}}

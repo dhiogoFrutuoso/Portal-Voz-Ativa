@@ -199,9 +199,11 @@ export const ehRegistroDeEstagio = (mensagem) => Boolean(mensagem && mensagem.st
 /*
  * Sigilo das denúncias.
  *
- * Uma denúncia expõe a moral de quem denuncia e de quem é acusado, então o
- * padrão é ficar restrita ao autor e à gestão municipal. Foco de incêndio é a
- * exceção: é risco coletivo e serve de alerta, então nasce público.
+ * No hub público, denúncia é visível exclusivamente para a gestão municipal.
+ * Foco de incêndio é a única exceção: é risco coletivo e serve de alerta,
+ * então nasce público para qualquer visitante — inclusive anônimo. As demais
+ * ficam de fora da listagem pública mesmo para quem denunciou; o autor
+ * acompanha a própria denúncia por "Meus Protocolos", não pelo hub.
  */
 export const OCORRENCIAS_PUBLICAS = ['Foco de Queimada'];
 
@@ -222,19 +224,19 @@ const EH_PUBLICA = {
     ]
 };
 
-// Filtro do Mongo com o que cada visitante tem direito de ver no hub.
+// Filtro do Mongo do que aparece no hub. Só a gestão vê tudo; ninguém mais
+// tem exceção, nem quem denunciou — a listagem pública é exclusiva de
+// incêndio + gestão.
 export function filtroDeSigilo(usuario) {
     if (usuario && usuario.areAdmin) return {};
-
-    if (usuario) {
-        // Quem denunciou continua enxergando a própria denúncia.
-        return { $or: [EH_PUBLICA, { usuario: usuario._id }] };
-    }
-
     return EH_PUBLICA;
 }
 
-// Mesma regra, aplicada a um documento já carregado.
+/*
+ * Acesso direto a UMA denúncia (detalhe e linha do tempo do protocolo) — aqui
+ * sim o autor continua tendo acesso à própria denúncia, mesmo sigilosa, para
+ * poder acompanhar o atendimento. O que muda é só a listagem do hub acima.
+ */
 export function podeVerDenuncia(doc, usuario) {
     const ehPublica =
         doc?.privada === false ||

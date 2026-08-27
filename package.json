@@ -14,7 +14,8 @@
     "imagens:webp": "node scripts/converter-imagens-webp.js",
     "migrar:status": "node scripts/migrar-status-protocolo.js",
     "migrar:imagens": "node scripts/migrar-imagens-base64.js",
-    "migrar:sigilo": "node scripts/migrar-sigilo-denuncias.js"
+    "migrar:sigilo": "node scripts/migrar-sigilo-denuncias.js",
+    "preview:visual": "node scripts/testes/preview-visual.mjs"
   },
   "engines": {
     "node": ">=22.22.2"

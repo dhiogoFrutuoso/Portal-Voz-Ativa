@@ -10,6 +10,44 @@
  */
 
 /* ==========================================================================
+   0. Rodapé sempre no fim da página
+   ========================================================================== */
+
+/*
+ * Em páginas com pouco conteúdo o rodapé subia para o meio da tela. O footer
+ * já tinha `mt-auto`; faltava o body ser uma coluna flex de altura mínima
+ * igual à da janela para essa margem automática ter o que empurrar.
+ */
+html {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.conteudo-principal {
+    flex: 1 0 auto;
+}
+
+/*
+ * Bootstrap faz `.card { display:flex; flex-direction:column; }` e conta com
+ * `align-items: stretch` para o `.card-body` preencher a largura do card. Um
+ * `.card-body` com um `.row` lá dentro cujas colunas têm `flex-shrink:0`
+ * (caso do formulário de busca) empurra o "conteúdo preferido" do card-body
+ * para muito além da tela — e, nesse caso, o Chromium ignora o stretch e
+ * deixa o item tão largo quanto esse conteúdo, vazando o card da borda da
+ * tela no celular. `min-width:0` sozinho não resolve; é preciso um `width`
+ * explícito para a caixa não depender do "auto-stretch".
+ */
+.card > .card-body {
+    width: 100%;
+    min-width: 0;
+}
+
+/* ==========================================================================
    1. Espaçamento geral
    ========================================================================== */
 
@@ -136,6 +174,53 @@ section.py-5 + section.py-5 {
 }
 
 /* ==========================================================================
+   3b. Linhas de listagem (painel do admin e "meus protocolos")
+   ========================================================================== */
+
+/*
+ * Estas classes viviam num <style> dentro de admin/painel.handlebars. Ao
+ * extrair aquele bloco para cá, elas ficaram pelo caminho: o card perdia
+ * borda e sombra, e o avatar/miniatura do autor, sem tamanho definido,
+ * renderizava no tamanho original do arquivo — foi o que bagunçou os cards
+ * do painel. Concentradas aqui, valem para as duas telas de listagem.
+ */
+.linha-protocolo,
+.protocolo-linha {
+    border: 1px solid #e9ecef;
+    border-radius: 0.9rem;
+    background: #fff;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.linha-protocolo:hover,
+.protocolo-linha:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08);
+}
+
+.faixa-status {
+    width: 6px;
+    flex-shrink: 0;
+    border-radius: 0.9rem 0 0 0.9rem;
+}
+
+.miniatura {
+    width: 84px;
+    height: 84px;
+    flex-shrink: 0;
+    object-fit: cover;
+    border-radius: 0.6rem;
+}
+
+.avatar-mini {
+    width: 26px;
+    height: 26px;
+    flex-shrink: 0;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+/* ==========================================================================
    4. Avisos de novidade
    ========================================================================== */
 
@@ -160,6 +245,27 @@ section.py-5 + section.py-5 {
         animation: none;
         transition: none;
     }
+}
+
+/* ==========================================================================
+   4b. Imagem de capa dos cards do hub
+   ========================================================================== */
+
+/*
+ * Cada hub (melhorias, denúncias, vitrine) definia a própria regra com
+ * `height: 100%`, então a coluna da imagem crescia até a altura da coluna de
+ * texto ao lado — e um anúncio com pouco texto e uma foto de retrato ficava
+ * esticadíssimo, com um vão enorme. Uma altura fixa resolve nos três hubs de
+ * uma vez.
+ */
+.img-extensa {
+    width: 100%;
+    height: 320px;
+    object-fit: cover;
+}
+
+.min-h-250 {
+    min-height: 220px;
 }
 
 /* ==========================================================================
@@ -273,8 +379,7 @@ section.py-5 + section.py-5 {
 
     /* --- Cards dos hubs: imagem em cima, texto embaixo --- */
     .img-extensa {
-        min-height: 190px !important;
-        max-height: 220px;
+        height: 200px !important;
     }
 
     .min-h-250 {

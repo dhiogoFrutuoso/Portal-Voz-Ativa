@@ -274,14 +274,22 @@ try {
     const hubTerceiro = await (await pedir('/categories/denuncias_sigilosas/hub', { como: 'outro' })).text();
     checar(!hubTerceiro.includes('Depredação de patrimônio'), 'sigilosa não aparece para outro usuário logado');
 
+    // No hub, sigilosa é exclusiva da gestão — nem quem denunciou vê a própria
+    // ali. O autor acompanha pelo protocolo, não pela listagem pública.
     const hubAutor = await (await pedir('/categories/denuncias_sigilosas/hub', { como: 'autor' })).text();
-    checar(hubAutor.includes('Depredação de patrimônio'), 'autor enxerga a própria denúncia sigilosa');
+    checar(!hubAutor.includes('Depredação de patrimônio'), 'autor NÃO vê a própria sigilosa no hub público');
 
     const hubGestor = await (await pedir('/categories/denuncias_sigilosas/hub', { como: 'gestor' })).text();
-    checar(hubGestor.includes('Depredação de patrimônio'), 'gestão enxerga a denúncia sigilosa');
+    checar(hubGestor.includes('Depredação de patrimônio'), 'gestão enxerga a denúncia sigilosa no hub');
 
     const detalheAlheio = await pedir(`/categories/denuncias_sigilosas/detalhes/${vandalismo._id}`, { como: 'outro' });
     checar(detalheAlheio.status === 302, 'acesso direto à sigilosa por terceiro é barrado');
+
+    const detalheAutor = await pedir(`/categories/denuncias_sigilosas/detalhes/${vandalismo._id}`, { como: 'autor' });
+    checar(detalheAutor.status === 200, 'autor continua acessando o detalhe da própria denúncia sigilosa direto pela URL');
+
+    const protocoloAutor = await pedir(`/protocolos/denuncia/${vandalismo._id}`, { como: 'autor' });
+    checar(protocoloAutor.status === 200, 'autor acompanha a própria denúncia sigilosa por Meus Protocolos');
 
     const buscaAnonima = await (await pedir('/categories/denuncias_sigilosas/hub/buscar?q=depreda')).text();
     checar(!buscaAnonima.includes('Depredação de patrimônio'), 'busca pública não revela denúncia sigilosa');

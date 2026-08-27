@@ -193,18 +193,36 @@ casos.push(
      ['item-filtravel'],
      ['/admin/protocolo/', '<option value="Resolvido"']],
 
+    // O toggle de sigilo é ação de gestão: fica só no painel do admin. O card
+    // público (usado no hub) não deve carregar essa marcação nem o botão,
+    // nem quando renderizado para o próprio admin — evita a confusão de
+    // "toguei e ainda aparece aqui na mesma tela".
     ['partials/_cards_denuncias.handlebars',
      { ...base, layout: false, user: admin,
        denuncias: [{ ...cardMelhoria, tipoOcorrencia: 'Vandalismo', privada: true }],
        estagios, tipoProtocolo: 'denuncia' },
-     ['Sigilosa', 'Tornar pública', '/admin/protocolo/denuncia/c1/sigilo']],
+     ['item-filtravel'],
+     ['Sigilosa', 'Tornar pública', 'Tornar sigilosa', '/admin/protocolo/denuncia/c1/sigilo']],
 
     ['partials/_cards_denuncias.handlebars',
      { ...base, layout: false, user: usuario,
        denuncias: [{ ...cardMelhoria, tipoOcorrencia: 'Foco de Queimada', privada: false }],
        estagios, tipoProtocolo: 'denuncia' },
-     ['Pública'],
-     ['Tornar sigilosa', '/sigilo']]
+     ['item-filtravel'],
+     ['Pública', 'Sigilosa', 'Tornar sigilosa', '/sigilo']],
+
+    // O toggle SÓ existe no painel do admin.
+    ['partials/_linhas_painel.handlebars',
+     { ...base,
+       protocolos: [{
+           ...protocolo, tipo: 'denuncia', eixo: { ...eixoMelhoria, chave: 'denuncia', cor: 'danger', icone: 'bi-shield-lock-fill', rotuloCurto: 'Denúncia' },
+           respostas: 1, autor: usuario, imagemPrincipal: null, linkProtocolo: '/protocolos/denuncia/p1',
+           numero: 'DEN-2026-C5C5B8', novidades: { paraAGestao: false, paraOAutor: false },
+           privada: true, podeMudarSigilo: true
+       }],
+       estagios
+     },
+     ['Sigilosa', 'Tornar pública', '/admin/protocolo/denuncia/p1/sigilo']]
 );
 
 let falhas = 0;
