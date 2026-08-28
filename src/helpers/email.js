@@ -19,17 +19,46 @@
 // por um script isolado, sem depender da ordem de import do servidor.
 import 'dotenv/config';
 import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
 
-const CHAVE = process.env.RESEND_API_KEY;
-const REMETENTE = process.env.EMAIL_REMETENTE || 'Portal Voz Ativa <onboarding@resend.dev>';
 const URL_PUBLICA = (process.env.URL_PUBLICA || 'https://portal-voz-ativa.onrender.com').replace(/\/$/, '');
 
-// O cliente só é criado se houver chave: em desenvolvimento o portal roda sem
-// e-mail, sem quebrar nada.
-const resend = CHAVE ? new Resend(CHAVE) : null;
+/*
+ * Dois caminhos de envio, escolhidos pelo que estiver configurado.
+ *
+ * SMTP (Gmail) vem primeiro porque funciona sem domínio próprio: a conta do
+ * Resend, enquanto não houver domínio verificado, só entrega no e-mail do dono
+ * da conta — inútil para avisar cidadão. Quando o domínio existir, basta
+ * preencher RESEND_API_KEY e apagar as variáveis SMTP_* que o envio migra
+ * sozinho, sem tocar em código.
+ */
+const SMTP_USUARIO = process.env.SMTP_USUARIO;
+const SMTP_SENHA = process.env.SMTP_SENHA;
+const CHAVE_RESEND = process.env.RESEND_API_KEY;
 
-if (!CHAVE) {
-    console.warn('AVISO: RESEND_API_KEY ausente — as notificações por e-mail ficam desligadas.');
+const usandoSmtp = Boolean(SMTP_USUARIO && SMTP_SENHA);
+
+const REMETENTE =
+    process.env.EMAIL_REMETENTE ||
+    (usandoSmtp ? `Portal Voz Ativa <${SMTP_USUARIO}>` : 'Portal Voz Ativa <onboarding@resend.dev>');
+
+const transporteSmtp = usandoSmtp
+    ? nodemailer.createTransport({
+          host: process.env.SMTP_HOST || 'smtp.gmail.com',
+          port: Number(process.env.SMTP_PORTA || 587),
+          secure: Number(process.env.SMTP_PORTA || 587) === 465,
+          auth: { user: SMTP_USUARIO, pass: SMTP_SENHA }
+      })
+    : null;
+
+const resend = !usandoSmtp && CHAVE_RESEND ? new Resend(CHAVE_RESEND) : null;
+
+if (!transporteSmtp && !resend) {
+    console.warn(
+        'AVISO: nenhum envio de e-mail configurado (defina SMTP_USUARIO/SMTP_SENHA ou RESEND_API_KEY).'
+    );
+} else {
+    console.log(`E-mail de notificação ativo via ${usandoSmtp ? 'SMTP' : 'Resend'}.`);
 }
 
 // --- Identidade visual ------------------------------------------------------
@@ -206,24 +235,31 @@ function montarTexto({ titulo, chamada, corpo, link, numero, estagio }) {
  * decidir se registra algo — mas a ação do usuário segue de qualquer forma.
  */
 async function enviar({ para, assunto, ...conteudo }) {
-    if (!resend) return { enviado: false, motivo: 'sem-chave' };
+    if (!transporteSmtp && !resend) return { enviado: false, motivo: 'sem-configuracao' };
     if (!para) return { enviado: false, motivo: 'sem-destinatario' };
 
+    const mensagem = {
+        from: REMETENTE,
+        to: para,
+        subject: assunto,
+        html: montarHtml(conteudo),
+        text: montarTexto(conteudo)
+    };
+
     try {
-        const { error } = await resend.emails.send({
-            from: REMETENTE,
-            to: para,
-            subject: assunto,
-            html: montarHtml(conteudo),
-            text: montarTexto(conteudo)
-        });
+        if (transporteSmtp) {
+            await transporteSmtp.sendMail(mensagem);
+            return { enviado: true, via: 'smtp' };
+        }
+
+        const { error } = await resend.emails.send(mensagem);
 
         if (error) {
             console.error('Resend recusou o envio:', error.message || error);
             return { enviado: false, motivo: 'recusado' };
         }
 
-        return { enviado: true };
+        return { enviado: true, via: 'resend' };
     } catch (err) {
         console.error('Falha ao enviar e-mail:', err.message);
         return { enviado: false, motivo: 'excecao' };
@@ -299,4 +335,7 @@ export function notificarDecisaoDeRecurso({ destinatario, protocolo, aceito, men
     });
 }
 
-export const emailAtivo = () => Boolean(resend);
+export const emailAtivo = () => Boolean(transporteSmtp || resend);
+
+// Útil para diagnóstico: por onde os e-mails estão saindo.
+export const provedorDeEmail = () => (transporteSmtp ? 'smtp' : resend ? 'resend' : 'nenhum');

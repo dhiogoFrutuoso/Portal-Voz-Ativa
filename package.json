@@ -35,6 +35,7 @@
     "mongodb": "4.1",
     "mongoose": "^6.10.1",
     "multer": "^2.0.2",
+    "nodemailer": "^9.0.6",
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
     "resend": "^6.24.0",
