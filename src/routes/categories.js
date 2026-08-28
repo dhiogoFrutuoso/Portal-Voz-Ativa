@@ -40,10 +40,13 @@ import {
 import {
     estagioDe,
     normalizarStatus,
+    prazoDoProtocolo,
+    dataLimite,
     LISTA_ESTAGIOS,
     filtroDeSigilo,
     podeVerDenuncia,
-    nasceSigilosa
+    nasceSigilosa,
+    anonimizarAutor
 } from '../helpers/protocolo.js';
 
 /*
@@ -113,7 +116,7 @@ function montarBuscaDeHub({ Modelo, campos, colecao, partial, preparar, tipoProt
     return async (req, res) => {
         try {
             const { filtro } = filtroDoHub(req.query, campos);
-            const recorte = aplicarSigilo ? filtroDeSigilo(req.user) : {};
+            const recorte = aplicarSigilo ? filtroDeSigilo() : {};
 
             const docs = await Modelo.find(combinarFiltros(recorte, filtro))
                 .populate('usuario', 'name profileImage profession')
@@ -319,7 +322,11 @@ router.get('/gestao_de_melhorias/detalhes/:id', async (req, res) => {
                 comentarios: formatComments(chamadoDoc.comentarios),
                 imagens: chamadoDoc.imagens || [],
                 status,
-                estagio: estagioDe(status)
+                estagio: estagioDe(status),
+                // O cartão lateral mostra o estágio real e o prazo, em vez do
+                // texto fixo que ficava desatualizado.
+                prazo: prazoDoProtocolo(chamadoDoc, 'melhoria'),
+                limite: dataLimite(chamadoDoc.dataCriacao, prazoDoProtocolo(chamadoDoc, 'melhoria').dias)
             },
             jaCurtiu,
             eDono,
@@ -431,7 +438,7 @@ router.get('/denuncias_sigilosas/hub', async (req, res) => {
         ]);
 
         // Denúncia sigilosa não aparece para quem não é o autor nem a gestão.
-        const denunciasDocs = await Denuncia.find(combinarFiltros(filtroDeSigilo(req.user), filtro))
+        const denunciasDocs = await Denuncia.find(combinarFiltros(filtroDeSigilo(), filtro))
             .sort({ dataCriacao: -1 })
             .lean();
 
@@ -535,14 +542,17 @@ router.get('/denuncias_sigilosas/detalhes/:id', async (req, res) => {
         res.render("categories/denuncias_sigilosas/detalhes", {
             denuncia: {
                 ...denuncia,
-                usuario: formatAuthor(denuncia.usuario),
+                // Sigilosa não revela o denunciante em tela nenhuma.
+                usuario: anonimizarAutor(formatAuthor(denuncia.usuario), denuncia),
                 curtidas: curtidas,
                 comentarios: formatComments(denuncia.comentarios),
                 imagens: denuncia.imagens || [],
                 // Garante que o campo video chegue ao template (pode ser a URL do Cloudinary)
                 video: denuncia.video || null,
                 status,
-                estagio: estagioDe(status)
+                estagio: estagioDe(status),
+                prazo: prazoDoProtocolo(denuncia, 'denuncia'),
+                limite: dataLimite(denuncia.dataCriacao, prazoDoProtocolo(denuncia, 'denuncia').dias)
             },
             jaCurtiu,
             eDono,

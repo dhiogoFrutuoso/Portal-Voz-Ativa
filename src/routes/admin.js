@@ -21,6 +21,7 @@ import {
     dataLimite,
     numeroDoProtocolo,
     novidadesDoProtocolo,
+    anonimizarAutor,
     LISTA_ESTAGIOS
 } from '../helpers/protocolo.js';
 import {
@@ -50,7 +51,8 @@ function resumir(doc, tipo) {
         localizacao: doc.localizacao,
         tipoOcorrencia: doc.tipoOcorrencia || null,
         dataCriacao: doc.dataCriacao,
-        autor: doc.usuario || null,
+        // Denúncia sigilosa não revela quem publicou, nem para a gestão.
+        autor: tipo === 'denuncia' ? anonimizarAutor(doc.usuario || null, doc) : doc.usuario || null,
         status,
         estagio: estagioDe(status),
         prazo,

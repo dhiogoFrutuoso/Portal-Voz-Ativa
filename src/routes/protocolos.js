@@ -24,6 +24,8 @@ import {
     novidadesDoProtocolo,
     podeMexerNaMensagem,
     ehRegistroDeEstagio,
+    anonimizarAutor,
+    ehDenunciaSigilosa,
     LISTA_ESTAGIOS
 } from '../helpers/protocolo.js';
 import {
@@ -87,6 +89,11 @@ function montarProtocolo(doc, tipo, usuario = null) {
     const status = normalizarStatus(doc.status);
     const prazo = prazoDoProtocolo(doc, tipo);
 
+    // Numa denúncia sigilosa ninguém — nem a gestão que responde — fica
+    // sabendo quem denunciou. O vínculo continua no banco para o autor
+    // acompanhar o protocolo; o que não sai daqui é a identidade.
+    const sigilosa = tipo === 'denuncia' && ehDenunciaSigilosa(doc);
+
     return {
         ...doc,
         tipo,
@@ -99,13 +106,19 @@ function montarProtocolo(doc, tipo, usuario = null) {
         linkPost: `${eixo.rotaDetalhes}/${doc._id}`,
         novidades: novidadesDoProtocolo(doc),
         privada: Boolean(doc.privada),
+        sigilosa,
+        usuario: sigilosa ? anonimizarAutor(doc.usuario, doc) : doc.usuario,
         historico: (doc.historico || []).map((item) => {
             const minha = podeMexerNaMensagem(item, usuario);
             const registroDeEstagio = ehRegistroDeEstagio(item);
+            const autorReal = item.autor || { name: 'Usuário indisponível', profileImage: '/img/guest.webp' };
 
             return {
                 ...item,
-                autor: item.autor || { name: 'Usuário indisponível', profileImage: '/img/guest.webp' },
+                // Mensagem do cidadão numa denúncia sigilosa também é anônima;
+                // a da gestão continua identificada, para o cidadão saber com
+                // quem está falando.
+                autor: sigilosa && item.papel === 'cidadao' ? anonimizarAutor(autorReal, doc) : autorReal,
                 ehAdmin: item.papel === 'admin',
                 podeEditar: minha,
                 // O registro de troca de estágio faz parte do histórico do

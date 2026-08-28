@@ -114,6 +114,16 @@ const pedir = (rota, { como, metodo = 'GET', corpo } = {}) =>
         body: corpo ? new URLSearchParams({ _csrf: 'token-teste', ...corpo }).toString() : undefined
     });
 
+// Recorta o pedaço de HTML de um protocolo dentro de uma listagem, para as
+// asserções não pegarem texto de outro card da mesma página.
+function trechoDoProtocolo(html, titulo) {
+    const inicio = html.indexOf(titulo);
+    if (inicio === -1) return '';
+    const anterior = html.lastIndexOf('item-filtravel', inicio);
+    const seguinte = html.indexOf('item-filtravel', inicio);
+    return html.slice(anterior === -1 ? inicio : anterior, seguinte === -1 ? html.length : seguinte);
+}
+
 const IMG = 'https://res.cloudinary.com/' + (process.env.CLOUDINARY_CLOUD_NAME || 'dnh7vok3r') + '/image/upload/v1/teste.png';
 
 try {
@@ -279,8 +289,21 @@ try {
     const hubAutor = await (await pedir('/categories/denuncias_sigilosas/hub', { como: 'autor' })).text();
     checar(!hubAutor.includes('Depredação de patrimônio'), 'autor NÃO vê a própria sigilosa no hub público');
 
+    // NENHUMA sigilosa aparece no hub — nem para a gestão. Ela trata essas
+    // denúncias pelo painel do admin, que é a única listagem que as mostra.
     const hubGestor = await (await pedir('/categories/denuncias_sigilosas/hub', { como: 'gestor' })).text();
-    checar(hubGestor.includes('Depredação de patrimônio'), 'gestão enxerga a denúncia sigilosa no hub');
+    checar(!hubGestor.includes('Depredação de patrimônio'), 'nem a gestão vê sigilosa no hub');
+
+    const painelGestor = await (await pedir('/admin/painel', { como: 'gestor' })).text();
+    checar(painelGestor.includes('Depredação de patrimônio'), 'a sigilosa aparece no painel do admin');
+    // Recorta só o bloco da denúncia sigilosa: o painel também lista a
+    // melhoria do mesmo autor, que continua (corretamente) identificada.
+    const blocoSigilosa = trechoDoProtocolo(painelGestor, 'Depredação de patrimônio');
+    checar(!blocoSigilosa.includes('Autor Teste'), 'painel não revela quem denunciou');
+    checar(blocoSigilosa.includes('Denunciante anônimo'), 'painel mostra o denunciante como anônimo');
+
+    const blocoMelhoria = trechoDoProtocolo(painelGestor, 'Buraco na rua principal');
+    checar(blocoMelhoria.includes('Autor Teste'), 'melhoria continua identificando o autor');
 
     const detalheAlheio = await pedir(`/categories/denuncias_sigilosas/detalhes/${vandalismo._id}`, { como: 'outro' });
     checar(detalheAlheio.status === 302, 'acesso direto à sigilosa por terceiro é barrado');
@@ -295,8 +318,23 @@ try {
     checar(!buscaAnonima.includes('Depredação de patrimônio'), 'busca pública não revela denúncia sigilosa');
 
     const buscaAdmin = await (await pedir('/categories/denuncias_sigilosas/hub/buscar?q=depreda', { como: 'gestor' })).text();
-    checar(buscaAdmin.includes('Depredação de patrimônio'), 'busca da gestão encontra a sigilosa');
-    checar(buscaAdmin.includes('<option value="Resolvido"'), 'seletor de estágio vem completo no resultado da busca');
+    checar(!buscaAdmin.includes('Depredação de patrimônio'), 'busca do hub não revela sigilosa nem para a gestão');
+
+    const buscaPublicaHub = await (await pedir('/categories/denuncias_sigilosas/hub/buscar?q=fogo', { como: 'gestor' })).text();
+    checar(buscaPublicaHub.includes('<option value="Resolvido"'), 'seletor de estágio vem completo no resultado da busca');
+
+    console.log('\n--- Anonimato do denunciante ---');
+    const detalheSigilosa = await (await pedir(`/categories/denuncias_sigilosas/detalhes/${vandalismo._id}`, { como: 'gestor' })).text();
+    checar(!detalheSigilosa.includes('Autor Teste'), 'detalhe da sigilosa não mostra o nome de quem denunciou');
+
+    const timelineSigilosa = await (await pedir(`/protocolos/denuncia/${vandalismo._id}`, { como: 'gestor' })).text();
+    checar(!timelineSigilosa.includes('Autor Teste'), 'linha do tempo da sigilosa não revela o denunciante');
+    checar(timelineSigilosa.includes('Denunciante anônimo'), 'linha do tempo identifica como anônimo');
+
+    // Sigilo não é esconder tudo: a denúncia pública de incêndio segue
+    // com autor visível, como qualquer publicação aberta.
+    const timelinePublica = await (await pedir(`/protocolos/denuncia/${queimada._id}`, { como: 'gestor' })).text();
+    checar(timelinePublica.includes('Autor Teste'), 'denúncia pública de incêndio continua identificada');
 
     await pedir(`/admin/protocolo/denuncia/${vandalismo._id}/sigilo`, {
         como: 'outro', metodo: 'POST', corpo: { privada: '0' }

@@ -224,11 +224,16 @@ const EH_PUBLICA = {
     ]
 };
 
-// Filtro do Mongo do que aparece no hub. Só a gestão vê tudo; ninguém mais
-// tem exceção, nem quem denunciou — a listagem pública é exclusiva de
-// incêndio + gestão.
-export function filtroDeSigilo(usuario) {
-    if (usuario && usuario.areAdmin) return {};
+/*
+ * Filtro do hub de denúncias.
+ *
+ * NINGUÉM vê denúncia sigilosa nessa listagem — nem quem denunciou, nem a
+ * gestão. O hub mostra só o que é público (incêndio). A gestão trata as
+ * sigilosas pelo painel do admin, que é a única tela onde elas aparecem
+ * listadas. Por isso a função não recebe mais o usuário: não há exceção que
+ * possa ser aplicada aqui.
+ */
+export function filtroDeSigilo() {
     return EH_PUBLICA;
 }
 
@@ -248,4 +253,30 @@ export function podeVerDenuncia(doc, usuario) {
 
     const autor = doc.usuario?._id || doc.usuario;
     return Boolean(autor) && String(autor) === String(usuario._id);
+}
+
+
+/*
+ * Anonimato do denunciante.
+ *
+ * Denúncia sigilosa não pode revelar quem publicou — em tela nenhuma, nem
+ * para a gestão. O vínculo com o usuário continua no banco (é ele que
+ * permite ao autor acompanhar o próprio protocolo e receber respostas), mas
+ * a identidade nunca chega à renderização.
+ */
+export const AUTOR_ANONIMO = {
+    _id: null,
+    name: 'Denunciante anônimo',
+    profileImage: '/img/guest.webp',
+    profession: 'Identidade protegida',
+    anonimo: true
+};
+
+export const ehDenunciaSigilosa = (doc) =>
+    doc?.privada === true ||
+    (doc?.privada === undefined && !OCORRENCIAS_PUBLICAS.includes(doc?.tipoOcorrencia));
+
+// Troca o autor por um perfil anônimo quando a denúncia é sigilosa.
+export function anonimizarAutor(autor, doc) {
+    return ehDenunciaSigilosa(doc) ? { ...AUTOR_ANONIMO } : autor;
 }

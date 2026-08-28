@@ -252,16 +252,25 @@ section.py-5 + section.py-5 {
    ========================================================================== */
 
 /*
- * Cada hub (melhorias, denúncias, vitrine) definia a própria regra com
- * `height: 100%`, então a coluna da imagem crescia até a altura da coluna de
- * texto ao lado — e um anúncio com pouco texto e uma foto de retrato ficava
- * esticadíssimo, com um vão enorme. Uma altura fixa resolve nos três hubs de
- * uma vez.
+ * A imagem precisa acompanhar a altura do card sem nunca definir essa altura.
+ *
+ * Com `height:100%` ela empurrava o card (foto de retrato esticava tudo);
+ * com altura fixa, sobrava uma faixa vazia quando o texto ao lado era mais
+ * alto. A saída é tirar a imagem do fluxo: posicionada de forma absoluta
+ * dentro da coluna, ela cobre exatamente o espaço que o card tiver, e quem
+ * decide a altura é sempre a coluna de texto.
  */
 .img-extensa {
+    position: absolute;
+    inset: 0;
     width: 100%;
-    height: 320px;
+    height: 100%;
     object-fit: cover;
+}
+
+/* A coluna precisa de altura mínima para o caso de o texto ao lado ser curto */
+.coluna-imagem {
+    min-height: 260px;
 }
 
 .min-h-250 {
@@ -377,9 +386,16 @@ section.py-5 + section.py-5 {
         line-height: 1.55;
     }
 
-    /* --- Cards dos hubs: imagem em cima, texto embaixo --- */
+    /* --- Cards dos hubs: imagem em cima, texto embaixo ---
+       Empilhada, a coluna da imagem não recebe mais altura da coluna de
+       texto, então a imagem volta ao fluxo com altura própria. --- */
     .img-extensa {
+        position: static;
         height: 200px !important;
+    }
+
+    .coluna-imagem {
+        min-height: 0;
     }
 
     .min-h-250 {

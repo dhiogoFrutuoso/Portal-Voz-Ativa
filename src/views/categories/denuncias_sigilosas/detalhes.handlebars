@@ -76,17 +76,9 @@
             </div>
 
             <div class="col-lg-4">
-                <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
-                    <h6 class="text-uppercase fw-bold text-muted small mb-3">Status do Protocolo</h6>
-                    <div class="mb-3">
-                        <label class="d-block small text-muted">Prioridade:</label>
-                        <span class="badge bg-danger-soft text-danger rounded-pill fw-bold">Urgente</span>
-                    </div>
-                    <div>
-                        <label class="d-block small text-muted">Situação Atual:</label>
-                        <span class="text-primary fw-bold"><i class="bi bi-info-circle me-1"></i>{{#if denuncia.status}}{{denuncia.status}}{{else}}Em Análise{{/if}}</span>
-                    </div>
-                </div>
+                {{> _status_protocolo estagio=denuncia.estagio prazo=denuncia.prazo
+                                      limite=denuncia.limite linkProtocolo=linkProtocolo
+                                      podeAcompanhar=podeAcompanhar rotulo="Status do Protocolo"}}
 
                 <div class="card border-0 shadow-sm rounded-4 p-3 mb-4 text-center bg-white">
                     <form action="/categories/denuncias_sigilosas/like/{{denuncia._id}}" method="POST">

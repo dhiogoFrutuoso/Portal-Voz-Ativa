@@ -225,6 +225,22 @@ casos.push(
      ['Sigilosa', 'Tornar pública', '/admin/protocolo/denuncia/p1/sigilo']]
 );
 
+/*
+ * Formulário dentro de formulário é inválido em HTML: o navegador descarta o
+ * de dentro e manda os dois campos _csrf no mesmo envio, o que virava um
+ * array e fazia o servidor recusar toda troca de sigilo como "sessão
+ * expirada". Este teste falha se alguém aninhar de novo.
+ */
+function formsAninhados(html) {
+    const marcas = [...html.matchAll(/<form\b|<\/form>/g)].map((m) => m[0]);
+    let profundidade = 0;
+    for (const marca of marcas) {
+        if (marca === '</form>') profundidade--;
+        else if (++profundidade > 1) return true;
+    }
+    return false;
+}
+
 let falhas = 0;
 
 for (const [view, contexto, esperados, proibidos = []] of casos) {
@@ -233,8 +249,12 @@ for (const [view, contexto, esperados, proibidos = []] of casos) {
         const html = await renderizar(view, contexto);
         const faltando = esperados.filter((t) => !html.includes(t));
         const vazados = proibidos.filter((t) => html.includes(t));
+        const aninhados = formsAninhados(html);
 
-        if (faltando.length > 0 || vazados.length > 0) {
+        if (aninhados) {
+            console.log(`FALHA  ${rotulo} -> tem <form> dentro de <form> (quebra o token CSRF)`);
+            falhas++;
+        } else if (faltando.length > 0 || vazados.length > 0) {
             if (faltando.length > 0) console.log(`FALHA  ${rotulo} -> não encontrado: ${faltando.join(' | ')}`);
             if (vazados.length > 0) console.log(`VAZOU  ${rotulo} -> apareceu para quem não devia: ${vazados.join(' | ')}`);
             falhas++;

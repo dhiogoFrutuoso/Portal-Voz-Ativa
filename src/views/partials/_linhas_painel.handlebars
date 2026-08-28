@@ -51,31 +51,40 @@
                                         </div>
                                     </div>
 
-                                    {{!-- Alteração rápida de estágio --}}
+                                    {{!-- Ações da gestão.
+
+                                         O bloco de sigilo tem formulário próprio, então precisa
+                                         ficar FORA do formulário de estágio: <form> dentro de
+                                         <form> é inválido em HTML, o navegador descarta o de
+                                         dentro e os dois campos _csrf acabam no mesmo envio.
+                                         O token virava array e toda troca de sigilo era recusada
+                                         como "sessão expirada". --}}
                                     <div class="col-12 col-md-4">
-                                        <form action="/admin/protocolo/{{this.tipo}}/{{this._id}}/status" method="POST" class="bg-light rounded-3 p-3">
-                                            <input type="hidden" name="_csrf" value="{{@root.csrfToken}}">
+                                        <div class="bg-light rounded-3 p-3">
+                                            <form action="/admin/protocolo/{{this.tipo}}/{{this._id}}/status" method="POST">
+                                                <input type="hidden" name="_csrf" value="{{@root.csrfToken}}">
 
-                                            <label class="form-label small fw-bold text-uppercase text-muted mb-1">Alterar estágio</label>
-                                            <select name="status" class="form-select form-select-sm rounded-3 mb-2">
-                                                {{#each @root.estagios}}
-                                                    <option value="{{this.chave}}" {{#if (eq this.chave ../status)}}selected{{/if}}>
-                                                        {{this.rotulo}}
-                                                    </option>
-                                                {{/each}}
-                                            </select>
+                                                <label class="form-label small fw-bold text-uppercase text-muted mb-1">Alterar estágio</label>
+                                                <select name="status" class="form-select form-select-sm rounded-3 mb-2">
+                                                    {{#each @root.estagios}}
+                                                        <option value="{{this.chave}}" {{#if (eq this.chave ../status)}}selected{{/if}}>
+                                                            {{this.rotulo}}
+                                                        </option>
+                                                    {{/each}}
+                                                </select>
 
-                                            <button type="submit" class="btn btn-dark btn-sm w-100 rounded-3 fw-bold mb-2">
-                                                Salvar estágio
-                                            </button>
+                                                <button type="submit" class="btn btn-dark btn-sm w-100 rounded-3 fw-bold">
+                                                    Salvar estágio
+                                                </button>
+                                            </form>
 
                                             {{#if this.podeMudarSigilo}}
-                                                <div class="d-flex align-items-center gap-2 flex-wrap mb-2 pt-2 border-top">
+                                                <div class="d-flex align-items-center gap-2 flex-wrap mt-2 pt-2 border-top">
                                                     {{> _sigilo privada=this.privada id=this._id csrfToken=@root.csrfToken ehAdmin=true}}
                                                 </div>
                                             {{/if}}
 
-                                            <div class="d-grid gap-1">
+                                            <div class="d-grid gap-1 mt-2">
                                                 <a href="{{this.linkProtocolo}}" class="btn btn-outline-dark btn-sm rounded-3">
                                                     <i class="bi bi-chat-square-text me-1"></i> Abrir atendimento
                                                 </a>
@@ -83,7 +92,7 @@
                                                     ver publicação
                                                 </a>
                                             </div>
-                                        </form>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
