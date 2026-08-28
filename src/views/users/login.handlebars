@@ -73,9 +73,14 @@
     <div class="circle-bg" style="width: 200px; height: 200px; bottom: 50px; right: -30px;"></div>
 </div>
 
-<section class="container d-flex flex-column align-items-center justify-content-center" style="min-height: 85vh;">
+{{!-- Mesma estrutura da página de registro, para as duas telas de conta
+      terem o mesmo respiro abaixo da barra. O min-height fixo que havia aqui
+      deixava o card colado no topo quando o conteúdo passava de 85vh. --}}
+<section class="container d-flex flex-column align-items-center justify-content-center py-5">
 
-    <div class="col-12 col-sm-10 col-md-8 col-lg-5 col-xl-4 animate__animated animate__zoomIn">
+    {{!-- mt-3 acompanha o espaço que a página de registro ganha do bloco de
+         mensagens acima do card, para as duas telas ficarem à mesma altura. --}}
+    <div class="col-12 col-sm-10 col-md-8 col-lg-5 col-xl-4 mt-3 animate__animated animate__zoomIn">
         
         <div class="card glass-card shadow-lg rounded-4 overflow-hidden border-0">
             <div class="card-body p-4 p-md-5">
