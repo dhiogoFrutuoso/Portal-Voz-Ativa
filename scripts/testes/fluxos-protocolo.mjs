@@ -378,6 +378,64 @@ try {
     const buscaSemLogin = await pedir('/protocolos/buscar?q=buraco');
     checar(buscaSemLogin.status === 302, 'busca de protocolos exige login');
 
+    console.log('\n--- Comentários: quem edita e quem exclui ---');
+    const postComentarios = await Chamado.create({
+        titulo: 'Praça sem iluminação', descricao: 'A praça central está no escuro.',
+        localizacao: 'Centro', usuario: autor._id
+    });
+    const idPost = String(postComentarios._id);
+
+    const comentar = (como, texto) => pedir(`/categories/gestao_de_melhorias/comentario/${idPost}`, {
+        como, metodo: 'POST', corpo: { texto }
+    });
+
+    await comentar('autor', 'Comentário escrito pelo autor.');
+    await comentar('outro', 'Comentário escrito por outra pessoa.');
+
+    let doc2 = await Chamado.findById(idPost).lean();
+    checar(doc2.comentarios.length === 2, 'dois comentários registrados', `${doc2.comentarios.length}`);
+
+    const doAutor = doc2.comentarios.find((c) => String(c.usuario) === String(autor._id));
+    const doOutro = doc2.comentarios.find((c) => String(c.usuario) === String(outro._id));
+
+    const editar = (como, comentarioId, texto) =>
+        pedir(`/categories/gestao_de_melhorias/comentario/${idPost}/${comentarioId}/editar`, {
+            como, metodo: 'POST', corpo: { texto }
+        });
+
+    const excluir = (como, comentarioId) =>
+        pedir(`/categories/gestao_de_melhorias/comentario/${idPost}/${comentarioId}/excluir`, {
+            como, metodo: 'POST'
+        });
+
+    await editar('autor', doAutor._id, 'Texto corrigido pelo próprio autor.');
+    doc2 = await Chamado.findById(idPost).lean();
+    let atual = doc2.comentarios.find((c) => String(c._id) === String(doAutor._id));
+    checar(atual.texto === 'Texto corrigido pelo próprio autor.', 'autor edita o próprio comentário');
+    checar(Boolean(atual.editadoEm), 'marca de edição gravada no comentário');
+
+    await editar('outro', doAutor._id, 'Tentando reescrever comentário alheio.');
+    doc2 = await Chamado.findById(idPost).lean();
+    atual = doc2.comentarios.find((c) => String(c._id) === String(doAutor._id));
+    checar(!atual.texto.includes('Tentando'), 'terceiro NÃO edita comentário de outro');
+
+    await editar('gestor', doAutor._id, 'Gestão tentando reescrever o cidadão.');
+    doc2 = await Chamado.findById(idPost).lean();
+    atual = doc2.comentarios.find((c) => String(c._id) === String(doAutor._id));
+    checar(!atual.texto.includes('Gestão tentando'), 'nem a gestão reescreve comentário de alguém');
+
+    await excluir('outro', doAutor._id);
+    doc2 = await Chamado.findById(idPost).lean();
+    checar(doc2.comentarios.length === 2, 'terceiro NÃO exclui comentário alheio');
+
+    await excluir('gestor', doOutro._id);
+    doc2 = await Chamado.findById(idPost).lean();
+    checar(doc2.comentarios.length === 1, 'gestão remove comentário impróprio de qualquer um');
+
+    await excluir('autor', doAutor._id);
+    doc2 = await Chamado.findById(idPost).lean();
+    checar(doc2.comentarios.length === 0, 'autor exclui o próprio comentário');
+
     console.log('\n--- Editor restrito ao autor ---');
     checar((await pedir(`/categories/gestao_de_melhorias/editar/${id}`, { como: 'autor' })).status === 200, 'autor abre o editor');
     checar((await pedir(`/categories/gestao_de_melhorias/editar/${id}`, { como: 'outro' })).status === 302, 'terceiro é barrado do editor');

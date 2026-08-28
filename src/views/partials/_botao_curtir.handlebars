@@ -1,0 +1,23 @@
+{{!-- Botão de apoio da página de detalhes.
+
+     A marcação é padronizada (rótulo e contador em <span> próprios, estados
+     declarados em data-*) porque quem atualiza isso depois da curtida é o
+     JavaScript: sem estrutura previsível ele não tinha onde escrever, e o
+     texto e o número ficavam congelados na tela.
+
+     Recebe: acao, jaCurtiu, total, rotuloNeutro e csrfToken. --}}
+<form action="{{acao}}" method="POST" data-curtir>
+    <input type="hidden" name="_csrf" value="{{csrfToken}}">
+
+    <button type="submit"
+            class="btn w-100 rounded-pill fw-bold py-2 transition-base {{#if jaCurtiu}}btn-danger shadow-sm{{else}}btn-outline-secondary{{/if}}"
+            data-botao-curtir
+            data-rotulo-curtido="Você apoiou isto"
+            data-rotulo-neutro="{{rotuloNeutro}}"
+            data-classe-curtido="btn-danger shadow-sm"
+            data-classe-neutro="btn-outline-secondary">
+        <i class="bi {{#if jaCurtiu}}bi-heart-fill{{else}}bi-heart{{/if}} me-2"></i>
+        <span data-rotulo-curtida>{{#if jaCurtiu}}Você apoiou isto{{else}}{{rotuloNeutro}}{{/if}}</span>
+        (<span data-contador-curtida>{{total}}</span>)
+    </button>
+</form>

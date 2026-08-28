@@ -12,6 +12,7 @@ import '../models/denuncias.js';
 import '../models/categories.js';
 
 import isAdmin from '../helpers/isAdmin.js';
+import { notificarMudancaDeEstagio, notificarDecisaoDeRecurso } from '../helpers/email.js';
 import {
     EIXOS_COM_PROTOCOLO,
     eixoValido,
@@ -23,8 +24,19 @@ import {
     novidadesDoProtocolo,
     anonimizarAutor,
     montarRecurso,
+    ehDenunciaSigilosa,
     LISTA_ESTAGIOS
 } from '../helpers/protocolo.js';
+
+/*
+ * Dados que o e-mail precisa: para quem mandar e como identificar o protocolo.
+ * O autor vem populado só aqui, no momento do envio — o resto do fluxo não
+ * carrega e-mail de ninguém à toa.
+ */
+async function destinatarioDoProtocolo(Modelo, id) {
+    const doc = await Modelo.findById(id).populate('usuario', 'email name').lean();
+    return doc?.usuario?.email || null;
+}
 import {
     statusProtocoloSchema,
     buscaSchema,
@@ -230,6 +242,24 @@ router.post('/protocolo/:tipo/:id/status', isAdmin, async (req, res) => {
         const { $push, ...camposDiretos } = atualizacao;
         await Modelo.findByIdAndUpdate(id, { $set: camposDiretos, $push });
 
+        // O cidadão é avisado por e-mail; se o envio falhar, a mudança de
+        // estágio continua valendo — o aviso é um extra, não parte da ação.
+        const destinatario = await destinatarioDoProtocolo(Modelo, id);
+
+        notificarMudancaDeEstagio({
+            destinatario,
+            protocolo: {
+                tipo,
+                id: String(id),
+                numero: numeroDoProtocolo(doc, tipo),
+                titulo: doc.titulo
+            },
+            de: statusAnterior,
+            para: status,
+            mensagem: texto && texto.trim() !== '' ? texto : null,
+            sigilosa: tipo === 'denuncia' && ehDenunciaSigilosa(doc)
+        }).catch((err) => console.error('Falha ao avisar mudança de estágio:', err.message));
+
         req.flash('success_msg', `Protocolo atualizado para "${status}".`);
         res.redirect(voltarPara);
     } catch (err) {
@@ -348,6 +378,21 @@ router.post('/protocolo/:tipo/:id/recurso', isAdmin, async (req, res) => {
                 }
             }
         });
+
+        const destinatarioRecurso = await destinatarioDoProtocolo(Modelo, id);
+
+        notificarDecisaoDeRecurso({
+            destinatario: destinatarioRecurso,
+            protocolo: {
+                tipo,
+                id: String(id),
+                numero: numeroDoProtocolo(doc, tipo),
+                titulo: doc.titulo
+            },
+            aceito: decisao === 'pertinente',
+            mensagem: texto && texto.trim() !== '' ? texto : null,
+            sigilosa: tipo === 'denuncia' && ehDenunciaSigilosa(doc)
+        }).catch((err) => console.error('Falha ao avisar decisão de recurso:', err.message));
 
         req.flash(
             'success_msg',

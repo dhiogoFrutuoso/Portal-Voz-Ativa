@@ -74,7 +74,8 @@ const VitrineSchema = new Schema({
         createdAt: { 
             type: Date, 
             default: Date.now 
-        }
+        },
+        editadoEm: { type: Date, default: null }
     }],
 
     // 7. CONTROLE

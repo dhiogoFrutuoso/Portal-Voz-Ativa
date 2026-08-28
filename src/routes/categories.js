@@ -174,7 +174,7 @@ const EIXOS_INTERACAO = {
 const eixoDeInteracao = (chave) => EIXOS_INTERACAO[chave] || null;
 
 // Carrega os comentários já formatados (autor anônimo quando for denúncia sigilosa).
-async function comentariosDoPost(Modelo, id, eixo) {
+async function comentariosDoPost(Modelo, id, eixo, usuario = null) {
     const doc = await Modelo.findById(id)
         .populate('comentarios.usuario', 'name profileImage profession')
         .select('comentarios tipoOcorrencia privada titulo')
@@ -186,12 +186,22 @@ async function comentariosDoPost(Modelo, id, eixo) {
 
     return {
         titulo: doc.titulo,
-        comentarios: (doc.comentarios || []).map((c) => ({
-            ...c,
-            usuario: sigilosa
-                ? { ...anonimizarAutor(formatAuthor(c.usuario), doc), name: 'Participante anônimo' }
-                : formatAuthor(c.usuario)
-        }))
+        comentarios: (doc.comentarios || []).map((c) => {
+            const autor = c.usuario?._id || c.usuario;
+            const meu = Boolean(usuario) && Boolean(autor) && String(autor) === String(usuario._id);
+            const ehAdmin = Boolean(usuario && usuario.areAdmin);
+
+            return {
+                ...c,
+                usuario: sigilosa
+                    ? { ...anonimizarAutor(formatAuthor(c.usuario), doc), name: 'Participante anônimo' }
+                    : formatAuthor(c.usuario),
+                // Cada um edita o que escreveu. A gestão não reescreve texto de
+                // ninguém, mas pode remover comentário impróprio de qualquer um.
+                podeEditar: meu,
+                podeExcluir: meu || ehAdmin
+            };
+        })
     };
 }
 
@@ -925,7 +935,7 @@ router.get('/:eixo/comentarios/:id', async (req, res) => {
     }
 
     try {
-        const dados = await comentariosDoPost(eixo.modelo(), req.params.id, req.params.eixo);
+        const dados = await comentariosDoPost(eixo.modelo(), req.params.id, req.params.eixo, req.user);
         if (!dados) return res.status(404).send('');
 
         res.render('partials/_comentarios', { layout: false, comentarios: dados.comentarios });
@@ -971,7 +981,7 @@ router.post('/:eixo/comentario/:id', Limiter, async (req, res) => {
         });
 
         if (fetchando) {
-            const dados = await comentariosDoPost(eixo.modelo(), req.params.id, req.params.eixo);
+            const dados = await comentariosDoPost(eixo.modelo(), req.params.id, req.params.eixo, req.user);
             return res.render('partials/_comentarios', {
                 layout: false,
                 comentarios: dados ? dados.comentarios : []
@@ -982,6 +992,128 @@ router.post('/:eixo/comentario/:id', Limiter, async (req, res) => {
     } catch (err) {
         console.error('Erro ao comentar:', err);
         if (fetchando) return res.status(500).json({ erro: 'Não foi possível publicar o comentário.' });
+        res.redirect(eixo.hub);
+    }
+});
+
+
+/*
+ * Editar e excluir comentário.
+ *
+ * Editar é só de quem escreveu — nem a gestão reescreve a fala de alguém.
+ * Excluir é de quem escreveu ou de um administrador, que precisa poder tirar
+ * comentário impróprio de qualquer pessoa.
+ */
+async function acharComentario(Modelo, id, comentarioId, usuario, { exigirAutoria }) {
+    if (!idValido(id) || !idValido(comentarioId)) {
+        return { erro: 'Comentário não encontrado.', status: 400 };
+    }
+
+    const doc = await Modelo.findById(id).select('comentarios').lean();
+    if (!doc) return { erro: 'Publicação não encontrada.', status: 404 };
+
+    const comentario = (doc.comentarios || []).find((c) => String(c._id) === String(comentarioId));
+    if (!comentario) return { erro: 'Comentário não encontrado.', status: 404 };
+
+    const autor = comentario.usuario?._id || comentario.usuario;
+    const meu = Boolean(autor) && String(autor) === String(usuario._id);
+    const ehAdmin = Boolean(usuario.areAdmin);
+
+    if (exigirAutoria ? !meu : !(meu || ehAdmin)) {
+        return { erro: 'Você não pode alterar este comentário.', status: 403 };
+    }
+
+    return { comentario };
+}
+
+router.post('/:eixo/comentario/:id/:comentarioId/editar', async (req, res) => {
+    const eixo = eixoDeInteracao(req.params.eixo);
+    const fetchando = ehPedidoDeFetch(req);
+
+    if (!eixo) return fetchando ? res.status(400).json({ erro: 'Publicação inválida.' }) : res.redirect('/categories');
+
+    if (!req.user) {
+        if (fetchando) return res.status(401).json({ erro: 'Faça login para editar.', login: '/users/login' });
+        return res.redirect('/users/login');
+    }
+
+    const validacao = comentarioSchema.safeParse(req.body);
+    if (!validacao.success) {
+        const msg = primeiraMensagem(validacao.error);
+        if (fetchando) return res.status(400).json({ erro: msg });
+        req.flash('error_msg', msg);
+        return res.redirect(req.get('referer') || eixo.hub);
+    }
+
+    try {
+        const Modelo = eixo.modelo();
+        const achado = await acharComentario(Modelo, req.params.id, req.params.comentarioId, req.user, {
+            exigirAutoria: true
+        });
+
+        if (achado.erro) {
+            if (fetchando) return res.status(achado.status).json({ erro: achado.erro });
+            req.flash('error_msg', achado.erro);
+            return res.redirect(req.get('referer') || eixo.hub);
+        }
+
+        await Modelo.updateOne(
+            { _id: req.params.id, 'comentarios._id': req.params.comentarioId },
+            { $set: { 'comentarios.$.texto': validacao.data.texto, 'comentarios.$.editadoEm': new Date() } }
+        );
+
+        if (fetchando) {
+            const dados = await comentariosDoPost(Modelo, req.params.id, req.params.eixo, req.user);
+            return res.render('partials/_comentarios', { layout: false, comentarios: dados ? dados.comentarios : [] });
+        }
+
+        req.flash('success_msg', 'Comentário atualizado.');
+        res.redirect(req.get('referer') || eixo.hub);
+    } catch (err) {
+        console.error('Erro ao editar comentário:', err);
+        if (fetchando) return res.status(500).json({ erro: 'Não foi possível editar o comentário.' });
+        res.redirect(eixo.hub);
+    }
+});
+
+router.post('/:eixo/comentario/:id/:comentarioId/excluir', async (req, res) => {
+    const eixo = eixoDeInteracao(req.params.eixo);
+    const fetchando = ehPedidoDeFetch(req);
+
+    if (!eixo) return fetchando ? res.status(400).json({ erro: 'Publicação inválida.' }) : res.redirect('/categories');
+
+    if (!req.user) {
+        if (fetchando) return res.status(401).json({ erro: 'Faça login para excluir.', login: '/users/login' });
+        return res.redirect('/users/login');
+    }
+
+    try {
+        const Modelo = eixo.modelo();
+        const achado = await acharComentario(Modelo, req.params.id, req.params.comentarioId, req.user, {
+            exigirAutoria: false
+        });
+
+        if (achado.erro) {
+            if (fetchando) return res.status(achado.status).json({ erro: achado.erro });
+            req.flash('error_msg', achado.erro);
+            return res.redirect(req.get('referer') || eixo.hub);
+        }
+
+        await Modelo.updateOne(
+            { _id: req.params.id },
+            { $pull: { comentarios: { _id: req.params.comentarioId } } }
+        );
+
+        if (fetchando) {
+            const dados = await comentariosDoPost(Modelo, req.params.id, req.params.eixo, req.user);
+            return res.render('partials/_comentarios', { layout: false, comentarios: dados ? dados.comentarios : [] });
+        }
+
+        req.flash('success_msg', 'Comentário excluído.');
+        res.redirect(req.get('referer') || eixo.hub);
+    } catch (err) {
+        console.error('Erro ao excluir comentário:', err);
+        if (fetchando) return res.status(500).json({ erro: 'Não foi possível excluir o comentário.' });
         res.redirect(eixo.hub);
     }
 });

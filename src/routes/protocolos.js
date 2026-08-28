@@ -13,6 +13,7 @@ import '../models/categories.js';
 import '../models/denuncias.js';
 
 import isUser from '../helpers/isUser.js';
+import { notificarRespostaDaGestao } from '../helpers/email.js';
 import {
     EIXOS_COM_PROTOCOLO,
     eixoValido,
@@ -269,6 +270,29 @@ router.post('/:tipo/:id/responder', isUser, carregarProtocolo, async (req, res) 
                 }
             }
         });
+
+        // Só a resposta da GESTÃO gera aviso: o cidadão não precisa receber
+        // e-mail da própria mensagem, e a gestão acompanha pelo painel.
+        if (eAdmin && !eDono) {
+            const autor = await mongoose
+                .model('users')
+                .findById(doc.usuario?._id || doc.usuario)
+                .select('email')
+                .lean();
+
+            notificarRespostaDaGestao({
+                destinatario: autor?.email,
+                protocolo: {
+                    tipo,
+                    id: String(doc._id),
+                    numero: numeroDoProtocolo(doc, tipo),
+                    titulo: doc.titulo,
+                    estagio: normalizarStatus(doc.status)
+                },
+                mensagem: validacao.data.texto,
+                sigilosa: tipo === 'denuncia' && ehDenunciaSigilosa(doc)
+            }).catch((err) => console.error('Falha ao avisar resposta da gestão:', err.message));
+        }
 
         req.flash('success_msg', 'Mensagem registrada no protocolo.');
         res.redirect(destino);

@@ -149,7 +149,8 @@ const DenunciaSchema = new Schema({
         },
         createdAt: { 
             type: Date, default: Date.now 
-        }
+        },
+        editadoEm: { type: Date, default: null }
     }],
     dataCriacao: { 
         type: Date, 

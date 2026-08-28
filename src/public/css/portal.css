@@ -581,3 +581,25 @@ section.py-5 + section.py-5 {
         height: 38px;
     }
 }
+
+/* A área de comentários da página de detalhes abre o modal ao ser clicada */
+.area-comentarios {
+    cursor: pointer;
+    transition: box-shadow 0.15s ease;
+}
+
+.area-comentarios:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Links e o formulário dentro dela mantêm o cursor normal */
+.area-comentarios a,
+.area-comentarios input,
+.area-comentarios button {
+    cursor: auto;
+}
+
+.area-comentarios a,
+.area-comentarios button {
+    cursor: pointer;
+}

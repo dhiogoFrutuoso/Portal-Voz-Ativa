@@ -4,7 +4,7 @@
      vive num partial: o desenho do comentário existe num lugar só.
      Recebe: comentarios. --}}
 {{#each comentarios}}
-    <div class="d-flex align-items-start mb-3">
+    <div class="d-flex align-items-start mb-3" data-comentario="{{this._id}}">
         {{#if this.usuario.isDeleted}}
             <span class="me-3 flex-shrink-0">
                 <img src="/img/guest.webp" alt="Usuário indisponível"
@@ -39,9 +39,48 @@
                         <h6 class="fw-bold mb-0 small" style="color: #13315c;">{{this.usuario.name}}</h6>
                     </a>
                 {{/if}}
-                <small class="text-muted" style="font-size: 0.75rem;">{{formatDate this.createdAt}}</small>
+                <small class="text-muted" style="font-size: 0.75rem;">
+                    {{formatDate this.createdAt}}{{#if this.editadoEm}} · editado{{/if}}
+                </small>
             </div>
-            <p class="mb-0 small text-dark">{{this.texto}}</p>
+
+            <p class="mb-0 small text-dark" data-texto-comentario>{{this.texto}}</p>
+
+            {{!-- Edição em linha, para quem escreveu --}}
+            {{#if this.podeEditar}}
+                <form class="d-none mt-2" data-form-editar-comentario="{{this._id}}">
+                    <textarea name="texto" class="form-control form-control-sm rounded-3 mb-2" rows="2"
+                              maxlength="1000" required>{{this.texto}}</textarea>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary btn-sm rounded-3 px-3">Salvar</button>
+                        <button type="button" class="btn btn-light btn-sm rounded-3 px-3"
+                                data-cancelar-comentario="{{this._id}}">Cancelar</button>
+                    </div>
+                </form>
+            {{/if}}
+
+            {{#if this.podeEditar}}
+                <div class="d-flex gap-3 mt-2" data-acoes-comentario="{{this._id}}">
+                    <button type="button" class="btn btn-link btn-sm text-decoration-none p-0 text-secondary"
+                            data-editar-comentario="{{this._id}}">
+                        <i class="bi bi-pencil me-1"></i>Editar
+                    </button>
+                    {{#if this.podeExcluir}}
+                        <button type="button" class="btn btn-link btn-sm text-decoration-none p-0 text-danger"
+                                data-excluir-comentario="{{this._id}}">
+                            <i class="bi bi-trash me-1"></i>Excluir
+                        </button>
+                    {{/if}}
+                </div>
+            {{else if this.podeExcluir}}
+                {{!-- Administrador: pode remover comentário impróprio, não editar. --}}
+                <div class="d-flex gap-3 mt-2" data-acoes-comentario="{{this._id}}">
+                    <button type="button" class="btn btn-link btn-sm text-decoration-none p-0 text-danger"
+                            data-excluir-comentario="{{this._id}}">
+                        <i class="bi bi-shield-x me-1"></i>Remover como gestão
+                    </button>
+                </div>
+            {{/if}}
         </div>
     </div>
 {{else}}

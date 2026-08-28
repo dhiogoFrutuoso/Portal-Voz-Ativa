@@ -80,19 +80,11 @@
                                       limite=denuncia.limite linkProtocolo=linkProtocolo
                                       podeAcompanhar=podeAcompanhar rotulo="Status do Protocolo"}}
 
-                <div class="card border-0 shadow-sm rounded-4 p-3 mb-4 text-center bg-white">
-                    <form action="/categories/denuncias_sigilosas/curtida/{{denuncia._id}}" method="POST" data-curtir>
-                        <input type="hidden" name="_csrf" value="{{csrfToken}}">
-                        {{#if jaCurtiu}} 
-                            <button type="submit" class="btn btn-danger w-100 rounded-pill fw-bold py-2 shadow-sm transition-base">
-                                <i class="bi bi-heart-fill me-2"></i> Você apoiou isto ({{denuncia.curtidas.length}})
-                            </button>
-                        {{else}}
-                            <button type="submit" class="btn btn-outline-secondary w-100 rounded-pill fw-bold py-2 transition-base">
-                                <i class="bi bi-heart me-2"></i> Apoiar Denúncia ({{denuncia.curtidas.length}})
-                            </button>
-                        {{/if}}
-                    </form>
+                <div class="card area-comentarios"
+                     data-comentarios="{{denuncia._id}}" data-eixo="denuncias_sigilosas"
+                     data-titulo="{{denuncia.titulo}}" role="button" tabindex="0"
+                     title="Clique para abrir os comentários" border-0 shadow-sm rounded-4 p-3 mb-4 text-center bg-white">
+                    {{> _botao_curtir acao=(concat "/categories/denuncias_sigilosas/curtida/" denuncia._id) jaCurtiu=jaCurtiu total=denuncia.curtidas.length rotuloNeutro="Apoiar Denúncia" csrfToken=csrfToken}}
                 </div>
 
                 <div id="comentarios" class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">

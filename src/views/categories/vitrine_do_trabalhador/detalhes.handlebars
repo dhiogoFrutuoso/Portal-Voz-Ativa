@@ -123,21 +123,13 @@
                 </div>
 
                 <div class="card border-0 shadow-sm rounded-4 p-3 mb-4 text-center bg-white">
-                    <form action="/categories/vitrine_do_trabalhador/curtida/{{vitrine._id}}" method="POST" data-curtir>
-                        <input type="hidden" name="_csrf" value="{{csrfToken}}">
-                        {{#if jaCurtiu}} 
-                            <button type="submit" class="btn btn-danger w-100 rounded-pill fw-bold py-2 shadow-sm transition-base">
-                                <i class="bi bi-heart-fill me-2"></i> Você apoiou isto ({{vitrine.curtidas.length}})
-                            </button>
-                        {{else}}
-                            <button type="submit" class="btn btn-outline-secondary w-100 rounded-pill fw-bold py-2 transition-base">
-                                <i class="bi bi-heart me-2"></i> Apoiar Anúncio ({{vitrine.curtidas.length}})
-                            </button>
-                        {{/if}}
-                    </form>
+                    {{> _botao_curtir acao=(concat "/categories/vitrine_do_trabalhador/curtida/" vitrine._id) jaCurtiu=jaCurtiu total=vitrine.curtidas.length rotuloNeutro="Apoiar Anúncio" csrfToken=csrfToken}}
                 </div>
 
-                <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+                <div class="card area-comentarios"
+                     data-comentarios="{{vitrine._id}}" data-eixo="vitrine_do_trabalhador"
+                     data-titulo="{{vitrine.titulo}}" role="button" tabindex="0"
+                     title="Clique para abrir os comentários" border-0 shadow-sm rounded-4 overflow-hidden bg-white">
                     <div class="p-4 border-bottom bg-white">
                         <h6 class="fw-bold mb-0">Comentários <span class="badge bg-light text-dark ms-2">{{vitrine.comentarios.length}}</span></h6>
                     </div>
