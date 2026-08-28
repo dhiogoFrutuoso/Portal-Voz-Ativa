@@ -135,13 +135,19 @@
                         <i class="bi bi-info-circle-fill text-warning me-1"></i> Prazo de atendimento
                     </div>
                     <div class="small text-muted mb-1">{{protocolo.prazo.texto}}</div>
-                    <div class="small text-muted">
-                        Previsão de resposta até <strong>{{formatDay protocolo.limite}}</strong>.
-                        {{#if protocolo.prazo.ajustadoPelaGestao}}
-                            <span class="badge bg-secondary ms-1">prazo ajustado pela gestão</span>
-                        {{/if}}
-                    </div>
+                    {{#unless protocolo.prazo.encerrado}}
+                        <div class="small text-muted">
+                            Previsão de resposta até <strong>{{formatDay protocolo.limite}}</strong>.
+                            {{#if protocolo.prazo.ajustadoPelaGestao}}
+                                <span class="badge bg-secondary ms-1">prazo ajustado pela gestão</span>
+                            {{/if}}
+                        </div>
+                    {{/unless}}
                 </div>
+
+                {{!-- Recurso contra o arquivamento, quando cabe --}}
+                {{> _recurso recurso=protocolo.recurso tipo=protocolo.tipo id=protocolo._id
+                             eDono=eDono eAdmin=eAdmin csrfToken=csrfToken}}
 
                 <h5 class="fw-bold mb-4">
                     <i class="bi bi-clock-history me-2"></i>Histórico do atendimento
@@ -428,6 +434,56 @@
             document.getElementById('texto-' + id).classList.toggle('d-none', editando);
             document.getElementById('form-' + id).classList.toggle('d-none', !editando);
             document.getElementById('acoes-' + id).classList.toggle('d-none', editando);
+        });
+    })();
+
+    // Anexo do recurso: um arquivo, de qualquer tipo aceito. Vai direto para o
+    // Cloudinary em /auto/upload, que trata PDF, Word e imagem sem o servidor
+    // precisar receber o arquivo.
+    (function () {
+        const campo = document.getElementById('recursoArquivo');
+        if (!campo) return;
+
+        const LIMITE = 10 * 1024 * 1024;
+        const url = document.getElementById('recursoArquivoUrl');
+        const nome = document.getElementById('recursoArquivoNome');
+        const aviso = document.getElementById('recursoStatus');
+        const botao = document.getElementById('btnEnviarRecurso');
+
+        campo.addEventListener('change', async function () {
+            const arquivo = this.files[0];
+            if (!arquivo) return;
+
+            if (arquivo.size > LIMITE) {
+                aviso.textContent = 'O arquivo passa de 10 MB.';
+                this.value = '';
+                return;
+            }
+
+            aviso.textContent = 'Enviando anexo...';
+            botao.disabled = true;
+
+            const dados = new FormData();
+            dados.append('file', arquivo);
+            dados.append('upload_preset', '{{cloudinaryUploadPreset}}');
+
+            try {
+                const resposta = await fetch('https://api.cloudinary.com/v1_1/{{cloudinaryCloudName}}/auto/upload', {
+                    method: 'POST',
+                    body: dados
+                });
+                const json = await resposta.json();
+                if (!json.secure_url) throw new Error('sem URL');
+
+                url.value = json.secure_url;
+                nome.value = arquivo.name;
+                aviso.textContent = 'Anexado: ' + arquivo.name;
+            } catch (erro) {
+                aviso.textContent = 'Não foi possível enviar o anexo.';
+                this.value = '';
+            } finally {
+                botao.disabled = false;
+            }
         });
     })();
 

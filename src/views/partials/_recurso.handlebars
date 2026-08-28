@@ -1,0 +1,109 @@
+{{!-- Recurso contra o arquivamento do protocolo.
+
+     Três estados: pode abrir (só o autor, só em protocolo improcedente),
+     já aberto e aguardando a gestão, ou já respondido.
+     Recebe: recurso, tipo, id, eDono, eAdmin e csrfToken. --}}
+
+{{#if recurso.existe}}
+    <div class="card border-0 shadow-sm rounded-4 mb-4 border-start border-4 border-{{recurso.situacao.cor}}">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                <h6 class="fw-bold mb-0">
+                    <i class="bi bi-file-earmark-text me-2"></i>Recurso do cidadão
+                </h6>
+                <span class="badge bg-{{recurso.situacao.cor}} rounded-pill px-3 py-2">
+                    <i class="bi {{recurso.situacao.icone}} me-1"></i>{{recurso.situacao.rotulo}}
+                </span>
+            </div>
+
+            <p class="mb-3">{{recurso.texto}}</p>
+
+            {{#if recurso.arquivo}}
+                <a href="{{recurso.arquivo}}" target="_blank" rel="noopener noreferrer"
+                   class="btn btn-outline-secondary btn-sm rounded-3 mb-3">
+                    <i class="bi bi-paperclip me-1"></i>{{recurso.nomeArquivo}}
+                </a>
+            {{/if}}
+
+            <div class="small text-muted">
+                Apresentado em {{formatDate recurso.criadoEm}}.
+            </div>
+
+            {{#if recurso.respostaTexto}}
+                <div class="mt-3 pt-3 border-top">
+                    <div class="small fw-bold text-uppercase text-muted mb-1">Resposta da gestão</div>
+                    <p class="mb-1">{{recurso.respostaTexto}}</p>
+                    <div class="small text-muted">Respondido em {{formatDate recurso.respondidoEm}}.</div>
+                </div>
+            {{/if}}
+
+            {{!-- A gestão decide, e só enquanto o recurso estiver pendente --}}
+            {{#if eAdmin}}
+                {{#if recurso.pendente}}
+                    <form action="/admin/protocolo/{{tipo}}/{{id}}/recurso" method="POST" class="mt-3 pt-3 border-top">
+                        <input type="hidden" name="_csrf" value="{{csrfToken}}">
+
+                        <label class="form-label small fw-bold text-uppercase text-muted">Resposta ao recurso</label>
+                        <textarea name="texto" class="form-control rounded-3 mb-2" rows="3" maxlength="2000"
+                                  placeholder="Explique a decisão ao cidadão (opcional)."></textarea>
+
+                        <div class="d-flex gap-2 flex-wrap">
+                            <button type="submit" name="decisao" value="pertinente"
+                                    class="btn btn-success btn-sm rounded-3 px-3 fw-bold">
+                                <i class="bi bi-check-lg me-1"></i>Aceitar — é pertinente
+                            </button>
+                            <button type="submit" name="decisao" value="improcedente"
+                                    class="btn btn-outline-secondary btn-sm rounded-3 px-3 fw-bold">
+                                <i class="bi bi-x-lg me-1"></i>Indeferir — manter arquivado
+                            </button>
+                        </div>
+                        <div class="form-text">
+                            Aceitar devolve o protocolo para atendimento; indeferir mantém o arquivamento.
+                        </div>
+                    </form>
+                {{/if}}
+            {{/if}}
+        </div>
+    </div>
+
+{{else if recurso.podeAbrir}}
+    {{#if eDono}}
+        <div class="card border-0 shadow-sm rounded-4 mb-4 border-start border-4 border-warning">
+            <div class="card-body p-4">
+                <h6 class="fw-bold mb-1">
+                    <i class="bi bi-megaphone me-2"></i>Não concorda com o arquivamento?
+                </h6>
+                <p class="text-muted small mb-3">
+                    Você pode apresentar <strong>um recurso</strong> explicando por que a demanda é
+                    pertinente, anexando um documento se ajudar a embasar. A gestão vai analisar e
+                    responder. Só é possível recorrer uma vez.
+                </p>
+
+                <form action="/protocolos/{{tipo}}/{{id}}/recurso" method="POST" id="formRecurso">
+                    <input type="hidden" name="_csrf" value="{{csrfToken}}">
+                    <input type="hidden" name="arquivo_url" id="recursoArquivoUrl">
+                    <input type="hidden" name="arquivo_nome" id="recursoArquivoNome">
+
+                    <textarea name="texto" class="form-control rounded-3 mb-3" rows="4"
+                              minlength="20" maxlength="3000" required
+                              placeholder="Explique por que considera a demanda pertinente..."></textarea>
+
+                    <div class="d-flex align-items-center flex-wrap gap-2">
+                        <label class="btn btn-outline-secondary btn-sm rounded-3 mb-0">
+                            <i class="bi bi-paperclip me-1"></i>Anexar 1 arquivo
+                            <input type="file" id="recursoArquivo" hidden
+                                   accept=".pdf,.doc,.docx,.odt,.txt,.png,.jpg,.jpeg,.webp">
+                        </label>
+                        <span class="small text-muted" id="recursoStatus"></span>
+
+                        <button type="submit" class="btn btn-warning btn-sm rounded-3 ms-auto px-4 fw-bold"
+                                id="btnEnviarRecurso">
+                            Enviar recurso
+                        </button>
+                    </div>
+                    <div class="form-text">PDF, Word, texto ou imagem, até 10 MB.</div>
+                </form>
+            </div>
+        </div>
+    {{/if}}
+{{/if}}

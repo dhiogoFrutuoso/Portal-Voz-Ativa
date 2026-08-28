@@ -22,6 +22,7 @@ import {
     numeroDoProtocolo,
     novidadesDoProtocolo,
     anonimizarAutor,
+    montarRecurso,
     LISTA_ESTAGIOS
 } from '../helpers/protocolo.js';
 import {
@@ -29,7 +30,8 @@ import {
     buscaSchema,
     escaparRegex,
     normalizarMidias,
-    primeiraMensagem
+    primeiraMensagem,
+    respostaRecursoSchema
 } from '../helpers/validators.js';
 
 const router = express.Router();
@@ -61,6 +63,7 @@ function resumir(doc, tipo) {
         novidades: novidadesDoProtocolo(doc),
         privada: Boolean(doc.privada),
         podeMudarSigilo: tipo === 'denuncia',
+        recurso: montarRecurso(doc, tipo === 'denuncia' && Boolean(doc.privada)),
         imagemPrincipal: doc.imagens && doc.imagens.length > 0 ? doc.imagens[0] : null,
         numero: numeroDoProtocolo(doc, tipo),
         linkProtocolo: `/protocolos/${tipo}/${doc._id}`,
@@ -278,6 +281,84 @@ router.post('/protocolo/denuncia/:id/sigilo', isAdmin, async (req, res) => {
     } catch (err) {
         console.error('Erro ao alterar o sigilo da denúncia:', err);
         req.flash('error_msg', 'Erro ao alterar o sigilo da denúncia.');
+        res.redirect(voltarPara);
+    }
+});
+
+// --- RESPOSTA AO RECURSO ---
+// A gestão avalia o argumento do cidadão e decide se a demanda é pertinente.
+// Recurso deferido devolve o protocolo para atendimento; indeferido mantém o
+// arquivamento. Nos dois casos fica registrado no histórico.
+router.post('/protocolo/:tipo/:id/recurso', isAdmin, async (req, res) => {
+    const { tipo, id } = req.params;
+    const voltarPara = req.get('referer') || '/admin/painel';
+
+    if (!eixoValido(tipo) || !mongoose.Types.ObjectId.isValid(id)) {
+        req.flash('error_msg', 'Protocolo não encontrado.');
+        return res.redirect('/admin/painel');
+    }
+
+    const validacao = respostaRecursoSchema.safeParse(req.body);
+
+    if (!validacao.success) {
+        req.flash('error_msg', primeiraMensagem(validacao.error));
+        return res.redirect(voltarPara);
+    }
+
+    const { decisao, texto } = validacao.data;
+
+    try {
+        const Modelo = modeloDo(tipo);
+        const doc = await Modelo.findById(id).lean();
+
+        if (!doc || !doc.recurso || !doc.recurso.criadoEm) {
+            req.flash('error_msg', 'Este protocolo não tem recurso para responder.');
+            return res.redirect(voltarPara);
+        }
+
+        if (doc.recurso.decisao && doc.recurso.decisao !== 'pendente') {
+            req.flash('error_msg', 'Este recurso já foi respondido.');
+            return res.redirect(voltarPara);
+        }
+
+        // Recurso aceito reabre o atendimento; recusado mantém o arquivamento.
+        const novoStatus = decisao === 'pertinente' ? 'Reaberto' : 'Improcedente';
+        const statusAnterior = normalizarStatus(doc.status);
+
+        await Modelo.findByIdAndUpdate(id, {
+            $set: {
+                'recurso.decisao': decisao,
+                'recurso.respostaTexto': texto || null,
+                'recurso.respondidoPor': req.user._id,
+                'recurso.respondidoEm': new Date(),
+                status: novoStatus
+            },
+            $push: {
+                historico: {
+                    autor: req.user._id,
+                    papel: 'admin',
+                    texto: texto && texto.trim() !== ''
+                        ? texto
+                        : decisao === 'pertinente'
+                            ? 'Recurso aceito: a demanda foi considerada pertinente e volta para atendimento.'
+                            : 'Recurso analisado e indeferido: o arquivamento foi mantido.',
+                    statusAnterior,
+                    statusNovo: novoStatus,
+                    createdAt: new Date()
+                }
+            }
+        });
+
+        req.flash(
+            'success_msg',
+            decisao === 'pertinente'
+                ? 'Recurso aceito. O protocolo voltou para atendimento.'
+                : 'Recurso indeferido. O arquivamento foi mantido.'
+        );
+        res.redirect(voltarPara);
+    } catch (err) {
+        console.error('Erro ao responder recurso:', err);
+        req.flash('error_msg', 'Erro ao responder o recurso.');
         res.redirect(voltarPara);
     }
 });

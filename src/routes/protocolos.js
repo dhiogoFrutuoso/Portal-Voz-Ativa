@@ -26,6 +26,8 @@ import {
     ehRegistroDeEstagio,
     anonimizarAutor,
     ehDenunciaSigilosa,
+    protocoloEncerrado,
+    montarRecurso,
     LISTA_ESTAGIOS
 } from '../helpers/protocolo.js';
 import {
@@ -34,7 +36,10 @@ import {
     normalizarMidias,
     primeiraMensagem,
     buscaSchema,
-    escaparRegex
+    escaparRegex,
+    recursoSchema,
+    normalizarAnexo,
+    nomeDeArquivoSeguro
 } from '../helpers/validators.js';
 
 const router = express.Router();
@@ -107,6 +112,7 @@ function montarProtocolo(doc, tipo, usuario = null) {
         novidades: novidadesDoProtocolo(doc),
         privada: Boolean(doc.privada),
         sigilosa,
+        recurso: montarRecurso(doc, sigilosa),
         usuario: sigilosa ? anonimizarAutor(doc.usuario, doc) : doc.usuario,
         historico: (doc.historico || []).map((item) => {
             const minha = podeMexerNaMensagem(item, usuario);
@@ -370,6 +376,76 @@ router.post('/:tipo/:id/mensagem/:msgId/excluir', isUser, carregarProtocolo, asy
     } catch (err) {
         console.error('Erro ao excluir mensagem do protocolo:', err);
         req.flash('error_msg', 'Erro ao excluir a mensagem.');
+        res.redirect(destino);
+    }
+});
+
+/*
+ * Recurso contra o arquivamento.
+ *
+ * Só o autor abre, só quando a gestão marcou como Improcedente, e só uma vez:
+ * o recurso é a chance de argumentar que a demanda é pertinente, não um canal
+ * de mensagens paralelo (para isso existe a linha do tempo).
+ */
+router.post('/:tipo/:id/recurso', isUser, carregarProtocolo, async (req, res) => {
+    const { doc, tipo, eDono } = req.protocolo;
+    const destino = `/protocolos/${tipo}/${doc._id}`;
+
+    if (!eDono) {
+        req.flash('error_msg', 'Só quem abriu o protocolo pode recorrer.');
+        return res.redirect(destino);
+    }
+
+    if (normalizarStatus(doc.status) !== 'Improcedente') {
+        req.flash('error_msg', 'O recurso só existe para protocolo marcado como improcedente.');
+        return res.redirect(destino);
+    }
+
+    if (doc.recurso && doc.recurso.criadoEm) {
+        req.flash('error_msg', 'Este protocolo já teve um recurso registrado.');
+        return res.redirect(destino);
+    }
+
+    const validacao = recursoSchema.safeParse(req.body);
+
+    if (!validacao.success) {
+        req.flash('error_msg', primeiraMensagem(validacao.error));
+        return res.redirect(destino);
+    }
+
+    // Um anexo só, e só se veio do nosso Cloudinary.
+    const arquivo = normalizarAnexo(req.body.arquivo_url);
+    const nomeArquivo = arquivo ? nomeDeArquivoSeguro(req.body.arquivo_nome) : null;
+
+    try {
+        await modeloDo(tipo).updateOne(
+            { _id: doc._id },
+            {
+                $set: {
+                    recurso: {
+                        texto: validacao.data.texto,
+                        arquivo,
+                        nomeArquivo,
+                        criadoEm: new Date(),
+                        decisao: 'pendente'
+                    }
+                },
+                $push: {
+                    historico: {
+                        autor: req.user._id,
+                        papel: 'cidadao',
+                        texto: 'Recurso apresentado contra o arquivamento do protocolo.',
+                        createdAt: new Date()
+                    }
+                }
+            }
+        );
+
+        req.flash('success_msg', 'Recurso enviado. A gestão vai analisar e responder.');
+        res.redirect(destino);
+    } catch (err) {
+        console.error('Erro ao registrar recurso:', err);
+        req.flash('error_msg', 'Erro ao enviar o recurso.');
         res.redirect(destino);
     }
 });

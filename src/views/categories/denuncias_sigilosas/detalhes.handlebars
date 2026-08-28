@@ -81,7 +81,7 @@
                                       podeAcompanhar=podeAcompanhar rotulo="Status do Protocolo"}}
 
                 <div class="card border-0 shadow-sm rounded-4 p-3 mb-4 text-center bg-white">
-                    <form action="/categories/denuncias_sigilosas/like/{{denuncia._id}}" method="POST">
+                    <form action="/categories/denuncias_sigilosas/curtida/{{denuncia._id}}" method="POST" data-curtir>
                         <input type="hidden" name="_csrf" value="{{csrfToken}}">
                         {{#if jaCurtiu}} 
                             <button type="submit" class="btn btn-danger w-100 rounded-pill fw-bold py-2 shadow-sm transition-base">

@@ -46,7 +46,8 @@ import {
     filtroDeSigilo,
     podeVerDenuncia,
     nasceSigilosa,
-    anonimizarAutor
+    anonimizarAutor,
+    ehDenunciaSigilosa
 } from '../helpers/protocolo.js';
 
 /*
@@ -153,6 +154,46 @@ const prepararVitrine = (doc, req) => ({
     imagemPrincipal: doc.imagens && doc.imagens.length > 0 ? doc.imagens[0] : null,
     jaCurtiu: req.user ? (doc.curtidas || []).some((id) => id.toString() === req.user._id.toString()) : false
 });
+
+/*
+ * Curtir e comentar sem recarregar a página.
+ *
+ * O mesmo endpoint atende os dois jeitos: pedido normal do navegador continua
+ * redirecionando (o site funciona sem JavaScript), e pedido com
+ * `x-requested-with: fetch` recebe só o dado ou o pedaço de HTML que mudou.
+ */
+const ehPedidoDeFetch = (req) => req.get('x-requested-with') === 'fetch';
+
+// Eixos que têm curtida e comentário, com o model e a rota de cada um.
+const EIXOS_INTERACAO = {
+    gestao_de_melhorias: { modelo: () => Chamado, hub: '/categories/gestao_de_melhorias/hub' },
+    denuncias_sigilosas: { modelo: () => Denuncia, hub: '/categories/denuncias_sigilosas/hub' },
+    vitrine_do_trabalhador: { modelo: () => Vitrine, hub: '/categories/vitrine_do_trabalhador/hub' }
+};
+
+const eixoDeInteracao = (chave) => EIXOS_INTERACAO[chave] || null;
+
+// Carrega os comentários já formatados (autor anônimo quando for denúncia sigilosa).
+async function comentariosDoPost(Modelo, id, eixo) {
+    const doc = await Modelo.findById(id)
+        .populate('comentarios.usuario', 'name profileImage profession')
+        .select('comentarios tipoOcorrencia privada titulo')
+        .lean();
+
+    if (!doc) return null;
+
+    const sigilosa = eixo === 'denuncias_sigilosas' && ehDenunciaSigilosa(doc);
+
+    return {
+        titulo: doc.titulo,
+        comentarios: (doc.comentarios || []).map((c) => ({
+            ...c,
+            usuario: sigilosa
+                ? { ...anonimizarAutor(formatAuthor(c.usuario), doc), name: 'Participante anônimo' }
+                : formatAuthor(c.usuario)
+        }))
+    };
+}
 
 // Dono do post: só ele vê o botão de editar/excluir no detalhe.
 const ehDonoDoPost = (req, doc) => {
@@ -823,6 +864,125 @@ router.post('/vitrine_do_trabalhador/criar-vitrine', isUser, Limiter, upload.non
         console.error("ERRO NO CADASTRO VITRINE:", err);
         req.flash("error_msg", "Houve um erro interno ao salvar o anúncio.");
         res.redirect('/categories/vitrine_do_trabalhador/hub');
+    }
+});
+
+
+/* ------------------------------------------------------------------------
+ * Curtir, comentar e listar comentários — genéricos para os três eixos.
+ * ---------------------------------------------------------------------- */
+
+// Alterna a curtida. Responde JSON para o botão atualizar no lugar.
+router.post('/:eixo/curtida/:id', async (req, res) => {
+    const eixo = eixoDeInteracao(req.params.eixo);
+    const fetchando = ehPedidoDeFetch(req);
+
+    if (!eixo || !idValido(req.params.id)) {
+        if (fetchando) return res.status(400).json({ erro: 'Publicação inválida.' });
+        return res.redirect('/categories');
+    }
+
+    if (!req.user) {
+        if (fetchando) return res.status(401).json({ erro: 'Faça login para apoiar.', login: '/users/login' });
+        req.flash('error_msg', 'Você precisa estar logado para apoiar uma publicação.');
+        return res.redirect('/users/login');
+    }
+
+    try {
+        const doc = await eixo.modelo().findById(req.params.id);
+
+        if (!doc) {
+            if (fetchando) return res.status(404).json({ erro: 'Publicação não encontrada.' });
+            return res.redirect(eixo.hub);
+        }
+
+        const usuarioId = String(req.user._id);
+        const posicao = (doc.curtidas || []).findIndex((id) => String(id) === usuarioId);
+
+        if (posicao !== -1) doc.curtidas.splice(posicao, 1);
+        else doc.curtidas.push(req.user._id);
+
+        await doc.save();
+
+        if (fetchando) {
+            return res.json({ curtidas: doc.curtidas.length, jaCurtiu: posicao === -1 });
+        }
+
+        res.redirect(req.get('referer') || eixo.hub);
+    } catch (err) {
+        console.error('Erro ao curtir:', err);
+        if (fetchando) return res.status(500).json({ erro: 'Não foi possível registrar o apoio.' });
+        res.redirect(eixo.hub);
+    }
+});
+
+// Lista os comentários — é o que o modal carrega ao abrir.
+router.get('/:eixo/comentarios/:id', async (req, res) => {
+    const eixo = eixoDeInteracao(req.params.eixo);
+
+    if (!eixo || !idValido(req.params.id)) {
+        return res.status(400).send('');
+    }
+
+    try {
+        const dados = await comentariosDoPost(eixo.modelo(), req.params.id, req.params.eixo);
+        if (!dados) return res.status(404).send('');
+
+        res.render('partials/_comentarios', { layout: false, comentarios: dados.comentarios });
+    } catch (err) {
+        console.error('Erro ao carregar comentários:', err);
+        res.status(500).send('');
+    }
+});
+
+// Comenta e devolve a lista atualizada, para o modal não recarregar a página.
+router.post('/:eixo/comentario/:id', Limiter, async (req, res) => {
+    const eixo = eixoDeInteracao(req.params.eixo);
+    const fetchando = ehPedidoDeFetch(req);
+
+    if (!eixo || !idValido(req.params.id)) {
+        if (fetchando) return res.status(400).json({ erro: 'Publicação inválida.' });
+        return res.redirect('/categories');
+    }
+
+    if (!req.user) {
+        if (fetchando) return res.status(401).json({ erro: 'Faça login para comentar.', login: '/users/login' });
+        req.flash('error_msg', 'Você precisa estar logado para comentar.');
+        return res.redirect('/users/login');
+    }
+
+    const validacao = comentarioSchema.safeParse(req.body);
+
+    if (!validacao.success) {
+        if (fetchando) return res.status(400).json({ erro: primeiraMensagem(validacao.error) });
+        req.flash('error_msg', primeiraMensagem(validacao.error));
+        return res.redirect(req.get('referer') || eixo.hub);
+    }
+
+    try {
+        await eixo.modelo().findByIdAndUpdate(req.params.id, {
+            $push: {
+                comentarios: {
+                    usuario: req.user._id,
+                    texto: validacao.data.texto,
+                    createdAt: new Date()
+                }
+            }
+        });
+
+        if (fetchando) {
+            const dados = await comentariosDoPost(eixo.modelo(), req.params.id, req.params.eixo);
+            return res.render('partials/_comentarios', {
+                layout: false,
+                comentarios: dados ? dados.comentarios : []
+            });
+        }
+
+        res.redirect(req.get('referer') || `${eixo.hub}`);
+    } catch (err) {
+        console.error('Erro ao comentar:', err);
+        if (fetchando) return res.status(500).json({ erro: 'Não foi possível publicar o comentário.' });
+        res.redirect(eixo.hub);
     }
 });
 

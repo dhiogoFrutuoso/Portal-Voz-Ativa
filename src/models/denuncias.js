@@ -91,6 +91,31 @@ const DenunciaSchema = new Schema({
             default: null
         }
     }],
+    /*
+     * Recurso do cidadão contra o arquivamento.
+     *
+     * Só existe quando a gestão marca o protocolo como Improcedente, e só
+     * pode haver UM por protocolo — é a chance de o cidadão argumentar que a
+     * demanda é pertinente, com um anexo para embasar.
+     */
+    recurso: {
+        texto: { type: String },
+        arquivo: { type: String, default: null },
+        nomeArquivo: { type: String, default: null },
+        criadoEm: { type: Date },
+        decisao: {
+            type: String,
+            enum: ['pendente', 'pertinente', 'improcedente'],
+            default: 'pendente'
+        },
+        respostaTexto: { type: String, default: null },
+        respondidoPor: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'users',
+            default: null
+        },
+        respondidoEm: { type: Date, default: null }
+    },
     editadoEm: {
         type: Date,
         default: null

@@ -86,15 +86,27 @@ export function prazoPadrao(tipo, tipoOcorrencia) {
     return PRAZO_PADRAO_MELHORIA;
 }
 
+// Estágios em que o atendimento terminou: não há mais prazo a cumprir.
+export const ESTAGIOS_ENCERRADOS = ['Resolvido', 'Improcedente'];
+
+export const protocoloEncerrado = (status) => ESTAGIOS_ENCERRADOS.includes(normalizarStatus(status));
+
 export function prazoDoProtocolo(doc, tipo) {
     const dias = Number.isFinite(doc?.prazoDias) && doc.prazoDias > 0
         ? doc.prazoDias
         : prazoPadrao(tipo, doc?.tipoOcorrencia);
 
+    // Protocolo resolvido ou arquivado não tem prazo de resposta pendente:
+    // continuar mostrando "responde em até X dias" só confunde quem lê.
+    const encerrado = protocoloEncerrado(doc?.status);
+
     return {
         dias,
+        encerrado,
         ajustadoPelaGestao: Boolean(doc?.prazoAjustado),
-        texto: `A gestão municipal responde este protocolo em até ${dias} ${dias === 1 ? 'dia útil' : 'dias úteis'}.`
+        texto: encerrado
+            ? 'Atendimento encerrado — não há mais prazo de resposta em aberto.'
+            : `A gestão municipal responde este protocolo em até ${dias} ${dias === 1 ? 'dia útil' : 'dias úteis'}.`
     };
 }
 
@@ -279,4 +291,48 @@ export const ehDenunciaSigilosa = (doc) =>
 // Troca o autor por um perfil anônimo quando a denúncia é sigilosa.
 export function anonimizarAutor(autor, doc) {
     return ehDenunciaSigilosa(doc) ? { ...AUTOR_ANONIMO } : autor;
+}
+
+/*
+ * Recurso do cidadão contra o arquivamento.
+ *
+ * Monta os dados que as telas precisam: se existe, em que pé está e o que
+ * cada lado pode fazer. Como recurso é sempre do denunciante, num protocolo
+ * sigiloso ele também não pode identificar quem recorreu.
+ */
+export const DECISOES_RECURSO = {
+    pendente: { rotulo: 'Aguardando análise', cor: 'warning', icone: 'bi-hourglass-split' },
+    pertinente: { rotulo: 'Recurso aceito', cor: 'success', icone: 'bi-check-circle-fill' },
+    improcedente: { rotulo: 'Recurso indeferido', cor: 'secondary', icone: 'bi-x-circle-fill' }
+};
+
+export function montarRecurso(doc, sigilosa = false) {
+    const bruto = doc?.recurso;
+
+    // Sem criadoEm o subdocumento existe só com os defaults do schema — não é
+    // um recurso de verdade.
+    if (!bruto || !bruto.criadoEm) {
+        return {
+            existe: false,
+            // O cidadão só pode recorrer de um protocolo arquivado.
+            podeAbrir: protocoloEncerrado(doc?.status) && normalizarStatus(doc?.status) === 'Improcedente'
+        };
+    }
+
+    const decisao = bruto.decisao || 'pendente';
+
+    return {
+        existe: true,
+        podeAbrir: false,
+        texto: bruto.texto,
+        arquivo: bruto.arquivo || null,
+        nomeArquivo: bruto.nomeArquivo || 'Anexo do recurso',
+        criadoEm: bruto.criadoEm,
+        decisao,
+        situacao: { chave: decisao, ...DECISOES_RECURSO[decisao] },
+        pendente: decisao === 'pendente',
+        respostaTexto: bruto.respostaTexto || null,
+        respondidoEm: bruto.respondidoEm || null,
+        autorAnonimo: Boolean(sigilosa)
+    };
 }

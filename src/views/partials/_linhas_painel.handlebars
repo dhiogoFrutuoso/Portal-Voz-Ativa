@@ -5,7 +5,8 @@
 {{#each protocolos}}
                     <div class="linha-protocolo shadow-sm overflow-hidden item-filtravel {{#if this.novidades.paraAGestao}}linha-com-novidade{{/if}}"
                          data-status="{{this.status}}" data-tipo="{{this.tipo}}" data-sigilo="{{#if this.privada}}sigilosa{{else}}publica{{/if}}"
-                         data-novidade="{{#if this.novidades.paraAGestao}}sim{{else}}nao{{/if}}">
+                         data-novidade="{{#if this.novidades.paraAGestao}}sim{{else}}nao{{/if}}"
+                         data-recurso="{{#if this.recurso.pendente}}pendente{{else}}nao{{/if}}">
                         <div class="d-flex">
                             <div class="faixa-status bg-{{this.estagio.cor}}"></div>
 
@@ -22,6 +23,11 @@
                                             {{/if}}
                                             <span class="small text-muted font-monospace">{{this.numero}}</span>
                                             {{> _novidade mostrar=this.novidades.paraAGestao texto="o cidadão respondeu"}}
+                                            {{#if this.recurso.pendente}}
+                                                <span class="badge bg-warning text-dark rounded-pill px-3 py-2 novidade-pulsa">
+                                                    <i class="bi bi-megaphone-fill me-1"></i>recurso a analisar
+                                                </span>
+                                            {{/if}}
                                         </div>
 
                                         <div class="d-flex gap-3">
@@ -45,7 +51,11 @@
                                                     <span><i class="bi bi-geo-alt me-1"></i>{{recortar this.localizacao 40}}</span>
                                                     <span><i class="bi bi-calendar3 me-1"></i>{{formatDay this.dataCriacao}}</span>
                                                     <span><i class="bi bi-chat-left-text me-1"></i>{{this.respostas}}</span>
-                                                    <span><i class="bi bi-hourglass-split me-1"></i>até {{formatDay this.limite}}</span>
+                                                    {{#if this.prazo.encerrado}}
+                                                        <span><i class="bi bi-check2-all me-1"></i>encerrado</span>
+                                                    {{else}}
+                                                        <span><i class="bi bi-hourglass-split me-1"></i>até {{formatDay this.limite}}</span>
+                                                    {{/if}}
                                                 </div>
                                             </div>
                                         </div>

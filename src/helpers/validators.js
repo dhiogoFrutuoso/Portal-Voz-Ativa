@@ -238,3 +238,35 @@ export const buscaSchema = z.object({
 export function escaparRegex(termo) {
     return String(termo).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
+
+// --- Recurso contra arquivamento ---
+export const recursoSchema = z.object({
+    texto: textoLimpo(20, 3000, 'Argumentação do recurso')
+});
+
+export const respostaRecursoSchema = z.object({
+    decisao: z.enum(['pertinente', 'improcedente'], { error: () => 'Decisão do recurso inválida.' }),
+    texto: textoOpcional(2000, 'Resposta ao recurso')
+});
+
+/*
+ * Anexo do recurso: um arquivo só, de qualquer tipo aceito (PDF, DOCX,
+ * imagem...). Como o upload vai direto do navegador para o Cloudinary, o que
+ * validamos aqui é a origem da URL — o mesmo critério das imagens.
+ */
+export function normalizarAnexo(url) {
+    return urlDeMidiaValida(url) ? url : null;
+}
+
+// O nome original serve so para exibir o link; nunca vira caminho no servidor.
+export function nomeDeArquivoSeguro(nome) {
+    if (typeof nome !== 'string') return null;
+
+    const limpo = nome
+        .replace(/[\r\n\t]/g, ' ')
+        .replace(/[/\\]/g, '-')
+        .trim()
+        .slice(0, 120);
+
+    return limpo || null;
+}

@@ -18,10 +18,16 @@
 
     {{#if prazo}}
         <div class="pt-3 border-top">
-            <label class="d-block small text-muted">Prazo de resposta:</label>
-            <span class="fw-bold">{{prazo.dias}} dias úteis</span>
-            {{#if limite}}
-                <div class="small text-muted">Previsão até {{formatDay limite}}.</div>
+            {{#if prazo.encerrado}}
+                {{!-- Resolvido ou improcedente: não há prazo em aberto. --}}
+                <label class="d-block small text-muted">Prazo de resposta:</label>
+                <span class="small text-muted fst-italic">Atendimento encerrado — sem prazo em aberto.</span>
+            {{else}}
+                <label class="d-block small text-muted">Prazo de resposta:</label>
+                <span class="fw-bold">{{prazo.dias}} dias úteis</span>
+                {{#if limite}}
+                    <div class="small text-muted">Previsão até {{formatDay limite}}.</div>
+                {{/if}}
             {{/if}}
         </div>
     {{/if}}

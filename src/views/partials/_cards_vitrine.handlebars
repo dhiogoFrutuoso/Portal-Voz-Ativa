@@ -81,8 +81,8 @@
 
                                                 <div class="d-flex align-items-center gap-2">
                                                     
-                                                    <form action="/categories/vitrine_do_trabalhador/curtir/{{_id}}" method="POST" class="m-0">
-                        <input type="hidden" name="_csrf" value="{{csrfToken}}">
+                                                    <form action="/categories/vitrine_do_trabalhador/curtida/{{_id}}" method="POST" class="m-0" data-curtir>
+                        <input type="hidden" name="_csrf" value="{{@root.csrfToken}}">
                                                         <button type="submit" class="btn btn-sm rounded-pill border shadow-sm hover-lift px-3 transition-base 
                                                             {{#if jaCurtiu}}btn-danger text-white{{else}}btn-light text-danger{{/if}}">
                                                             <i class="bi {{#if jaCurtiu}}bi-heart-fill{{else}}bi-heart{{/if}} me-1"></i>
@@ -90,10 +90,10 @@
                                                         </button>
                                                     </form>
 
-                                                    <a href="/categories/vitrine_do_trabalhador/detalhes/{{_id}}" class="btn btn-light btn-sm rounded-pill hover-lift border px-3 transition-base">
+                                                    <button type="button" class="btn btn-light btn-sm rounded-pill hover-lift border px-3 transition-base" data-comentarios="{{_id}}" data-eixo="vitrine_do_trabalhador" data-titulo="{{titulo}}" title="Ver comentários">
                                                         <i class="bi bi-chat-dots-fill text-primary me-1"></i>
                                                         <span class="fw-bold">{{comentarios.length}}</span>
-                                                    </a>
+                                                    </button>
 
                                                     <a href="https://wa.me/{{contato}}" target="_blank" class="btn btn-outline-success btn-sm rounded-pill px-4 fw-bold">
                                                         <i class="bi bi-whatsapp me-2"></i>Contato
@@ -180,8 +180,8 @@
                                     
                                     <div class="d-flex align-items-center gap-2">
                                             
-                                        <form action="/categories/vitrine_do_trabalhador/curtir/{{_id}}" method="POST" class="m-0">
-                        <input type="hidden" name="_csrf" value="{{csrfToken}}">
+                                        <form action="/categories/vitrine_do_trabalhador/curtida/{{_id}}" method="POST" class="m-0" data-curtir>
+                        <input type="hidden" name="_csrf" value="{{@root.csrfToken}}">
                                             <button type="submit" class="btn btn-sm rounded-pill border shadow-sm hover-lift px-3 transition-base 
                                                 {{#if jaCurtiu}}btn-danger text-white{{else}}btn-light text-danger{{/if}}">
                                                 <i class="bi {{#if jaCurtiu}}bi-heart-fill{{else}}bi-heart{{/if}} me-1"></i>
@@ -189,10 +189,10 @@
                                             </button>
                                         </form>
 
-                                        <a href="/categories/vitrine_do_trabalhador/detalhes/{{_id}}" class="btn btn-light btn-sm rounded-pill hover-lift border px-3 transition-base">
-                                            <i class="bi bi-chat-dots-fill text-primary me-1"></i>
-                                            <span class="fw-bold">{{comentarios.length}}</span>
-                                        </a>
+                                        <button type="button" class="btn btn-light btn-sm rounded-pill hover-lift border px-3 transition-base" data-comentarios="{{_id}}" data-eixo="vitrine_do_trabalhador" data-titulo="{{titulo}}" title="Ver comentários">
+                                                        <i class="bi bi-chat-dots-fill text-primary me-1"></i>
+                                                        <span class="fw-bold">{{comentarios.length}}</span>
+                                                    </button>
                                     </div>
 
                                     <div class="d-flex align-items-center gap-2">

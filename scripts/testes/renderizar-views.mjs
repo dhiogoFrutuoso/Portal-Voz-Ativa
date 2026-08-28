@@ -241,6 +241,16 @@ function formsAninhados(html) {
     return false;
 }
 
+/*
+ * Dentro de {{#each}} o contexto passa a ser o item da lista, e {{csrfToken}}
+ * renderiza VAZIO — o formulário sai com token em branco e o servidor recusa
+ * a ação como "sessão expirada". Dentro de each é preciso @root.csrfToken.
+ * Foi o que quebrou o botão de curtir nos cards dos hubs.
+ */
+function csrfVazio(html) {
+    return /name="_csrf"\s+value=""/.test(html);
+}
+
 let falhas = 0;
 
 for (const [view, contexto, esperados, proibidos = []] of casos) {
@@ -250,8 +260,12 @@ for (const [view, contexto, esperados, proibidos = []] of casos) {
         const faltando = esperados.filter((t) => !html.includes(t));
         const vazados = proibidos.filter((t) => html.includes(t));
         const aninhados = formsAninhados(html);
+        const tokenVazio = csrfVazio(html);
 
-        if (aninhados) {
+        if (tokenVazio) {
+            console.log(`FALHA  ${rotulo} -> tem _csrf vazio (use @root.csrfToken dentro de each)`);
+            falhas++;
+        } else if (aninhados) {
             console.log(`FALHA  ${rotulo} -> tem <form> dentro de <form> (quebra o token CSRF)`);
             falhas++;
         } else if (faltando.length > 0 || vazados.length > 0) {

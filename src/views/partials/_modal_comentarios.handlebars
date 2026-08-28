@@ -1,0 +1,40 @@
+{{!-- Modal de comentários, único para o site inteiro.
+
+     Os cards dos hubs abrem este modal em vez de mandar o usuário para a
+     página de detalhes só para ler comentários. O conteúdo é carregado sob
+     demanda por /categories/:eixo/comentarios/:id. --}}
+<div class="modal fade modal-comentarios" id="modalComentarios" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+        <div class="modal-content rounded-4 border-0 shadow">
+            <div class="modal-header border-bottom">
+                <h5 class="modal-title fw-bold">
+                    <i class="bi bi-chat-dots-fill text-primary me-2"></i>
+                    <span data-titulo-comentarios>Comentários</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+
+            <div class="modal-body p-0">
+                <div class="p-4 lista-comentarios" data-lista-comentarios></div>
+            </div>
+
+            <div class="modal-footer border-top d-block p-3">
+                <div data-area-envio data-logado="{{#if user}}sim{{else}}nao{{/if}}">
+                    <form data-form-comentario method="POST" action="">
+                        <input type="hidden" name="_csrf" value="{{csrfToken}}">
+                        <div class="input-group">
+                            <input type="text" name="texto" maxlength="1000" required
+                                   class="form-control border-0 bg-light rounded-pill ps-4"
+                                   placeholder="Escreva um comentário">
+                            <button class="btn btn-primary rounded-circle ms-2 d-flex align-items-center justify-content-center shadow"
+                                    type="submit" style="width: 40px; height: 40px;" aria-label="Enviar comentário">
+                                <i class="bi bi-send-fill" style="font-size: 0.8rem;"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="small text-danger mt-2" data-aviso-comentarios></div>
+            </div>
+        </div>
+    </div>
+</div>

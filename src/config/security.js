@@ -62,7 +62,12 @@ export const securityHeaders = helmet({
                 'https://res.cloudinary.com',
                 'https://nominatim.openstreetmap.org', // Geocodificação reversa
                 'https://www.google.com', // Telemetria do reCAPTCHA Enterprise
-                'https://www.gstatic.com'
+                'https://www.gstatic.com',
+                // O DevTools aberto busca os sourcemaps (.map) do Bootstrap e
+                // do Leaflet por aqui. Sem estes dois a política bloqueia e o
+                // console enche de erro de CSP a cada carregamento de página.
+                'https://cdn.jsdelivr.net',
+                'https://unpkg.com'
             ],
             frameSrc: ['https://www.google.com', 'https://recaptcha.google.com'],
             frameAncestors: ["'none'"], // Anti-clickjacking

@@ -1,0 +1,49 @@
+{{!-- Lista de comentários de uma publicação.
+
+     Serve à página de detalhes e ao modal aberto pelos cards do hub — por isso
+     vive num partial: o desenho do comentário existe num lugar só.
+     Recebe: comentarios. --}}
+{{#each comentarios}}
+    <div class="d-flex align-items-start mb-3">
+        {{#if this.usuario.isDeleted}}
+            <span class="me-3 flex-shrink-0">
+                <img src="/img/guest.webp" alt="Usuário indisponível"
+                     class="rounded-circle shadow-sm opacity-75 avatar-comentario">
+            </span>
+        {{else if this.usuario.anonimo}}
+            {{!-- Comentário em denúncia sigilosa: sem link para o perfil. --}}
+            <span class="me-3 flex-shrink-0">
+                <img src="/img/guest.webp" alt="Denunciante anônimo"
+                     class="rounded-circle shadow-sm avatar-comentario">
+            </span>
+        {{else}}
+            <a href="/users/perfil/{{this.usuario._id}}" class="me-3 flex-shrink-0">
+                <img src="{{#if this.usuario.profileImage}}{{this.usuario.profileImage}}{{else}}/img/guest.webp{{/if}}"
+                     alt="{{this.usuario.name}}" class="rounded-circle shadow-sm avatar-comentario"
+                     onerror="this.src='/img/guest.webp'">
+            </a>
+        {{/if}}
+
+        <div class="bg-white p-3 rounded-3 shadow-sm w-100 border">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-1 mb-1">
+                {{#if this.usuario.isDeleted}}
+                    <span class="fw-bold mb-0 text-muted fst-italic small">
+                        <i class="bi bi-person-x me-1"></i>Usuário indisponível
+                    </span>
+                {{else if this.usuario.anonimo}}
+                    <span class="fw-bold mb-0 text-muted small">
+                        <i class="bi bi-incognito me-1"></i>{{this.usuario.name}}
+                    </span>
+                {{else}}
+                    <a href="/users/perfil/{{this.usuario._id}}" class="text-decoration-none">
+                        <h6 class="fw-bold mb-0 small" style="color: #13315c;">{{this.usuario.name}}</h6>
+                    </a>
+                {{/if}}
+                <small class="text-muted" style="font-size: 0.75rem;">{{formatDate this.createdAt}}</small>
+            </div>
+            <p class="mb-0 small text-dark">{{this.texto}}</p>
+        </div>
+    </div>
+{{else}}
+    <p class="text-center text-muted small my-4">Seja o primeiro a comentar.</p>
+{{/each}}

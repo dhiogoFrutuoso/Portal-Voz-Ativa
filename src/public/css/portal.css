@@ -552,3 +552,32 @@ section.py-5 + section.py-5 {
         width: 4px;
     }
 }
+
+/* ==========================================================================
+   8. Comentários (página de detalhes e modal)
+   ========================================================================== */
+
+.avatar-comentario {
+    width: 45px;
+    height: 45px;
+    object-fit: cover;
+    border: 2px solid #13315c;
+}
+
+/* Corpo do modal ocupa a altura disponível sem esticar a janela */
+.modal-comentarios .lista-comentarios {
+    max-height: 55vh;
+    overflow-y: auto;
+    background: #fafafa;
+}
+
+@media (max-width: 575.98px) {
+    .modal-comentarios .lista-comentarios {
+        max-height: 60vh;
+    }
+
+    .avatar-comentario {
+        width: 38px;
+        height: 38px;
+    }
+}

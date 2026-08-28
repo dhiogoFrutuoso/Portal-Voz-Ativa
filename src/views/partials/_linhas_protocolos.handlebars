@@ -30,7 +30,11 @@
                                 <div class="d-flex align-items-center flex-wrap gap-3 small text-muted">
                                     <span><i class="bi bi-geo-alt me-1"></i>{{recortar this.localizacao 45}}</span>
                                     <span><i class="bi bi-chat-left-text me-1"></i>{{this.historico.length}} resposta(s)</span>
-                                    <span><i class="bi bi-calendar-check me-1"></i>Prazo: {{this.prazo.dias}} dias úteis</span>
+                                    {{#if this.prazo.encerrado}}
+                                        <span><i class="bi bi-check2-all me-1"></i>Atendimento encerrado</span>
+                                    {{else}}
+                                        <span><i class="bi bi-calendar-check me-1"></i>Prazo: {{this.prazo.dias}} dias úteis</span>
+                                    {{/if}}
 
                                     <a href="/protocolos/{{this.tipo}}/{{this._id}}" class="btn btn-sm btn-primary rounded-3 ms-auto px-3 fw-bold">
                                         Acompanhar <i class="bi bi-arrow-right ms-1"></i>
