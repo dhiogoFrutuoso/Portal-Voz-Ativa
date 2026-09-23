@@ -1,5 +1,6 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" />
-<script src="https://www.google.com/recaptcha/enterprise.js" async defer></script>
+<script src="https://www.google.com/recaptcha/api.js?render={{recaptchaSiteKey}}" defer></script>
+<script src="/js/recaptcha-v3.js?v={{versaoEstaticos}}" defer></script>
 
 <style>
   body {
@@ -100,11 +101,6 @@
     overflow: hidden;
     margin: 0 auto;
   }
-
-  .g-recaptcha {
-    display: flex;
-    justify-content: center;
-  }
 </style>
 
 <section class="container d-flex flex-column align-items-center justify-content-center py-5">
@@ -133,7 +129,7 @@
             Cariús</p>
         </div>
 
-        <form id="mainForm" action="/users/register" method="POST">
+        <form id="mainForm" data-recaptcha-action="register" data-recaptcha-key="{{recaptchaSiteKey}}" action="/users/register" method="POST">
                         <input type="hidden" name="_csrf" value="{{csrfToken}}">
           <input type="hidden" name="croppedImage" id="croppedImage" />
 
@@ -200,7 +196,9 @@
             </div>
           </div>
 
-          <div class="g-recaptcha" data-sitekey="{{recaptchaSiteKey}}"></div>
+          <input type="hidden" name="g-recaptcha-response" value="">
+<p data-recaptcha-error class="text-danger small" role="alert" hidden></p>
+<noscript><p class="text-danger small">Ative o JavaScript para continuar com segurança.</p></noscript>
 
           <button type="submit" class="btn btn-gradient w-100 py-3 text-white fw-bold rounded-3 shadow mt-3 mb-4">
             FINALIZAR CADASTRO

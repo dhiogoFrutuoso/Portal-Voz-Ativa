@@ -10,6 +10,7 @@ import "../models/vitrine.js";
 import "../models/categories.js";
 import "../models/denuncias.js";
 import isUser from "../helpers/isUser.js";
+import { verificarRecaptcha } from '../helpers/recaptcha.js';
 import {
   registroSchema,
   loginSchema,
@@ -22,7 +23,6 @@ import {
 
 const user = mongoose.model("users");
 const router = express.Router();
-const RECAPTCHA_SECRET = process.env.RECAPTCHA_SECRET;
 
 // --- RATE LIMIT ---
 
@@ -109,7 +109,7 @@ router.post("/register", registerLimiter, async (req, res) => {
 
   if (!token) {
     return res.render("users/register", {
-      error_msg: "Por favor, complete o reCAPTCHA para prosseguir.",
+      error_msg: "Não foi possível verificar a segurança. Recarregue a página e tente novamente.",
       name,
       email,
       profession,
@@ -118,24 +118,7 @@ router.post("/register", registerLimiter, async (req, res) => {
   }
 
   try {
-    const params = new URLSearchParams();
-    params.append("secret", RECAPTCHA_SECRET || "");
-    params.append("response", token);
-
-    const response = await fetch(
-      "https://www.google.com/recaptcha/api/siteverify",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: params.toString(),
-        signal: AbortSignal.timeout(10000),
-      },
-    );
-
-    const googleData = await response.json();
-
-    if (!googleData.success) {
-      console.warn("reCAPTCHA falhou no registro:", googleData["error-codes"]);
+    if (!await verificarRecaptcha(token, 'register')) {
       return res.render("users/register", {
         error_msg: "Falha na validação de segurança do reCAPTCHA.",
         name,
@@ -232,7 +215,7 @@ router.post("/login", loginLimiter, async (req, res, next) => {
 
   if (!recaptchaToken) {
     return res.render("users/login", {
-      error_msg: "Por favor faça o reCAPTCHA para provar que você não é um robô!",
+      error_msg: "Não foi possível verificar a segurança. Recarregue a página e tente novamente.",
     });
   }
 
@@ -250,24 +233,7 @@ router.post("/login", loginLimiter, async (req, res, next) => {
   req.body.password = credenciais.data.password;
 
   try {
-    const params = new URLSearchParams();
-    params.append("secret", RECAPTCHA_SECRET || "");
-    params.append("response", recaptchaToken);
-
-    const googleResponse = await fetch(
-      "https://www.google.com/recaptcha/api/siteverify",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: params.toString(),
-        signal: AbortSignal.timeout(10000),
-      },
-    );
-
-    const googleData = await googleResponse.json();
-
-    if (!googleData.success) {
-      console.warn("reCAPTCHA falhou no login:", googleData["error-codes"]);
+    if (!await verificarRecaptcha(recaptchaToken, 'login')) {
       return res.render("users/login", {
         error_msg: "Falha na validação de segurança (reCAPTCHA inválido).",
       });

@@ -19,7 +19,7 @@ const mongo = await MongoMemoryServer.create();
 process.env.MONGO_URI_PROD = mongo.getUri('vercel-test');
 const nativeFetch = globalThis.fetch;
 globalThis.fetch = (url, options) => String(url).startsWith('https://www.google.com/recaptcha/')
-    ? Promise.resolve(Response.json({ success: true })) : nativeFetch(url, options);
+    ? Promise.resolve(Response.json({ success: true, score: 0.9, action: 'login' })) : nativeFetch(url, options);
 const servers = [];
 const originalCwd = process.cwd();
 try {

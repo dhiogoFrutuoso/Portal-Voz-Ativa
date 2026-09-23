@@ -35,13 +35,12 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // --- VARIÁVEIS DE AMBIENTE ---
-// Os valores públicos (cloud do Cloudinary, preset de upload e site key do reCAPTCHA)
-// ficam expostos no HTML de qualquer forma, então mantemos um padrão embutido para o
-// deploy não quebrar caso a variável não esteja definida no Render/Vercel.
+// Cloud e preset mantêm os padrões do projeto. A chave pública do reCAPTCHA
+// precisa ser configurada para v3 e para o domínio deste ambiente.
 const isProduction = process.env.NODE_ENV === 'production';
 const CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME || 'dnh7vok3r';
 const CLOUDINARY_UPLOAD_PRESET = process.env.CLOUDINARY_UPLOAD_PRESET || 'Portal-Voz-Ativa';
-const RECAPTCHA_SITE_KEY = process.env.RECAPTCHA_SITE_KEY || '6LcE53YtAAAAABUiDGr2DSTfhu3oCFhPEkOa8LCV';
+const RECAPTCHA_SITE_KEY = process.env.RECAPTCHA_SITE_KEY || '';
 
 // Já os segredos não têm padrão seguro: avisamos alto e claro se faltarem.
 /*
@@ -51,7 +50,7 @@ const RECAPTCHA_SITE_KEY = process.env.RECAPTCHA_SITE_KEY || '6LcE53YtAAAAABUiDG
  */
 const VERSAO_ESTATICOS = process.env.VERCEL_GIT_COMMIT_SHA || process.env.RENDER_GIT_COMMIT || String(Date.now());
 
-const requiredEnv = ['CLOUDINARY_API_KEY', 'CLOUDINARY_API_SECRET', 'RECAPTCHA_SECRET', 'SESSION_SECRET'];
+const requiredEnv = ['CLOUDINARY_API_KEY', 'CLOUDINARY_API_SECRET', 'RECAPTCHA_SITE_KEY', 'RECAPTCHA_SECRET', 'SESSION_SECRET'];
 const missingEnv = requiredEnv.filter((key) => !process.env[key]);
 
 if (missingEnv.length > 0) {
