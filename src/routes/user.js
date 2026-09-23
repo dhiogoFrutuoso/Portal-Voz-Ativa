@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import passport from "passport";
 import { v2 as cloudinary } from "cloudinary";
-import rateLimit from "express-rate-limit";
+import { limitarRequisicoes } from '../config/rate-limit.js';
 import "dotenv/config";
 import "../models/user.js";
 import "../models/vitrine.js";
@@ -28,16 +28,17 @@ const RECAPTCHA_SECRET = process.env.RECAPTCHA_SECRET;
 
 // Força bruta no login: 5 tentativas por IP a cada 15 minutos. Requisições bem
 // sucedidas não entram na conta, então quem acerta a senha não é penalizado.
-const loginLimiter = rateLimit({
+const loginLimiter = limitarRequisicoes('login', {
   windowMs: 15 * 60 * 1000,
   max: 5,
   skipSuccessfulRequests: true,
+  requestWasSuccessful: (_req, res) => res.statusCode === 302 && res.getHeader('location') === '/',
   message: "Muitas tentativas de login. Aguarde 15 minutos e tente novamente.",
   standardHeaders: true,
   legacyHeaders: false,
 });
 
-const registerLimiter = rateLimit({
+const registerLimiter = limitarRequisicoes('cadastro', {
   windowMs: 60 * 60 * 1000,
   max: 10,
   message: "Muitas contas criadas a partir deste endereço. Tente novamente mais tarde.",
@@ -46,7 +47,7 @@ const registerLimiter = rateLimit({
 });
 
 // Cobre troca de senha e exclusão de conta — ações sensíveis que conferem senha.
-const contaLimiter = rateLimit({
+const contaLimiter = limitarRequisicoes('conta', {
   windowMs: 15 * 60 * 1000,
   max: 10,
   message: "Muitas tentativas nesta operação. Aguarde alguns minutos.",
@@ -127,6 +128,7 @@ router.post("/register", registerLimiter, async (req, res) => {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: params.toString(),
+        signal: AbortSignal.timeout(10000),
       },
     );
 
@@ -258,6 +260,7 @@ router.post("/login", loginLimiter, async (req, res, next) => {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: params.toString(),
+        signal: AbortSignal.timeout(10000),
       },
     );
 

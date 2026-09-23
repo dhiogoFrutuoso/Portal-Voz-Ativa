@@ -3,11 +3,11 @@ import mongoose from 'mongoose';
 import multer from 'multer';
 import { v2 as cloudinary } from 'cloudinary';
 import 'dotenv/config';
-import rateLimit from 'express-rate-limit';
+import { limitarRequisicoes } from '../config/rate-limit.js';
 
 // Rate Limiter
 
-const Limiter = rateLimit({
+const Limiter = limitarRequisicoes('publicacoes', {
   windowMs: 5 * 60 * 1000, // 5 minutos
   max: 30,
   message: "Muitas tentativas de registro, tente novamente mais tarde.",

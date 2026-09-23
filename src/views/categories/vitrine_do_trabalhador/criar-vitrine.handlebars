@@ -123,7 +123,7 @@
         }
     }
 
-    // 2. Lógica de Imagens para o Backend (Conversão para Simular URLs/Strings)
+    // 2. Preview local; no envio, apenas as URLs do Cloudinary vão ao backend.
     const imgInputHelper = document.getElementById('imgInputHelper');
     const previewGrid = document.getElementById('preview-grid');
     const placeholder = document.getElementById('placeholder-upload');
@@ -135,24 +135,43 @@
         files.forEach(file => {
             if (selectedFiles.length < 3) {
                 selectedFiles.push(file);
-                addHiddenInput(file);
             }
         });
         renderPreview();
     });
 
-    function addHiddenInput(file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = 'imagens_urls[]'; // Nome que o seu backend espera
-            input.value = e.target.result; // Enviando o Base64 como string
-            input.id = `input-${file.name}-${file.lastModified}`;
-            hiddenInputsContainer.appendChild(input);
-        };
-        reader.readAsDataURL(file);
-    }
+    document.getElementById('formVitrine').addEventListener('submit', async function(event) {
+        event.preventDefault();
+        const botao = this.querySelector('button[type="submit"]');
+        if (botao.disabled) return;
+        botao.disabled = true;
+        botao.textContent = 'ENVIANDO FOTOS...';
+        imgInputHelper.disabled = true;
+        hiddenInputsContainer.replaceChildren();
+        try {
+            for (const file of [...selectedFiles]) {
+                const dados = new FormData();
+                dados.append('file', file);
+                dados.append('upload_preset', '{{cloudinaryUploadPreset}}');
+                const resposta = await fetch('https://api.cloudinary.com/v1_1/{{cloudinaryCloudName}}/image/upload', {
+                    method: 'POST', body: dados
+                });
+                const resultado = await resposta.json();
+                if (!resposta.ok || !resultado.secure_url) throw new Error('Upload recusado');
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'imagens_urls[]';
+                input.value = resultado.secure_url;
+                hiddenInputsContainer.appendChild(input);
+            }
+            this.submit();
+        } catch {
+            window.alert('Não foi possível enviar as fotos. Tente novamente.');
+            botao.disabled = false;
+            imgInputHelper.disabled = false;
+            botao.textContent = 'PUBLICAR ANÚNCIO';
+        }
+    });
 
     function renderPreview() {
         previewGrid.innerHTML = '';
@@ -169,7 +188,7 @@
                         <div class="ratio ratio-1x1">
                             <img src="${e.target.result}" class="img-fluid rounded-3 border shadow-sm object-fit-cover">
                         </div>
-                        <button type="button" onclick="removeFile(${index}, '${file.name}-${file.lastModified}')" class="btn btn-danger btn-sm position-absolute top-0 start-100 translate-middle rounded-circle p-0" style="width: 22px; height: 22px; z-index: 10;">
+                        <button type="button" onclick="removeFile(${index})" class="btn btn-danger btn-sm position-absolute top-0 start-100 translate-middle rounded-circle p-0" style="width: 22px; height: 22px; z-index: 10;">
                             <i class="bi bi-x"></i>
                         </button>`;
                     previewGrid.appendChild(div);
@@ -182,10 +201,9 @@
         }
     }
 
-    function removeFile(index, fileId) {
+    function removeFile(index) {
+        if (imgInputHelper.disabled) return;
         selectedFiles.splice(index, 1);
-        const inputToRemove = document.getElementById(`input-${fileId}`);
-        if(inputToRemove) inputToRemove.remove();
         renderPreview();
     }
 

@@ -8,7 +8,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import multer from 'multer';
-import rateLimit from 'express-rate-limit';
+import { limitarRequisicoes } from '../config/rate-limit.js';
 
 import '../models/categories.js';
 import '../models/denuncias.js';
@@ -28,7 +28,7 @@ const router = express.Router();
 const upload = multer();
 
 // Edição também é escrita no banco: mesmo teto das rotas de criação.
-const limiteEdicao = rateLimit({
+const limiteEdicao = limitarRequisicoes('edicao', {
     windowMs: 5 * 60 * 1000,
     max: 30,
     message: 'Muitas edições em sequência. Tente novamente em alguns minutos.'

@@ -2,15 +2,13 @@ import 'dotenv/config';
 
 import express from 'express';
 import handlebars from 'express-handlebars';
-import mongoose from 'mongoose';
 import path from 'path';
-import session from 'express-session';
 import flash from 'connect-flash';
 import passport from 'passport';
 import { fileURLToPath } from 'url';
 import moment from 'moment';
-import { engine } from 'express-handlebars';
-import rateLimit from 'express-rate-limit';
+import { limitarRequisicoes } from './config/rate-limit.js';
+import { criarSessao } from './config/session.js';
 import { securityHeaders, forceHttps, sanitizeMongo, csrfProtection } from './config/security.js';
 import { otimizarMidiaNaRenderizacao } from './helpers/midia.js';
 import admin from "./routes/admin.js";
@@ -20,15 +18,15 @@ import project from './routes/project.js';
 import protocolos from './routes/protocolos.js';
 import edicao from './routes/edicao.js';
 import auth from './config/auth.js';
-import db from './config/db.js';
+import { conectarBanco } from './config/db.js';
 import './models/user.js';
 
 const app = express();
 
-// A mídia sobe direto do navegador para o Cloudinary; pelo servidor passa apenas
-// a foto de perfil em base64, limitada a 5 MB no validador.
-app.use(express.json({ limit: '8mb' }));
-app.use(express.urlencoded({ limit: '8mb', extended: true }));
+// Arquivos sobem diretamente ao Cloudinary. O Express recebe campos e URLs,
+// evitando ultrapassar o limite de payload da Vercel.
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ limit: '1mb', extended: true }));
 app.use(sanitizeMongo);
 
 auth(passport);
@@ -51,13 +49,17 @@ const RECAPTCHA_SITE_KEY = process.env.RECAPTCHA_SITE_KEY || '6LcE53YtAAAAABUiDG
  * corrigido só chegaria ao visitante depois que o cache expirasse — por isso a
  * versão entra como parâmetro nos links do layout.
  */
-const VERSAO_ESTATICOS = process.env.RENDER_GIT_COMMIT || String(Date.now());
+const VERSAO_ESTATICOS = process.env.VERCEL_GIT_COMMIT_SHA || process.env.RENDER_GIT_COMMIT || String(Date.now());
 
 const requiredEnv = ['CLOUDINARY_API_KEY', 'CLOUDINARY_API_SECRET', 'RECAPTCHA_SECRET', 'SESSION_SECRET'];
 const missingEnv = requiredEnv.filter((key) => !process.env[key]);
 
 if (missingEnv.length > 0) {
     console.warn(`AVISO: variáveis de ambiente ausentes -> ${missingEnv.join(', ')}`);
+}
+
+if (isProduction && (!process.env.SESSION_SECRET || process.env.SESSION_SECRET.length < 32)) {
+    throw new Error('Configure SESSION_SECRET com pelo menos 32 caracteres em produção.');
 }
 
 if (!process.env.SESSION_SECRET) {
@@ -77,17 +79,24 @@ app.use(forceHttps);
 // não devem criar sessão nem consumir a cota de requisições do visitante.
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: '7d' }));
 
-app.use(session({
-    secret: process.env.SESSION_SECRET || 'secretKeyVozAtiva', // Chave de segurança para o ecossistema digital
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-        httpOnly: true,
-        secure: 'auto', // HTTPS em produção, HTTP no ambiente local — decidido pela conexão
-        sameSite: 'lax',
-        maxAge: 1000 * 60 * 60 * 24 * 7 // 7 dias
+// Conexão e store são reutilizados pelas requisições da instância aquecida.
+let middlewareSessao;
+app.use(async (req, res, next) => {
+    res.set('Cache-Control', 'private, no-store');
+    try {
+        const conexao = await conectarBanco();
+        if (!middlewareSessao) {
+            middlewareSessao = criarSessao(conexao, process.env.SESSION_SECRET || 'secretKeyVozAtiva');
+        }
+        if (req.path === '/health' && req.method === 'GET') {
+            return res.json({ status: 'ok' });
+        }
+        middlewareSessao(req, res, next);
+    } catch {
+        console.error('Não foi possível inicializar a conexão com o banco.');
+        res.status(503).send('Serviço temporariamente indisponível. Tente novamente em instantes.');
     }
-}));
+});
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -110,7 +119,7 @@ app.use((req, res, next) => {
     next();
 });
 
-const Limiter = rateLimit({
+const Limiter = limitarRequisicoes('global', {
     windowMs: 10*60*1000,
     max: 300,
     message: "Muitas requisições desse IP, tente novamente daqui a 10 minutos.",
@@ -123,6 +132,8 @@ app.use(Limiter);
 // Handlebars
 app.engine('handlebars', handlebars.engine({
     defaultLayout: 'main',
+    layoutsDir: path.join(__dirname, 'views', 'layouts'),
+    partialsDir: path.join(__dirname, 'views', 'partials'),
     helpers: {
         eq: function (v1, v2) {
             return v1 === v2;
@@ -169,16 +180,6 @@ app.engine('handlebars', handlebars.engine({
 app.set('view engine', 'handlebars');
 app.set('views', path.join(__dirname, 'views'));
 
-// Mongoose
-mongoose.set('strictQuery', true)
-mongoose.Promise = global.Promise;
-mongoose.connect(db.mongoURI, { serverSelectionTimeoutMS: 120000 })
-    .then(() => {
-        console.log('Conectado ao MongoDB do Voz Ativa com sucesso!');
-    }).catch((err) => {
-        console.log('Erro ao conectar ao banco de dados: ' + err);
-    });
-
 // --- ROTAS ---
 
 app.get('/', (req, res) => {
@@ -192,10 +193,26 @@ app.use('/users', users);
 app.use('/project', project);
 app.use('/protocolos', protocolos);
 
-// --- INICIALIZAÇÃO ---
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-    console.log(`Servidor rodando em http://localhost:${PORT}`);
-    console.log(`Portal Voz Ativa - Cariús 2026`);
-    console.log(`Ambiente: ${isProduction ? 'produção' : 'desenvolvimento'}`);
+// A Vercel importa o app, sem abrir porta. npm start continua funcionando.
+export default app;
+
+app.use((error, req, res, next) => {
+    if (res.headersSent) return next(error);
+    const grande = error.type === 'entity.too.large';
+    const invalido = error.type === 'entity.parse.failed';
+    console.error('Falha na requisição:', grande ? 'payload excedido' : invalido ? 'JSON inválido' : 'erro interno');
+    res.status(grande ? 413 : invalido ? 400 : 500).send(grande
+        ? 'Envie os arquivos pelo seletor de mídia. O formulário excedeu o tamanho permitido.'
+        : 'Não foi possível concluir a solicitação. Tente novamente.');
 });
+
+if (!process.env.VERCEL && process.argv[1] && path.resolve(process.argv[1]) === __filename) {
+    const PORT = process.env.PORT || 8080;
+    try {
+        await conectarBanco();
+        app.listen(PORT, () => console.log('Portal Voz Ativa em http://localhost:' + PORT));
+    } catch {
+        console.error('Servidor não iniciado: verifique a configuração e o acesso ao MongoDB.');
+        process.exitCode = 1;
+    }
+}

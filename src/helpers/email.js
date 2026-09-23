@@ -20,8 +20,14 @@
 import 'dotenv/config';
 import { Resend } from 'resend';
 import nodemailer from 'nodemailer';
+import { waitUntil } from '@vercel/functions';
 
-const URL_PUBLICA = (process.env.URL_PUBLICA || 'https://portal-voz-ativa.onrender.com').replace(/\/$/, '');
+const dominioVercel = process.env.VERCEL_ENV === 'preview'
+    ? process.env.VERCEL_URL
+    : process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL;
+const URL_PUBLICA = (process.env.URL_PUBLICA || (dominioVercel
+    ? `https://${dominioVercel}`
+    : `http://localhost:${process.env.PORT || 8080}`)).replace(/\/$/, '');
 
 /*
  * Dois caminhos de envio, escolhidos pelo que estiver configurado.
@@ -47,6 +53,9 @@ const transporteSmtp = usandoSmtp
           host: process.env.SMTP_HOST || 'smtp.gmail.com',
           port: Number(process.env.SMTP_PORTA || 587),
           secure: Number(process.env.SMTP_PORTA || 587) === 465,
+          connectionTimeout: 10000,
+          greetingTimeout: 10000,
+          socketTimeout: 15000,
           auth: { user: SMTP_USUARIO, pass: SMTP_SENHA }
       })
     : null;
@@ -234,7 +243,15 @@ function montarTexto({ titulo, chamada, corpo, link, numero, estagio }) {
  * Envia o e-mail. Nunca lança: devolve { enviado, motivo } para quem chamou
  * decidir se registra algo — mas a ação do usuário segue de qualquer forma.
  */
-async function enviar({ para, assunto, ...conteudo }) {
+function enviar(dados) {
+    const envio = enviarAgora(dados);
+    // Sem isto, a função pode ser suspensa assim que o redirect é enviado.
+    // Não é uma fila durável: falhas ainda são registradas, sem retry automático.
+    if (process.env.VERCEL) waitUntil(envio);
+    return envio;
+}
+
+async function enviarAgora({ para, assunto, ...conteudo }) {
     if (!transporteSmtp && !resend) return { enviado: false, motivo: 'sem-configuracao' };
     if (!para) return { enviado: false, motivo: 'sem-destinatario' };
 

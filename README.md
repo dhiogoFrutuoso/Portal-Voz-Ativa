@@ -1,5 +1,7 @@
 # 🗳️ Portal Voz Ativa – Cariús
 
+Para publicar na Vercel, consulte o [guia de hospedagem e migração](docs/DEPLOY_VERCEL.md), com variáveis de ambiente, banco, uploads e testes de validação.
+
 ![Status](https://img.shields.io/badge/Status-Em%20Desenvolvimento-orange?style=for-the-badge)
 ![Plataforma](https://img.shields.io/badge/Plataforma-Web--App-blue?style=for-the-badge)
 ![Licença](https://img.shields.io/badge/Licen%C3%A7a-MIT-green?style=for-the-badge)
