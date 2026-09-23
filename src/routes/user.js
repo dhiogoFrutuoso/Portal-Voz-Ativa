@@ -1,4 +1,4 @@
-import { emitirOtp } from '../helpers/otp.js';
+import { emitirOtp, envioOtpConfigurado } from '../helpers/otp.js';
 import { aceito, VERSAO_TERMOS } from '../helpers/governanca.js';
 import express from "express";
 import mongoose from "mongoose";
@@ -119,7 +119,13 @@ router.post("/register", registerLimiter, async (req, res) => {
   const dados = validacao.data;
 
   try {
-    const userExists = await user.findOne({ email: dados.email });
+    const userExists = await user.findOne({ email: dados.email }).lean();
+    if (userExists?.isVerified === false && await bcrypt.compare(dados.password, userExists.password)) {
+      req.session.registrationEmail = dados.email;
+      try { await emitirOtp(dados.email, 'verify'); }
+      catch { req.session.registrationError = 'Não foi possível enviar o código agora. Tente reenviar em alguns instantes.'; }
+      return res.redirect('/verificar-email');
+    }
     if (userExists) {
       return res.render("users/register", {
         error_msg: "Já existe uma conta com este e-mail.",
@@ -127,6 +133,13 @@ router.post("/register", registerLimiter, async (req, res) => {
         email,
         profession,
         bio,
+      });
+    }
+
+    if (!envioOtpConfigurado()) {
+      return res.status(503).render("users/register", {
+        error_msg: "O cadastro está temporariamente indisponível. Tente novamente mais tarde.",
+        name, email, profession, bio,
       });
     }
 
@@ -159,8 +172,8 @@ router.post("/register", registerLimiter, async (req, res) => {
     newUser.password = await bcrypt.hash(newUser.password, salt);
     await newUser.save();
 
-    req.session.pendingEmail = dados.email;
-    try { await emitirOtp(dados.email, 'verify'); } catch { console.error('Falha ao enviar confirmação de cadastro.'); }
+    req.session.registrationEmail = dados.email;
+    try { await emitirOtp(dados.email, 'verify'); } catch { req.session.registrationError = 'Não foi possível enviar o código agora. Tente reenviar em alguns instantes.'; }
     res.redirect('/verificar-email');
   } catch (err) {
     console.error("Erro no Registro:", err);
@@ -217,10 +230,6 @@ router.post("/login", loginLimiter, async (req, res, next) => {
       }
 
       if (!user) {
-        if (info?.verificationRequired) {
-          req.session.pendingEmail = req.body.email;
-          return res.redirect('/verificar-email');
-        }
         return res.render("users/login", {
           error_msg: info && info.message ? info.message : "Credenciais inválidas.",
         });

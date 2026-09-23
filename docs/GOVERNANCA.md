@@ -4,9 +4,9 @@
 
 - O portal é uma iniciativa pessoal independente. Termos, política, navbar e footer não afirmam vínculo oficial com a Prefeitura. O contato público já existente é o canal de privacidade, sem nomear um DPO inexistente.
 - A aplicação continua web, Express/Handlebars, sem APK. O layout global permanece compartilhado por todas as telas novas.
-- A autenticação mantém Passport e sessão no MongoDB. A identidade serializada é um JWT HS256, assinado com `JWT_SECRET`, contendo `tokenVersion`. Cada requisição consulta a versão e a confirmação do e-mail no banco. O JWT não é entregue ao JavaScript do navegador.
+- A autenticação mantém Passport e sessão no MongoDB. A identidade serializada é um JWT HS256, assinado com `JWT_SECRET`, contendo `tokenVersion`. Cada requisição consulta a versão e impede o acesso de cadastros explicitamente pendentes. O JWT não é entregue ao JavaScript do navegador.
 - `JWT_SECRET` também assina o cookie da sessão e protege os hashes de OTP por HMAC-SHA-256. Não é necessário um novo segredo. Sessões antigas deixam de ser aceitas.
-- Contas novas iniciam com `isVerified: false`. Contas antigas sem confirmação também precisam comprovar acesso ao e-mail. Nenhuma migração declara uma verificação que não ocorreu; o link “Verificar e-mail” permite solicitar o código.
+- Contas novas iniciam com `isVerified: false` e só são ativadas após o código de cadastro. Login não envia códigos nem redireciona para verificação. Contas legadas sem o campo isVerified continuam entrando com senha, sem registrar uma confirmação fictícia. Cadastro pendente pode ser retomado em /users/register com o mesmo e-mail e senha; os dados existentes não são sobrescritos. A sessão de cadastro é independente da recuperação.
 - Registro do aceite da versão dos termos é separado de consentimento genérico. Nas manifestações, IP, agente do navegador, data e declaração são campos imutáveis. Registros antigos não recebem uma declaração fictícia retroativa.
 - `isConfidential` mascara identidade na saída, incluindo comentários e links de perfil. Não altera a regra separada de acesso ao conteúdo (`privada`). Perfis públicos excluem publicações com identidade protegida. O vínculo real fica no banco.
 - As rotas alternativas de comentários/curtidas de denúncias agora aplicam a mesma autorização de acesso do detalhe.
@@ -47,3 +47,7 @@ Mídia Cloudinary continua com URL de entrega pública, como no projeto existent
 `npm test`, `npm run test:vercel` e `npm run test:governanca` usam bases descartáveis. O último cobre concorrência de OTP, limite de tentativas, expiração, reset e revogação, aceite obrigatório, honeypot, upload inválido, EXIF, PDF ativo, sigilo e rollback de auditoria. A entrega real pelo Resend, as chaves reais e as permissões do cluster de produção não foram exercitadas pelos testes.
 
 <!-- // [Melhoria Proativa Adicionada: contratos e limitações verificáveis sem prometer conformidade jurídica automática] -->
+
+## Ativação do remetente
+
+Configure RESEND_API_KEY, EMAIL_REMETENTE autorizado no Resend e URL_PUBLICA HTTPS na Vercel, depois faça novo deploy. Não é necessário alterar código. Sem configuração, o cadastro/recuperação informa indisponibilidade; login de conta ativa continua funcionando. O endereço onboarding@resend.dev é restrito a testes para o e-mail da própria conta Resend, não libera envio para outros usuários. O site pode continuar em vercel.app, mas o Resend exige domínio de envio verificado para destinatários reais: https://resend.com/docs/knowledge-base/403-error-resend-dev-domain.

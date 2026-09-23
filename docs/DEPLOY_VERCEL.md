@@ -24,8 +24,12 @@ O banco existente e os arquivos antigos não são movidos automaticamente. Novos
 
 ## Verificação
 
-Valide /health, login, cadastro, confirmação por e-mail, recuperação, publicação com declaração, upload, protocolo e painel antes de retirar a hospedagem anterior. Contas antigas sem isVerified precisam confirmar o e-mail; não foi feita migração automática de confirmação. Alterações neste workspace não são publicadas sem enviar os arquivos ao GitHub e efetuar o deploy.
+Valide /health, login, cadastro, confirmação por e-mail, recuperação, publicação com declaração, upload, protocolo e painel antes de retirar a hospedagem anterior. Contas antigas sem isVerified continuam entrando normalmente; novos cadastros pendentes precisam ser concluídos pela tela de cadastro. Alterações neste workspace não são publicadas sem enviar os arquivos ao GitHub e efetuar o deploy.
 
 Referência: [Express na Vercel](https://vercel.com/docs/frameworks/backend/express).
 
 <!-- // [Melhoria Proativa Adicionada: documentação sincronizada com uploads inspecionados e autenticação versionada] -->
+
+## Ativação do remetente
+
+Configure RESEND_API_KEY, EMAIL_REMETENTE autorizado no Resend e URL_PUBLICA HTTPS na Vercel, depois faça novo deploy. Não é necessário alterar código. Sem configuração, o cadastro/recuperação informa indisponibilidade; login de conta ativa continua funcionando. O endereço onboarding@resend.dev é restrito a testes para o e-mail da própria conta Resend, não libera envio para outros usuários. O site pode continuar em vercel.app, mas o Resend exige domínio de envio verificado para destinatários reais: https://resend.com/docs/knowledge-base/403-error-resend-dev-domain.

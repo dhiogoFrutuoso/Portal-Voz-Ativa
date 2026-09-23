@@ -6,7 +6,10 @@
  *
  * Uso: node scripts/testes/fluxos-protocolo.mjs
  */
-import 'dotenv/config';
+process.env.DOTENV_CONFIG_PATH = '__teste_sem_env__';
+process.env.RESEND_API_KEY = '';
+process.env.EMAIL_REMETENTE = '';
+process.env.NODE_ENV = 'test';
 import express from 'express';
 import session from 'express-session';
 import flash from 'connect-flash';

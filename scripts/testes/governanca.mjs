@@ -18,8 +18,10 @@ const replica = await MongoMemoryReplSet.create({ replSet: { count: 1 } });
 process.env.MONGO_URI_PROD = replica.getUri('governanca');
 const fetchOriginal = globalThis.fetch;
 const emails = [];
+let failEmail = false;
 globalThis.fetch = async (url, options) => {
     if (String(url).startsWith('https://api.resend.com/')) {
+        if (failEmail) return Response.json({ name: 'validation_error', message: 'Falha simulada' }, { status: 403 });
         emails.push(JSON.parse(options.body)); return Response.json({ id: 'mail-test' });
     }
     if (String(url).startsWith('https://www.google.com/recaptcha/')) return Response.json({ success: true, score: 0.9, action: new URLSearchParams(options.body).get('response') === 'register' ? 'register' : 'login' });
@@ -121,7 +123,7 @@ try {
         if (response.headers.get('set-cookie')) cookie = response.headers.get('set-cookie').split(';')[0];
         return response;
     }
-    for (const route of ['/termos-de-uso', '/politica-de-privacidade', '/verificar-email', '/esqueci-senha', '/redefinir-senha']) assert.equal((await request(route)).status, 200, route);
+    for (const route of ['/termos-de-uso', '/politica-de-privacidade', '/esqueci-senha']) assert.equal((await request(route)).status, 200, route);
     assert.equal((await request(`/categories/denuncias_sigilosas/comentarios/${privateDoc._id}`)).status, 404);
     const detail = await (await request(`/categories/gestao_de_melhorias/detalhes/${doc._id}`)).text();
     const hub = await (await request('/categories/gestao_de_melhorias/hub')).text(); assert.ok(hub.includes('Cidadão Protegido')); assert.ok(!detail.includes('Nome protegido'));
@@ -149,14 +151,56 @@ try {
     assert.equal((await User.findOne({ email: 'novo@example.test' })).isVerified, false);
     const unverifiedLogin = await request('/users/login', { _csrf: registerCsrf, email: 'novo@example.test',
         password: 'SenhaNova123!', 'g-recaptcha-response': 'teste' });
-    assert.equal(unverifiedLogin.headers.get('location'), '/verificar-email', 'Não autenticar conta sem confirmação');
+    assert.equal(unverifiedLogin.status, 200, 'Login não inicia verificação');
+    assert.equal(unverifiedLogin.headers.get('location'), null);
+    assert.ok(!(await unverifiedLogin.text()).includes('href="/verificar-email"'));
+    const countBeforeResume = emails.length;
+    assert.equal((await request('/users/register', { _csrf: registerCsrf, acceptTerms: 'true', name: 'Retomar Cadastro', email: 'novo@example.test', password: 'SenhaNova123!', password_2: 'SenhaNova123!', 'g-recaptcha-response': 'register' })).headers.get('location'), '/verificar-email');
+    assert.equal(emails.length, countBeforeResume, 'Retomada respeita cooldown');
+    assert.equal((await User.findOne({ email: 'novo@example.test' })).name, 'Novo Cadastro', 'Retomada não sobrescreve dados');
     const registerCode = emails.at(-1).text.match(/código é (\d{6})/)[1];
     const verifyHtml = await (await request('/verificar-email')).text();
     const verifyCsrf = verifyHtml.match(/name="_csrf" value="([^"]+)"/)[1];
     const verified = await request('/verificar-email', { _csrf: verifyCsrf, email: 'novo@example.test', code: registerCode });
     assert.equal(verified.headers.get('location'), '/users/login');
     assert.equal((await User.findOne({ email: 'novo@example.test' })).isVerified, true);
-    if (process.argv.includes('--preview')) { console.log('PREVIEW ' + base); await new Promise(() => {}); }
+    // Contas anteriores ao recurso não são forçadas a confirmar no login.
+    const legacy = await User.create({ name: 'Legado', email: 'legado@example.test', password: await bcrypt.hash('SenhaLegado123!', 4) });
+    await User.updateOne({ _id: legacy._id }, { $unset: { isVerified: 1 } });
+    let pageHtml = await (await request('/users/login')).text();
+    let token = pageHtml.match(/name="_csrf" value="([^"]+)"/)[1];
+    const emailCount = emails.length;
+    assert.equal((await request('/users/login', { _csrf: token, email: legacy.email, password: 'SenhaLegado123!', 'g-recaptcha-response': 'teste' })).headers.get('location'), '/');
+    assert.equal(emails.length, emailCount, 'Login não envia email');
+    assert.equal((await request('/users/profile')).status, 200);
+    pageHtml = await (await request('/esqueci-senha')).text();
+    token = pageHtml.match(/name="_csrf" value="([^"]+)"/)[1];
+    const recovery = await request('/esqueci-senha', { _csrf: token, email: legacy.email });
+    assert.equal(recovery.status, 200);
+    assert.match(await recovery.text(), /name="code"/);
+    for (let i = 0; i < 100 && emails.length === emailCount; i++) await new Promise(r => setTimeout(r, 10));
+    const recoveryCode = emails.at(-1).text.match(/código é (\d{6})/)[1];
+    assert.equal((await request('/redefinir-senha', { _csrf: token, email: legacy.email, code: recoveryCode, password: 'NovaSenhaLegado123!', password_2: 'Diferente123!' })).status, 400);
+    assert.equal((await request('/redefinir-senha', { _csrf: token, email: legacy.email, code: recoveryCode, password: 'NovaSenhaLegado123!', password_2: 'NovaSenhaLegado123!' })).headers.get('location'), '/users/login');
+    assert.equal(await bcrypt.compare('NovaSenhaLegado123!', (await User.findById(legacy._id)).password), true);
+    pageHtml = await (await request('/esqueci-senha')).text();
+    token = pageHtml.match(/name="_csrf" value="([^"]+)"/)[1];
+    const from = process.env.EMAIL_REMETENTE;
+    delete process.env.EMAIL_REMETENTE;
+    assert.equal((await request('/esqueci-senha', { _csrf: token, email: legacy.email })).status, 503);
+    await assert.rejects(emitirOtp(legacy.email, 'reset'));
+    process.env.EMAIL_REMETENTE = from;
+    assert.equal((await request('/verificar-email')).headers.get('location'), '/users/register', 'Verificação só no cadastro');
+    assert.equal((await request('/redefinir-senha')).headers.get('location'), '/esqueci-senha');
+    failEmail = true;
+    await assert.rejects(emitirOtp(legacy.email, 'reset'));
+    assert.equal(await Otp.countDocuments({ userId: legacy._id }), 0, 'Falha no envio não deixa código inutilizável bloqueando reenvio');
+    failEmail = false;
+    await emitirOtp(legacy.email, 'reset');
+    assert.equal(await Otp.countDocuments({ userId: legacy._id }), 1);
+    console.log('OK contas: login legado sem envio, cadastro separado, recuperação HTTP, remetente ausente e falha/retry do provedor.');
+    if (process.argv.includes('--preview')) {
+        app.get('/__test/inbox', (_req, res) => res.json(emails)); console.log('PREVIEW ' + base); await new Promise(() => {}); }
     console.log('OK HTTP: páginas legais/OTP, sigilo, declaração, honeypot, URL não inspecionada e revogação de sessão.');
 } finally {
     globalThis.fetch = fetchOriginal;

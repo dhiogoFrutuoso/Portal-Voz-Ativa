@@ -9,7 +9,8 @@ export default function configurePassport(passport) {
         try {
             const user = await User.findOne({ email: String(email).trim().toLowerCase() }).lean();
             if (!user || !await bcrypt.compare(password, user.password)) return done(null, false, { message: 'E-mail ou senha inválidos.' });
-            if (user.isVerified !== true) return done(null, false, { message: 'Confirme seu e-mail antes de entrar.', verificationRequired: true });
+            // Somente cadastros explicitamente pendentes ficam inativos; contas legadas continuam entrando.
+            if (user.isVerified === false) return done(null, false, { message: 'E-mail ou senha inválidos, ou cadastro ainda não concluído.' });
             return done(null, user);
         } catch (error) { done(error); }
     }));
@@ -21,7 +22,7 @@ export default function configurePassport(passport) {
             const payload = lerToken(token);
             if (!payload || !mongoose.isValidObjectId(payload.sub)) return done(null, false);
             const user = await User.findById(payload.sub).select('-password').lean();
-            if (!user || user.isVerified !== true || (user.tokenVersion || 0) !== payload.tokenVersion) return done(null, false);
+            if (!user || user.isVerified === false || (user.tokenVersion || 0) !== payload.tokenVersion) return done(null, false);
             done(null, user);
         } catch (error) { done(error); }
     });

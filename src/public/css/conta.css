@@ -1,0 +1,18 @@
+.conta-section { padding: 4rem 0; }
+.conta-card { max-width: 460px; margin: 0 auto; background: #fff; border-radius: 1.5rem; padding: 2.5rem; box-shadow: 0 16px 48px rgba(19,49,92,.12); }
+.conta-icon { display: grid; place-items: center; width: 80px; height: 80px; margin: 0 auto 1.5rem; border-radius: 50%; color: #13315c; background: #f1f5fa; font-size: 2rem; }
+.conta-card h1 { color: #13315c; font-size: 1.65rem; font-weight: 800; }
+.conta-description { color: #667085; line-height: 1.65; font-size: .95rem; }
+.conta-card .form-control { background-color: #f6f7f9; border: 1px solid #e4e8ef; border-radius: .75rem; }
+.conta-card .form-control:focus { background-color: #fff; border-color: #13315c; box-shadow: 0 0 0 .2rem rgba(19,49,92,.12); }
+.conta-card .conta-submit { background: linear-gradient(45deg,#13315c,#1e4d8c); color: #fff; border: 0; border-radius: .75rem; padding: 1rem; font-weight: 700; width: 100%; }
+.conta-card .conta-submit:hover { background: #13315c; color: #fff; }
+.conta-card .conta-link { color: #13315c; font-weight: 700; text-decoration: none; background: none; border: 0; padding: .4rem 0; }
+.conta-card .conta-link:hover { text-decoration: underline; }
+.conta-card .conta-link:focus-visible { outline: 2px solid #13315c; outline-offset: 4px; border-radius: .25rem; }
+.conta-card .conta-code { min-height: 72px; font-family: ui-monospace, Consolas, monospace; font-size: 2rem; font-weight: 700; letter-spacing: .35em; text-indent: .35em; text-align: center; width: 100%; }
+.conta-card .conta-code::placeholder { color: #a8b3c4; opacity: 1; }
+.conta-card .alert { font-size: .9rem; border-radius: .75rem; }
+.conta-separator { border-top: 1px solid #e4e8ef; margin-top: 1.5rem; padding-top: 1.5rem; text-align: center; }
+@media (max-width: 575px) { .conta-section { padding: 2rem 0; } .conta-card { padding: 1.75rem 1.25rem; } .conta-card h1 { font-size: 1.5rem; } }
+/* [Melhoria Proativa Adicionada: identidade visual compartilhada e campo único acessível em telas pequenas] */

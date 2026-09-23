@@ -6,7 +6,10 @@
  * transformação de entrega (WebP) e publicações antigas guardam a imagem em
  * base64, então o valor da tela nunca batia com o que estava salvo.
  */
-import 'dotenv/config';
+process.env.DOTENV_CONFIG_PATH = '__teste_sem_env__';
+process.env.RESEND_API_KEY = '';
+process.env.EMAIL_REMETENTE = '';
+process.env.NODE_ENV = 'test';
 import express from 'express';
 import session from 'express-session';
 import flash from 'connect-flash';

@@ -1,8 +1,22 @@
-<section class="container py-5"><div class="card border-0 shadow-lg rounded-4 p-4 p-md-5 mx-auto" style="max-width:540px">
-<h1 class="h3 fw-bold" style="color:#13315c">Esqueci minha senha</h1><p>Informe seu e-mail para solicitar um código de recuperação.</p>
-<form method="post" action="/esqueci-senha"><input type="hidden" name="_csrf" value="{{csrfToken}}">
-<label class="form-label" for="recoveryEmail">E-mail</label><input class="form-control mb-3" id="recoveryEmail" name="email" type="email" maxlength="160" autocomplete="email" required>
-<div hidden><input name="website" tabindex="-1" autocomplete="off"></div>
-<button class="btn btn-primary w-100" type="submit" style="background:#13315c">Enviar código</button></form>
-<a class="mt-3" href="/users/login">Voltar ao login</a></div></section>
-{{!-- // [Melhoria Proativa Adicionada: fluxo de recuperação com resposta genérica e proteção CSRF] --}}
+<link rel="stylesheet" href="/css/conta.css?v={{versaoEstaticos}}">
+<section class="conta-section">
+  <div class="conta-card">
+    <header class="text-center mb-4">
+      <div class="conta-icon"><i class="bi bi-key" aria-hidden="true"></i></div>
+      <h1>Esqueci minha senha</h1>
+      <p class="conta-description mb-0">Vamos ajudar você a recuperar o acesso. Informe o e-mail usado no seu cadastro.</p>
+    </header>
+    {{#if erro}}<div class="alert alert-danger" role="alert">{{erro}}</div>{{/if}}
+    <form method="post" action="/esqueci-senha">
+      <input type="hidden" name="_csrf" value="{{csrfToken}}">
+      <div class="form-floating mb-4">
+        <input class="form-control" id="recoveryEmail" name="email" type="email" value="{{email}}" maxlength="160" autocomplete="email" placeholder="nome@exemplo.com" required>
+        <label for="recoveryEmail"><i class="bi bi-envelope me-2" aria-hidden="true"></i>E-mail do cadastro</label>
+      </div>
+      <div hidden><input name="website" tabindex="-1" autocomplete="off"></div>
+      <button class="btn conta-submit" type="submit">ENVIAR CÓDIGO <i class="bi bi-arrow-right ms-2" aria-hidden="true"></i></button>
+    </form>
+    <div class="conta-separator"><p class="text-muted small mb-1">Lembrou sua senha?</p><a class="conta-link" href="/users/login">Voltar ao login <i class="bi bi-arrow-right-short" aria-hidden="true"></i></a></div>
+  </div>
+</section>
+{{!-- // [Melhoria Proativa Adicionada: recuperação com estados de erro no mesmo padrão visual do login] --}}
