@@ -17,9 +17,10 @@ export function criarSessao(conexao, secret) {
         saveUninitialized: false,
         cookie: {
             httpOnly: true,
-            secure: 'auto',
+            secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
             maxAge: 7 * 24 * 60 * 60 * 1000
         }
     });
 }
+// [Melhoria Proativa Adicionada: validações e integrações de governança aplicadas ao fluxo existente]

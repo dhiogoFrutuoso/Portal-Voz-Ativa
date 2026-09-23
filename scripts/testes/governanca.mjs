@@ -1,0 +1,166 @@
+import assert from 'node:assert/strict';
+import { createHmac } from 'node:crypto';
+import { once } from 'node:events';
+import { MongoMemoryReplSet } from 'mongodb-memory-server';
+import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
+import sharp from 'sharp';
+import { PDFDocument } from 'pdf-lib';
+process.env.DOTENV_CONFIG_PATH = '__governanca_sem_env__';
+process.env.NODE_ENV = 'production';
+process.env.VERCEL = '1';
+process.env.JWT_SECRET = 'segredo-ficticio-isolado-governanca-123456789';
+process.env.RECAPTCHA_SECRET = 'teste';
+process.env.RESEND_API_KEY = 're_teste';
+process.env.EMAIL_REMETENTE = 'Portal <teste@example.test>';
+process.env.URL_PUBLICA = 'https://portal.example.test';
+const replica = await MongoMemoryReplSet.create({ replSet: { count: 1 } });
+process.env.MONGO_URI_PROD = replica.getUri('governanca');
+const fetchOriginal = globalThis.fetch;
+const emails = [];
+globalThis.fetch = async (url, options) => {
+    if (String(url).startsWith('https://api.resend.com/')) {
+        emails.push(JSON.parse(options.body)); return Response.json({ id: 'mail-test' });
+    }
+    if (String(url).startsWith('https://www.google.com/recaptcha/')) return Response.json({ success: true, score: 0.9, action: new URLSearchParams(options.body).get('response') === 'register' ? 'register' : 'login' });
+    return fetchOriginal(url, options);
+};
+let server;
+try {
+    const { conectarBanco } = await import('../../src/config/db.js');
+    await conectarBanco();
+    const { default: app } = await import('../../src/index.js');
+    const User = mongoose.model('users');
+    const Chamado = mongoose.model('chamados');
+    const Denuncia = mongoose.model('denuncias');
+    const { default: Otp } = await import('../../src/models/otp.js');
+    const { default: AuditLog } = await import('../../src/models/audit-log.js');
+    const { emitirOtp, consumirOtp } = await import('../../src/helpers/otp.js');
+    const { requestContext } = await import('../../src/helpers/request-context.js');
+    const { tratarArquivo } = await import('../../src/helpers/upload-seguro.js');
+    const { emitirToken, lerToken } = await import('../../src/helpers/auth-token.js');
+    const { sanitizeMongo } = await import('../../src/config/security.js');
+    const dirty = { body: JSON.parse('{"email":{"$ne":null},"__proto__":{"admin":true}}'),
+        query: { nested: { '$where': 'attack', 'a.b': 1, valid: 'ok' } }, params: { id: '123' } };
+    sanitizeMongo(dirty, {}, () => {});
+    assert.deepEqual(dirty.body.email, {});
+    assert.equal(Object.hasOwn(dirty.body, '__proto__'), false);
+    assert.deepEqual(dirty.query.nested, { valid: 'ok' });
+    await Promise.all([Otp.init(), AuditLog.init()]);
+    const user = await User.create({ name: 'Nome protegido', email: 'usuario@example.test', password: await bcrypt.hash('SenhaTeste123!', 4) });
+    await Promise.all(Array.from({ length: 8 }, () => emitirOtp(user.email, 'verify')));
+    assert.equal(emails.length, 1, 'Cooldown atômico');
+    const code = emails[0].text.match(/código é (\d{6})/)[1];
+    const stored = await Otp.findOne().select('+codeHash').lean();
+    assert.ok(stored.codeHash && !JSON.stringify(stored).includes(code));
+    const consumed = await Promise.all([consumirOtp(user.email, 'verify', code), consumirOtp(user.email, 'verify', code)]);
+    assert.equal(consumed.filter(Boolean).length, 1, 'OTP usado uma vez');
+    assert.equal((await User.findById(user._id)).isVerified, true);
+    await emitirOtp(user.email, 'reset');
+    const reset = emails.at(-1).text.match(/código é (\d{6})/)[1];
+    const wrong = reset === '111111' ? '222222' : '111111';
+    await Promise.all(Array.from({ length: 8 }, () => consumirOtp(user.email, 'reset', wrong, 'OutraSenha123!')));
+    assert.equal((await Otp.findOne({ purpose: 'reset' })).attempts, 5);
+    assert.equal(await consumirOtp(user.email, 'reset', reset, 'OutraSenha123!'), false);
+    await Otp.updateMany({}, { $set: { issuedAt: new Date(Date.now() - 61000) } });
+    await emitirOtp(user.email, 'reset');
+    const freshCode = emails.at(-1).text.match(/código é (\d{6})/)[1];
+    const oldJwt = emitirToken(user);
+    assert.equal(await consumirOtp(user.email, 'reset', freshCode, 'OutraSenha123!'), true);
+    const renewedUser = await User.findById(user._id);
+    assert.equal(renewedUser.tokenVersion, 1);
+    assert.equal(await bcrypt.compare('OutraSenha123!', renewedUser.password), true);
+    assert.notEqual(lerToken(oldJwt).tokenVersion, renewedUser.tokenVersion);
+    assert.equal(lerToken(oldJwt + 'x'), null);
+    await emitirOtp(user.email, 'reset');
+    const expiredCode = emails.at(-1).text.match(/código é (\d{6})/)[1];
+    await Otp.updateMany({}, { $set: { expiresAt: new Date(Date.now() - 1) } });
+    assert.equal(await consumirOtp(user.email, 'reset', expiredCode, 'OutraSenha123!'), false);
+    console.log('OK OTP: hash, cooldown concorrente, uso único, cinco tentativas, expiração e versão.');
+
+    const evidence = { declaredAccuracy: true, authorIpAddress: '127.0.0.1', authorUserAgent: 'teste' };
+    const doc = await Chamado.create({ ...evidence, titulo: 'Teste de auditoria', descricao: 'Descrição válida de teste', localizacao: 'Centro', usuario: user._id, isConfidential: true });
+    await assert.rejects(Chamado.create({ titulo: 'Sem aceite', descricao: 'Descrição válida', localizacao: 'Centro' }));
+    const created = await Chamado.findById(doc._id).select('+authorIpAddress');
+    created.authorIpAddress = '1.1.1.1'; created.declaredAccuracy = false;
+    await created.save();
+    assert.equal((await Chamado.findById(doc._id).select('+authorIpAddress')).authorIpAddress, '127.0.0.1');
+    const admin = await User.create({ name: 'Moderador', email: 'admin@example.test', password: 'x', isVerified: true, areAdmin: true });
+    const req = { user: admin, method: 'POST', path: '/admin/teste', ip: '127.0.0.1', get: () => 'teste' };
+    await requestContext.run({ req }, async () => await Chamado.findByIdAndUpdate(doc._id, { $set: { status: 'Resolvido' } }));
+    const log = await AuditLog.findOne({ targetId: doc._id });
+    assert.equal(log.previousState.status, 'Novo'); assert.equal(log.newState.status, 'Resolvido');
+    await assert.rejects(AuditLog.updateOne({ _id: log._id }, { $set: { action: 'fraude' } }));
+    await assert.rejects(AuditLog.deleteMany({}));
+    const originalCreate = AuditLog.create;
+    AuditLog.create = async () => { throw new Error('Falha de auditoria simulada'); };
+    await assert.rejects(requestContext.run({ req }, async () => await Chamado.findByIdAndUpdate(doc._id, { $set: { status: 'Novo' } })));
+    AuditLog.create = originalCreate;
+    assert.equal((await Chamado.findById(doc._id)).status, 'Resolvido', 'Rollback se auditoria falha');
+    console.log('OK evidências e auditoria: imutabilidade, estado anterior/posterior e rollback.');
+
+    const input = await sharp({ create: { width: 10, height: 10, channels: 3, background: 'red' } }).jpeg().withMetadata({ exif: { IFD0: { Make: 'CameraTeste' } } }).toBuffer();
+    const safe = await tratarArquivo(input);
+    assert.equal((await sharp(safe.buffer).metadata()).exif, undefined);
+    assert.equal(safe.mime, 'image/webp');
+    for (const bad of ['MZexecutavel', '<script>alert(1)</script>', 'RIFF0000WAVEdata', '%PDF-invalido']) await assert.rejects(tratarArquivo(Buffer.from(bad)));
+    const pdf = await PDFDocument.create(); pdf.addPage();
+    assert.equal((await tratarArquivo(Buffer.from(await pdf.save()))).mime, 'application/pdf');
+    pdf.addJavaScript('ataque', 'app.alert(1)');
+    await assert.rejects(tratarArquivo(Buffer.from(await pdf.save())));
+    console.log('OK uploads: magic bytes, EXIF removido, PDF válido e rejeição de PDF ativo.');
+
+    const privateDoc = await Denuncia.create({ ...evidence, titulo: 'Sigiloso', tipoOcorrencia: 'Vandalismo', descricao: 'Descrição confidencial de teste', localizacao: 'Centro', usuario: user._id, privada: true });
+    server = app.listen(0, '127.0.0.1'); await once(server, 'listening');
+    const base = `http://127.0.0.1:${server.address().port}`;
+    let cookie = '';
+    async function request(path, body) {
+        const response = await fetchOriginal(base + path, { redirect: 'manual', method: body ? 'POST' : 'GET',
+            headers: { cookie, 'x-forwarded-proto': 'https', ...(body ? { 'content-type': 'application/x-www-form-urlencoded' } : {}) },
+            ...(body ? { body: new URLSearchParams(body) } : {}) });
+        if (response.headers.get('set-cookie')) cookie = response.headers.get('set-cookie').split(';')[0];
+        return response;
+    }
+    for (const route of ['/termos-de-uso', '/politica-de-privacidade', '/verificar-email', '/esqueci-senha', '/redefinir-senha']) assert.equal((await request(route)).status, 200, route);
+    assert.equal((await request(`/categories/denuncias_sigilosas/comentarios/${privateDoc._id}`)).status, 404);
+    const detail = await (await request(`/categories/gestao_de_melhorias/detalhes/${doc._id}`)).text();
+    const hub = await (await request('/categories/gestao_de_melhorias/hub')).text(); assert.ok(hub.includes('Cidadão Protegido')); assert.ok(!detail.includes('Nome protegido'));
+    assert.ok(!detail.includes(`/users/perfil/${user._id}`));
+    const loginHtml = await (await request('/users/login')).text();
+    const csrf = loginHtml.match(/name="_csrf" value="([^"]+)"/)[1];
+    assert.equal((await request('/users/login', { _csrf: csrf, email: user.email, password: 'OutraSenha123!', 'g-recaptcha-response': 'teste' })).status, 302);
+    const profile = await (await request('/users/profile')).text();
+    const csrfLogged = profile.match(/name="_csrf" value="([^"]+)"/)[1];
+    const badFile = new FormData(); badFile.append('file', new Blob(['MZexe'], { type: 'image/jpeg' }), 'foto.jpg');
+    const uploadDenied = await fetchOriginal(base + '/uploads', { method: 'POST', headers: { cookie, 'x-forwarded-proto': 'https', 'x-csrf-token': csrfLogged }, body: badFile });
+    assert.equal(uploadDenied.status, 400, 'Arquivo disfarçado bloqueado no endpoint');
+    const fields = { _csrf: csrfLogged, titulo: 'Publicação de teste', descricao: 'Descrição do teste de publicação', localizacao: 'Rua de Teste' };
+    assert.equal((await request('/categories/gestao_de_melhorias/abrir-chamado', fields)).status, 400);
+    assert.equal((await request('/categories/gestao_de_melhorias/abrir-chamado', { ...fields, declaredAccuracy: 'true', website: 'bot' })).status, 400);
+    assert.equal((await request('/categories/gestao_de_melhorias/abrir-chamado', { ...fields, declaredAccuracy: 'true' })).status, 302);
+    assert.equal((await request('/categories/gestao_de_melhorias/abrir-chamado', { ...fields, declaredAccuracy: 'true', 'imagens[]': 'https://res.cloudinary.com/dnh7vok3r/image/upload/nao-validada.jpg' })).status, 400);
+    await User.updateOne({ _id: user._id }, { $inc: { tokenVersion: 1 } });
+    assert.equal((await request('/users/profile')).status, 302, 'Sessão revogada após mudar versão');
+    const registerHtml = await (await request('/users/register')).text();
+    const registerCsrf = registerHtml.match(/name="_csrf" value="([^"]+)"/)[1];
+    const registered = await request('/users/register', { _csrf: registerCsrf, acceptTerms: 'true',
+        name: 'Novo Cadastro', email: 'novo@example.test', password: 'SenhaNova123!', password_2: 'SenhaNova123!', 'g-recaptcha-response': 'register' });
+    assert.equal(registered.headers.get('location'), '/verificar-email');
+    assert.equal((await User.findOne({ email: 'novo@example.test' })).isVerified, false);
+    const unverifiedLogin = await request('/users/login', { _csrf: registerCsrf, email: 'novo@example.test',
+        password: 'SenhaNova123!', 'g-recaptcha-response': 'teste' });
+    assert.equal(unverifiedLogin.headers.get('location'), '/verificar-email', 'Não autenticar conta sem confirmação');
+    const registerCode = emails.at(-1).text.match(/código é (\d{6})/)[1];
+    const verifyHtml = await (await request('/verificar-email')).text();
+    const verifyCsrf = verifyHtml.match(/name="_csrf" value="([^"]+)"/)[1];
+    const verified = await request('/verificar-email', { _csrf: verifyCsrf, email: 'novo@example.test', code: registerCode });
+    assert.equal(verified.headers.get('location'), '/users/login');
+    assert.equal((await User.findOne({ email: 'novo@example.test' })).isVerified, true);
+    if (process.argv.includes('--preview')) { console.log('PREVIEW ' + base); await new Promise(() => {}); }
+    console.log('OK HTTP: páginas legais/OTP, sigilo, declaração, honeypot, URL não inspecionada e revogação de sessão.');
+} finally {
+    globalThis.fetch = fetchOriginal;
+    if (server) await new Promise((resolve) => { server.close(resolve); server.closeAllConnections(); });
+    await mongoose.disconnect(); await replica.stop();
+}
+// [Melhoria Proativa Adicionada: testes isolados com replica set, falhas e concorrência sem serviços reais]

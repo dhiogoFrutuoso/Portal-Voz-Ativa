@@ -88,6 +88,8 @@
                             </div>
 
                             <div class="d-grid gap-3">
+{{> _declaracao}}
+
                                 <button type="submit" class="btn btn-success btn-lg rounded-pill fw-bold shadow-sm py-3 transition-base">
                                     PUBLICAR ANÚNCIO
                                 </button>
@@ -152,8 +154,7 @@
             for (const file of [...selectedFiles]) {
                 const dados = new FormData();
                 dados.append('file', file);
-                dados.append('upload_preset', '{{cloudinaryUploadPreset}}');
-                const resposta = await fetch('https://api.cloudinary.com/v1_1/{{cloudinaryCloudName}}/image/upload', {
+                const resposta = await fetch('/uploads', { headers: { 'x-csrf-token': window.portalCsrf() },
                     method: 'POST', body: dados
                 });
                 const resultado = await resposta.json();
@@ -254,3 +255,4 @@
     .btn-success { background-color: #198754; border: none; }
     .btn-success:hover { background-color: #146c43; transform: translateY(-2px); }
 </style>
+{{!-- // [Melhoria Proativa Adicionada: interface integrada à proteção de identidade e aos fluxos seguros do portal] --}}

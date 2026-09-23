@@ -128,7 +128,7 @@ const IMG = 'https://res.cloudinary.com/' + (process.env.CLOUDINARY_CLOUD_NAME |
 
 try {
     // --- Cenário ---
-    const chamado = await Chamado.create({
+    const chamado = await Chamado.create({ declaredAccuracy: true, authorIpAddress: '127.0.0.1', authorUserAgent: 'teste',
         titulo: 'Buraco na rua principal',
         descricao: 'Buraco grande atrapalhando o trânsito.',
         localizacao: 'Centro, Cariús',
@@ -266,12 +266,12 @@ try {
     checar(doc.historico.length === totalAntes - 1, 'autor exclui a própria mensagem');
 
     console.log('\n--- Sigilo das denúncias ---');
-    const queimada = await Denuncia.create({
+    const queimada = await Denuncia.create({ declaredAccuracy: true, authorIpAddress: '127.0.0.1', authorUserAgent: 'teste',
         tipoOcorrencia: 'Foco de Queimada', titulo: 'Foco de Queimada',
         descricao: 'Fogo na vegetação perto da estrada.', localizacao: 'Serra',
         usuario: autor._id, privada: false
     });
-    const vandalismo = await Denuncia.create({
+    const vandalismo = await Denuncia.create({ declaredAccuracy: true, authorIpAddress: '127.0.0.1', authorUserAgent: 'teste',
         tipoOcorrencia: 'Vandalismo', titulo: 'Vandalismo',
         descricao: 'Depredação de patrimônio com envolvidos identificáveis.', localizacao: 'Praça',
         usuario: autor._id, privada: true
@@ -300,13 +300,13 @@ try {
     // melhoria do mesmo autor, que continua (corretamente) identificada.
     const blocoSigilosa = trechoDoProtocolo(painelGestor, 'Depredação de patrimônio');
     checar(!blocoSigilosa.includes('Autor Teste'), 'painel não revela quem denunciou');
-    checar(blocoSigilosa.includes('Denunciante anônimo'), 'painel mostra o denunciante como anônimo');
+    checar(blocoSigilosa.includes('Cidadão Protegido'), 'painel mostra o denunciante como anônimo');
 
     const blocoMelhoria = trechoDoProtocolo(painelGestor, 'Buraco na rua principal');
     checar(blocoMelhoria.includes('Autor Teste'), 'melhoria continua identificando o autor');
 
     const detalheAlheio = await pedir(`/categories/denuncias_sigilosas/detalhes/${vandalismo._id}`, { como: 'outro' });
-    checar(detalheAlheio.status === 302, 'acesso direto à sigilosa por terceiro é barrado');
+    checar(detalheAlheio.status === 404, 'acesso direto à sigilosa por terceiro é barrado');
 
     const detalheAutor = await pedir(`/categories/denuncias_sigilosas/detalhes/${vandalismo._id}`, { como: 'autor' });
     checar(detalheAutor.status === 200, 'autor continua acessando o detalhe da própria denúncia sigilosa direto pela URL');
@@ -329,7 +329,7 @@ try {
 
     const timelineSigilosa = await (await pedir(`/protocolos/denuncia/${vandalismo._id}`, { como: 'gestor' })).text();
     checar(!timelineSigilosa.includes('Autor Teste'), 'linha do tempo da sigilosa não revela o denunciante');
-    checar(timelineSigilosa.includes('Denunciante anônimo'), 'linha do tempo identifica como anônimo');
+    checar(timelineSigilosa.includes('Cidadão Protegido'), 'linha do tempo identifica como anônimo');
 
     // Sigilo não é esconder tudo: a denúncia pública de incêndio segue
     // com autor visível, como qualquer publicação aberta.
@@ -379,7 +379,7 @@ try {
     checar(buscaSemLogin.status === 302, 'busca de protocolos exige login');
 
     console.log('\n--- Comentários: quem edita e quem exclui ---');
-    const postComentarios = await Chamado.create({
+    const postComentarios = await Chamado.create({ declaredAccuracy: true, authorIpAddress: '127.0.0.1', authorUserAgent: 'teste',
         titulo: 'Praça sem iluminação', descricao: 'A praça central está no escuro.',
         localizacao: 'Centro', usuario: autor._id
     });
@@ -488,3 +488,4 @@ try {
 
 console.log(falhas === 0 ? '\nTodos os fluxos passaram.' : `\n${falhas} falha(s).`);
 process.exit(falhas === 0 ? 0 : 1);
+// [Melhoria Proativa Adicionada: fixtures atualizadas e verificação dos fluxos com dados descartáveis]

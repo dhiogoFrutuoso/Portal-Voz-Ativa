@@ -1,14 +1,20 @@
 import mongoose from 'mongoose';
 
-const userSchema = mongoose.Schema({ 
+const userSchema = mongoose.Schema({
+    isVerified: { type: Boolean, default: false },
+    tokenVersion: { type: Number, default: 0 },
+    acceptedTermsAt: { type: Date, immutable: true },
+    termsVersion: { type: String, immutable: true },
     name: {
         type: String,
-        required: true 
+        required: true
     },
     email: {
         type: String,
         required: true,
-        unique: true 
+        unique: true,
+        lowercase: true,
+        trim: true
     },
     password: {
         type: String,
@@ -24,8 +30,8 @@ const userSchema = mongoose.Schema({
         required: false
     },
     profileImage: {
-        type: String, 
-        default: "/img/guest.webp" 
+        type: String,
+        default: "/img/guest.webp"
     },
     areAdmin: {
         type: Boolean,
@@ -40,3 +46,4 @@ const userSchema = mongoose.Schema({
 mongoose.model('users', userSchema);
 
 export default userSchema;
+// [Melhoria Proativa Adicionada: campos e índices alinhados à governança e preservação de evidências]

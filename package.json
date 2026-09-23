@@ -17,7 +17,8 @@
     "migrar:sigilo": "node scripts/migrar-sigilo-denuncias.js",
     "preview:visual": "node scripts/testes/preview-visual.mjs",
     "build": "node scripts/preparar-vercel.js",
-    "test:vercel": "node scripts/testes/vercel.mjs"
+    "test:vercel": "node scripts/testes/vercel.mjs",
+    "test:governanca": "node scripts/testes/governanca.mjs"
   },
   "engines": {
     "node": "24.x"
@@ -42,12 +43,13 @@
     "nodemailer": "^9.0.6",
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
+    "pdf-lib": "^1.17.1",
     "resend": "^6.24.0",
+    "sharp": "^0.35.4",
     "zod": "^4.4.3"
   },
   "devDependencies": {
     "mongodb-memory-server": "^11.2.0",
-    "nodemon": "^3.1.11",
-    "sharp": "^0.35.4"
+    "nodemon": "^3.1.11"
   }
 }

@@ -200,7 +200,8 @@
 <p data-recaptcha-error class="text-danger small" role="alert" hidden></p>
 <noscript><p class="text-danger small">Ative o JavaScript para continuar com segurança.</p></noscript>
 
-          <button type="submit" class="btn btn-gradient w-100 py-3 text-white fw-bold rounded-3 shadow mt-3 mb-4">
+          <div class="form-check mb-3"><input type="checkbox" class="form-check-input" id="acceptTerms" name="acceptTerms" value="true" required><label class="form-check-label small" for="acceptTerms">Li e aceito os <a href="/termos-de-uso">Termos de Uso</a> e li a <a href="/politica-de-privacidade">Política de Privacidade</a>.</label></div><div hidden><input name="website" tabindex="-1" autocomplete="off"></div>
+<button type="submit" class="btn btn-gradient w-100 py-3 text-white fw-bold rounded-3 shadow mt-3 mb-4">
             FINALIZAR CADASTRO
           </button>
         </form>
@@ -311,11 +312,10 @@
       var base64data = canvas.toDataURL('image/png');
 
       var formData = new FormData();
-      formData.append('file', base64data);
-      formData.append('upload_preset', '{{cloudinaryUploadPreset}}');
+      formData.append('file', window.portalArquivo(base64data));
 
       $.ajax({
-        url: 'https://api.cloudinary.com/v1_1/{{cloudinaryCloudName}}/upload',
+        url: '/uploads', headers: { 'x-csrf-token': window.portalCsrf() },
         method: 'POST',
         data: formData,
         processData: false,
@@ -337,3 +337,4 @@
     });
   });
 </script>
+{{!-- // [Melhoria Proativa Adicionada: interface integrada à proteção de identidade e aos fluxos seguros do portal] --}}

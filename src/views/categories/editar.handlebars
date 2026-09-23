@@ -196,7 +196,7 @@
                                 <div class="zona-upload text-center p-4" id="zonaUpload">
                                     <div class="fs-3 text-muted mb-1"><i class="bi bi-cloud-arrow-up"></i></div>
                                     <div class="fw-bold">Adicionar novas imagens</div>
-                                    <div class="small text-muted">Até 5 no total, 5 MB por imagem</div>
+                                    <div class="small text-muted">Até 5 no total, 3 MB por imagem</div>
                                     <input type="file" id="novasImagens" accept="image/*" multiple hidden>
                                 </div>
 
@@ -283,8 +283,6 @@
 
 <script>
     (function () {
-        const cloudName = '{{cloudinaryCloudName}}';
-        const unsignedPreset = '{{cloudinaryUploadPreset}}';
         const LIMITE_BYTES = 5 * 1024 * 1024;
         const MAXIMO_IMAGENS = 5;
 
@@ -382,10 +380,9 @@
 
                 const dados = new FormData();
                 dados.append('file', arquivo);
-                dados.append('upload_preset', unsignedPreset);
 
                 try {
-                    const resposta = await fetch('https://api.cloudinary.com/v1_1/' + cloudName + '/upload', {
+                    const resposta = await fetch('/uploads', { headers: { 'x-csrf-token': window.portalCsrf() },
                         method: 'POST',
                         body: dados
                     });
@@ -434,3 +431,4 @@
         atualizarContador();
     })();
 </script>
+{{!-- // [Melhoria Proativa Adicionada: interface integrada à proteção de identidade e aos fluxos seguros do portal] --}}

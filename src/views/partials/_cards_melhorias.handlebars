@@ -4,6 +4,7 @@
      completa e o pedaço devolvido pela busca em tempo real. Assim o desenho do
      card existe num lugar só. --}}
 {{#each chamados}}
+{{#if isConfidential}}<p class="small text-muted">Cidadão Protegido</p>{{/if}}
                 {{#if imagemPrincipal}}
                     <div class="col-12 item-filtravel" data-status="{{this.status}}" data-titulo="{{this.titulo}}">
                         <div class="card shadow-lg border-top-primary border-1 rounded-4 overflow-hidden hover-lift bg-white">
@@ -143,3 +144,4 @@
                     </div>
                 </div>
             {{/each}}
+{{!-- // [Melhoria Proativa Adicionada: interface integrada à proteção de identidade e aos fluxos seguros do portal] --}}

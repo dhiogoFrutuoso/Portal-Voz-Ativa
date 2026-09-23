@@ -1,42 +1,29 @@
-import passport from "passport";
-import { Strategy as LocalStrategy } from "passport-local";
-import mongoose from "mongoose";
-import bcrypt from "bcryptjs";
-import "../models/user.js";
-
-const User = mongoose.model("users");
-
-export default function configurePassport(passportInstance) { //recebe o passport como parâmetro
-
-    passportInstance.use(new LocalStrategy({ usernameField: "email" }, (email, password, done) => { //Configura a estratégia local para verificar o login do usuario com email e senha
-
-            //String(email) evita que um objeto vire operador do Mongo dentro do findOne.
-            User.findOne({ email: String(email) }).lean().then((user) => { //procura o usuario pelo email no banco de dados
-                if (!user) {
-                    return done(null, false, { message: "email inválido! essa conta não existe, tente novamente!" }); //se não encontrar, retorna uma mensagem de erro
-                };
-
-                bcrypt.compare(password, user.password, (err, isMatch) => { //compara a senha digitada com a senha do banco de dados
-                    if (err) return done(err);
-
-                    if (isMatch) { //se a senha estiver correta
-                        return done(null, user); //retorna o usuario
-                    } else {//se a senha estiver incorreta
-                        return done(null, false, { message: "senha incorreta, tente novamente!" }); //retorna uma mensagem de erro
-                    };
-                });
-            }).catch((err) => done(err));
-        })
-    );
-
-    passportInstance.serializeUser((user, done) => { //Salva o ID do usuario na sessão, tipo um cookie, armazena que o usuario esta logado
-        done(null, user._id);
+import { Strategy as LocalStrategy } from 'passport-local';
+import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
+import '../models/user.js';
+import { emitirToken, lerToken } from '../helpers/auth-token.js';
+const User = mongoose.model('users');
+export default function configurePassport(passport) {
+    passport.use(new LocalStrategy({ usernameField: 'email' }, async (email, password, done) => {
+        try {
+            const user = await User.findOne({ email: String(email).trim().toLowerCase() }).lean();
+            if (!user || !await bcrypt.compare(password, user.password)) return done(null, false, { message: 'E-mail ou senha inválidos.' });
+            if (user.isVerified !== true) return done(null, false, { message: 'Confirme seu e-mail antes de entrar.', verificationRequired: true });
+            return done(null, user);
+        } catch (error) { done(error); }
+    }));
+    passport.serializeUser((user, done) => {
+        try { done(null, emitirToken(user)); } catch (error) { done(error); }
     });
-
-    passportInstance.deserializeUser((id, done) => { //Recupera o usuario pelo ID salvo na sessão, para manter o usuario logado.
-        //O hash da senha fica de fora: req.user vai parar no res.locals e nas views.
-        User.findById(id).select("-password").lean().then((user) => { //Busca o usuario no banco de dados pelo ID
-            done(null, user); //retorna o usuario
-        }).catch((err) => done(err));
+    passport.deserializeUser(async (token, done) => {
+        try {
+            const payload = lerToken(token);
+            if (!payload || !mongoose.isValidObjectId(payload.sub)) return done(null, false);
+            const user = await User.findById(payload.sub).select('-password').lean();
+            if (!user || user.isVerified !== true || (user.tokenVersion || 0) !== payload.tokenVersion) return done(null, false);
+            done(null, user);
+        } catch (error) { done(error); }
     });
-};
+}
+// [Melhoria Proativa Adicionada: toda requisição confere tokenVersion no banco e revoga sessões antigas]

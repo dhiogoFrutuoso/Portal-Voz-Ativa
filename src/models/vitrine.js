@@ -1,3 +1,4 @@
+import { governancaPlugin } from '../helpers/governanca.js';
 import mongoose from 'mongoose';
 
 const Schema = mongoose.Schema;
@@ -93,4 +94,7 @@ const VitrineSchema = new Schema({
     }
 });
 
+VitrineSchema.plugin(governancaPlugin);
+
 mongoose.model('vitrine', VitrineSchema);
+// [Melhoria Proativa Adicionada: campos e índices alinhados à governança e preservação de evidências]

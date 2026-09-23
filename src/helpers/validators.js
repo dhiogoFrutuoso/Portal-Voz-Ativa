@@ -113,11 +113,12 @@ export function validarImagemBase64(entrada) {
         return { erro: 'A imagem excede o limite de 5 MB.' };
     }
 
-    const assinaturaConfere = ASSINATURAS.some((bytes) =>
+    const assinaturaConfere = !entrada.startsWith('data:image/webp') || buffer.toString('ascii', 8, 12) === 'WEBP';
+    const assinaturaValida = assinaturaConfere && ASSINATURAS.some((bytes) =>
         bytes.every((byte, i) => buffer[i] === byte)
     );
 
-    if (!assinaturaConfere) {
+    if (!assinaturaValida) {
         return { erro: 'O arquivo enviado não é uma imagem válida.' };
     }
 
@@ -129,7 +130,7 @@ export const registroSchema = z
     .object({
         name: textoLimpo(2, 80, 'Nome'),
         email: z.string({ required_error: 'E-mail é obrigatório.' }).trim().toLowerCase().email('E-mail inválido.').max(160),
-        password: z.string({ required_error: 'Senha é obrigatória.' }).min(8, 'A senha precisa ter ao menos 8 caracteres.').max(128),
+        password: z.string({ required_error: 'Senha é obrigatória.' }).min(8, 'A senha precisa ter ao menos 8 caracteres.').max(128).refine((value) => Buffer.byteLength(value, 'utf8') <= 72, 'A senha excede 72 bytes.'),
         password_2: z.string({ required_error: 'Confirme a senha.' }),
         profession: textoOpcional(60, 'Profissão'),
         bio: textoOpcional(500, 'Bio')
@@ -153,7 +154,7 @@ export const perfilSchema = z.object({
 export const trocaDeSenhaSchema = z
     .object({
         oldPassword: z.string({ required_error: 'Informe a senha atual.' }).min(1, 'Informe a senha atual.').max(128),
-        newPassword: z.string({ required_error: 'Informe a nova senha.' }).min(8, 'A nova senha precisa ter ao menos 8 caracteres.').max(128),
+        newPassword: z.string({ required_error: 'Informe a nova senha.' }).min(8, 'A nova senha precisa ter ao menos 8 caracteres.').max(128).refine((value) => Buffer.byteLength(value, 'utf8') <= 72, 'A senha excede 72 bytes.'),
         newPassword2: z.string({ required_error: 'Confirme a nova senha.' })
     })
     .refine((d) => d.newPassword === d.newPassword2, {
@@ -270,3 +271,4 @@ export function nomeDeArquivoSeguro(nome) {
 
     return limpo || null;
 }
+// [Melhoria Proativa Adicionada: validações e integrações de governança aplicadas ao fluxo existente]

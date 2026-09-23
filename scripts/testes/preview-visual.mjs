@@ -48,28 +48,28 @@ const IMG = (nome) => `https://res.cloudinary.com/${CLOUD}/image/upload/f_auto,q
 const gestor = await User.create({ name: 'Gestor Municipal', email: 'gestor@preview.local', password: 'x', areAdmin: true });
 const cidadao = await User.create({ name: 'Maria Souza', email: 'maria@preview.local', password: 'x', profession: 'Autônoma' });
 
-await Chamado.create({
+await Chamado.create({ declaredAccuracy: true, authorIpAddress: '127.0.0.1', authorUserAgent: 'teste',
     titulo: 'Asfalto desgastado', descricao: 'Necessidade de reparo no asfalto do bairro São Vicente.',
     localizacao: 'Rua Jonas Oliveira Lopes, Cariús', imagens: [IMG('a')],
     usuario: cidadao._id, status: 'Em Atendimento',
     historico: [{ autor: cidadao._id, papel: 'cidadao', texto: 'Piorou com a chuva.', createdAt: new Date() }]
 });
-await Chamado.create({
+await Chamado.create({ declaredAccuracy: true, authorIpAddress: '127.0.0.1', authorUserAgent: 'teste',
     titulo: 'Postes não funcionais', descricao: 'Problema de iluminação na rua, os postes pararam de funcionar.',
     localizacao: 'Rua Padre José Sobreira, Cariús', imagens: [IMG('b')], usuario: cidadao._id, status: 'Novo'
 });
-await Denuncia.create({
+await Denuncia.create({ declaredAccuracy: true, authorIpAddress: '127.0.0.1', authorUserAgent: 'teste',
     tipoOcorrencia: 'Vandalismo', titulo: 'Vandalismo',
     descricao: 'Durante um protesto, atearam fogo em um ônibus.',
     localizacao: 'Rua Pascoal Stopelli, Cariús', imagens: [IMG('c')],
     usuario: cidadao._id, status: 'Novo', privada: true
 });
-await Denuncia.create({
+await Denuncia.create({ declaredAccuracy: true, authorIpAddress: '127.0.0.1', authorUserAgent: 'teste',
     tipoOcorrencia: 'Foco de Queimada', titulo: 'Foco de Queimada',
     descricao: 'Queimada no topo da serra.', localizacao: 'Cariús, Serra',
     imagens: [IMG('d')], usuario: cidadao._id, status: 'Novo', privada: false
 });
-await Vitrine.create({
+await Vitrine.create({ declaredAccuracy: true, authorIpAddress: '127.0.0.1', authorUserAgent: 'teste',
     categoria: 'Alimentação', titulo: 'Bolo de pote', descricao: 'Vendo bolos de pote, faço entrega na sede de Cariús.',
     contato: '88999999999', localizacao: 'Rua Primeiro de Maio, Cariús',
     imagens: [IMG('e')], usuario: cidadao._id
@@ -136,3 +136,4 @@ app.listen(PORTA, () => {
     console.log(`Cidadão:         http://localhost:${PORTA}/protocolos?como=cidadao`);
     console.log(`Público:         http://localhost:${PORTA}/categories/denuncias_sigilosas/hub`);
 });
+// [Melhoria Proativa Adicionada: fixtures atualizadas e verificação dos fluxos com dados descartáveis]

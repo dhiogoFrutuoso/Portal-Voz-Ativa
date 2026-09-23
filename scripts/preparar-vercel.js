@@ -6,7 +6,10 @@ import { fileURLToPath } from 'node:url';
 const origem = fileURLToPath(new URL('../src/public/', import.meta.url));
 const destino = fileURLToPath(new URL('../public/', import.meta.url));
 // Interrompe o deploy se o script usado por login/cadastro não veio no checkout.
-await access(new URL('../src/public/js/recaptcha-v3.js', import.meta.url));
+await Promise.all(['recaptcha-v3.js', 'otp.js', 'portal-upload.js', 'upload-guard.js'].map(
+    (file) => access(new URL(`../src/public/js/${file}`, import.meta.url))
+));
 await mkdir(destino, { recursive: true });
 await cp(origem, destino, { recursive: true });
 console.log('Arquivos públicos preparados para a CDN da Vercel.');
+// [Melhoria Proativa Adicionada: build verifica os scripts exigidos pelos formulários antes da publicação]

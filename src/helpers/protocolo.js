@@ -278,7 +278,7 @@ export function podeVerDenuncia(doc, usuario) {
  */
 export const AUTOR_ANONIMO = {
     _id: null,
-    name: 'Denunciante anônimo',
+    name: 'Cidadão Protegido',
     profileImage: '/img/guest.webp',
     profession: 'Identidade protegida',
     anonimo: true
@@ -290,7 +290,7 @@ export const ehDenunciaSigilosa = (doc) =>
 
 // Troca o autor por um perfil anônimo quando a denúncia é sigilosa.
 export function anonimizarAutor(autor, doc) {
-    return ehDenunciaSigilosa(doc) ? { ...AUTOR_ANONIMO } : autor;
+    return (doc?.isConfidential || ehDenunciaSigilosa(doc)) ? { ...AUTOR_ANONIMO } : autor;
 }
 
 /*
@@ -336,3 +336,4 @@ export function montarRecurso(doc, sigilosa = false) {
         autorAnonimo: Boolean(sigilosa)
     };
 }
+// [Melhoria Proativa Adicionada: validações e integrações de governança aplicadas ao fluxo existente]

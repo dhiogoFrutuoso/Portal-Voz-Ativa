@@ -1,8 +1,9 @@
+import { emitirOtp } from '../helpers/otp.js';
+import { aceito, VERSAO_TERMOS } from '../helpers/governanca.js';
 import express from "express";
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import passport from "passport";
-import { v2 as cloudinary } from "cloudinary";
 import { limitarRequisicoes } from '../config/rate-limit.js';
 import "dotenv/config";
 import "../models/user.js";
@@ -16,7 +17,6 @@ import {
   loginSchema,
   perfilSchema,
   trocaDeSenhaSchema,
-  validarImagemBase64,
   primeiraMensagem,
   todasAsMensagens,
 } from "../helpers/validators.js";
@@ -55,47 +55,11 @@ const contaLimiter = limitarRequisicoes('conta', {
   legacyHeaders: false,
 });
 
-// --- CONFIGURAÇÃO DO CLOUDINARY ---
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
-
-// --- FUNÇÃO AUXILIAR PARA SUBIR PARA O CLOUDINARY ---
-// Só sobe para o Cloudinary o que passou pela checagem de mime, assinatura
-// binária (magic numbers) e tamanho. A transformação reencoda a imagem, o que
-// descarta metadados EXIF — inclusive a localização GPS embutida pela câmera.
+// URLs aceitas já passaram pela inspeção e pelo recibo de upload no middleware.
 const uploadToCloudinary = async (imageInput) => {
-  const checagem = validarImagemBase64(imageInput);
-
-  if (checagem.erro) {
-    throw new Error(checagem.erro);
-  }
-
-  if (checagem.vazio) {
-    return "/img/guest.webp";
-  }
-
-  if (checagem.url) {
-    return checagem.url;
-  }
-
-  try {
-    const result = await cloudinary.uploader.upload(checagem.base64, {
-      folder: "img_users",
-      resource_type: "image",
-      allowed_formats: ["png", "jpg", "jpeg", "webp"],
-      format: "webp", // Guarda já convertido, no formato mais leve
-      transformation: [
-        { width: 500, height: 500, crop: "fill", gravity: "face", quality: "auto" },
-      ],
-    });
-    return result.secure_url;
-  } catch (error) {
-    console.error("Erro no Cloudinary Backend:", error);
-    throw new Error("Não foi possível processar a imagem enviada.");
-  }
+  if (!imageInput) return '/img/guest.webp';
+  if (typeof imageInput !== 'string' || !imageInput.startsWith('https://res.cloudinary.com/')) throw new Error('Use o seletor de foto.');
+  return imageInput;
 };
 
 // --- ROTAS DE REGISTRO ---
@@ -104,6 +68,7 @@ router.get("/register", (req, res) => {
 });
 
 router.post("/register", registerLimiter, async (req, res) => {
+  if (!aceito(req.body.acceptTerms) || req.body.website) return res.status(400).send('Aceite os termos de uso para criar sua conta.');
   const { name, email, profession, bio, croppedImage } = req.body;
   const token = req.body["g-recaptcha-response"];
 
@@ -179,6 +144,9 @@ router.post("/register", registerLimiter, async (req, res) => {
     }
 
     const newUser = new user({
+      isVerified: false,
+      acceptedTermsAt: new Date(),
+      termsVersion: VERSAO_TERMOS,
       name: dados.name,
       email: dados.email,
       password: dados.password,
@@ -191,8 +159,9 @@ router.post("/register", registerLimiter, async (req, res) => {
     newUser.password = await bcrypt.hash(newUser.password, salt);
     await newUser.save();
 
-    req.flash("success_msg", "Usuário criado com sucesso!");
-    res.redirect("/users/login");
+    req.session.pendingEmail = dados.email;
+    try { await emitirOtp(dados.email, 'verify'); } catch { console.error('Falha ao enviar confirmação de cadastro.'); }
+    res.redirect('/verificar-email');
   } catch (err) {
     console.error("Erro no Registro:", err);
     res.render("users/register", {
@@ -248,6 +217,10 @@ router.post("/login", loginLimiter, async (req, res, next) => {
       }
 
       if (!user) {
+        if (info?.verificationRequired) {
+          req.session.pendingEmail = req.body.email;
+          return res.redirect('/verificar-email');
+        }
         return res.render("users/login", {
           error_msg: info && info.message ? info.message : "Credenciais inválidas.",
         });
@@ -346,12 +319,13 @@ router.post("/profile/change-password", isUser, contaLimiter, async (req, res) =
       return res.redirect("/users/profile");
     }
 
+    const hashAnterior = usuario.password;
     const salt = await bcrypt.genSalt(12);
     usuario.password = await bcrypt.hash(newPassword, salt);
 
-    await usuario.save();
-    req.flash("success_msg", "Senha alterada com sucesso!");
-    res.redirect("/users/profile");
+    const alterado = await user.updateOne({ _id: usuario._id, password: hashAnterior }, { $set: { password: usuario.password }, $inc: { tokenVersion: 1 } });
+    if (alterado.modifiedCount !== 1) throw new Error('Senha alterada em outra sessão.');
+    req.session.destroy(() => res.redirect('/users/login'));
   } catch (err) {
     console.error(err);
     req.flash("error_msg", "Erro interno ao mudar senha.");
@@ -422,7 +396,7 @@ router.get("/perfil/:id", async (req, res) => {
     const Vitrine = mongoose.model("vitrine");
 
     const usuarioPerfil = await User.findById(req.params.id)
-      .select("-password")
+      .select("name profession bio profileImage date")
       .lean();
 
     if (!usuarioPerfil) {
@@ -431,10 +405,10 @@ router.get("/perfil/:id", async (req, res) => {
       });
     }
 
-    const vitrinesUsuario = await Vitrine.find({ usuario: req.params.id })
+    const vitrinesUsuario = await Vitrine.find({ usuario: req.params.id, isConfidential: { $ne: true } })
       .sort({ dataCriacao: -1 })
       .lean();
-    const chamadosDoUsuario = await Chamado.find({ usuario: req.params.id })
+    const chamadosDoUsuario = await Chamado.find({ usuario: req.params.id, isConfidential: { $ne: true } })
       .sort({ dataCriacao: -1 })
       .lean();
 
@@ -464,3 +438,4 @@ router.get("/perfil/:id", async (req, res) => {
 });
 
 export default router;
+// [Melhoria Proativa Adicionada: validações e integrações de governança aplicadas ao fluxo existente]

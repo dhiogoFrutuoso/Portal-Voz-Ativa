@@ -1,0 +1,21 @@
+<section class="container py-5"><div class="card border-0 shadow-lg rounded-4 p-4 p-md-5 mx-auto" style="max-width:560px">
+<h1 class="h3 fw-bold" style="color:#13315c">{{#if reset}}Redefinir senha{{else}}Verificar e-mail{{/if}}</h1>
+<p>Digite o código de seis dígitos enviado ao seu e-mail. Ele vale por dez minutos.</p>
+{{#if mensagem}}<p class="alert alert-info" role="status">{{mensagem}}</p>{{/if}}{{#if erro}}<p class="alert alert-danger" role="alert">{{erro}}</p>{{/if}}
+<form method="post" action="{{#if reset}}/redefinir-senha{{else}}/verificar-email{{/if}}">
+<input type="hidden" name="_csrf" value="{{csrfToken}}"><label for="otpEmail" class="form-label">E-mail</label><input class="form-control mb-3" id="otpEmail" type="email" name="email" value="{{email}}" autocomplete="email" required>
+<fieldset><legend class="h6">Código de verificação</legend><div class="d-flex gap-2 mb-3" data-otp-inputs>
+<input name="digits[]" aria-label="Dígito 1" class="form-control text-center p-1" inputmode="numeric" pattern="[0-9]" maxlength="1" autocomplete="one-time-code" required>
+<input name="digits[]" aria-label="Dígito 2" class="form-control text-center p-1" inputmode="numeric" pattern="[0-9]" maxlength="1" required>
+<input name="digits[]" aria-label="Dígito 3" class="form-control text-center p-1" inputmode="numeric" pattern="[0-9]" maxlength="1" required>
+<input name="digits[]" aria-label="Dígito 4" class="form-control text-center p-1" inputmode="numeric" pattern="[0-9]" maxlength="1" required>
+<input name="digits[]" aria-label="Dígito 5" class="form-control text-center p-1" inputmode="numeric" pattern="[0-9]" maxlength="1" required>
+<input name="digits[]" aria-label="Dígito 6" class="form-control text-center p-1" inputmode="numeric" pattern="[0-9]" maxlength="1" required>
+</div></fieldset>
+{{#if reset}}<label class="form-label" for="newPassword">Nova senha</label><input class="form-control mb-3" id="newPassword" type="password" name="password" minlength="8" maxlength="72" autocomplete="new-password" required>
+<label class="form-label" for="confirmPassword">Confirme a senha</label><input class="form-control mb-3" id="confirmPassword" type="password" name="password_2" minlength="8" maxlength="72" autocomplete="new-password" required>{{/if}}
+<div hidden><input name="website" tabindex="-1" autocomplete="off"></div><button class="btn btn-success w-100" type="submit">{{#if reset}}Salvar nova senha{{else}}Confirmar e-mail{{/if}}</button>
+</form>
+<form class="mt-4" method="post" action="{{#if reset}}/redefinir-senha{{else}}/verificar-email{{/if}}/reenviar"><input type="hidden" name="_csrf" value="{{csrfToken}}"><label class="form-label" for="resendEmail">E-mail para reenvio</label><input class="form-control mb-2" id="resendEmail" type="email" name="email" value="{{email}}" required><button class="btn btn-outline-primary w-100" type="submit">Solicitar novo código</button><p class="small text-muted mt-2">Aguarde 60 segundos entre solicitações. Até cinco tentativas por código.</p></form>
+<a href="/users/login">Voltar ao login</a></div></section><script src="/js/otp.js?v={{versaoEstaticos}}" defer></script>
+{{!-- // [Melhoria Proativa Adicionada: seis campos acessíveis, colagem integral e ausência do código na URL] --}}

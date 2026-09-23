@@ -68,6 +68,8 @@
                             </div>
 
                             <div class="d-grid gap-3">
+{{> _declaracao}}
+
                                 <button type="submit" id="submitBtn" class="btn btn-primary btn-lg rounded-pill fw-bold shadow-sm py-3 transition-base">
                                     CONFIRMAR REGISTRO
                                 </button>
@@ -90,8 +92,6 @@
 <script>
     $(document).ready(function() {
         // --- CONFIGURAÇÕES CLOUDINARY ---
-        const cloudName = '{{cloudinaryCloudName}}';
-        const unsignedPreset = '{{cloudinaryUploadPreset}}';
         let selectedFiles = [];
 
         // --- LÓGICA DO MAPA ---
@@ -197,10 +197,9 @@
 
                         const formData = new FormData();
                         formData.append('file', base64Data);
-                        formData.append('upload_preset', unsignedPreset);
 
                         const response = await $.ajax({
-                            url: `https://api.cloudinary.com/v1_1/${cloudName}/upload`,
+                            url: `/uploads`, headers: { 'x-csrf-token': window.portalCsrf() },
                             method: 'POST',
                             data: formData,
                             processData: false,
@@ -233,3 +232,4 @@
     .btn-primary:hover { background-color: #0d2342; transform: translateY(-2px); }
     .cursor-pointer { cursor: pointer; }
 </style>
+{{!-- // [Melhoria Proativa Adicionada: interface integrada à proteção de identidade e aos fluxos seguros do portal] --}}

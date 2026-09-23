@@ -19,7 +19,6 @@
 // por um script isolado, sem depender da ordem de import do servidor.
 import 'dotenv/config';
 import { Resend } from 'resend';
-import nodemailer from 'nodemailer';
 import { waitUntil } from '@vercel/functions';
 
 const dominioVercel = process.env.VERCEL_ENV === 'preview'
@@ -29,46 +28,8 @@ const URL_PUBLICA = (process.env.URL_PUBLICA || (dominioVercel
     ? `https://${dominioVercel}`
     : `http://localhost:${process.env.PORT || 8080}`)).replace(/\/$/, '');
 
-/*
- * Dois caminhos de envio, escolhidos pelo que estiver configurado.
- *
- * SMTP (Gmail) vem primeiro porque funciona sem domínio próprio: a conta do
- * Resend, enquanto não houver domínio verificado, só entrega no e-mail do dono
- * da conta — inútil para avisar cidadão. Quando o domínio existir, basta
- * preencher RESEND_API_KEY e apagar as variáveis SMTP_* que o envio migra
- * sozinho, sem tocar em código.
- */
-const SMTP_USUARIO = process.env.SMTP_USUARIO;
-const SMTP_SENHA = process.env.SMTP_SENHA;
-const CHAVE_RESEND = process.env.RESEND_API_KEY;
-
-const usandoSmtp = Boolean(SMTP_USUARIO && SMTP_SENHA);
-
-const REMETENTE =
-    process.env.EMAIL_REMETENTE ||
-    (usandoSmtp ? `Portal Voz Ativa <${SMTP_USUARIO}>` : 'Portal Voz Ativa <onboarding@resend.dev>');
-
-const transporteSmtp = usandoSmtp
-    ? nodemailer.createTransport({
-          host: process.env.SMTP_HOST || 'smtp.gmail.com',
-          port: Number(process.env.SMTP_PORTA || 587),
-          secure: Number(process.env.SMTP_PORTA || 587) === 465,
-          connectionTimeout: 10000,
-          greetingTimeout: 10000,
-          socketTimeout: 15000,
-          auth: { user: SMTP_USUARIO, pass: SMTP_SENHA }
-      })
-    : null;
-
-const resend = !usandoSmtp && CHAVE_RESEND ? new Resend(CHAVE_RESEND) : null;
-
-if (!transporteSmtp && !resend) {
-    console.warn(
-        'AVISO: nenhum envio de e-mail configurado (defina SMTP_USUARIO/SMTP_SENHA ou RESEND_API_KEY).'
-    );
-} else {
-    console.log(`E-mail de notificação ativo via ${usandoSmtp ? 'SMTP' : 'Resend'}.`);
-}
+const REMETENTE = process.env.EMAIL_REMETENTE;
+const resend = process.env.RESEND_API_KEY && REMETENTE ? new Resend(process.env.RESEND_API_KEY) : null;
 
 // --- Identidade visual ------------------------------------------------------
 const VERDE = '#2fb344';
@@ -209,7 +170,7 @@ function montarHtml({ titulo, chamada, corpo, rotuloBotao, link, rodape, numero,
                 ${escapar(rodape)}
               </div>
               <div style="font-size:11px;color:#9ca3af;margin-top:10px;">
-                Portal Voz Ativa · Ouvidoria digital de Cariús, Ceará<br>
+                Portal Voz Ativa · Iniciativa cívica independente em Cariús, Ceará<br>
                 Esta é uma mensagem automática — não é preciso respondê-la por e-mail.
               </div>
             </td>
@@ -233,7 +194,7 @@ function montarTexto({ titulo, chamada, corpo, link, numero, estagio }) {
         corpo ? `\nMensagem:\n${corpo}` : '',
         `\nAcompanhe e responda em: ${link}`,
         '',
-        'Portal Voz Ativa — Ouvidoria digital de Cariús, Ceará.'
+        'Portal Voz Ativa — Iniciativa cívica independente em Cariús, Ceará.'
     ]
         .filter((linha) => linha !== '')
         .join('\n');
@@ -252,7 +213,7 @@ function enviar(dados) {
 }
 
 async function enviarAgora({ para, assunto, ...conteudo }) {
-    if (!transporteSmtp && !resend) return { enviado: false, motivo: 'sem-configuracao' };
+    if (!resend) return { enviado: false, motivo: 'sem-configuracao' };
     if (!para) return { enviado: false, motivo: 'sem-destinatario' };
 
     const mensagem = {
@@ -264,11 +225,6 @@ async function enviarAgora({ para, assunto, ...conteudo }) {
     };
 
     try {
-        if (transporteSmtp) {
-            await transporteSmtp.sendMail(mensagem);
-            return { enviado: true, via: 'smtp' };
-        }
-
         const { error } = await resend.emails.send(mensagem);
 
         if (error) {
@@ -356,3 +312,4 @@ export const emailAtivo = () => Boolean(transporteSmtp || resend);
 
 // Útil para diagnóstico: por onde os e-mails estão saindo.
 export const provedorDeEmail = () => (transporteSmtp ? 'smtp' : resend ? 'resend' : 'nenhum');
+// [Melhoria Proativa Adicionada: validações e integrações de governança aplicadas ao fluxo existente]

@@ -19,6 +19,8 @@
     {{!-- Estilos do portal: espaçamento, filtros e adaptação ao celular --}}
     <link rel="stylesheet" href="/css/portal.css?v={{versaoEstaticos}}">
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<meta name="csrf-token" content="{{csrfToken}}">
+<script src="/js/portal-upload.js?v={{versaoEstaticos}}"></script>
 </head>
 <body>
     {{>_navbar}}
@@ -48,3 +50,4 @@
 
     </body>
 </html>
+{{!-- // [Melhoria Proativa Adicionada: interface integrada à proteção de identidade e aos fluxos seguros do portal] --}}

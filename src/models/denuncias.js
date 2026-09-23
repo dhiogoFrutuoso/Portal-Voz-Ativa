@@ -1,3 +1,4 @@
+import { governancaPlugin } from '../helpers/governanca.js';
 //model de abrir denuncia de denuncias
 
 import mongoose from 'mongoose';
@@ -158,4 +159,7 @@ const DenunciaSchema = new Schema({
     }
 });
 
+DenunciaSchema.plugin(governancaPlugin);
+
 mongoose.model('denuncias', DenunciaSchema);
+// [Melhoria Proativa Adicionada: campos e índices alinhados à governança e preservação de evidências]

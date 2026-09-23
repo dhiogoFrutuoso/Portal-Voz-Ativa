@@ -73,22 +73,6 @@
                                     <div id="cloudinaryUrlsContainer"></div>
                                 </div>
 
-                                <div class="col-12 col-md-6">
-                                    <label class="form-label fw-bold text-secondary small text-uppercase">Vídeo (Opcional)</label>
-                                    <div class="upload-area rounded-4 p-3 text-center border-dashed bg-light" id="drop-zone-video" onclick="document.getElementById('videoInput').click()">
-                                        <input type="file" id="videoInput" accept="video/*" class="d-none">
-                                        <i class="bi bi-play-btn-fill fs-3 text-danger"></i>
-                                        <p class="mb-0 small text-muted" id="video-status">Anexar Vídeo</p>
-                                    </div>
-                                    <div id="video-preview-container" class="mt-2 d-none">
-                                        <div class="alert alert-success d-flex align-items-center mb-0 py-2">
-                                            <i class="bi bi-check-circle-fill me-2"></i>
-                                            <small id="video-filename">Vídeo selecionado</small>
-                                            <button type="button" class="btn-close ms-auto" style="font-size: 0.5rem;" onclick="removeVideo()"></button>
-                                        </div>
-                                    </div>
-                                    <input type="hidden" name="video_url" id="videoUrlInput">
-                                </div>
                             </div>
 
                             <div class="mb-5">
@@ -97,6 +81,8 @@
                             </div>
 
                             <div class="d-grid gap-3">
+{{> _declaracao}}
+
                                 <button type="submit" id="submitBtn" class="btn btn-danger btn-lg rounded-pill fw-bold shadow-sm py-3 transition-base">
                                     <i class="bi bi-shield-check me-2"></i>ENVIAR DENÚNCIA SIGILOSA
                                 </button>
@@ -118,10 +104,8 @@
 
 <script>
     $(document).ready(function() {
-        const cloudName = '{{cloudinaryCloudName}}';
-        const unsignedPreset = '{{cloudinaryUploadPreset}}';
         let selectedFiles = [];
-        let selectedVideo = null;
+
 
         // --- LÓGICA DO MAPA ---
         const latInicial = -6.5372;
@@ -199,23 +183,6 @@
             }
         }
 
-        // --- LÓGICA DE VÍDEO ---
-        $('#videoInput').on('change', function(e) {
-            if(this.files.length > 0) {
-                selectedVideo = this.files[0];
-                $('#video-filename').text(selectedVideo.name);
-                $('#video-preview-container').removeClass('d-none');
-                $('#video-status').text("Alterar Vídeo");
-            }
-        });
-
-        window.removeVideo = function() {
-            selectedVideo = null;
-            $('#videoInput').val('');
-            $('#video-preview-container').addClass('d-none');
-            $('#video-status').text("Anexar Vídeo");
-        }
-
         // --- SUBMIT COM UPLOAD PARA CLOUDINARY ---
         $('#mainForm').on('submit', async function(e) {
             e.preventDefault();
@@ -230,41 +197,23 @@
                 for (let file of selectedFiles) {
                     const formData = new FormData();
                     formData.append('file', file);
-                    formData.append('upload_preset', unsignedPreset);
                     formData.append('folder', 'denuncias/fotos');
 
-                    const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+                    const res = await fetch(`/uploads`, { headers: { 'x-csrf-token': window.portalCsrf() },
                         method: 'POST',
                         body: formData
                     });
                     const data = await res.json();
+                    if (!res.ok || !data.secure_url) throw new Error(data.error || 'Upload recusado');
                     $urlsContainer.append(`<input type="hidden" name="imagens_urls[]" value="${data.secure_url}">`);
                 }
 
                 // 2. Upload do Vídeo (se houver)
-                if (selectedVideo) {
-                    btn.html('<span class="spinner-border spinner-border-sm me-2"></span> Subindo vídeo (isso pode demorar)...');
-                    const videoData = new FormData();
-                    videoData.append('file', selectedVideo);
-                    videoData.append('upload_preset', unsignedPreset);
-                    videoData.append('folder', 'denuncias/videos');
-
-                    // Importante: vídeos usam a rota /video/upload
-                    const resVideo = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/video/upload`, {
-                        method: 'POST',
-                        body: videoData
-                    });
-                    const dataVideo = await resVideo.json();
-                    $('#videoUrlInput').val(dataVideo.secure_url);
-                }
-
-                // 3. Envio Final do Form para o Node.js
-                btn.html('<span class="spinner-border spinner-border-sm me-2"></span> Finalizando...').prop('disabled', true);
                 this.submit();
 
             } catch (err) {
                 console.error("Erro no upload:", err);
-                alert("Erro ao enviar arquivos para o servidor. Verifique o tamanho do vídeo ou sua conexão.");
+                alert("Erro ao enviar arquivos para o servidor. Use JPEG, PNG ou WebP de até 3 MB e confira sua conexão.");
                 btn.html('<i class="bi bi-shield-check me-2"></i>ENVIAR DENÚNCIA SIGILOSA').prop('disabled', false);
             }
         });
@@ -295,3 +244,4 @@
     .transition-base { transition: all 0.3s ease; }
     .transition-base:hover { transform: translateY(-2px); filter: brightness(1.1); }
 </style>
+{{!-- // [Melhoria Proativa Adicionada: interface integrada à proteção de identidade e aos fluxos seguros do portal] --}}

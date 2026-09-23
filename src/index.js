@@ -1,4 +1,10 @@
 import 'dotenv/config';
+import conta from './routes/conta.js';
+import uploads, { validarMidiasRecebidas } from './routes/uploads.js';
+import { contexto } from './helpers/request-context.js';
+import { protegerSaida } from './helpers/governanca.js';
+import { registrarAcesso } from './helpers/access-log.js';
+import legal from './routes/legal.js';
 
 import express from 'express';
 import handlebars from 'express-handlebars';
@@ -35,11 +41,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // --- VARIÁVEIS DE AMBIENTE ---
-// Cloud e preset mantêm os padrões do projeto. A chave pública do reCAPTCHA
+// Cloud e chave pública do reCAPTCHA são configurados por ambiente. A chave
 // precisa ser configurada para v3 e para o domínio deste ambiente.
 const isProduction = process.env.NODE_ENV === 'production';
 const CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME || 'dnh7vok3r';
-const CLOUDINARY_UPLOAD_PRESET = process.env.CLOUDINARY_UPLOAD_PRESET || 'Portal-Voz-Ativa';
 const RECAPTCHA_SITE_KEY = process.env.RECAPTCHA_SITE_KEY || '';
 
 // Já os segredos não têm padrão seguro: avisamos alto e claro se faltarem.
@@ -50,19 +55,19 @@ const RECAPTCHA_SITE_KEY = process.env.RECAPTCHA_SITE_KEY || '';
  */
 const VERSAO_ESTATICOS = process.env.VERCEL_GIT_COMMIT_SHA || process.env.RENDER_GIT_COMMIT || String(Date.now());
 
-const requiredEnv = ['CLOUDINARY_API_KEY', 'CLOUDINARY_API_SECRET', 'RECAPTCHA_SITE_KEY', 'RECAPTCHA_SECRET', 'SESSION_SECRET'];
+const requiredEnv = ['CLOUDINARY_API_KEY', 'CLOUDINARY_API_SECRET', 'RECAPTCHA_SITE_KEY', 'RECAPTCHA_SECRET', 'JWT_SECRET'];
 const missingEnv = requiredEnv.filter((key) => !process.env[key]);
 
 if (missingEnv.length > 0) {
     console.warn(`AVISO: variáveis de ambiente ausentes -> ${missingEnv.join(', ')}`);
 }
 
-if (isProduction && (!process.env.SESSION_SECRET || process.env.SESSION_SECRET.length < 32)) {
-    throw new Error('Configure SESSION_SECRET com pelo menos 32 caracteres em produção.');
+if (isProduction && (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32)) {
+    throw new Error('Configure JWT_SECRET com pelo menos 32 caracteres em produção.');
 }
 
-if (!process.env.SESSION_SECRET) {
-    console.warn('AVISO: SESSION_SECRET ausente. Usando chave padrão — defina uma no ambiente.');
+if (!process.env.JWT_SECRET) {
+    console.warn('AVISO: JWT_SECRET ausente. Usando chave padrão — defina uma no ambiente.');
 }
 
 // --- CONFIGURAÇÕES ---
@@ -85,7 +90,7 @@ app.use(async (req, res, next) => {
     try {
         const conexao = await conectarBanco();
         if (!middlewareSessao) {
-            middlewareSessao = criarSessao(conexao, process.env.SESSION_SECRET || 'secretKeyVozAtiva');
+            middlewareSessao = criarSessao(conexao, process.env.JWT_SECRET || 'secretKeyVozAtiva');
         }
         if (req.path === '/health' && req.method === 'GET') {
             return res.json({ status: 'ok' });
@@ -101,6 +106,9 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
 app.use(csrfProtection);
+app.use(contexto);
+app.use(protegerSaida);
+app.use(registrarAcesso);
 
 // Entrega as imagens do Cloudinary em WebP/AVIF, sem alterar o que está no banco.
 app.use(otimizarMidiaNaRenderizacao);
@@ -112,7 +120,6 @@ app.use((req, res, next) => {
     res.locals.error = req.flash("error");
     res.locals.user = req.user || null; // Essencial para o Hub identificar o usuário logado
     res.locals.cloudinaryCloudName = CLOUDINARY_CLOUD_NAME;
-    res.locals.cloudinaryUploadPreset = CLOUDINARY_UPLOAD_PRESET;
     res.locals.recaptchaSiteKey = RECAPTCHA_SITE_KEY;
     res.locals.versaoEstaticos = VERSAO_ESTATICOS;
     next();
@@ -180,6 +187,10 @@ app.set('view engine', 'handlebars');
 app.set('views', path.join(__dirname, 'views'));
 
 // --- ROTAS ---
+app.use('/uploads', uploads);
+app.use(validarMidiasRecebidas);
+app.use(conta);
+app.use(legal);
 
 app.get('/', (req, res) => {
     res.render('index');
@@ -215,3 +226,4 @@ if (!process.env.VERCEL && process.argv[1] && path.resolve(process.argv[1]) === 
         process.exitCode = 1;
     }
 }
+// [Melhoria Proativa Adicionada: validações e integrações de governança aplicadas ao fluxo existente]

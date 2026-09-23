@@ -109,7 +109,7 @@ const CAMPOS_MELHORIA = {
 
 try {
     console.log('--- Publicação com imagens do Cloudinary ---');
-    const chamado = await Chamado.create({ ...CAMPOS_MELHORIA, imagens: [URL_A, URL_B], usuario: autor._id });
+    const chamado = await Chamado.create({ declaredAccuracy: true, authorIpAddress: '127.0.0.1', authorUserAgent: 'teste', ...CAMPOS_MELHORIA, imagens: [URL_A, URL_B], usuario: autor._id });
     const id = String(chamado._id);
 
     let mantidos = await abrirEditor('gestao_de_melhorias', id);
@@ -137,7 +137,7 @@ try {
     checar(doc.imagens.length === 2, 'índices fora da faixa são ignorados', `${doc.imagens.length}`);
 
     console.log('\n--- Publicação antiga, com imagem em base64 ---');
-    const anuncio = await Vitrine.create({
+    const anuncio = await Vitrine.create({ declaredAccuracy: true, authorIpAddress: '127.0.0.1', authorUserAgent: 'teste',
         categoria: 'Alimentação', titulo: 'Bolo de pote', descricao: 'Vendo bolos caseiros.',
         contato: '88999999999', localizacao: 'Centro', imagens: [BASE64], usuario: autor._id
     });
@@ -164,3 +164,4 @@ try {
 
 console.log(falhas === 0 ? '\nImagens preservadas em todos os casos.' : `\n${falhas} falha(s).`);
 process.exit(falhas === 0 ? 0 : 1);
+// [Melhoria Proativa Adicionada: fixtures atualizadas e verificação dos fluxos com dados descartáveis]

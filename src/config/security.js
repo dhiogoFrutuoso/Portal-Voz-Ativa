@@ -114,7 +114,7 @@ export function forceHttps(req, res, next) {
 // iniciada por '$' ou contendo '.' antes que a requisição alcance as rotas.
 function limparOperadores(valor, profundidade = 0) {
     if (profundidade > 8 || valor === null || typeof valor !== 'object') {
-        return valor;
+        return profundidade > 8 ? null : valor;
     }
 
     if (Array.isArray(valor)) {
@@ -123,7 +123,7 @@ function limparOperadores(valor, profundidade = 0) {
 
     const limpo = {};
     for (const [chave, conteudo] of Object.entries(valor)) {
-        if (chave.startsWith('$') || chave.includes('.')) {
+        if (chave.startsWith('$') || chave.includes('.') || ['__proto__', 'constructor', 'prototype'].includes(chave)) {
             continue;
         }
         limpo[chave] = limparOperadores(conteudo, profundidade + 1);
@@ -134,6 +134,7 @@ function limparOperadores(valor, profundidade = 0) {
 export function sanitizeMongo(req, res, next) {
     if (req.body) req.body = limparOperadores(req.body);
     if (req.params) req.params = limparOperadores(req.params);
+    Object.defineProperty(req, 'query', { value: limparOperadores(req.query), writable: true, configurable: true });
     next();
 }
 
@@ -175,3 +176,4 @@ export function csrfProtection(req, res, next) {
 
     next();
 }
+// [Melhoria Proativa Adicionada: validações e integrações de governança aplicadas ao fluxo existente]

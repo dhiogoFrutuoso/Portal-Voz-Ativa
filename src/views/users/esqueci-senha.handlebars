@@ -1,0 +1,8 @@
+<section class="container py-5"><div class="card border-0 shadow-lg rounded-4 p-4 p-md-5 mx-auto" style="max-width:540px">
+<h1 class="h3 fw-bold" style="color:#13315c">Esqueci minha senha</h1><p>Informe seu e-mail para solicitar um código de recuperação.</p>
+<form method="post" action="/esqueci-senha"><input type="hidden" name="_csrf" value="{{csrfToken}}">
+<label class="form-label" for="recoveryEmail">E-mail</label><input class="form-control mb-3" id="recoveryEmail" name="email" type="email" maxlength="160" autocomplete="email" required>
+<div hidden><input name="website" tabindex="-1" autocomplete="off"></div>
+<button class="btn btn-primary w-100" type="submit" style="background:#13315c">Enviar código</button></form>
+<a class="mt-3" href="/users/login">Voltar ao login</a></div></section>
+{{!-- // [Melhoria Proativa Adicionada: fluxo de recuperação com resposta genérica e proteção CSRF] --}}

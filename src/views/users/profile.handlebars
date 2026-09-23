@@ -287,15 +287,12 @@
             var canvas = cropper.getCroppedCanvas({ width: 400, height: 400 });
             var base64data = canvas.toDataURL('image/png');
 
-            var cloudName = '{{cloudinaryCloudName}}';
-            var unsignedPreset = '{{cloudinaryUploadPreset}}';
 
             var formData = new FormData();
-            formData.append('file', base64data);
-            formData.append('upload_preset', unsignedPreset);
+            formData.append('file', window.portalArquivo(base64data));
 
             $.ajax({
-                url: `https://api.cloudinary.com/v1_1/${cloudName}/upload`,
+                url: `/uploads`, headers: { 'x-csrf-token': window.portalCsrf() },
                 method: 'POST',
                 data: formData,
                 processData: false,
@@ -315,10 +312,11 @@
                 },
                 error: function(err) {
                     console.error("Erro no Cloudinary:", err);
-                    alert("Erro ao subir para nuvem. Verifique o preset e o cloudName.");
+                    alert("Não foi possível enviar a foto. Use JPEG, PNG ou WebP de até 3 MB.");
                     $btn.html('Cortar e Salvar').attr('disabled', false);
                 }
             });
         });
     });
 </script>
+{{!-- // [Melhoria Proativa Adicionada: interface integrada à proteção de identidade e aos fluxos seguros do portal] --}}

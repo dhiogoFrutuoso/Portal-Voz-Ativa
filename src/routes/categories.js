@@ -1,7 +1,7 @@
+import { evidenciaPublicacao } from '../helpers/governanca.js';
 import express from 'express';
 import mongoose from 'mongoose';
 import multer from 'multer';
-import { v2 as cloudinary } from 'cloudinary';
 import 'dotenv/config';
 import { limitarRequisicoes } from '../config/rate-limit.js';
 
@@ -13,12 +13,6 @@ const Limiter = limitarRequisicoes('publicacoes', {
   message: "Muitas tentativas de registro, tente novamente mais tarde.",
 });
 
-// Configuração do Cloudinary
-cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET
-});
 
 // Importando modelos e helpers
 import '../models/categories.js'; 
@@ -177,12 +171,12 @@ const eixoDeInteracao = (chave) => EIXOS_INTERACAO[chave] || null;
 async function comentariosDoPost(Modelo, id, eixo, usuario = null) {
     const doc = await Modelo.findById(id)
         .populate('comentarios.usuario', 'name profileImage profession')
-        .select('comentarios tipoOcorrencia privada titulo')
+        .select('comentarios tipoOcorrencia privada titulo usuario isConfidential')
         .lean();
 
-    if (!doc) return null;
+    if (!doc || (eixo === 'denuncias_sigilosas' && !podeVerDenuncia(doc, usuario))) return null;
 
-    const sigilosa = eixo === 'denuncias_sigilosas' && ehDenunciaSigilosa(doc);
+    const sigilosa = doc.isConfidential || (eixo === 'denuncias_sigilosas' && ehDenunciaSigilosa(doc));
 
     return {
         titulo: doc.titulo,
@@ -218,6 +212,16 @@ const Chamado = mongoose.model('chamados');
 const Denuncia = mongoose.model('denuncias');
 const Vitrine = mongoose.model('vitrine');
 const router = express.Router();
+router.use(async (req, res, next) => {
+    if (!req.path.startsWith('/denuncias_sigilosas/')) return next();
+    const id = req.path.match(/\/([a-f0-9]{24})(?:\/|$)/i)?.[1];
+    if (!id) return next();
+    try {
+        const doc = await Denuncia.findById(id).select('usuario privada tipoOcorrencia').lean();
+        if (!doc || !podeVerDenuncia(doc, req.user)) return res.status(404).send('Publicação não encontrada.');
+        next();
+    } catch { res.status(503).send('Não foi possível consultar a publicação.'); }
+});
 
 // --- FUNÇÃO AUXILIAR PARA FORMATAR USUÁRIO (ANONIMIZAÇÃO ESTILO INSTAGRAM CASO EXCLUÍDO) ---
 const formatAuthor = (u) => {
@@ -268,7 +272,7 @@ router.get('/gestao_de_melhorias/abrir-chamado', isUser, (req, res) => {
     res.render('categories/gestao_de_melhorias/abrir-chamado');
 });
 
-router.post('/gestao_de_melhorias/abrir-chamado', isUser, Limiter, upload.none(), async (req, res) => {
+router.post('/gestao_de_melhorias/abrir-chamado', isUser, Limiter, upload.none(), evidenciaPublicacao, async (req, res) => {
     try {
         const validacao = chamadoSchema.safeParse(req.body);
 
@@ -284,6 +288,7 @@ router.post('/gestao_de_melhorias/abrir-chamado', isUser, Limiter, upload.none()
         );
 
         const novoChamado = {
+            ...req.evidencia,
             ...validacao.data,
             imagens: nomesImagens,
             usuario: req.user._id
@@ -520,7 +525,7 @@ router.get('/denuncias_sigilosas/hub', async (req, res) => {
     }
 });
 
-router.post('/denuncias_sigilosas/abrir-denuncia', Limiter, isUser, async (req, res) => {
+router.post('/denuncias_sigilosas/abrir-denuncia', Limiter, isUser, evidenciaPublicacao, async (req, res) => {
     try {
         const validacao = denunciaSchema.safeParse(req.body);
 
@@ -537,6 +542,7 @@ router.post('/denuncias_sigilosas/abrir-denuncia', Limiter, isUser, async (req, 
         );
 
         const novaDenuncia = {
+            ...req.evidencia,
             tipoOcorrencia,
             titulo: tipoOcorrencia === 'Outro' && titulo ? titulo : tipoOcorrencia,
             descricao,
@@ -833,7 +839,7 @@ router.post('/vitrine_do_trabalhador/comentar/:id', isUser, async (req, res) => 
 });
 
 // Criar Anúncio
-router.post('/vitrine_do_trabalhador/criar-vitrine', isUser, Limiter, upload.none(), async (req, res) => {
+router.post('/vitrine_do_trabalhador/criar-vitrine', isUser, Limiter, upload.none(), evidenciaPublicacao, async (req, res) => {
     try {
         const validacao = vitrineSchema.safeParse(req.body);
 
@@ -850,6 +856,7 @@ router.post('/vitrine_do_trabalhador/criar-vitrine', isUser, Limiter, upload.non
         );
 
         const novoAnuncio = new Vitrine({
+            ...req.evidencia,
             titulo: dados.titulo,
             categoria: dados.categoria,
             categoria_especificada: dados.categoria === 'Outros' ? dados.categoria_especificada : null,
@@ -1119,3 +1126,4 @@ router.post('/:eixo/comentario/:id/:comentarioId/excluir', async (req, res) => {
 });
 
 export default router;
+// [Melhoria Proativa Adicionada: validações e integrações de governança aplicadas ao fluxo existente]

@@ -1,3 +1,4 @@
+import { governancaPlugin } from '../helpers/governanca.js';
 //models de abrir chamado de gestao de melhorias
 
 import mongoose from "mongoose";
@@ -143,7 +144,10 @@ const ChamadoSchema = new mongoose.Schema({
     }]
 });
 
+ChamadoSchema.plugin(governancaPlugin);
+
 // Registrar o modelo se ele ainda não foi registrado
 const Chamado = mongoose.models.chamados || mongoose.model('chamados', ChamadoSchema);
 
 export default Chamado;
+// [Melhoria Proativa Adicionada: campos e índices alinhados à governança e preservação de evidências]
