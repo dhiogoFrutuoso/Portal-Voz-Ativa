@@ -47,6 +47,8 @@ Na Vercel, use **Add New → Project**, conecte o GitHub e importe `dhiogoFrutuo
 
 Não selecione `public` como saída de um site estático: o portal precisa executar o backend. Não há comando de servidor persistente a cadastrar na Vercel. O arquivo `vercel.json` inclui os templates e define duração máxima de 60 segundos para a função. [Suporte oficial a Express](https://vercel.com/docs/frameworks/backend/express).
 
+Se aparecer `No entrypoint found in output directory: "N/A"`, abra **Settings → Build and Deployment → Output Directory**, desative **Override** e salve. Não digite `N/A`: isso vira o nome de uma pasta. O `vercel.json` também define `outputDirectory: null` para restaurar o padrão do framework. Faça um novo deploy após salvar a configuração; a entrada do servidor está em `src/index.js`.
+
 ## 3. Variáveis de ambiente
 
 Cadastre-as em **Settings → Environment Variables**, antes do deploy. Depois de alterar variáveis, faça um novo deploy.
