@@ -71,6 +71,11 @@
                                     <div id="preview-grid" class="row g-2 mt-2 d-none"></div>
                                     
                                     <div id="cloudinaryUrlsContainer"></div>
+                                <div class="mt-3">
+                                    <label for="videoInput" class="form-label fw-bold">Vídeo (opcional)</label>
+                                    <input type="file" id="videoInput" class="form-control" accept="video/mp4,video/webm,video/quicktime" aria-describedby="videoHelp">
+                                    <p id="videoHelp" class="small text-muted mt-2">Até 60 segundos. O vídeo será comprimido antes do envio; mantenha esta aba aberta durante o processamento.</p>
+                                </div>
                                 </div>
 
                             </div>
@@ -195,25 +200,22 @@
                 // 1. Upload das Imagens
                 $urlsContainer.empty();
                 for (let file of selectedFiles) {
-                    const formData = new FormData();
-                    formData.append('file', file);
-                    formData.append('folder', 'denuncias/fotos');
-
-                    const res = await fetch(`/uploads`, { headers: { 'x-csrf-token': window.portalCsrf() },
-                        method: 'POST',
-                        body: formData
-                    });
-                    const data = await res.json();
-                    if (!res.ok || !data.secure_url) throw new Error(data.error || 'Upload recusado');
+                    const data = await window.portalEnviarArquivo(file);
                     $urlsContainer.append(`<input type="hidden" name="imagens_urls[]" value="${data.secure_url}">`);
                 }
 
-                // 2. Upload do Vídeo (se houver)
+                const video = document.getElementById('videoInput').files[0];
+                if (video) {
+                    btn.html('<span class="spinner-border spinner-border-sm me-2"></span> Convertendo vídeo... mantenha esta aba aberta');
+                    const media = await window.portalEnviarArquivo(video);
+                    const field = document.createElement('input'); field.type = 'hidden'; field.name = 'video_url'; field.value = media.secure_url;
+                    $urlsContainer.append(field);
+                }
                 this.submit();
 
             } catch (err) {
                 console.error("Erro no upload:", err);
-                alert("Erro ao enviar arquivos para o servidor. Use JPEG, PNG ou WebP de até 3 MB e confira sua conexão.");
+                window.portalMensagem(err.message || "Não foi possível enviar os arquivos.");
                 btn.html('<i class="bi bi-shield-check me-2"></i>ENVIAR DENÚNCIA SIGILOSA').prop('disabled', false);
             }
         });

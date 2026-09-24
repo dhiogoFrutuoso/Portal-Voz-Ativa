@@ -152,13 +152,7 @@
         hiddenInputsContainer.replaceChildren();
         try {
             for (const file of [...selectedFiles]) {
-                const dados = new FormData();
-                dados.append('file', file);
-                const resposta = await fetch('/uploads', { headers: { 'x-csrf-token': window.portalCsrf() },
-                    method: 'POST', body: dados
-                });
-                const resultado = await resposta.json();
-                if (!resposta.ok || !resultado.secure_url) throw new Error('Upload recusado');
+                const resultado = await window.portalEnviarArquivo(file);
                 const input = document.createElement('input');
                 input.type = 'hidden';
                 input.name = 'imagens_urls[]';
@@ -166,8 +160,8 @@
                 hiddenInputsContainer.appendChild(input);
             }
             this.submit();
-        } catch {
-            window.alert('Não foi possível enviar as fotos. Tente novamente.');
+        } catch (error) {
+            window.portalMensagem(error.message || 'Não foi possível enviar as fotos. Tente novamente.');
             botao.disabled = false;
             imgInputHelper.disabled = false;
             botao.textContent = 'PUBLICAR ANÚNCIO';

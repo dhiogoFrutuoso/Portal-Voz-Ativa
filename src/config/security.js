@@ -55,7 +55,7 @@ export const securityHeaders = helmet({
                 'https://cdn-icons-png.flaticon.com', // Marcador do mapa de chamados
                 'https://www.transparenttextures.com' // Textura de fundo do painel admin
             ],
-            mediaSrc: ["'self'", 'https://res.cloudinary.com'],
+            mediaSrc: ["'self'", 'blob:', 'https://res.cloudinary.com'],
             connectSrc: [
                 "'self'",
                 'https://api.cloudinary.com',

@@ -443,8 +443,6 @@
     (function () {
         const campo = document.getElementById('recursoArquivo');
         if (!campo) return;
-
-        const LIMITE = 10 * 1024 * 1024;
         const url = document.getElementById('recursoArquivoUrl');
         const nome = document.getElementById('recursoArquivoNome');
         const aviso = document.getElementById('recursoStatus');
@@ -454,30 +452,19 @@
             const arquivo = this.files[0];
             if (!arquivo) return;
 
-            if (arquivo.size > LIMITE) {
-                aviso.textContent = 'O arquivo passa de 3 MB.';
-                this.value = '';
-                return;
-            }
-
-            aviso.textContent = 'Enviando anexo...';
+            url.value = ''; nome.value = '';
+            aviso.textContent = 'Convertendo e enviando anexo...';
             botao.disabled = true;
 
-            const dados = new FormData();
-            dados.append('file', arquivo);
-
             try {
-                const resposta = await fetch('/uploads', { headers: { 'x-csrf-token': window.portalCsrf() },
-                    method: 'POST',
-                    body: dados
-                });
-                const json = await resposta.json();
-                if (!json.secure_url) throw new Error('sem URL');
+                const json = await window.portalEnviarArquivo(arquivo);
+
 
                 url.value = json.secure_url;
                 nome.value = arquivo.name;
                 aviso.textContent = 'Anexado: ' + arquivo.name;
             } catch (erro) {
+                window.portalMensagem(erro.message || 'Não foi possível enviar o arquivo.');
                 aviso.textContent = 'Não foi possível enviar o anexo.';
                 this.value = '';
             } finally {
@@ -487,7 +474,6 @@
     })();
 
     (function () {
-        const LIMITE_BYTES = 5 * 1024 * 1024;
 
         const input = document.getElementById('imagemResposta');
         const campoUrl = document.getElementById('imagemUrlResposta');
@@ -515,32 +501,19 @@
                 return;
             }
 
-            if (arquivo.size > LIMITE_BYTES) {
-                statusUpload.textContent = 'A imagem passa de 5 MB.';
-                limpar();
-                return;
-            }
-
             statusUpload.textContent = 'Enviando imagem...';
             botaoEnviar.disabled = true;
 
-            const dados = new FormData();
-            dados.append('file', arquivo);
-
             try {
-                const resposta = await fetch('/uploads', { headers: { 'x-csrf-token': window.portalCsrf() },
-                    method: 'POST',
-                    body: dados
-                });
-                const json = await resposta.json();
+                const json = await window.portalEnviarArquivo(arquivo);
 
-                if (!json.secure_url) throw new Error('sem URL');
 
                 campoUrl.value = json.secure_url;
                 preview.querySelector('img').src = json.secure_url;
                 preview.classList.remove('d-none');
                 statusUpload.textContent = 'Imagem anexada.';
             } catch (erro) {
+                window.portalMensagem(erro.message || 'Não foi possível enviar o arquivo.');
                 statusUpload.textContent = 'Falha ao enviar a imagem.';
                 limpar();
             } finally {

@@ -20,7 +20,7 @@ A configuração ativa está em .env.example. As mudanças de autenticação, e-
 - RECAPTCHA_SECRET e a chave pública v3 já existente RECAPTCHA_SITE_KEY: o domínio deve corresponder à implantação.
 - CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET: upload autenticado pelo servidor. Preset unsigned não é usado nos novos uploads.
 
-O banco existente e os arquivos antigos não são movidos automaticamente. Novos anexos têm limite de 3 MB e passam pelo servidor; imagens antigas em base64 ainda precisam de avaliação para evitar exceder o limite de resposta de 4,5 MB da Vercel. O script migrar:imagens permanece disponível, em modo de simulação por padrão; não execute migrações no build.
+O banco existente e os arquivos antigos não são movidos automaticamente. Novos anexos são comprimidos antes do envio e validados pelo servidor: limite final de 3 MB e teto de transporte de 4 MB. Vídeos nas denúncias têm até 60 segundos e são convertidos também pelo Cloudinary; imagens antigas em base64 ainda precisam de avaliação para evitar exceder o limite de resposta de 4,5 MB da Vercel. O script migrar:imagens permanece disponível, em modo de simulação por padrão; não execute migrações no build.
 
 ## Verificação
 

@@ -311,28 +311,18 @@
       });
       var base64data = canvas.toDataURL('image/png');
 
-      var formData = new FormData();
-      formData.append('file', window.portalArquivo(base64data));
-
-      $.ajax({
-        url: '/uploads', headers: { 'x-csrf-token': window.portalCsrf() },
-        method: 'POST',
-        data: formData,
-        processData: false,
-        contentType: false,
-        success: function (response) {
+      window.portalEnviarArquivo(window.portalArquivo(base64data)).then(function (response) {
           var cloudImageUrl = response.secure_url;
           $('#croppedImage').val(cloudImageUrl);
           $('#imagePreview').attr('src', cloudImageUrl).show();
           $('#cameraIcon').hide();
           bsModal.hide();
           btn.html('Confirmar Foto').prop('disabled', false);
-        },
-        error: function (err) {
+        }).catch(function (err) {
           console.error('Erro no Cloudinary:', err);
-          alert('Erro ao subir para nuvem. Verifique a conexão.');
+          modalElement.addEventListener('hidden.bs.modal', () => window.portalMensagem(err.message || 'Não foi possível enviar a foto.'), { once: true });
+                    bsModal.hide();
           btn.html('Confirmar Foto').prop('disabled', false);
-        }
       });
     });
   });

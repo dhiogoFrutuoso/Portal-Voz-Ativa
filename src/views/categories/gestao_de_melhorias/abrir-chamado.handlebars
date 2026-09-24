@@ -189,22 +189,7 @@
             try {
                 if (selectedFiles.length > 0) {
                     for (let file of selectedFiles) {
-                        const base64Data = await new Promise((resolve) => {
-                            const reader = new FileReader();
-                            reader.onload = (ev) => resolve(ev.target.result);
-                            reader.readAsDataURL(file);
-                        });
-
-                        const formData = new FormData();
-                        formData.append('file', base64Data);
-
-                        const response = await $.ajax({
-                            url: `/uploads`, headers: { 'x-csrf-token': window.portalCsrf() },
-                            method: 'POST',
-                            data: formData,
-                            processData: false,
-                            contentType: false
-                        });
+                        const response = await window.portalEnviarArquivo(file);
 
                         // Injeta como 'imagens[]' para o backend receber a array
                         $urlsContainer.append(`<input type="hidden" name="imagens[]" value="${response.secure_url}">`);
@@ -216,7 +201,7 @@
 
             } catch (err) {
                 console.error("Erro no Cloudinary:", err);
-                alert("Erro ao enviar imagens. Verifique sua conexão.");
+                window.portalMensagem(err.message || "Não foi possível enviar as imagens.");
                 btn.html('CONFIRMAR REGISTRO').prop('disabled', false);
             }
         });

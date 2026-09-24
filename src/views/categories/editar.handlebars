@@ -196,7 +196,7 @@
                                 <div class="zona-upload text-center p-4" id="zonaUpload">
                                     <div class="fs-3 text-muted mb-1"><i class="bi bi-cloud-arrow-up"></i></div>
                                     <div class="fw-bold">Adicionar novas imagens</div>
-                                    <div class="small text-muted">Até 5 no total, 3 MB por imagem</div>
+                                    <div class="small text-muted">Até 5 no total. Compressão automática, até 3 MB por imagem processada.</div>
                                     <input type="file" id="novasImagens" accept="image/*" multiple hidden>
                                 </div>
 
@@ -283,7 +283,6 @@
 
 <script>
     (function () {
-        const LIMITE_BYTES = 5 * 1024 * 1024;
         const MAXIMO_IMAGENS = 5;
 
         // --- Mapa ---
@@ -371,23 +370,11 @@
                     continue;
                 }
 
-                if (arquivo.size > LIMITE_BYTES) {
-                    statusUpload.textContent = arquivo.name + ' passa de 5 MB.';
-                    continue;
-                }
-
                 statusUpload.textContent = 'Enviando ' + arquivo.name + '...';
 
-                const dados = new FormData();
-                dados.append('file', arquivo);
-
                 try {
-                    const resposta = await fetch('/uploads', { headers: { 'x-csrf-token': window.portalCsrf() },
-                        method: 'POST',
-                        body: dados
-                    });
-                    const json = await resposta.json();
-                    if (!json.secure_url) throw new Error('sem URL');
+                    const json = await window.portalEnviarArquivo(arquivo);
+
 
                     const campo = document.createElement('input');
                     campo.type = 'hidden';
@@ -412,6 +399,7 @@
                     preview.appendChild(coluna);
                     atualizarContador();
                 } catch (erro) {
+                window.portalMensagem(erro.message || 'Não foi possível enviar o arquivo.');
                     statusUpload.textContent = 'Falha ao enviar ' + arquivo.name + '.';
                 }
             }

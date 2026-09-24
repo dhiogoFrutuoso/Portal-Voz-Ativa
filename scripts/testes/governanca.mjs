@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
-import { createHmac } from 'node:crypto';
+import { createHmac, randomBytes } from 'node:crypto';
+import { Writable } from 'node:stream';
+import { v2 as cloudinary } from 'cloudinary';
 import { once } from 'node:events';
 import { MongoMemoryReplSet } from 'mongodb-memory-server';
 import mongoose from 'mongoose';
@@ -14,6 +16,27 @@ process.env.RECAPTCHA_SECRET = 'teste';
 process.env.RESEND_API_KEY = 're_teste';
 process.env.EMAIL_REMETENTE = 'Portal <teste@example.test>';
 process.env.URL_PUBLICA = 'https://portal.example.test';
+process.env.CLOUDINARY_CLOUD_NAME = 'dnh7vok3r';
+process.env.CLOUDINARY_API_KEY = 'teste';
+process.env.CLOUDINARY_API_SECRET = 'teste';
+const uploads = [];
+let failUpload = false;
+let invalidVideo = false;
+const destroyed = [];
+cloudinary.uploader.destroy = async (id) => { destroyed.push(id); return { result: 'ok' }; };
+cloudinary.uploader.upload_stream = (options, done) => {
+    const chunks = [];
+    return new Writable({ write(chunk, _encoding, callback) { chunks.push(chunk); callback(); },
+        final(callback) {
+            const buffer = Buffer.concat(chunks); uploads.push({ options, bytes: buffer.length });
+            if (failUpload) done(new Error('Falha de armazenamento simulada'));
+            else done(null, { secure_url: 'https://res.cloudinary.com/dnh7vok3r/' + options.resource_type + '/upload/' + options.public_id + (options.resource_type === 'video' ? '.mp4' : '.webp'),
+                public_id: options.public_id, resource_type: options.resource_type, bytes: buffer.length,
+                format: options.resource_type === 'video' ? 'mp4' : 'webp', duration: invalidVideo ? 90 : 2, width: 640, height: 360 });
+            callback();
+        }
+    });
+};
 const replica = await MongoMemoryReplSet.create({ replSet: { count: 1 } });
 process.env.MONGO_URI_PROD = replica.getUri('governanca');
 const fetchOriginal = globalThis.fetch;
@@ -136,6 +159,30 @@ try {
     const badFile = new FormData(); badFile.append('file', new Blob(['MZexe'], { type: 'image/jpeg' }), 'foto.jpg');
     const uploadDenied = await fetchOriginal(base + '/uploads', { method: 'POST', headers: { cookie, 'x-forwarded-proto': 'https', 'x-csrf-token': csrfLogged }, body: badFile });
     assert.equal(uploadDenied.status, 400, 'Arquivo disfarçado bloqueado no endpoint');
+    async function upload(file, extra = null) {
+        const data = new FormData(); data.append('file', file, 'anexo'); if (extra) data.append('folder', extra);
+        return fetchOriginal(base + '/uploads', { method: 'POST', headers: { cookie, 'x-forwarded-proto': 'https', 'x-csrf-token': csrfLogged }, body: data });
+    }
+    const bigImage = await sharp(randomBytes(1150 * 1000 * 3), { raw: { width: 1150, height: 1000, channels: 3 } }).png({ compressionLevel: 0 }).toBuffer();
+    assert.ok(bigImage.length > 3 * 1024 * 1024 && bigImage.length < 4 * 1024 * 1024);
+    const optimized = await upload(new Blob([bigImage], { type: 'image/png' }));
+    assert.equal(optimized.status, 200, await optimized.clone().text());
+    assert.ok(uploads.at(-1).bytes < bigImage.length && uploads.at(-1).bytes < 3 * 1024 * 1024);
+    assert.equal((await upload(new Blob([input], { type: 'image/jpeg' }), 'indevido')).status, 400, 'Campos extras não são confundidos com tamanho');
+    const oldPayload = new FormData(); oldPayload.append('file', 'data:image/png;base64,AAAA');
+    const invalidMultipart = await fetchOriginal(base + '/uploads', { method: 'POST', headers: { cookie, 'x-forwarded-proto': 'https', 'x-csrf-token': csrfLogged }, body: oldPayload });
+    assert.equal(invalidMultipart.status, 400); assert.match((await invalidMultipart.json()).error, /binário/);
+    assert.equal((await upload(new Blob([Buffer.alloc(4 * 1024 * 1024 + 10)], { type: 'image/png' }))).status, 413);
+    const bigPdf = await PDFDocument.create(); bigPdf.addPage(); bigPdf.context.register(bigPdf.context.stream(randomBytes(3200000)));
+    assert.equal((await upload(new Blob([await bigPdf.save()], { type: 'application/pdf' }))).status, 413, 'Tamanho final após processamento');
+    const webm = Buffer.concat([Buffer.from([0x1a, 0x45, 0xdf, 0xa3]), Buffer.from('webm-fixture')]);
+    const videoUpload = await upload(new Blob([webm], { type: 'video/webm' }));
+    assert.equal(videoUpload.status, 200);
+    assert.equal(uploads.at(-1).options.format, 'mp4'); assert.equal(uploads.at(-1).options.transformation[0].video_codec, 'h264');
+    invalidVideo = true;
+    assert.equal((await upload(new Blob([webm], { type: 'video/webm' }))).status, 413); assert.equal(destroyed.length, 1); invalidVideo = false;
+    failUpload = true; assert.equal((await upload(new Blob([input], { type: 'image/jpeg' }))).status, 503); failUpload = false;
+    console.log('OK upload HTTP: arquivo binário, imagem original acima de 3 MB, tamanho final, erro de transporte, vídeo convertido e falha do provedor.');
     const fields = { _csrf: csrfLogged, titulo: 'Publicação de teste', descricao: 'Descrição do teste de publicação', localizacao: 'Rua de Teste' };
     assert.equal((await request('/categories/gestao_de_melhorias/abrir-chamado', fields)).status, 400);
     assert.equal((await request('/categories/gestao_de_melhorias/abrir-chamado', { ...fields, declaredAccuracy: 'true', website: 'bot' })).status, 400);
