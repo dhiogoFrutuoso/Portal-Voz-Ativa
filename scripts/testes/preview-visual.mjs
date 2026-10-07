@@ -35,6 +35,7 @@ const { default: admin } = await import('../../src/routes/admin.js');
 const { default: edicao } = await import('../../src/routes/edicao.js');
 const { default: categorias } = await import('../../src/routes/categories.js');
 const { default: users } = await import('../../src/routes/user.js');
+const { default: project } = await import('../../src/routes/project.js');
 const { otimizarMidiaNaRenderizacao } = await import('../../src/helpers/midia.js');
 
 const User = mongoose.model('users');
@@ -123,6 +124,7 @@ app.use(express.static(path.join(RAIZ, 'src', 'public')));
 app.use(otimizarMidiaNaRenderizacao);
 
 app.get('/', (req, res) => res.render('index'));
+app.use('/project', project);
 app.use('/protocolos', protocolos);
 app.use('/admin', admin);
 app.use('/categories', edicao);
