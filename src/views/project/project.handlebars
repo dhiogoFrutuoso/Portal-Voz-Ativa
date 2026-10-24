@@ -1,66 +1,486 @@
-<main class="projeto" id="projeto">
-    <section class="projeto-hero" aria-labelledby="projeto-titulo">
-        <div class="projeto-hero-texto">
-            <h1 id="projeto-titulo">A sua voz pode <span>transformar</span> a cidade.</h1>
-            <p class="projeto-lead">Tecnologia para aproximar cidadãos, organizar demandas e valorizar quem faz a comunidade acontecer.</p>
-            <div class="projeto-acoes">
-                <a class="projeto-botao projeto-botao-primario" href="/categories">Explorar o portal <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
-                <a class="projeto-botao projeto-botao-contorno" href="#trajetoria">Conhecer a trajetória</a>
+<main class="projeto py-4" id="projeto">
+
+    <!-- 1. HERO SECTION (Padrão Visual Portal Voz Ativa) -->
+    <section class="projeto-hero-box mb-5" aria-labelledby="projeto-titulo">
+        <div class="row align-items-center g-4 g-lg-5">
+            <div class="col-lg-7">
+                <div class="d-inline-flex align-items-center gap-2 bg-white text-primary px-3 py-2 rounded-pill fw-bold shadow-sm border border-primary border-opacity-25 mb-3 small">
+                    <i class="bi bi-trophy-fill text-warning" aria-hidden="true"></i>
+                    <span>PROJETO CEARÁ DE VALORES • CAMPEÃO ESTADUAL</span>
+                </div>
+
+                <h1 id="projeto-titulo" class="projeto-hero-title mb-3">
+                    A sua voz pode <span class="projeto-destaque-azul">transformar</span> a cidade.
+                </h1>
+
+                <p class="projeto-lead mb-4">
+                    Tecnologia cívica criada para aproximar cidadãos da gestão pública, organizar demandas urbanas com rastreabilidade por protocolo e valorizar os trabalhadores que fazem <strong>Cariús, Ceará</strong> acontecer.
+                </p>
+
+                <div class="d-flex flex-wrap align-items-center gap-3 mb-4">
+                    <a class="btn btn-primary btn-lg rounded-pill px-4 fw-bold shadow-sm d-inline-flex align-items-center gap-2" href="/categories">
+                        <span>Explorar o Portal</span>
+                        <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                    </a>
+                    <a class="btn btn-outline-primary btn-lg rounded-pill px-4 fw-bold bg-white d-inline-flex align-items-center gap-2" href="/pdf/projeto-voz-ativa.pdf" target="_blank" rel="noopener">
+                        <i class="bi bi-file-earmark-pdf-fill text-danger" aria-hidden="true"></i>
+                        <span>Documento do Projeto (PDF)</span>
+                    </a>
+                    <a class="btn btn-link text-decoration-none fw-bold text-navy px-2" href="#trajetoria">
+                        Conhecer a trajetória <i class="bi bi-chevron-down ms-1" aria-hidden="true"></i>
+                    </a>
+                </div>
+
+                <div class="d-flex flex-wrap align-items-center gap-3 pt-2 border-top border-secondary border-opacity-10">
+                    <div class="d-inline-flex align-items-center gap-2 text-muted small fw-semibold">
+                        <i class="bi bi-geo-alt-fill text-danger" aria-hidden="true"></i>
+                        <span>Cariús, Ceará</span>
+                    </div>
+                    <span class="text-muted opacity-50" aria-hidden="true">•</span>
+                    <div class="d-inline-flex align-items-center gap-2 small fw-bold text-success bg-success bg-opacity-10 px-3 py-1 rounded-pill">
+                        <span class="projeto-status-dot" aria-hidden="true"></span>
+                        <span>Plataforma Ativa 2026</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="projeto-fluxo-card">
+                    <div class="d-flex align-items-center gap-3 pb-3 mb-3 border-bottom">
+                        <img src="/img/ceara-valores-logo.webp" alt="Logo Projeto Ceará de Valores" class="projeto-logo-selo">
+                        <div>
+                            <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-2 py-1 small fw-bold mb-1">FLUXO CIDADÃO</span>
+                            <h2 class="h5 fw-bold mb-0 text-navy">Da participação ao acompanhamento</h2>
+                        </div>
+                    </div>
+
+                    <ol class="projeto-fluxo-lista mb-3">
+                        <li>
+                            <span class="projeto-passo" aria-hidden="true">01</span>
+                            <div>
+                                <h3 class="h6 fw-bold mb-1">Registre uma demanda</h3>
+                                <p class="small text-muted mb-0">Informe problemas urbanos, denúncias sigilosas ou cadastre seu serviço profissional.</p>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="projeto-passo" aria-hidden="true">02</span>
+                            <div>
+                                <h3 class="h6 fw-bold mb-1">Acompanhe pelo protocolo</h3>
+                                <p class="small text-muted mb-0">Receba um código único com geolocalização e consulte o andamento em um só lugar.</p>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="projeto-passo" aria-hidden="true">03</span>
+                            <div>
+                                <h3 class="h6 fw-bold mb-1">Consulte as atualizações</h3>
+                                <p class="small text-muted mb-0">Veja as respostas técnicas, o histórico de atendimento e o impacto na comunidade.</p>
+                            </div>
+                        </li>
+                    </ol>
+
+                    <a class="projeto-link-card" href="#funcionamento">
+                        <span>Conheça os módulos em funcionamento</span>
+                        <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                    </a>
+                </div>
             </div>
         </div>
-        <div class="projeto-fluxo">
-            <h2>Da participação ao acompanhamento</h2>
-            <ol>
-                <li><span class="projeto-passo" aria-hidden="true">01</span><div><h3>Registre uma demanda</h3><p>Informe problemas, sugestões ou necessidades da sua comunidade.</p></div></li>
-                <li><span class="projeto-passo" aria-hidden="true">02</span><div><h3>Acompanhe pelo protocolo</h3><p>Consulte o andamento da sua solicitação em um só lugar.</p></div></li>
-                <li><span class="projeto-passo" aria-hidden="true">03</span><div><h3>Consulte as atualizações</h3><p>Veja as respostas e o histórico do atendimento.</p></div></li>
-            </ol>
-            <a class="projeto-link" href="#funcionamento">Conheça o funcionamento <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+    </section>
+
+    <!-- 2. RECONHECIMENTOS E PREMIAÇÕES -->
+    <section class="mb-5" aria-label="Reconhecimentos e participação">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="projeto-card-destaque h-100">
+                    <div class="projeto-icone-box bg-warning-soft text-warning">
+                        <i class="bi bi-trophy-fill" aria-hidden="true"></i>
+                    </div>
+                    <div>
+                        <span class="badge bg-warning text-dark rounded-pill px-2 py-1 small fw-bold mb-1">1º LUGAR REGIONAL & ESTADUAL</span>
+                        <h3 class="h5 fw-bold mb-1 text-navy">Campeão — Ceará de Valores</h3>
+                        <p class="small text-muted mb-0">Reconhecido pelo impacto social, liderança jovem e inovação cidadã no Estado do Ceará.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="projeto-card-destaque h-100">
+                    <div class="projeto-icone-box bg-primary-soft text-primary">
+                        <i class="bi bi-journal-richtext" aria-hidden="true"></i>
+                    </div>
+                    <div>
+                        <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-2 py-1 small fw-bold mb-1">PESQUISA & CIÊNCIA</span>
+                        <h3 class="h5 fw-bold mb-1 text-navy">Apresentado — Ceará Científico</h3>
+                        <p class="small text-muted mb-0">Fundamentação metodológica e validação acadêmica voltadas à transformação municipal.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="projeto-card-destaque h-100">
+                    <div class="projeto-icone-box bg-success-soft text-success">
+                        <i class="bi bi-rocket-takeoff-fill" aria-hidden="true"></i>
+                    </div>
+                    <div>
+                        <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-2 py-1 small fw-bold mb-1">ACELERAÇÃO & INOVAÇÃO</span>
+                        <h3 class="h5 fw-bold mb-1 text-navy">Em participação — Sebrae Supernova</h3>
+                        <p class="small text-muted mb-0">Evolução contínua do modelo de operação e sustentabilidade do ecossistema digital.</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
-    <section class="projeto-reconhecimentos" aria-label="Reconhecimentos e participação">
-        <div class="projeto-reconhecimento"><span class="projeto-icone projeto-icone-amarelo"><i class="bi bi-trophy" aria-hidden="true"></i></span><div><strong>Campeão</strong><span>Ceará de Valores</span></div></div>
-        <div class="projeto-reconhecimento"><span class="projeto-icone"><i class="bi bi-journal-text" aria-hidden="true"></i></span><div><strong>Apresentado</strong><span>Ceará Científico</span></div></div>
-        <div class="projeto-reconhecimento"><span class="projeto-icone projeto-icone-amarelo"><i class="bi bi-bar-chart" aria-hidden="true"></i></span><div><strong>Em participação</strong><span>Sebrae Supernova</span></div></div>
-    </section>
-    <section class="projeto-secao" id="funcionamento" aria-labelledby="funcionamento-titulo">
-        <h2 id="funcionamento-titulo">Um projeto que já saiu do papel.</h2>
-        <p class="projeto-introducao">Desenvolvido e testado, o Portal Voz Ativa reúne participação cidadã, acompanhamento de solicitações e divulgação de serviços.</p>
-        <div class="projeto-recursos">
-            <a class="projeto-recurso" href="/categories/gestao_de_melhorias/hub">
-                <span class="projeto-icone"><i class="bi bi-tools" aria-hidden="true"></i></span>
-                <div><h3>Gestão de melhorias</h3><p>Registre problemas urbanos e acompanhe o atendimento.</p></div>
-                <i class="bi bi-arrow-right projeto-seta" aria-hidden="true"></i>
-            </a>
-            <a class="projeto-recurso" href="/categories/denuncias_sigilosas/hub">
-                <span class="projeto-icone"><i class="bi bi-shield-check" aria-hidden="true"></i></span>
-                <div><h3>Denúncias e ocorrências</h3><p>Comunique situações e acompanhe seu protocolo.</p></div>
-                <i class="bi bi-arrow-right projeto-seta" aria-hidden="true"></i>
-            </a>
-            <a class="projeto-recurso" href="/categories/vitrine_do_trabalhador/hub">
-                <span class="projeto-icone"><i class="bi bi-people" aria-hidden="true"></i></span>
-                <div><h3>Vitrine do trabalhador</h3><p>Divulgue serviços e encontre profissionais.</p></div>
-                <i class="bi bi-arrow-right projeto-seta" aria-hidden="true"></i>
-            </a>
+
+    <!-- 3. PILARES DO PROJETO (O PROBLEMA, A SOLUÇÃO, SUSTENTABILIDADE, PÚBLICO) -->
+    <section class="projeto-secao mb-5" aria-labelledby="pilares-titulo">
+        <div class="text-center mb-4">
+            <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-bold small mb-2">
+                <i class="bi bi-stars me-1" aria-hidden="true"></i> VISÃO ESTRATÉGICA
+            </span>
+            <h2 id="pilares-titulo" class="fw-bolder text-navy mb-2">Por que o Portal Voz Ativa nasceu?</h2>
+            <p class="text-muted mx-auto mb-0" style="max-width: 680px;">
+                Construído a partir das necessidades reais de Cariús para substituir processos manuais por inteligência governamental acessível.
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="projeto-pilar-card border-primary h-100">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="projeto-pilar-numero text-primary">01</span>
+                        <i class="bi bi-exclamation-octagon text-primary fs-4" aria-hidden="true"></i>
+                    </div>
+                    <h3 class="h5 fw-bold text-navy mb-2">O Problema</h3>
+                    <p class="small text-muted mb-0">
+                        Ruído na comunicação entre população e gestão pública, além da falta de visibilidade para trabalhadores autônomos divulgarem seus serviços.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="projeto-pilar-card border-info h-100">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="projeto-pilar-numero text-info">02</span>
+                        <i class="bi bi-cpu text-info fs-4" aria-hidden="true"></i>
+                    </div>
+                    <h3 class="h5 fw-bold text-navy mb-2">A Solução</h3>
+                    <p class="small text-muted mb-0">
+                        Plataforma web responsiva que centraliza solicitações urbanas, denúncias com proteção de sigilo e vitrine profissional gratuita.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="projeto-pilar-card border-success h-100">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="projeto-pilar-numero text-success">03</span>
+                        <i class="bi bi-tree text-success fs-4" aria-hidden="true"></i>
+                    </div>
+                    <h3 class="h5 fw-bold text-navy mb-2">Papel Zero</h3>
+                    <p class="small text-muted mb-0">
+                        Digitalização completa de protocolos, fotos e despachos, reduzindo o uso de papel e agilizando a triagem das demandas comunitárias.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="projeto-pilar-card border-warning h-100">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="projeto-pilar-numero text-warning">04</span>
+                        <i class="bi bi-people text-warning fs-4" aria-hidden="true"></i>
+                    </div>
+                    <h3 class="h5 fw-bold text-navy mb-2">Público-Alvo</h3>
+                    <p class="small text-muted mb-0">
+                        Cidadãos de Cariús (cerca de 17 mil habitantes), prestadores de serviço locais e equipes responsáveis pelo atendimento público.
+                    </p>
+                </div>
+            </div>
         </div>
     </section>
-    <section class="projeto-secao projeto-trajetoria" id="trajetoria" aria-labelledby="trajetoria-titulo">
-        <h2 id="trajetoria-titulo">Reconhecimento que faz parte da nossa história.</h2>
-        <ol class="projeto-marcos">
-            <li><span aria-hidden="true">01</span><div><h3>Ceará de Valores</h3><p>Projeto campeão.</p></div></li>
-            <li><span aria-hidden="true">02</span><div><h3>Ceará Científico</h3><p>Projeto apresentado.</p></div></li>
-            <li><span aria-hidden="true">03</span><div><h3>Sebrae Supernova</h3><p>Uma nova etapa de desenvolvimento do negócio.</p></div></li>
-        </ol>
+
+    <!-- 4. MÓDULOS EM FUNCIONAMENTO (Idêntico à linguagem dos Eixos da Home e /categories) -->
+    <section class="projeto-secao mb-5" id="funcionamento" aria-labelledby="funcionamento-titulo">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4 gap-3">
+            <div>
+                <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill fw-bold small mb-2">
+                    <i class="bi bi-check2-circle me-1" aria-hidden="true"></i> PLATAFORMA EM PRODUÇÃO
+                </span>
+                <h2 id="funcionamento-titulo" class="fw-bolder text-navy mb-1">Um projeto que já saiu do papel.</h2>
+                <p class="text-muted mb-0">
+                    Desenvolvido, testado e ativo: acesse diretamente qualquer um dos três eixos operacionais do portal.
+                </p>
+            </div>
+            <a href="/categories" class="btn btn-outline-primary rounded-pill px-4 fw-bold align-self-start align-self-md-end">
+                Ver Central de Categorias <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>
+            </a>
+        </div>
+
+        <div class="row g-4">
+            <!-- Eixo 1: Gestão de Melhorias -->
+            <div class="col-lg-4">
+                <a class="projeto-eixo-card eixo-azul h-100" href="/categories/gestao_de_melhorias/hub">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="projeto-icone-box bg-primary-soft text-primary">
+                            <i class="bi bi-tools" aria-hidden="true"></i>
+                        </div>
+                        <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-1 fw-bold small">CIDADANIA</span>
+                    </div>
+                    <h3 class="h4 fw-bold text-navy mb-2">Gestão de Melhorias</h3>
+                    <p class="text-muted small mb-4 flex-grow-1">
+                        Registre problemas de iluminação, pavimentação, saneamento e equipamentos públicos com fotos, mapa interativo e apoio da comunidade.
+                    </p>
+                    <div class="projeto-eixo-cta text-primary fw-bold small">
+                        <span>Acessar Hub de Melhorias</span>
+                        <i class="bi bi-arrow-right-circle-fill fs-5" aria-hidden="true"></i>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Eixo 2: Denúncias e Ocorrências -->
+            <div class="col-lg-4">
+                <a class="projeto-eixo-card eixo-vermelho h-100" href="/categories/denuncias_sigilosas/hub">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="projeto-icone-box bg-danger-soft text-danger">
+                            <i class="bi bi-shield-lock-fill" aria-hidden="true"></i>
+                        </div>
+                        <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3 py-1 fw-bold small">SEGURANÇA & SIGILO</span>
+                    </div>
+                    <h3 class="h4 fw-bold text-navy mb-2">Denúncias e Ocorrências</h3>
+                    <p class="text-muted small mb-4 flex-grow-1">
+                        Comunique focos de queimada, maus-tratos contra animais, descarte irregular ou poluição sonora com proteção de identidade e SLA automático.
+                    </p>
+                    <div class="projeto-eixo-cta text-danger fw-bold small">
+                        <span>Acessar Hub de Denúncias</span>
+                        <i class="bi bi-arrow-right-circle-fill fs-5" aria-hidden="true"></i>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Eixo 3: Vitrine do Trabalhador -->
+            <div class="col-lg-4">
+                <a class="projeto-eixo-card eixo-verde h-100" href="/categories/vitrine_do_trabalhador/hub">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="projeto-icone-box bg-success-soft text-success">
+                            <i class="bi bi-briefcase-fill" aria-hidden="true"></i>
+                        </div>
+                        <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-1 fw-bold small">ECONOMIA LOCAL</span>
+                    </div>
+                    <h3 class="h4 fw-bold text-navy mb-2">Vitrine do Trabalhador</h3>
+                    <p class="text-muted small mb-4 flex-grow-1">
+                        Divulgue seu trabalho autônomo gratuitamente ou encontre eletricistas, pedreiros, diaristas e técnicos da própria cidade com contato direto.
+                    </p>
+                    <div class="projeto-eixo-cta text-success fw-bold small">
+                        <span>Acessar Vitrine de Talentos</span>
+                        <i class="bi bi-arrow-right-circle-fill fs-5" aria-hidden="true"></i>
+                    </div>
+                </a>
+            </div>
+        </div>
     </section>
-    <section class="projeto-secao projeto-equipe" aria-labelledby="equipe-titulo">
-        <div><h2 id="equipe-titulo">Quem está por trás</h2><p class="projeto-legenda">Responsável</p><p class="projeto-responsavel">José Dhiogo Frutuoso da Silva</p></div>
-        <div class="projeto-colaboradores"><h3>Contribuidores</h3><ul><li>Erik Mateus Vieira Carneiro</li><li>Filipe Gomes do Nascimento</li><li>Lawan Kelve Duarte Freitas</li><li>Lucas Teixeira Gomes</li></ul></div>
+
+    <!-- 5. TRAJETÓRIA & ESTRATÉGIA DE IMPLEMENTAÇÃO -->
+    <section class="projeto-secao mb-5" id="trajetoria" aria-labelledby="trajetoria-titulo">
+        <div class="row g-4 align-items-stretch">
+            <!-- Coluna Marcos da Trajetória -->
+            <div class="col-lg-7">
+                <div class="projeto-painel-claro h-100">
+                    <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-bold small mb-2">
+                        <i class="bi bi-award me-1" aria-hidden="true"></i> NOSSA CAMINHADA
+                    </span>
+                    <h2 id="trajetoria-titulo" class="fw-bolder text-navy mb-2">Reconhecimento que faz parte da nossa história.</h2>
+                    <p class="text-muted small mb-4">
+                        Cada etapa consolidou a plataforma técnica e institucionalmente para atender a população com segurança.
+                    </p>
+
+                    <ol class="projeto-marcos">
+                        <li>
+                            <span class="projeto-marco-num" aria-hidden="true">01</span>
+                            <div>
+                                <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                                    <h3 class="h5 fw-bold text-navy mb-0">Ceará de Valores</h3>
+                                    <span class="badge bg-warning text-dark rounded-pill small">Projeto Campeão</span>
+                                </div>
+                                <p class="small text-muted mb-0">
+                                    Conquista do 1º lugar regional e estadual, validando a relevância social e o protagonismo estudantil de Cariús.
+                                </p>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="projeto-marco-num" aria-hidden="true">02</span>
+                            <div>
+                                <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                                    <h3 class="h5 fw-bold text-navy mb-0">Ceará Científico</h3>
+                                    <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill small">Projeto Apresentado</span>
+                                </div>
+                                <p class="small text-muted mb-0">
+                                    Apresentação da arquitetura tecnológica e do impacto ambiental "Papel Zero" em âmbito científico.
+                                </p>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="projeto-marco-num" aria-hidden="true">03</span>
+                            <div>
+                                <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                                    <h3 class="h5 fw-bold text-navy mb-0">Sebrae Supernova</h3>
+                                    <span class="badge bg-success bg-opacity-10 text-success rounded-pill small">Desenvolvimento de Negócio</span>
+                                </div>
+                                <p class="small text-muted mb-0">
+                                    Nova etapa de estruturação, maturidade operacional e expansão do alcance comunitário da plataforma.
+                                </p>
+                            </div>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Coluna Estratégia de Implementação (Dark Gov Navy Card) -->
+            <div class="col-lg-5">
+                <div class="projeto-painel-marinho h-100 d-flex flex-column justify-content-between">
+                    <div>
+                        <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold small mb-3">
+                            <i class="bi bi-gear-wide-connected me-1" aria-hidden="true"></i> ENGENHARIA & EXECUÇÃO
+                        </span>
+                        <h3 class="h3 fw-bolder text-white mb-2">Arquitetura Pronta para o Cidadão</h3>
+                        <p class="text-white-50 small mb-4">
+                            O sistema foi projetado para operar com alta disponibilidade, baixo consumo de dados móveis e proteção rigorosa de dados.
+                        </p>
+
+                        <div class="projeto-etapa-item">
+                            <div class="projeto-etapa-icone"><i class="bi bi-cloud-check-fill" aria-hidden="true"></i></div>
+                            <div>
+                                <h4 class="h6 fw-bold text-white mb-1">Infraestrutura & Segurança</h4>
+                                <p class="small text-white-50 mb-0">Hospedagem em nuvem com criptografia, controle CSRF, proteção de identidade e mídia otimizada em WebP.</p>
+                            </div>
+                        </div>
+
+                        <div class="projeto-etapa-item">
+                            <div class="projeto-etapa-icone"><i class="bi bi-map-fill" aria-hidden="true"></i></div>
+                            <div>
+                                <h4 class="h6 fw-bold text-white mb-1">Georreferenciamento Real</h4>
+                                <p class="small text-white-50 mb-0">Mapas interativos integrados para localização exata de demandas urbanas e focos de emergência.</p>
+                            </div>
+                        </div>
+
+                        <div class="projeto-etapa-item mb-0">
+                            <div class="projeto-etapa-icone"><i class="bi bi-shield-check" aria-hidden="true"></i></div>
+                            <div>
+                                <h4 class="h6 fw-bold text-white mb-1">Governança & Transparência</h4>
+                                <p class="small text-white-50 mb-0">Fluxo auditável de moderação, prazos de SLA por criticidade e acompanhamento aberto por protocolo.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-top border-light border-opacity-10 d-flex align-items-center justify-content-between">
+                        <span class="small text-white-50">Documentação técnica oficial</span>
+                        <a href="/pdf/projeto-voz-ativa.pdf" target="_blank" rel="noopener" class="btn btn-sm btn-outline-light rounded-pill px-3 fw-bold">
+                            Abrir PDF <i class="bi bi-box-arrow-up-right ms-1" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </section>
+
+    <!-- 6. EQUIPE TÉCNICA E AUTORES -->
+    <section class="projeto-secao mb-5" id="equipe" aria-labelledby="equipe-titulo">
+        <div class="projeto-equipe-box">
+            <div class="row g-4 align-items-center">
+                <div class="col-lg-5">
+                    <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-bold small mb-2">
+                        <i class="bi bi-person-workspace me-1" aria-hidden="true"></i> QUEM ESTÁ POR TRÁS
+                    </span>
+                    <h2 id="equipe-titulo" class="fw-bolder text-navy mb-2">Equipe do Projeto</h2>
+                    <p class="text-muted small mb-4">
+                        Jovens talentos dedicados a construir soluções tecnológicas reais para o desenvolvimento de Cariús e do Ceará.
+                    </p>
+
+                    <div class="projeto-lider-card">
+                        <div class="projeto-avatar-lider" aria-hidden="true">
+                            <i class="bi bi-person-badge-fill"></i>
+                        </div>
+                        <div>
+                            <span class="badge bg-primary text-white rounded-pill px-2 py-1 small fw-bold mb-1">RESPONSÁVEL & LÍDER TÉCNICO</span>
+                            <p class="projeto-responsavel h5 fw-bold text-navy mb-0">José Dhiogo Frutuoso da Silva</p>
+                            <small class="text-muted">Idealização, Arquitetura e Desenvolvimento</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-7">
+                    <div class="ps-lg-4 border-start-lg">
+                        <h3 class="h6 fw-bold text-uppercase text-muted mb-3">
+                            <i class="bi bi-people-fill text-primary me-2" aria-hidden="true"></i>Equipe de Contribuidores
+                        </h3>
+                        <div class="row g-3">
+                            <div class="col-sm-6">
+                                <div class="projeto-membro-card">
+                                    <span class="projeto-membro-iniciais" aria-hidden="true">EM</span>
+                                    <div>
+                                        <strong class="d-block text-navy">Erik Mateus Vieira Carneiro</strong>
+                                        <span class="small text-muted">Coautor & Pesquisador</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="projeto-membro-card">
+                                    <span class="projeto-membro-iniciais" aria-hidden="true">FG</span>
+                                    <div>
+                                        <strong class="d-block text-navy">Filipe Gomes do Nascimento</strong>
+                                        <span class="small text-muted">Coautor & Pesquisador</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="projeto-membro-card">
+                                    <span class="projeto-membro-iniciais" aria-hidden="true">LK</span>
+                                    <div>
+                                        <strong class="d-block text-navy">Lawan Kelve Duarte Freitas</strong>
+                                        <span class="small text-muted">Coautor & Pesquisador</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="projeto-membro-card">
+                                    <span class="projeto-membro-iniciais" aria-hidden="true">LT</span>
+                                    <div>
+                                        <strong class="d-block text-navy">Lucas Teixeira Gomes</strong>
+                                        <span class="small text-muted">Coautor & Pesquisador</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 7. CTA DE CONTATO E PARCERIAS -->
     <section class="projeto-contato" aria-labelledby="contato-titulo">
-        <div><h2 id="contato-titulo">Vamos ampliar essa conexão?</h2><p>Conheça a plataforma e converse com a equipe sobre o projeto.</p></div>
-        <div class="projeto-acoes">
-            <a class="projeto-botao projeto-botao-claro" href="mailto:portalvozativace@gmail.com?subject=Conhecer%20o%20Portal%20Voz%20Ativa">Conversar com a equipe</a>
-            <a class="projeto-documento" href="/pdf/projeto-voz-ativa.pdf" target="_blank" rel="noopener">Ver documento do projeto <span class="visually-hidden">(PDF, abre em nova aba)</span><i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
+        <div class="row align-items-center g-4">
+            <div class="col-lg-7">
+                <span class="badge bg-white bg-opacity-10 text-warning rounded-pill px-3 py-1 fw-bold small mb-2">
+                    <i class="bi bi-chat-heart-fill me-1" aria-hidden="true"></i> CONECTE-SE CONOSCO
+                </span>
+                <h2 id="contato-titulo" class="fw-bolder text-white mb-2">Vamos ampliar essa conexão?</h2>
+                <p class="text-white-50 mb-0">
+                    Conheça de perto a plataforma, tire dúvidas ou converse com a nossa equipe sobre parcerias e implantação institucional.
+                </p>
+            </div>
+            <div class="col-lg-5">
+                <div class="d-flex flex-wrap justify-content-lg-end align-items-center gap-3">
+                    <a class="btn btn-light btn-lg rounded-pill px-4 fw-bold text-navy shadow-sm d-inline-flex align-items-center gap-2" href="mailto:portalvozativace@gmail.com?subject=Conhecer%20o%20Portal%20Voz%20Ativa">
+                        <i class="bi bi-envelope-check-fill text-primary" aria-hidden="true"></i>
+                        <span>Conversar com a equipe</span>
+                    </a>
+                    <a class="btn btn-outline-light btn-lg rounded-pill px-4 fw-bold d-inline-flex align-items-center gap-2" href="/pdf/projeto-voz-ativa.pdf" target="_blank" rel="noopener">
+                        <span>Ver PDF</span>
+                        <span class="visually-hidden">(abre em nova aba)</span>
+                        <i class="bi bi-arrow-up-right" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </div>
         </div>
     </section>
+
 </main>
