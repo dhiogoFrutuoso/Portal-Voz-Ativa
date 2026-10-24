@@ -160,6 +160,9 @@ const DenunciaSchema = new Schema({
 });
 
 DenunciaSchema.plugin(governancaPlugin);
+DenunciaSchema.index({ dataCriacao: -1 });
+DenunciaSchema.index({ usuario: 1, dataCriacao: -1 });
+DenunciaSchema.index({ privada: 1, dataCriacao: -1 });
 
 mongoose.model('denuncias', DenunciaSchema);
 // [Melhoria Proativa Adicionada: campos e índices alinhados à governança e preservação de evidências]

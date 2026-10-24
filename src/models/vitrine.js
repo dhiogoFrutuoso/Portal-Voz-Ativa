@@ -95,6 +95,8 @@ const VitrineSchema = new Schema({
 });
 
 VitrineSchema.plugin(governancaPlugin);
+VitrineSchema.index({ dataCriacao: -1 });
+VitrineSchema.index({ usuario: 1, dataCriacao: -1 });
 
 mongoose.model('vitrine', VitrineSchema);
 // [Melhoria Proativa Adicionada: campos e índices alinhados à governança e preservação de evidências]

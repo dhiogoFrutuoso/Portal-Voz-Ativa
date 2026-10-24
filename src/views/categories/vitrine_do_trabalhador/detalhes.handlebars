@@ -214,9 +214,16 @@
         if (lat && lng) {
             const map = L.map('mapDetails').setView([lat, lng], 16);
 
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap'
+            const camadaTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                attribution: '© OpenStreetMap © CARTO',
+                subdomains: 'abcd',
+                maxZoom: 20
             }).addTo(map);
+            camadaTiles.once('tileerror', () => {
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap'
+                }).addTo(map);
+            });
 
             const customIcon = L.divIcon({
                 className: 'custom-div-icon',

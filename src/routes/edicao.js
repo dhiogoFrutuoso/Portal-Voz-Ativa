@@ -15,6 +15,7 @@ import '../models/denuncias.js';
 import '../models/vitrine.js';
 
 import isUser from '../helpers/isUser.js';
+import { nasceSigilosa, TIPOS_OCORRENCIA } from '../helpers/protocolo.js';
 import {
     chamadoSchema,
     denunciaSchema,
@@ -47,16 +48,6 @@ function indicesMantidos(entrada) {
 }
 
 // As mesmas opções dos formulários de criação, para o editor não divergir deles.
-const TIPOS_OCORRENCIA = [
-    'Foco de Queimada',
-    'Descarte Irregular de Lixo',
-    'Maus-tratos contra Animais',
-    'Poluição Sonora',
-    'Vandalismo',
-    'Tráfico ou Uso de Drogas',
-    'Outro'
-];
-
 const CATEGORIAS_VITRINE = [
     'Serviços Gerais',
     'Alimentação',
@@ -103,13 +94,19 @@ export const EIXOS_EDITAVEIS = {
         temProtocolo: true,
         hub: '/categories/denuncias_sigilosas/hub',
         detalhes: '/categories/denuncias_sigilosas/detalhes',
-        campos: (dados) => ({
+        campos: (dados, postAtual) => ({
             tipoOcorrencia: dados.tipoOcorrencia,
             titulo: dados.tipoOcorrencia === 'Outro' ? dados.titulo : dados.tipoOcorrencia,
             descricao: dados.descricao,
             localizacao: dados.localizacao,
             latitude: dados.latitude,
-            longitude: dados.longitude
+            longitude: dados.longitude,
+            // Recalcula o sigilo sempre que o tipo de ocorrência mudar (ou se
+            // o registro legado ainda não tinha o campo `privada` gravado).
+            privada:
+                postAtual && postAtual.tipoOcorrencia === dados.tipoOcorrencia && typeof postAtual.privada === 'boolean'
+                    ? postAtual.privada
+                    : nasceSigilosa(dados.tipoOcorrencia)
         })
     },
     vitrine_do_trabalhador: {
@@ -225,7 +222,7 @@ for (const eixo of Object.values(EIXOS_EDITAVEIS)) {
             const imagens = [...mantidas, ...novas].slice(0, 5);
 
             const atualizacao = {
-                ...eixo.campos(validacao.data),
+                ...eixo.campos(validacao.data, req.post),
                 imagens,
                 editadoEm: new Date()
             };

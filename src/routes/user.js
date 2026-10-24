@@ -1,4 +1,4 @@
-import { emitirOtp, envioOtpConfigurado } from '../helpers/otp.js';
+import { emitirOtp, envioOtpConfigurado, verificacaoEmailObrigatoria } from '../helpers/otp.js';
 import { aceito, VERSAO_TERMOS } from '../helpers/governanca.js';
 import express from "express";
 import mongoose from "mongoose";
@@ -117,10 +117,18 @@ router.post("/register", registerLimiter, async (req, res) => {
   }
 
   const dados = validacao.data;
+  const exigirVerificacao = verificacaoEmailObrigatoria();
 
   try {
     const userExists = await user.findOne({ email: dados.email }).lean();
     if (userExists?.isVerified === false && await bcrypt.compare(dados.password, userExists.password)) {
+      // Com a verificação desligada, um cadastro que ficou pendente é liberado
+      // na retomada: passa a ser tratado como conta sem confirmação registrada.
+      if (!exigirVerificacao) {
+        await user.updateOne({ _id: userExists._id, isVerified: false }, { $unset: { isVerified: 1 } });
+        req.flash("success_msg", "Cadastro concluído! Entre com seu e-mail e senha.");
+        return res.redirect("/users/login");
+      }
       req.session.registrationEmail = dados.email;
       try { await emitirOtp(dados.email, 'verify'); }
       catch { req.session.registrationError = 'Não foi possível enviar o código agora. Tente reenviar em alguns instantes.'; }
@@ -136,7 +144,7 @@ router.post("/register", registerLimiter, async (req, res) => {
       });
     }
 
-    if (!envioOtpConfigurado()) {
+    if (exigirVerificacao && !envioOtpConfigurado()) {
       return res.status(503).render("users/register", {
         error_msg: "O cadastro está temporariamente indisponível. Tente novamente mais tarde.",
         name, email, profession, bio,
@@ -170,6 +178,17 @@ router.post("/register", registerLimiter, async (req, res) => {
 
     const salt = await bcrypt.genSalt(12);
     newUser.password = await bcrypt.hash(newUser.password, salt);
+
+    if (!exigirVerificacao) {
+      // Sem o campo isVerified a conta entra como as contas legadas: ativa,
+      // mas sem registrar uma confirmação de e-mail que não aconteceu.
+      // Assim, religar a verificação depois não bloqueia quem já se cadastrou.
+      newUser.isVerified = undefined;
+      await newUser.save();
+      req.flash("success_msg", "Cadastro concluído! Entre com seu e-mail e senha.");
+      return res.redirect("/users/login");
+    }
+
     await newUser.save();
 
     req.session.registrationEmail = dados.email;

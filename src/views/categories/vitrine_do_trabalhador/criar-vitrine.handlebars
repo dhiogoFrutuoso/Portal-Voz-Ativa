@@ -206,7 +206,16 @@
     const latInicial = -6.5372;
     const lngInicial = -39.4958;
     const map = L.map('map').setView([latInicial, lngInicial], 15);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    const camadaTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '© OpenStreetMap © CARTO',
+        subdomains: 'abcd',
+        maxZoom: 20
+    }).addTo(map);
+    camadaTiles.once('tileerror', () => {
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+    });
     let marker = L.marker([latInicial, lngInicial], { draggable: true }).addTo(map);
 
     function updateFields(lat, lng) {

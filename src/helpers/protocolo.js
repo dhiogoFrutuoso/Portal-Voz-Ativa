@@ -63,15 +63,33 @@ export function estagioDe(status) {
     return { chave: normalizado, ...ESTAGIOS[normalizado] };
 }
 
-// --- Prazos de resposta (cláusula de atendimento) ---
+// --- Tipos oficiais de ocorrência e prazos de resposta (cláusula de atendimento) ---
+// Valores exatos enviados pelos formulários de criação e edição de denúncias.
+export const TIPOS_OCORRENCIA = [
+    'Foco de Queimada',
+    'Descarte Irregular de Lixo',
+    'Maus-tratos contra Animais',
+    'Poluição Sonora',
+    'Vandalismo',
+    'Tráfico ou Uso de Drogas',
+    'Outro'
+];
+
 // Dias úteis padrão por tipo de demanda. O admin pode sobrescrever o prazo de um
-// protocolo específico ao respondê-lo.
+// protocolo específico ao respondê-lo. Mantém compatibilidade com nomes legados.
 const PRAZOS_DENUNCIA = {
+    'Foco de Queimada': 2,
+    'Maus-tratos contra Animais': 3,
+    'Descarte Irregular de Lixo': 5,
+    'Poluição Sonora': 5,
+    'Vandalismo': 5,
+    'Tráfico ou Uso de Drogas': 3,
+    'Outro': 5,
+    // Compatibilidade com registros antigos
     Queimada: 2,
     'Queimada Ilegal': 2,
     Desmatamento: 3,
     'Poluição': 5,
-    'Poluição Sonora': 5,
     'Maus-tratos a animais': 3,
     'Descarte irregular de lixo': 5
 };

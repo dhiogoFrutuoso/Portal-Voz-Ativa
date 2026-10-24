@@ -47,13 +47,22 @@ export async function validarMidiasRecebidas(req, res, next) {
     if (req.method !== 'POST') return next();
     const names = ['imagens', 'imagens[]', 'imagens_urls', 'imagens_urls[]', 'novas_imagens', 'novas_imagens[]', 'imagem_url', 'arquivo_url', 'croppedImage', 'video_url'];
     try {
+        const entries = [];
         for (const name of names) {
             const value = req.body?.[name];
             for (const url of (Array.isArray(value) ? value : [value]).filter(Boolean)) {
                 if (typeof url !== 'string') return res.status(400).send('Mídia inválida.');
-                const record = await Media.findOne({ url, owner: donoMidia(req) }).lean();
-                if (!record || (name === 'video_url' ? !record.mime.startsWith('video/') : name === 'arquivo_url' ? !['image/', 'application/pdf'].some(type => record.mime.startsWith(type)) : !record.mime.startsWith('image/'))) return res.status(400).send('Use o seletor de arquivos para enviar uma mídia válida.');
+                entries.push({ name, url });
             }
+        }
+        if (entries.length === 0) return next();
+        const urls = [...new Set(entries.map((item) => item.url))];
+        const owner = donoMidia(req);
+        const records = await Media.find({ url: { $in: urls }, owner }).lean();
+        const byUrl = new Map(records.map((r) => [r.url, r]));
+        for (const { name, url } of entries) {
+            const record = byUrl.get(url);
+            if (!record || (name === 'video_url' ? !record.mime.startsWith('video/') : name === 'arquivo_url' ? !['image/', 'application/pdf'].some(type => record.mime.startsWith(type)) : !record.mime.startsWith('image/'))) return res.status(400).send('Use o seletor de arquivos para enviar uma mídia válida.');
         }
         next();
     } catch { res.status(503).send('Não foi possível validar a mídia.'); }

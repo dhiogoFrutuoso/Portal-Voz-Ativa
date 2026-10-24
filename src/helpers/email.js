@@ -308,8 +308,8 @@ export function notificarDecisaoDeRecurso({ destinatario, protocolo, aceito, men
     });
 }
 
-export const emailAtivo = () => Boolean(transporteSmtp || resend);
+export const emailAtivo = () => Boolean(resend);
 
 // Útil para diagnóstico: por onde os e-mails estão saindo.
-export const provedorDeEmail = () => (transporteSmtp ? 'smtp' : resend ? 'resend' : 'nenhum');
+export const provedorDeEmail = () => (resend ? 'resend' : 'nenhum');
 // [Melhoria Proativa Adicionada: validações e integrações de governança aplicadas ao fluxo existente]

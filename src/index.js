@@ -203,6 +203,14 @@ app.use('/users', users);
 app.use('/project', project);
 app.use('/protocolos', protocolos);
 
+// Middleware de 404 amigável para rotas inexistentes, antes do error handler.
+app.use((req, res) => {
+    if (req.get('x-requested-with') === 'fetch') {
+        return res.status(404).json({ erro: 'Página ou recurso não encontrado.' });
+    }
+    res.status(404).send('Página não encontrada. Verifique o endereço ou volte à página inicial do Portal Voz Ativa.');
+});
+
 // A Vercel importa o app, sem abrir porta. npm start continua funcionando.
 export default app;
 

@@ -14,10 +14,10 @@
 
 const CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME || 'dnh7vok3r';
 const PREFIXO_IMAGEM = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/`;
-const TRANSFORMACAO = 'f_auto,q_auto';
+const TRANSFORMACAO = 'f_auto,q_auto,c_limit,w_1000';
 
-// Evita reescrever uma URL que já carrega instrução de formato ou qualidade.
-const jaOtimizada = (resto) => /(^|,|\/)(f_|q_)/.test(resto.split('/')[0]);
+// Evita reescrever uma URL que já carrega instrução de formato, qualidade ou dimensão.
+const jaOtimizada = (resto) => /(^|,|\/)(f_|q_|c_|w_)/.test(resto.split('/')[0]);
 
 export function otimizarUrlCloudinary(url) {
     if (typeof url !== 'string' || !url.startsWith(PREFIXO_IMAGEM)) {

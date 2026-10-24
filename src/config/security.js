@@ -51,6 +51,7 @@ export const securityHeaders = helmet({
                 'blob:',
                 'https://res.cloudinary.com',
                 'https://*.tile.openstreetmap.org', // Tiles do Leaflet
+                'https://*.basemaps.cartocdn.com', // Tiles do CartoDB Voyager
                 'https://unpkg.com', // Ícones do Leaflet
                 'https://cdn-icons-png.flaticon.com', // Marcador do mapa de chamados
                 'https://www.transparenttextures.com' // Textura de fundo do painel admin
@@ -61,6 +62,8 @@ export const securityHeaders = helmet({
                 'https://api.cloudinary.com',
                 'https://res.cloudinary.com',
                 'https://nominatim.openstreetmap.org', // Geocodificação reversa
+                'https://*.basemaps.cartocdn.com', // Tiles do CartoDB Voyager
+                'https://*.tile.openstreetmap.org', // Fallback de tiles do Leaflet
                 'https://www.google.com', // Telemetria do reCAPTCHA Enterprise
                 'https://www.gstatic.com',
                 // O DevTools aberto busca os sourcemaps (.map) do Bootstrap e

@@ -28,11 +28,11 @@ window.portalMensagem = (message, type = 'danger') => {
         try {
             if (bitmap.width * bitmap.height > 25000000) throw new Error('A imagem excede 25 megapixels. Reduza sua resolução.');
             const canvas = document.createElement('canvas');
-            const scale = Math.min(1, 1920 / Math.max(bitmap.width, bitmap.height));
+            const scale = Math.min(1, 1280 / Math.max(bitmap.width, bitmap.height));
             canvas.width = Math.max(1, Math.round(bitmap.width * scale)); canvas.height = Math.max(1, Math.round(bitmap.height * scale));
             canvas.getContext('2d').drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-            let result = await blobFromCanvas(canvas, .75);
-            if (result.size > 3 * MB) result = await blobFromCanvas(canvas, .5);
+            let result = await blobFromCanvas(canvas, 0.80);
+            if (result.size > 3 * MB) result = await blobFromCanvas(canvas, 0.5);
             return new File([result], result.type === 'image/webp' ? 'imagem.webp' : 'imagem.png', { type: result.type });
         } finally { bitmap.close(); }
     }

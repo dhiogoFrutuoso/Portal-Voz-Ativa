@@ -170,8 +170,21 @@ export const chamadoSchema = z.object({
     longitude: coordenada(180)
 });
 
+export const TIPOS_OCORRENCIA_VALIDOS = [
+    'Foco de Queimada',
+    'Descarte Irregular de Lixo',
+    'Maus-tratos contra Animais',
+    'Poluição Sonora',
+    'Vandalismo',
+    'Tráfico ou Uso de Drogas',
+    'Outro'
+];
+
 export const denunciaSchema = z.object({
-    tipoOcorrencia: textoLimpo(2, 80, 'Tipo de ocorrência'),
+    tipoOcorrencia: textoLimpo(2, 80, 'Tipo de ocorrência').refine(
+        (v) => TIPOS_OCORRENCIA_VALIDOS.includes(v),
+        { message: 'Selecione um tipo de ocorrência válido.' }
+    ),
     titulo: textoOpcional(120, 'Título'),
     descricao: textoLimpo(10, 3000, 'Descrição'),
     localizacao: textoLimpo(3, 200, 'Localização'),

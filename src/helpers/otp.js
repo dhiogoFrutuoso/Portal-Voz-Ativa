@@ -11,6 +11,15 @@ const chave = (email, purpose) => digest(`${purpose}:${email}`);
 export const emailValido = (email) => typeof email === 'string' && email.length <= 160 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 export const normalizarEmail = (value) => typeof value === 'string' ? value.trim().toLowerCase() : '';
 const escape = (text) => String(text).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+/*
+ * Confirmação de e-mail no cadastro.
+ *
+ * Desligada por padrão enquanto o portal não tem domínio próprio: sem domínio
+ * verificado o Resend não entrega e-mail a destinatários reais, e o cadastro
+ * ficaria travado. O fluxo de OTP continua inteiro; basta definir
+ * EXIGIR_VERIFICACAO_EMAIL=true no ambiente para voltar a exigi-lo.
+ */
+export const verificacaoEmailObrigatoria = () => process.env.EXIGIR_VERIFICACAO_EMAIL === 'true';
 export const envioOtpConfigurado = () => {
     if (!process.env.RESEND_API_KEY?.trim() || !process.env.EMAIL_REMETENTE?.trim()) return false;
     try { const url = new URL(process.env.URL_PUBLICA); return url.protocol === 'https:' || (process.env.NODE_ENV !== 'production' && url.protocol === 'http:'); }

@@ -37,6 +37,7 @@ import {
     prazoDoProtocolo,
     dataLimite,
     LISTA_ESTAGIOS,
+    TIPOS_OCORRENCIA,
     filtroDeSigilo,
     podeVerDenuncia,
     nasceSigilosa,
@@ -83,16 +84,6 @@ const comEstagio = (doc) => {
 const estagiosParaSelect = () => LISTA_ESTAGIOS.map((chave) => estagioDe(chave));
 
 // Valores dos botões de filtro dos hubs. São os mesmos das telas de criação.
-const TIPOS_OCORRENCIA = [
-    'Foco de Queimada',
-    'Descarte Irregular de Lixo',
-    'Maus-tratos contra Animais',
-    'Poluição Sonora',
-    'Vandalismo',
-    'Tráfico ou Uso de Drogas',
-    'Outro'
-];
-
 const CATEGORIAS_VITRINE = [
     'Serviços Gerais',
     'Alimentação',
@@ -101,6 +92,34 @@ const CATEGORIAS_VITRINE = [
     'Artesanato',
     'Outros'
 ];
+
+// Projeção enxuta para listagens de hub: preserva a contagem de comentários
+// (comentarios.length) e curtidas sem trafegar histórico, recurso ou textos longos.
+const PROJECAO_HUB = '-historico -recurso -comentarios.texto -comentarios.usuario -comentarios.createdAt -comentarios.editadoEm';
+
+/*
+ * Alterna curtida de forma atômica no MongoDB ($pull / $addToSet), evitando
+ * perda de apoios concorrentes causada por read-modify-write em memória.
+ */
+async function alternarCurtida(Modelo, postId, usuarioId) {
+    const atual = await Modelo.findById(postId).select('curtidas').lean();
+    if (!atual) return null;
+
+    const jaTinha = (atual.curtidas || []).some((id) => String(id) === String(usuarioId));
+    const operacao = jaTinha
+        ? { $pull: { curtidas: usuarioId } }
+        : { $addToSet: { curtidas: usuarioId } };
+
+    const atualizado = await Modelo.findByIdAndUpdate(postId, operacao, { new: true })
+        .select('curtidas')
+        .lean();
+
+    if (!atualizado) return null;
+    return {
+        curtidas: (atualizado.curtidas || []).length,
+        jaCurtiu: !jaTinha
+    };
+}
 
 /*
  * Busca dos hubs: devolve só o pedaço de HTML com os cards, para a página
@@ -114,6 +133,7 @@ function montarBuscaDeHub({ Modelo, campos, colecao, partial, preparar, tipoProt
             const recorte = aplicarSigilo ? filtroDeSigilo() : {};
 
             const docs = await Modelo.find(combinarFiltros(recorte, filtro))
+                .select(PROJECAO_HUB)
                 .populate('usuario', 'name profileImage profession')
                 .sort({ dataCriacao: -1 })
                 .limit(60)
@@ -321,7 +341,11 @@ router.get('/gestao_de_melhorias/hub', async (req, res) => {
     try {
         const { termo, filtro } = filtroDoHub(req.query, ['titulo', 'descricao', 'localizacao']);
 
-        const chamadosDocs = await Chamado.find(filtro).sort({ dataCriacao: -1 }).lean();
+        const chamadosDocs = await Chamado.find(filtro)
+            .select(PROJECAO_HUB)
+            .sort({ dataCriacao: -1 })
+            .limit(60)
+            .lean();
 
         const chamados = chamadosDocs.map(doc => {
             // Lógica de curtidas
@@ -409,20 +433,9 @@ router.post('/gestao_de_melhorias/like/:id', async (req, res) => {
             return res.redirect('/categories/gestao_de_melhorias/hub');
         }
 
-        const chamado = await Chamado.findById(req.params.id);
-        if (!chamado) return res.redirect('/categories/gestao_de_melhorias/hub');
+        const resultado = await alternarCurtida(Chamado, req.params.id, req.user._id);
+        if (!resultado) return res.redirect('/categories/gestao_de_melhorias/hub');
 
-        const usuarioId = req.user._id;
-
-        const jaCurtiuIndex = chamado.curtidas.indexOf(usuarioId);
-
-        if (jaCurtiuIndex !== -1) {
-            chamado.curtidas.splice(jaCurtiuIndex, 1);
-        } else {
-            chamado.curtidas.push(usuarioId);
-        }
-
-        await chamado.save();
         res.redirect(req.get('referer') || '/categories/gestao_de_melhorias/hub');
 
     } catch (err) {
@@ -495,7 +508,9 @@ router.get('/denuncias_sigilosas/hub', async (req, res) => {
 
         // Denúncia sigilosa não aparece para quem não é o autor nem a gestão.
         const denunciasDocs = await Denuncia.find(combinarFiltros(filtroDeSigilo(), filtro))
+            .select(PROJECAO_HUB)
             .sort({ dataCriacao: -1 })
+            .limit(60)
             .lean();
 
         const denunciasComLike = denunciasDocs.map(denuncia => {
@@ -635,18 +650,9 @@ router.post('/denuncias_sigilosas/like/:id', async (req, res) => {
             return res.redirect("/categories/denuncias_sigilosas/hub");
         }
 
-        const denuncia = await Denuncia.findById(req.params.id);
-        if (!denuncia) return res.redirect("/categories/denuncias_sigilosas/hub");
+        const resultado = await alternarCurtida(Denuncia, req.params.id, req.user._id);
+        if (!resultado) return res.redirect("/categories/denuncias_sigilosas/hub");
 
-        const userIndex = denuncia.curtidas.indexOf(req.user._id);
-
-        if (userIndex > -1) {
-            denuncia.curtidas.splice(userIndex, 1);
-        } else {
-            denuncia.curtidas.push(req.user._id);
-        }
-
-        await denuncia.save();
         res.redirect(req.get('referer') || "/categories/denuncias_sigilosas/hub");
     } catch (err) {
         res.redirect("/categories/denuncias_sigilosas/hub");
@@ -712,8 +718,10 @@ router.get('/vitrine_do_trabalhador/hub', async (req, res) => {
         ]);
 
         const anunciosDocs = await Vitrine.find(filtro)
+            .select(PROJECAO_HUB)
             .populate('usuario', 'name profileImage profession')
             .sort({ dataCriacao: -1 })
+            .limit(60)
             .lean(); 
 
         const vitrinesCompletas = anunciosDocs.map(anuncio => {
@@ -793,18 +801,9 @@ router.post('/vitrine_do_trabalhador/curtir/:id', isUser, async (req, res) => {
             return res.redirect("/categories/vitrine_do_trabalhador/hub");
         }
 
-        const vitrine = await Vitrine.findById(req.params.id);
-        if (!vitrine) return res.redirect("/categories/vitrine_do_trabalhador/hub");
+        const resultado = await alternarCurtida(Vitrine, req.params.id, req.user._id);
+        if (!resultado) return res.redirect("/categories/vitrine_do_trabalhador/hub");
 
-        const userIndex = vitrine.curtidas.indexOf(req.user._id);
-
-        if (userIndex > -1) {
-            vitrine.curtidas.splice(userIndex, 1);
-        } else {
-            vitrine.curtidas.push(req.user._id);
-        }
-
-        await vitrine.save();
         res.redirect(req.get('referer') || "/categories/vitrine_do_trabalhador/hub");
     } catch (err) {
         console.error(err);
@@ -906,23 +905,15 @@ router.post('/:eixo/curtida/:id', async (req, res) => {
     }
 
     try {
-        const doc = await eixo.modelo().findById(req.params.id);
+        const resultado = await alternarCurtida(eixo.modelo(), req.params.id, req.user._id);
 
-        if (!doc) {
+        if (!resultado) {
             if (fetchando) return res.status(404).json({ erro: 'Publicação não encontrada.' });
             return res.redirect(eixo.hub);
         }
 
-        const usuarioId = String(req.user._id);
-        const posicao = (doc.curtidas || []).findIndex((id) => String(id) === usuarioId);
-
-        if (posicao !== -1) doc.curtidas.splice(posicao, 1);
-        else doc.curtidas.push(req.user._id);
-
-        await doc.save();
-
         if (fetchando) {
-            return res.json({ curtidas: doc.curtidas.length, jaCurtiu: posicao === -1 });
+            return res.json(resultado);
         }
 
         res.redirect(req.get('referer') || eixo.hub);

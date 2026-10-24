@@ -145,6 +145,8 @@ const ChamadoSchema = new mongoose.Schema({
 });
 
 ChamadoSchema.plugin(governancaPlugin);
+ChamadoSchema.index({ dataCriacao: -1 });
+ChamadoSchema.index({ usuario: 1, dataCriacao: -1 });
 
 // Registrar o modelo se ele ainda não foi registrado
 const Chamado = mongoose.models.chamados || mongoose.model('chamados', ChamadoSchema);

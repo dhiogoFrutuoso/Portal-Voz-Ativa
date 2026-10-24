@@ -16,6 +16,7 @@ process.env.RECAPTCHA_SECRET = 'teste';
 process.env.RESEND_API_KEY = 're_teste';
 process.env.EMAIL_REMETENTE = 'Portal <teste@example.test>';
 process.env.URL_PUBLICA = 'https://portal.example.test';
+process.env.EXIGIR_VERIFICACAO_EMAIL = 'true';
 process.env.CLOUDINARY_CLOUD_NAME = 'dnh7vok3r';
 process.env.CLOUDINARY_API_KEY = 'teste';
 process.env.CLOUDINARY_API_SECRET = 'teste';
@@ -211,6 +212,23 @@ try {
     const verified = await request('/verificar-email', { _csrf: verifyCsrf, email: 'novo@example.test', code: registerCode });
     assert.equal(verified.headers.get('location'), '/users/login');
     assert.equal((await User.findOne({ email: 'novo@example.test' })).isVerified, true);
+    // Verificação desligada (padrão enquanto não há domínio): o cadastro entra direto, sem código.
+    process.env.EXIGIR_VERIFICACAO_EMAIL = 'false';
+    const semVerificacaoHtml = await (await request('/users/register')).text();
+    const semVerificacaoCsrf = semVerificacaoHtml.match(/name="_csrf" value="([^"]+)"/)[1];
+    const emailsAntesSemVerificacao = emails.length;
+    const cadastroDireto = await request('/users/register', { _csrf: semVerificacaoCsrf, acceptTerms: 'true', name: 'Cadastro Direto',
+        email: 'direto@example.test', password: 'SenhaDireta123!', password_2: 'SenhaDireta123!', 'g-recaptcha-response': 'register' });
+    assert.equal(cadastroDireto.headers.get('location'), '/users/login');
+    assert.equal((await User.findOne({ email: 'direto@example.test' }).lean()).isVerified, undefined, 'Não registra confirmação fictícia');
+    assert.equal(emails.length, emailsAntesSemVerificacao, 'Cadastro sem verificação não envia e-mail');
+    const pendente = await User.create({ name: 'Pendente', email: 'pendente@example.test', password: await bcrypt.hash('SenhaPendente123!', 4), isVerified: false });
+    assert.equal((await request('/users/register', { _csrf: semVerificacaoCsrf, acceptTerms: 'true', name: 'Pendente', email: 'pendente@example.test',
+        password: 'SenhaPendente123!', password_2: 'SenhaPendente123!', 'g-recaptcha-response': 'register' })).headers.get('location'), '/users/login');
+    assert.equal((await User.findById(pendente._id).lean()).isVerified, undefined, 'Cadastro pendente é liberado na retomada');
+    assert.equal((await request('/users/login', { _csrf: semVerificacaoCsrf, email: 'direto@example.test', password: 'SenhaDireta123!',
+        'g-recaptcha-response': 'teste' })).headers.get('location'), '/', 'Conta sem verificação entra com senha');
+    process.env.EXIGIR_VERIFICACAO_EMAIL = 'true';
     // Contas anteriores ao recurso não são forçadas a confirmar no login.
     const legacy = await User.create({ name: 'Legado', email: 'legado@example.test', password: await bcrypt.hash('SenhaLegado123!', 4) });
     await User.updateOne({ _id: legacy._id }, { $unset: { isVerified: 1 } });

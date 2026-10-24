@@ -162,9 +162,16 @@
                 scrollWheelZoom: false
             }).setView([lat, lng], 16);
 
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap'
+            const camadaTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                attribution: '© OpenStreetMap © CARTO',
+                subdomains: 'abcd',
+                maxZoom: 20
             }).addTo(map);
+            camadaTiles.once('tileerror', () => {
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap'
+                }).addTo(map);
+            });
 
             const customIcon = L.icon({
                 iconUrl: 'https://cdn-icons-png.flaticon.com/512/2776/2776067.png',
