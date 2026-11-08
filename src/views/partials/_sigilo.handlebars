@@ -1,6 +1,6 @@
-{{!-- Selo de sigilo da denúncia e, para a gestão, o botão que alterna.
+{{!-- Selo de sigilo da publicação e, para a gestão, o botão que alterna.
 
-     Recebe: privada, id, csrfToken, ehAdmin e (opcional) comBotao. --}}
+     Recebe: privada, id, tipo (opcional, padrão 'denuncia'), csrfToken, ehAdmin. --}}
 {{#if privada}}
     <span class="badge bg-dark px-3 py-2 rounded-pill fw-bold" title="Visível apenas para o autor e a gestão municipal">
         <i class="bi bi-eye-slash-fill me-1"></i>Sigilosa
@@ -12,7 +12,7 @@
 {{/if}}
 
 {{#if ehAdmin}}
-    <form action="/admin/protocolo/denuncia/{{id}}/sigilo" method="POST" class="d-inline">
+    <form action="/admin/protocolo/{{#if tipo}}{{tipo}}{{else}}denuncia{{/if}}/{{id}}/sigilo" method="POST" class="d-inline">
         <input type="hidden" name="_csrf" value="{{csrfToken}}">
         <input type="hidden" name="privada" value="{{#if privada}}0{{else}}1{{/if}}">
 

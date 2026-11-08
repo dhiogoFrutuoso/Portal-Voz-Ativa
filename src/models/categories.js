@@ -45,6 +45,13 @@ const ChamadoSchema = new mongoose.Schema({
          default: 'Novo'
         },
 
+    // --- SIGILO ADMINISTRATIVO ---
+    // Permite sigilar um chamado mesmo depois de já estar disponível no feed público.
+    privada: {
+        type: Boolean,
+        default: false
+    },
+
     // --- MODERAÇÃO PRÉVIA (PILOTO 90 DIAS) ---
     moderacao: {
         status: {

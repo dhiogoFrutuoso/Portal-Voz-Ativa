@@ -433,6 +433,7 @@ router.get('/gestao_de_melhorias/detalhes/:id', async (req, res) => {
                 limite: dataLimite(chamadoDoc.dataCriacao, prazoDoProtocolo(chamadoDoc, 'melhoria').dias)
             },
             comprovante: montarComprovanteEmail(chamadoDoc, 'melhoria'),
+            moderacao,
             jaCurtiu,
             eDono,
             podeAcompanhar: eDono || Boolean(req.user && req.user.areAdmin),
@@ -661,6 +662,7 @@ router.get('/denuncias_sigilosas/detalhes/:id', async (req, res) => {
                 limite: dataLimite(denuncia.dataCriacao, prazoDoProtocolo(denuncia, 'denuncia').dias)
             },
             comprovante: montarComprovanteEmail(denuncia, 'denuncia'),
+            moderacao,
             jaCurtiu,
             eDono,
             podeAcompanhar: eDono || Boolean(req.user && req.user.areAdmin),

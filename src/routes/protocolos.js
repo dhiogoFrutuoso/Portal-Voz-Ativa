@@ -28,6 +28,8 @@ import {
     ehDenunciaSigilosa,
     statusModeracaoDe,
     montarComprovanteEmail,
+    gerarTextoComprovanteOficial,
+    extrairBairro,
     ORGAOS_ENCAMINHAMENTO,
     montarRecurso,
     LISTA_ESTAGIOS
@@ -103,12 +105,14 @@ function montarProtocolo(doc, tipo, usuario = null) {
         estagio: estagioDe(status),
         moderacao,
         comprovante,
+        bairro: extrairBairro(doc),
         prazo,
         limite: dataLimite(doc.dataCriacao, prazo.dias),
         numero: numeroDoProtocolo(doc, tipo),
         linkPost: `${eixo.rotaDetalhes}/${doc._id}`,
         novidades: novidadesDoProtocolo(doc),
         privada: Boolean(doc.privada),
+        podeMudarSigilo: true,
         sigilosa,
         recurso: montarRecurso(doc, sigilosa),
         usuario: sigilosa ? anonimizarAutor(doc.usuario, doc) : doc.usuario,
@@ -209,6 +213,25 @@ router.get('/', isUser, async (req, res) => {
         req.flash('error_msg', 'Erro ao carregar seus protocolos.');
         res.redirect('/');
     }
+});
+
+// --- DOWNLOAD DIRETO / IMPRESSÃO DO COMPROVANTE OFICIAL DO PROTOCOLO ---
+router.get('/:tipo/:id/comprovante', isUser, carregarProtocolo, async (req, res) => {
+    const { doc, tipo } = req.protocolo;
+    const protocolo = montarProtocolo(doc, tipo, req.user);
+    const texto = gerarTextoComprovanteOficial(doc, tipo);
+
+    if (req.query.formato === 'txt') {
+        res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+        res.setHeader('Content-Disposition', `attachment; filename="comprovante-${protocolo.numero}.txt"`);
+        return res.send(texto);
+    }
+
+    res.render('protocolos/comprovante', {
+        protocolo,
+        comprovante: protocolo.comprovante,
+        textoComprovante: texto
+    });
 });
 
 // --- LINHA DO TEMPO DE UM PROTOCOLO ---

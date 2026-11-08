@@ -235,13 +235,14 @@ export const comentarioSchema = z.object({
 });
 
 // --- Schema de Moderação Prévia (Assessor Governamental) ---
-export const ACOES_MODERACAO_VALIDAS = ['aprovar', 'editar_aprovar', 'editar_texto', 'bloquear', 'encaminhar'];
+export const ACOES_MODERACAO_VALIDAS = ['aprovar', 'editar_aprovar', 'editar_texto', 'bloquear', 'encaminhar', 'sigilar'];
 
 export const moderacaoSchema = z.object({
     acao: z.enum(ACOES_MODERACAO_VALIDAS, { error: () => 'Ação de moderação inválida.' }),
     titulo: textoOpcional(120, 'Título revisado'),
     descricao: textoOpcional(3000, 'Descrição revisada'),
     orgaoEncaminhado: textoOpcional(120, 'Órgão de destino', { checarCivilidade: false }),
+    orgaoEncaminhadoOutro: textoOpcional(120, 'Outro órgão de destino', { checarCivilidade: false }),
     motivoBloqueio: textoOpcional(500, 'Motivo do bloqueio', { checarCivilidade: false }),
     notaModeracao: textoOpcional(1000, 'Nota da moderação', { checarCivilidade: false }),
     liberarNoHub: z.preprocess((v) => v === '1' || v === 'true' || v === true, z.boolean())

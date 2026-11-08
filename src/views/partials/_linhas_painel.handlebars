@@ -115,6 +115,7 @@
                                                                         <option value="editar_aprovar">Editar Texto (Sanitizar) e Aprovar para o Feed</option>
                                                                         <option value="editar_texto">Apenas Editar/Sanitizar Texto (Manter Status)</option>
                                                                         <option value="encaminhar" {{#if (eq this.moderacao.chave 'encaminhado')}}selected{{/if}}>Encaminhar Internamente a Órgão Competente</option>
+                                                                        <option value="sigilar">Tornar Sigiloso (Retirar do Feed Público)</option>
                                                                         <option value="bloquear" {{#if (eq this.moderacao.chave 'bloqueado')}}selected{{/if}}>Bloquear por Violação das Diretrizes</option>
                                                                     </select>
                                                                 </div>
@@ -132,13 +133,19 @@
 
                                                                 <div class="row g-2 mb-2">
                                                                     <div class="col-12 col-md-6">
-                                                                        <label class="form-label small fw-bold mb-1">Órgão de Encaminhamento (se aplicável)</label>
-                                                                        <select name="orgaoEncaminhado" class="form-select form-select-sm rounded-3">
+                                                                        <label class="form-label small fw-bold mb-1">Órgão Municipal / Autoridade (se aplicável)</label>
+                                                                        <select name="orgaoEncaminhado" class="form-select form-select-sm rounded-3"
+                                                                                onchange="var c=this.parentElement.querySelector('.campo-outro-orgao');if(c){c.classList.toggle('d-none',this.value!=='Outros');if(this.value==='Outros')c.focus();}">
                                                                             <option value="">— Selecionar órgão —</option>
                                                                             {{#each @root.orgaosEncaminhamento}}
                                                                                 <option value="{{this}}" {{#if (eq this ../moderacao.orgaoEncaminhado)}}selected{{/if}}>{{this}}</option>
                                                                             {{/each}}
+                                                                            <option value="Outros">Outros (especificar)</option>
                                                                         </select>
+                                                                        <input type="text" name="orgaoEncaminhadoOutro" maxlength="120"
+                                                                               value="{{this.moderacao.orgaoEncaminhado}}"
+                                                                               placeholder="Especifique o órgão ou autoridade..."
+                                                                               class="form-control form-control-sm rounded-3 mt-1 campo-outro-orgao d-none">
                                                                     </div>
                                                                     <div class="col-12 col-md-6">
                                                                         <label class="form-label small fw-bold mb-1">Motivo de bloqueio / Nota de auditoria</label>
@@ -187,7 +194,7 @@
 
                                             {{#if this.podeMudarSigilo}}
                                                 <div class="d-flex align-items-center gap-2 flex-wrap mt-2 pt-2 border-top">
-                                                    {{> _sigilo privada=this.privada id=this._id csrfToken=@root.csrfToken ehAdmin=true}}
+                                                    {{> _sigilo privada=this.privada id=this._id tipo=this.tipo csrfToken=@root.csrfToken ehAdmin=true}}
                                                 </div>
                                             {{/if}}
 

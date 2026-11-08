@@ -284,15 +284,18 @@ export function statusModeracaoDe(doc) {
 
 // Verifica se o documento foi formalmente aprovado para exibição no feed público.
 // Documentos legados sem o campo `moderacao.status` permanecem compatíveis.
+// Se o post foi tornado sigiloso (`privada: true`), não aparece no feed público.
 export function estaAprovadoParaFeed(doc) {
+    if (doc?.privada === true) return false;
     const statusMod = doc?.moderacao?.status;
     return !statusMod || statusMod === 'aprovado';
 }
 
 // Filtro do MongoDB que garante que apenas conteúdos formalmente aprovados (ou legados
-// anteriores à criação do campo) entrem nos feeds públicos.
+// anteriores à criação do campo) e não sigilosos entrem nos feeds públicos.
 export function filtroModeracaoPublica() {
     return {
+        privada: { $ne: true },
         $or: [
             { 'moderacao.status': 'aprovado' },
             { 'moderacao.status': { $exists: false } }
@@ -452,7 +455,11 @@ export function montarComprovanteEmail(doc, tipo) {
     });
     const baseUrl = (process.env.URL_PUBLICA || 'http://localhost:8080').replace(/\/+$/, '');
     const linkProtocolo = `/protocolos/${tipo}/${doc._id}`;
+    const downloadUrl = `/protocolos/${tipo}/${doc._id}/comprovante?formato=txt`;
+    const impressaoUrl = `/protocolos/${tipo}/${doc._id}/comprovante`;
     const urlCompleta = `${baseUrl}${linkProtocolo}`;
+    const categoriaOcorrencia = doc.tipoOcorrencia || doc.categoria || eixo.rotulo;
+    const bairro = extrairBairro(doc);
 
     const assunto = `[Comprovante Voz Ativa] Protocolo ${numero} - ${doc.titulo || eixo.rotulo}`;
     const corpo = [
@@ -460,7 +467,8 @@ export function montarComprovanteEmail(doc, tipo) {
         '--------------------------------------------------------',
         `Número do Protocolo: ${numero}`,
         `Módulo: ${eixo.rotulo}`,
-        `Categoria/Ocorrência: ${doc.tipoOcorrencia || doc.categoria || eixo.rotulo}`,
+        `Categoria/Ocorrência: ${categoriaOcorrencia}`,
+        `Bairro/Localidade: ${bairro}`,
         `Título: ${doc.titulo}`,
         `Localização: ${doc.localizacao}`,
         `Data do Registro: ${dataFormatada}`,
@@ -474,16 +482,70 @@ export function montarComprovanteEmail(doc, tipo) {
     ].join('\n');
 
     return {
+        id: String(doc._id),
         numero,
+        protocolo: numero,
         tipo,
         rotuloEixo: eixo.rotulo,
+        categoriaOcorrencia,
+        bairro,
         titulo: doc.titulo,
         localizacao: doc.localizacao,
         dataFormatada,
         prazoDias: prazo.dias,
         linkProtocolo,
+        downloadUrl,
+        impressaoUrl,
         mailtoUrl: `mailto:?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(corpo)}`
     };
+}
+
+/*
+ * Gera o texto oficial estruturado do comprovante de protocolo para download direto (.txt).
+ */
+export function gerarTextoComprovanteOficial(doc, tipo) {
+    const dados = montarComprovanteEmail(doc, tipo);
+    const moderacao = statusModeracaoDe(doc);
+    const estagio = normalizarStatus(doc.status);
+    const baseUrl = (process.env.URL_PUBLICA || 'http://localhost:8080').replace(/\/+$/, '');
+    const urlAcompanhamento = `${baseUrl}${dados.linkProtocolo}`;
+
+    return [
+        '================================================================================',
+        '           COMPROVANTE OFICIAL DE PROTOCOLO — PORTAL VOZ ATIVA                  ',
+        '                     Município de Cariús — Ceará                                ',
+        '================================================================================',
+        '',
+        '1. IDENTIFICAÇÃO DO PROTOCOLO',
+        `   Código do Protocolo:      ${dados.numero}`,
+        `   Data e Hora do Registro:  ${dados.dataFormatada}`,
+        `   Módulo do Portal:         ${dados.rotuloEixo}`,
+        `   Categoria da Ocorrência:  ${dados.categoriaOcorrencia}`,
+        `   Título do Relato:         ${dados.titulo || dados.categoriaOcorrencia}`,
+        '',
+        '2. LOCALIZAÇÃO REGISTRADA',
+        `   Bairro / Localidade:      ${dados.bairro}`,
+        `   Endereço / Referência:    ${dados.localizacao}`,
+        '',
+        '3. SITUAÇÃO E PRAZO DE ATENDIMENTO',
+        `   Estágio Operacional:      ${estagio}`,
+        `   Situação na Moderação:    ${moderacao.rotulo}`,
+        `   Prazo Estimado (SLA):     Até ${dados.prazoDias} dias úteis`,
+        '',
+        '4. INSTRUÇÕES PARA ACOMPANHAMENTO',
+        '   - Acesse o Portal Voz Ativa com sua conta e entre em "Meus Protocolos";',
+        `   - Ou acesse diretamente o endereço do seu protocolo:`,
+        `     ${urlAcompanhamento}`,
+        '   - Pela linha do tempo do protocolo você pode consultar respostas da gestão,',
+        '     enviar informações complementares, anexar fotos ou interpor recurso.',
+        '   - Nota importante: Emergências em andamento ou risco imediato devem ser',
+        '     acionadas imediatamente via 190 (Polícia Militar), 181 (Disque-Denúncia)',
+        '     ou 193 (Corpo de Bombeiros).',
+        '',
+        '================================================================================',
+        `Comprovante emitido pelo Portal Voz Ativa em ${new Date().toLocaleString('pt-BR', { timeZone: 'America/Fortaleza' })}`,
+        '================================================================================'
+    ].join('\r\n');
 }
 
 /*

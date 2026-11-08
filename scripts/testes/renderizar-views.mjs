@@ -62,7 +62,11 @@ const moderacaoPadrao = {
 
 const comprovantePadrao = {
     protocolo: 'MEL-2026-C5C5B8',
-    mailtoUrl: 'mailto:?subject=Comprovante%20MEL-2026-C5C5B8&body=Protocolo'
+    categoriaOcorrencia: 'Reparo de Vias e Estradas',
+    bairro: 'São Vicente',
+    mailtoUrl: 'mailto:?subject=Comprovante%20MEL-2026-C5C5B8&body=Protocolo',
+    downloadUrl: '/protocolos/melhoria/p1/comprovante?formato=txt',
+    impressaoUrl: '/protocolos/melhoria/p1/comprovante'
 };
 
 const protocolo = {
@@ -87,12 +91,14 @@ const base = { csrfToken: 'token-de-teste', cloudinaryCloudName: 'dnh7vok3r', cl
 
 const casos = [
     ['protocolos/timeline.handlebars', { ...base, protocolo, eDono: true, eAdmin: false, estagios },
-     ['Asfalto desgastado', 'Prazo de atendimento', 'Equipe enviada', 'token-de-teste', 'Guardar Comprovante por E-mail',
+     ['Asfalto desgastado', 'Prazo de atendimento', 'Equipe enviada', 'token-de-teste', 'Guardar Comprovante por E-mail', 'Baixar Comprovante (.TXT)',
       '/mensagem/m1/editar', '/mensagem/m1/excluir'],
      ['Painel da gestão', '/admin/protocolo/', 'Atualizar protocolo',
       '/mensagem/m2/editar', '/mensagem/m2/excluir']],
     ['protocolos/timeline.handlebars', { ...base, protocolo, eDono: false, eAdmin: true, estagios, orgaosEncaminhamento: ['Secretaria Municipal de Obras e Infraestrutura'] },
-     ['Painel da gestão', 'Atualizar protocolo', 'Moderação Prévia (Assessoria)', 'Trilha de Auditoria da Moderação']],
+     ['Painel da gestão', 'Atualizar protocolo', 'Moderação Prévia (Assessoria)', 'Trilha de Auditoria da Moderação', 'Outros (especificar)', 'Tornar Sigiloso (Retirar do Feed Público)']],
+    ['protocolos/comprovante.handlebars', { ...base, comprovante: { ...comprovantePadrao, numero: 'MEL-2026-C5C5B8', dataFormatada: '19/02/2026 às 14:00', rotuloEixo: 'Gestão de Melhorias', localizacao: 'Rua Jonas Oliveira Lopes', titulo: 'Asfalto desgastado', prazoDias: 10, linkProtocolo: '/protocolos/melhoria/p1' } },
+     ['Comprovante de Registro de Protocolo', 'MEL-2026-C5C5B8', 'Baixar Arquivo (.TXT)', 'Imprimir / Salvar PDF', 'Enviar por E-mail']],
     ['protocolos/lista.handlebars',
      { ...base, protocolos: [{ ...protocolo, novidades: { paraOAutor: true, paraAGestao: false } }],
        resumo: estagios.map((e) => ({ ...e, total: 2 })), termo: '', total: 1,
@@ -197,7 +203,7 @@ casos.push(
     ['categories/gestao_de_melhorias/detalhes.handlebars',
      { ...base, chamadoDoc: cardMelhoria, moderacao: moderacaoPadrao, comprovante: comprovantePadrao, jaCurtiu: false, eDono: true, podeAcompanhar: true,
        linkProtocolo: '/protocolos/melhoria/c1', linkEditar: '/categories/gestao_de_melhorias/editar/c1' },
-     ['Esta publicação é sua', 'Acompanhar protocolo', 'Editar', 'Guardar Comprovante por E-mail']],
+     ['Esta publicação é sua', 'Acompanhar protocolo', 'Editar', 'Guardar Comprovante por E-mail', 'Baixar Comprovante (.TXT)']],
 
     ['categories/gestao_de_melhorias/detalhes.handlebars',
      { ...base, user: admin, chamadoDoc: cardMelhoria, moderacao: moderacaoPadrao, comprovante: comprovantePadrao, jaCurtiu: false, eDono: false, podeAcompanhar: true,

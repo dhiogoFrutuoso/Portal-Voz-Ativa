@@ -83,8 +83,8 @@ function resumir(doc, tipo) {
         respostas: (doc.historico || []).length,
         novidades: novidadesDoProtocolo(doc),
         privada: Boolean(doc.privada),
-        podeMudarSigilo: tipo === 'denuncia',
-        recurso: montarRecurso(doc, tipo === 'denuncia' && Boolean(doc.privada)),
+        podeMudarSigilo: true,
+        recurso: montarRecurso(doc, Boolean(doc.privada)),
         imagens: doc.imagens || [],
         video: doc.video || null,
         imagemPrincipal: doc.imagens && doc.imagens.length > 0 ? doc.imagens[0] : null,
@@ -229,7 +229,12 @@ router.post('/protocolo/:tipo/:id/moderar', isAdmin, async (req, res) => {
         return res.redirect(voltarPara);
     }
 
-    const { acao, titulo, descricao, orgaoEncaminhado, motivoBloqueio, notaModeracao, liberarNoHub } = validacao.data;
+    const { acao, titulo, descricao, orgaoEncaminhado, orgaoEncaminhadoOutro, motivoBloqueio, notaModeracao, liberarNoHub } = validacao.data;
+    const orgaoFinal = (
+        orgaoEncaminhado === 'Outros' || !orgaoEncaminhado
+            ? (orgaoEncaminhadoOutro || '')
+            : orgaoEncaminhado
+    ).trim();
 
     try {
         const Modelo = modeloDo(tipo);
@@ -276,7 +281,7 @@ router.post('/protocolo/:tipo/:id/moderar', isAdmin, async (req, res) => {
         } else if (acao === 'aprovar' || acao === 'editar_aprovar') {
             camposSet['moderacao.status'] = 'aprovado';
             if (notaModeracao) camposSet['moderacao.notaModeracao'] = notaModeracao;
-            if (tipo === 'denuncia' && liberarNoHub) {
+            if (tipo === 'melhoria' || liberarNoHub) {
                 camposSet.privada = false;
             }
             detalheTrilha = textoEditado
@@ -284,26 +289,30 @@ router.post('/protocolo/:tipo/:id/moderar', isAdmin, async (req, res) => {
                 : 'Ocorrência aprovada pela assessoria para exibição no feed público.';
             mensagemHistorico = `[Moderação] ${detalheTrilha}${notaModeracao ? ' Nota: ' + notaModeracao : ''}`;
             flashSucesso = 'Ocorrência aprovada e liberada para o feed público!';
+        } else if (acao === 'sigilar') {
+            camposSet.privada = true;
+            if (notaModeracao) camposSet['moderacao.notaModeracao'] = notaModeracao;
+            detalheTrilha = `Publicação tornada sigilosa (retirada do feed público).${notaModeracao ? ' Motivo: ' + notaModeracao : ''}`;
+            mensagemHistorico = `[Sigilo] A gestão tornou esta publicação sigilosa: ela deixa de ser exibida no feed público e fica restrita ao autor e à gestão.${notaModeracao ? ' Nota: ' + notaModeracao : ''}`;
+            flashSucesso = 'Publicação marcada como sigilosa e retirada do feed público.';
         } else if (acao === 'bloquear') {
             const motivo = motivoBloqueio || notaModeracao || 'Violação das diretrizes de civilidade e uso da plataforma.';
             camposSet['moderacao.status'] = 'bloqueado';
             camposSet['moderacao.motivoBloqueio'] = motivo;
             camposSet.status = 'Improcedente';
             statusNovoProtocolo = 'Improcedente';
-            if (tipo === 'denuncia') {
-                camposSet.privada = true;
-            }
+            camposSet.privada = true;
             detalheTrilha = `Bloqueado na moderação prévia: ${motivo}`;
             mensagemHistorico = `[Moderação] Publicação retida/bloqueada por violação das diretrizes. Motivo: ${motivo}`;
             flashSucesso = 'Ocorrência bloqueada por violação das diretrizes.';
         } else if (acao === 'encaminhar') {
-            const orgao = orgaoEncaminhado || 'Secretaria Municipal Competente';
+            const orgao = orgaoFinal || 'Secretaria Municipal Competente';
             camposSet['moderacao.orgaoEncaminhado'] = orgao;
             if (notaModeracao) camposSet['moderacao.notaModeracao'] = notaModeracao;
 
             if (liberarNoHub) {
                 camposSet['moderacao.status'] = 'aprovado';
-                if (tipo === 'denuncia') camposSet.privada = false;
+                camposSet.privada = false;
             } else {
                 camposSet['moderacao.status'] = 'encaminhado';
             }
@@ -326,7 +335,7 @@ router.post('/protocolo/:tipo/:id/moderar', isAdmin, async (req, res) => {
                     moderador: req.user._id,
                     moderadorNome,
                     detalhe: detalheTrilha,
-                    orgao: orgaoEncaminhado || null,
+                    orgao: orgaoFinal || null,
                     createdAt: agora
                 },
                 historico: {
@@ -430,26 +439,26 @@ router.post('/protocolo/:tipo/:id/status', isAdmin, async (req, res) => {
     }
 });
 
-// --- SIGILO DA DENÚNCIA ---
-// Quando a gestão libera uma denúncia para o hub público, também aprova sua
-// exibição na moderação e registra na trilha de auditoria.
-router.post('/protocolo/denuncia/:id/sigilo', isAdmin, async (req, res) => {
-    const { id } = req.params;
+// --- SIGILO DA PUBLICAÇÃO (DENÚNCIA OU MELHORIA) ---
+// Permite sigilar um post mesmo depois de já estar disponível no feed público,
+// ou liberá-lo para o hub público, registrando na trilha de auditoria.
+router.post('/protocolo/:tipo/:id/sigilo', isAdmin, async (req, res) => {
+    const { tipo, id } = req.params;
     const voltarPara = req.get('referer') || '/admin/painel';
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-        req.flash('error_msg', 'Denúncia não encontrada.');
+    if (!eixoValido(tipo) || !mongoose.Types.ObjectId.isValid(id)) {
+        req.flash('error_msg', 'Publicação não encontrada.');
         return res.redirect('/admin/painel');
     }
 
     const deveSerPrivada = req.body.privada === '1';
 
     try {
-        const Modelo = modeloDo('denuncia');
+        const Modelo = modeloDo(tipo);
         const doc = await Modelo.findById(id).lean();
 
         if (!doc) {
-            req.flash('error_msg', 'Denúncia não encontrada.');
+            req.flash('error_msg', 'Publicação não encontrada.');
             return res.redirect('/admin/painel');
         }
 
@@ -470,30 +479,30 @@ router.post('/protocolo/denuncia/:id/sigilo', isAdmin, async (req, res) => {
             $set: camposSet,
             $push: {
                 'moderacao.trilha': {
-                    acao: deveSerPrivada ? 'retido' : 'aprovado',
+                    acao: deveSerPrivada ? 'sigilar' : 'aprovado',
                     moderador: req.user._id,
                     moderadorNome,
                     detalhe: deveSerPrivada
-                        ? 'Denúncia marcada como sigilosa (retirada do hub público).'
-                        : 'Denúncia aprovada e liberada para o hub público.',
+                        ? 'Publicação marcada como sigilosa (retirada do hub público).'
+                        : 'Publicação aprovada e liberada para o hub público.',
                     createdAt: agora
                 },
                 historico: {
                     autor: req.user._id,
                     papel: 'admin',
                     texto: deveSerPrivada
-                        ? 'A gestão marcou esta denúncia como sigilosa: ela deixa de aparecer no hub público.'
-                        : 'A gestão liberou esta denúncia para o hub público.',
+                        ? 'A gestão marcou esta publicação como sigilosa: ela deixa de aparecer no hub público.'
+                        : 'A gestão liberou esta publicação para o hub público.',
                     createdAt: agora
                 }
             }
         });
 
-        req.flash('success_msg', deveSerPrivada ? 'Denúncia marcada como sigilosa.' : 'Denúncia liberada para o hub público.');
+        req.flash('success_msg', deveSerPrivada ? 'Publicação marcada como sigilosa e retirada do feed público.' : 'Publicação liberada para o hub público.');
         res.redirect(voltarPara);
     } catch (err) {
-        console.error('Erro ao alterar o sigilo da denúncia:', err);
-        req.flash('error_msg', 'Erro ao alterar o sigilo da denúncia.');
+        console.error('Erro ao alterar o sigilo da publicação:', err);
+        req.flash('error_msg', 'Erro ao alterar o sigilo da publicação.');
         res.redirect(voltarPara);
     }
 });

@@ -1,0 +1,102 @@
+<style>
+    @media print {
+        nav, footer, .ocultar-impressao {
+            display: none !important;
+        }
+        body, .bg-light {
+            background: #ffffff !important;
+        }
+        .card {
+            box-shadow: none !important;
+            border: 1px solid #000 !important;
+        }
+    }
+</style>
+
+<section class="py-5 bg-light">
+    <div class="container px-4" style="max-width: 820px;">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4 ocultar-impressao">
+            <a href="{{comprovante.linkProtocolo}}" class="btn btn-outline-secondary rounded-pill px-3">
+                <i class="bi bi-arrow-left me-1"></i> Voltar ao Protocolo
+            </a>
+            <div class="d-flex flex-wrap gap-2">
+                <a href="{{comprovante.downloadUrl}}" download="comprovante-{{comprovante.numero}}.txt"
+                   class="btn btn-success rounded-pill px-4 fw-bold shadow-sm">
+                    <i class="bi bi-download me-1"></i> Baixar Arquivo (.TXT)
+                </a>
+                <button type="button" onclick="window.print()" class="btn btn-dark rounded-pill px-4 fw-bold shadow-sm">
+                    <i class="bi bi-printer-fill me-1"></i> Imprimir / Salvar PDF
+                </button>
+                <a href="{{comprovante.mailtoUrl}}" class="btn btn-outline-primary rounded-pill px-3 fw-bold">
+                    <i class="bi bi-envelope-check-fill me-1"></i> Enviar por E-mail
+                </a>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-lg rounded-4 bg-white overflow-hidden">
+            <div class="card-header bg-dark text-white p-4 border-bottom border-warning border-4">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                    <div>
+                        <span class="badge bg-warning text-dark px-3 py-1 rounded-pill small fw-bold mb-2">
+                            COMPROVANTE OFICIAL DO CIDADÃO
+                        </span>
+                        <h3 class="fw-bolder mb-0">Comprovante de Registro de Protocolo</h3>
+                        <p class="small text-white-50 mb-0">Portal Voz Ativa • Município de Cariús/CE</p>
+                    </div>
+                    <div class="text-md-end">
+                        <div class="small text-white-50">Código do Protocolo</div>
+                        <div class="h3 font-monospace fw-bold text-warning mb-0">{{comprovante.numero}}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-4 p-md-5">
+                <div class="row g-3 mb-4">
+                    <div class="col-12 col-md-6">
+                        <div class="p-3 bg-light rounded-3 h-100 border">
+                            <div class="small text-muted">Código do Protocolo</div>
+                            <div class="h5 fw-bold font-monospace text-primary mb-0">{{comprovante.numero}}</div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="p-3 bg-light rounded-3 h-100 border">
+                            <div class="small text-muted">Data e Hora do Registro</div>
+                            <div class="h6 fw-bold mb-0">{{comprovante.dataFormatada}}</div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="p-3 bg-light rounded-3 h-100 border">
+                            <div class="small text-muted">Módulo e Categoria da Ocorrência</div>
+                            <div class="fw-bold text-dark">{{comprovante.rotuloEixo}}</div>
+                            <div class="small text-secondary">{{comprovante.categoriaOcorrencia}}</div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="p-3 bg-light rounded-3 h-100 border">
+                            <div class="small text-muted">Bairro e Localização</div>
+                            <div class="fw-bold text-dark">{{comprovante.bairro}}</div>
+                            <div class="small text-secondary">{{comprovante.localizacao}}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-3 bg-light rounded-3 border mb-4">
+                    <div class="small text-muted mb-1">Título / Resumo Registrado</div>
+                    <div class="fw-bold text-dark">{{comprovante.titulo}}</div>
+                </div>
+
+                <div class="p-4 rounded-4 border-start border-primary border-4 bg-light">
+                    <h6 class="fw-bold text-dark mb-2">
+                        <i class="bi bi-info-circle-fill text-primary me-1"></i> Instruções para Acompanhamento
+                    </h6>
+                    <ul class="small text-secondary mb-0 ps-3">
+                        <li class="mb-1">Guarde o código <strong>{{comprovante.numero}}</strong> para consultar o andamento da sua solicitação.</li>
+                        <li class="mb-1">Acesse o menu <strong>Meus Protocolos</strong> no Portal Voz Ativa ou entre diretamente em <code>{{comprovante.linkProtocolo}}</code>.</li>
+                        <li class="mb-1">Prazo estimado de resposta inicial da gestão municipal: <strong>até {{comprovante.prazoDias}} dias úteis</strong>.</li>
+                        <li>Todo novo relato passa pela triagem de moderação prévia da assessoria antes da exibição no feed público.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

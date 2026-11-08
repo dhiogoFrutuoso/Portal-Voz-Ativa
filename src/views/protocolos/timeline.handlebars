@@ -111,13 +111,16 @@
                     {{#if protocolo.bairro}} • <strong>{{protocolo.bairro}}</strong>{{/if}}
                 </p>
 
-                <div class="d-flex flex-wrap gap-2">
-                    <a href="{{protocolo.comprovante.mailtoUrl}}" class="btn btn-warning text-dark btn-sm rounded-pill px-3 fw-bold shadow-sm">
+                <div class="d-flex flex-column flex-sm-row flex-wrap gap-2">
+                    <a href="{{protocolo.comprovante.mailtoUrl}}" class="btn btn-warning text-dark btn-sm rounded-pill px-3 py-2 fw-bold shadow-sm">
                         <i class="bi bi-envelope-check-fill me-1"></i> Guardar Comprovante por E-mail
+                    </a>
+                    <a href="{{protocolo.comprovante.downloadUrl}}" download="comprovante-{{protocolo.numero}}.txt" class="btn btn-success btn-sm rounded-pill px-3 py-2 fw-bold shadow-sm">
+                        <i class="bi bi-download me-1"></i> Baixar Comprovante (.TXT)
                     </a>
                     {{#if eAdmin}}
                         {{#if (eq protocolo.tipo 'denuncia')}}
-                            <a href="/admin/protocolo/denuncia/{{protocolo._id}}/exportar-delegacia" class="btn btn-light btn-sm rounded-pill px-3 fw-bold shadow-sm">
+                            <a href="/admin/protocolo/denuncia/{{protocolo._id}}/exportar-delegacia" class="btn btn-light btn-sm rounded-pill px-3 py-2 fw-bold shadow-sm">
                                 <i class="bi bi-shield-shaded text-danger me-1"></i> Exportar Relatório para Delegacia
                             </a>
                         {{/if}}
@@ -375,6 +378,14 @@
                                 </span>
                             </div>
 
+                            {{!-- Controle rápido de sigilo (permite sigilar mesmo depois de público) --}}
+                            <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap mb-3 pb-3 border-bottom">
+                                <span class="small text-muted">Visibilidade no Hub:</span>
+                                <div class="d-flex align-items-center gap-2">
+                                    {{> _sigilo privada=protocolo.privada id=protocolo._id tipo=protocolo.tipo csrfToken=csrfToken ehAdmin=true}}
+                                </div>
+                            </div>
+
                             <form action="/admin/protocolo/{{protocolo.tipo}}/{{protocolo._id}}/moderar" method="POST">
                                 <input type="hidden" name="_csrf" value="{{csrfToken}}">
 
@@ -384,6 +395,7 @@
                                     <option value="editar_aprovar">Editar Texto e Aprovar para o Feed</option>
                                     <option value="editar_texto">Apenas Editar/Sanitizar Texto</option>
                                     <option value="encaminhar" {{#if (eq protocolo.moderacao.chave 'encaminhado')}}selected{{/if}}>Encaminhar a Órgão Competente</option>
+                                    <option value="sigilar">Tornar Sigiloso (Retirar do Feed Público)</option>
                                     <option value="bloquear" {{#if (eq protocolo.moderacao.chave 'bloqueado')}}selected{{/if}}>Bloquear por Violação</option>
                                 </select>
 
@@ -394,12 +406,18 @@
                                 <textarea name="descricao" rows="4" maxlength="5000" class="form-control rounded-3 mb-3">{{protocolo.descricao}}</textarea>
 
                                 <label class="form-label small fw-bold text-uppercase text-muted">Órgão Municipal / Autoridade</label>
-                                <select name="orgaoEncaminhado" class="form-select rounded-3 mb-3">
+                                <select name="orgaoEncaminhado" id="selectOrgaoTimeline" class="form-select rounded-3 mb-2"
+                                        onchange="var c=document.getElementById('campoOutroOrgaoTimeline');if(c){c.classList.toggle('d-none',this.value!=='Outros');if(this.value==='Outros')c.focus();}">
                                     <option value="">— Selecionar se for encaminhar —</option>
                                     {{#each orgaosEncaminhamento}}
                                         <option value="{{this}}" {{#if (eq this ../protocolo.moderacao.orgaoEncaminhado)}}selected{{/if}}>{{this}}</option>
                                     {{/each}}
+                                    <option value="Outros">Outros (especificar)</option>
                                 </select>
+                                <input type="text" name="orgaoEncaminhadoOutro" id="campoOutroOrgaoTimeline"
+                                       maxlength="120" value="{{protocolo.moderacao.orgaoEncaminhado}}"
+                                       placeholder="Especifique o órgão, setor ou autoridade..."
+                                       class="form-control rounded-3 mb-3 d-none">
 
                                 <label class="form-label small fw-bold text-uppercase text-muted">Motivo / Despacho de Auditoria</label>
                                 <textarea name="notaModeracao" rows="2" maxlength="500" class="form-control rounded-3 mb-3"
@@ -511,9 +529,14 @@
 
                         <hr>
 
-                        <a href="{{protocolo.comprovante.mailtoUrl}}" class="btn btn-outline-success btn-sm w-100 rounded-3 mb-2 fw-bold">
-                            <i class="bi bi-envelope-check me-1"></i> Guardar Comprovante no E-mail
-                        </a>
+                        <div class="d-grid gap-2 mb-2">
+                            <a href="{{protocolo.comprovante.mailtoUrl}}" class="btn btn-outline-primary btn-sm rounded-3 fw-bold">
+                                <i class="bi bi-envelope-check me-1"></i> Guardar Comprovante no E-mail
+                            </a>
+                            <a href="{{protocolo.comprovante.downloadUrl}}" download="comprovante-{{protocolo.numero}}.txt" class="btn btn-success btn-sm rounded-3 fw-bold">
+                                <i class="bi bi-download me-1"></i> Baixar Comprovante (.TXT)
+                            </a>
+                        </div>
 
                         {{#if (eq protocolo.tipo 'denuncia')}}
                             {{#if eAdmin}}

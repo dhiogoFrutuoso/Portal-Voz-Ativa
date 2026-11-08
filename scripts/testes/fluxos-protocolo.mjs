@@ -574,6 +574,45 @@ try {
     const metricasHtml = await metricasResp.text();
     checar(metricasResp.status === 200 && metricasHtml.includes('Indicadores Operacionais de Cariús') && metricasHtml.includes('Centro'), 'dashboard executivo de métricas consolida dados do piloto para o admin');
     checar((await pedir('/admin/metricas', { como: 'outro' })).status === 302, 'usuário comum é barrado do dashboard de métricas');
+
+    // 6. Download direto do comprovante oficial (.TXT e visualização p/ impressão PDF) pelo cidadão
+    const comprovanteTxtResp = await pedir(`/protocolos/melhoria/${chamadoPiloto._id}/comprovante?formato=txt`, { como: 'autor' });
+    const comprovanteTxt = await comprovanteTxtResp.text();
+    checar(
+        comprovanteTxtResp.status === 200 &&
+        comprovanteTxt.includes('COMPROVANTE OFICIAL DE PROTOCOLO') &&
+        comprovanteTxt.includes('MEL-') &&
+        comprovanteTxt.includes('Iluminação Pública') &&
+        comprovanteTxt.includes('Centro') &&
+        comprovanteTxt.includes('INSTRUÇÕES PARA ACOMPANHAMENTO'),
+        'download direto do comprovante (.TXT) contém código, data/hora, categoria, bairro e instruções'
+    );
+    const comprovanteHtmlResp = await pedir(`/protocolos/melhoria/${chamadoPiloto._id}/comprovante`, { como: 'autor' });
+    checar(comprovanteHtmlResp.status === 200 && (await comprovanteHtmlResp.text()).includes('Comprovante de Registro de Protocolo'), 'tela imprimível do comprovante renderiza para o autor');
+    checar((await pedir(`/protocolos/melhoria/${chamadoPiloto._id}/comprovante?formato=txt`, { como: 'outro' })).status === 302, 'terceiro não baixa comprovante de outro cidadão');
+
+    // 7. Sigilar um post que já estava público (melhoria aprovada) e tirá-lo do feed público
+    await pedir(`/admin/protocolo/melhoria/${chamadoPiloto._id}/sigilo`, {
+        como: 'gestor', metodo: 'POST',
+        corpo: { privada: '1' }
+    });
+    chamadoPiloto = await Chamado.findById(chamadoPiloto._id).lean();
+    checar(chamadoPiloto.privada === true, 'post de melhoria aprovado pode ser sigilado posteriormente pelo gestor');
+    const hubAposSigilar = await (await pedir('/categories/gestao_de_melhorias/hub')).text();
+    checar(!hubAposSigilar.includes('Lâmpada queimada no Centro'), 'post sigilado deixa de aparecer no feed público');
+
+    // 8. Definir "Outros" no select Órgão Municipal / Autoridade
+    await pedir(`/admin/protocolo/melhoria/${chamadoPiloto._id}/moderar`, {
+        como: 'gestor', metodo: 'POST',
+        corpo: {
+            acao: 'encaminhar',
+            orgaoEncaminhado: 'Outros',
+            orgaoEncaminhadoOutro: 'Conselho Tutelar de Cariús',
+            notaModeracao: 'Encaminhado a órgão customizado.'
+        }
+    });
+    chamadoPiloto = await Chamado.findById(chamadoPiloto._id).lean();
+    checar(chamadoPiloto.moderacao.orgaoEncaminhado === 'Conselho Tutelar de Cariús', 'opção "Outros" permite definir órgão/autoridade customizada na moderação');
 } finally {
     servidor.close();
     await mongoose.disconnect();

@@ -22,12 +22,15 @@
                             Protocolo gerado: <span class="font-monospace text-primary">{{comprovanteProtocolo.numero}}</span>
                         </h5>
                         <p class="small text-muted mb-0">
-                            Seu relato (<strong>{{comprovanteProtocolo.titulo}}</strong>) foi recebido e encontra-se retido na fila de moderação prévia da assessoria municipal, visível apenas para você e para a gestão até a aprovação.
+                            Seu relato (<strong>{{comprovanteProtocolo.titulo}}</strong> • {{comprovanteProtocolo.bairro}}) foi recebido e encontra-se retido na fila de moderação prévia da assessoria municipal, visível apenas para você e para a gestão até a aprovação.
                         </p>
                     </div>
-                    <div class="d-flex flex-wrap gap-2 flex-shrink-0">
+                    <div class="d-flex flex-column flex-sm-row flex-wrap gap-2 flex-shrink-0">
                         <a href="{{comprovanteProtocolo.mailtoUrl}}" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">
                             <i class="bi bi-envelope-paper-fill me-2"></i>Guardar Comprovante por E-mail
+                        </a>
+                        <a href="{{comprovanteProtocolo.downloadUrl}}" download="comprovante-{{comprovanteProtocolo.numero}}.txt" class="btn btn-success rounded-pill px-4 fw-bold shadow-sm">
+                            <i class="bi bi-download me-2"></i>Baixar Comprovante
                         </a>
                         <a href="{{comprovanteProtocolo.linkProtocolo}}" class="btn btn-outline-dark rounded-pill px-4 fw-bold">
                             <i class="bi bi-folder-check me-1"></i>Acompanhar Protocolo
