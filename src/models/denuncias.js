@@ -18,6 +18,10 @@ const DenunciaSchema = new Schema({
         type: String, 
         required: true 
     },
+    bairro: {
+        type: String,
+        default: null
+    },
     localizacao: { 
         type: String, 
         required: true 
@@ -49,6 +53,52 @@ const DenunciaSchema = new Schema({
     privada: {
         type: Boolean,
         default: true
+    },
+
+    // --- MODERAÇÃO PRÉVIA (PILOTO 90 DIAS) ---
+    moderacao: {
+        status: {
+            type: String,
+            enum: ['pendente', 'aprovado', 'bloqueado', 'encaminhado'],
+            default: 'pendente'
+        },
+        moderadoPor: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'users',
+            default: null
+        },
+        moderadoPorNome: {
+            type: String,
+            default: null
+        },
+        moderadoEm: {
+            type: Date,
+            default: null
+        },
+        motivoBloqueio: {
+            type: String,
+            default: null
+        },
+        orgaoEncaminhado: {
+            type: String,
+            default: null
+        },
+        notaModeracao: {
+            type: String,
+            default: null
+        },
+        textoEditadoPelaModeracao: {
+            type: Boolean,
+            default: false
+        },
+        trilha: [{
+            acao: { type: String, required: true },
+            moderador: { type: mongoose.Schema.Types.ObjectId, ref: 'users', default: null },
+            moderadorNome: { type: String, default: null },
+            detalhe: { type: String, default: null },
+            orgao: { type: String, default: null },
+            createdAt: { type: Date, default: Date.now }
+        }]
     },
 
     // --- PROTOCOLO DE ATENDIMENTO ---
@@ -163,6 +213,7 @@ DenunciaSchema.plugin(governancaPlugin);
 DenunciaSchema.index({ dataCriacao: -1 });
 DenunciaSchema.index({ usuario: 1, dataCriacao: -1 });
 DenunciaSchema.index({ privada: 1, dataCriacao: -1 });
+DenunciaSchema.index({ 'moderacao.status': 1, dataCriacao: -1 });
 
 mongoose.model('denuncias', DenunciaSchema);
 // [Melhoria Proativa Adicionada: campos e índices alinhados à governança e preservação de evidências]

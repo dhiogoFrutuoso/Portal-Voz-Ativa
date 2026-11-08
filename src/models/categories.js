@@ -16,6 +16,10 @@ const ChamadoSchema = new mongoose.Schema({
         type: String, 
         default: 'Gestão de Melhorias' 
     },
+    bairro: {
+        type: String,
+        default: null
+    },
     localizacao: { 
         type: String, 
         required: true 
@@ -40,6 +44,52 @@ const ChamadoSchema = new mongoose.Schema({
          type: String,
          default: 'Novo'
         },
+
+    // --- MODERAÇÃO PRÉVIA (PILOTO 90 DIAS) ---
+    moderacao: {
+        status: {
+            type: String,
+            enum: ['pendente', 'aprovado', 'bloqueado', 'encaminhado'],
+            default: 'pendente'
+        },
+        moderadoPor: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'users',
+            default: null
+        },
+        moderadoPorNome: {
+            type: String,
+            default: null
+        },
+        moderadoEm: {
+            type: Date,
+            default: null
+        },
+        motivoBloqueio: {
+            type: String,
+            default: null
+        },
+        orgaoEncaminhado: {
+            type: String,
+            default: null
+        },
+        notaModeracao: {
+            type: String,
+            default: null
+        },
+        textoEditadoPelaModeracao: {
+            type: Boolean,
+            default: false
+        },
+        trilha: [{
+            acao: { type: String, required: true },
+            moderador: { type: mongoose.Schema.Types.ObjectId, ref: 'users', default: null },
+            moderadorNome: { type: String, default: null },
+            detalhe: { type: String, default: null },
+            orgao: { type: String, default: null },
+            createdAt: { type: Date, default: Date.now }
+        }]
+    },
 
     // --- PROTOCOLO DE ATENDIMENTO ---
     // Estágios: Novo, Em Atendimento, Reaberto, Resolvido, Improcedente
@@ -147,6 +197,7 @@ const ChamadoSchema = new mongoose.Schema({
 ChamadoSchema.plugin(governancaPlugin);
 ChamadoSchema.index({ dataCriacao: -1 });
 ChamadoSchema.index({ usuario: 1, dataCriacao: -1 });
+ChamadoSchema.index({ 'moderacao.status': 1, dataCriacao: -1 });
 
 // Registrar o modelo se ele ainda não foi registrado
 const Chamado = mongoose.models.chamados || mongoose.model('chamados', ChamadoSchema);

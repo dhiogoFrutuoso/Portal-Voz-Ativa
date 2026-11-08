@@ -5,7 +5,10 @@
                 
                 <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
                     <div class="card-header p-4 border-0 text-center" style="background-color: #13315c;">
-                        <h3 class="text-white fw-bold mb-0">Novo Chamado de Melhoria</h3>
+                        <span class="badge bg-warning text-dark rounded-pill px-3 py-1 fw-bold small mb-2">
+                            <i class="bi bi-Lightning-charge-fill me-1"></i>ESCOPO DO PILOTO • 90 DIAS
+                        </span>
+                        <h3 class="text-white fw-bold mb-0">Novo Chamado de Zeladoria Urbana</h3>
                         <p class="text-white-50 mb-0 small text-uppercase tracking-wider">Cariús mais forte com a sua participação</p>
                     </div>
                     
@@ -13,22 +16,50 @@
                         <form id="mainForm" action="/categories/gestao_de_melhorias/abrir-chamado" method="POST">
                         <input type="hidden" name="_csrf" value="{{csrfToken}}">
 
-                        {{!-- Cláusula de atendimento: prazo que a gestão assume ao receber a demanda --}}
+                        {{!-- Cláusula de atendimento e moderação prévia --}}
                         <div class="alert border-0 rounded-3 mb-4 d-flex gap-3"
                              style="background: #fffdf5; border-left: 4px solid #ffc107 !important;">
                             <i class="bi bi-info-circle-fill text-warning fs-5"></i>
                             <div class="small">
-                                <strong class="d-block mb-1">Como funciona o atendimento</strong>
-                                Ao registrar, você recebe um número de protocolo e a gestão municipal
-                                responde em <strong>até 10 dias úteis</strong>. Obras de maior porte podem
-                                ter o prazo ajustado pela gestão, e você acompanha cada resposta em
+                                <strong class="d-block mb-1">Como funciona o atendimento e a moderação prévia</strong>
+                                Ao registrar, você recebe um número de protocolo com opção de comprovante por e-mail e a gestão municipal
+                                responde em <strong>até 10 dias úteis</strong>. Para garantir a civilidade durante o piloto de 90 dias, todo relato passa por <strong>revisão da assessoria municipal</strong> antes de ser publicado no feed da cidade, e você acompanha tudo em
                                 <a href="/protocolos" class="fw-bold">Meus Protocolos</a>.
                             </div>
                         </div>
+
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-7">
+                                    <label class="form-label fw-bold text-secondary small text-uppercase">Categoria Prioritária (Piloto 90 Dias)</label>
+                                    <select name="categoria" class="form-select custom-input" required>
+                                        <option value="Iluminação Pública">Iluminação Pública (Postes / Lâmpadas)</option>
+                                        <option value="Reparo de Vias e Estradas">Reparo de Vias, Calçamento e Estradas</option>
+                                        <option value="Coleta de Lixo e Entulho">Coleta de Lixo e Retirada de Entulho</option>
+                                        <option value="Saneamento e Drenagem">Saneamento, Esgoto e Drenagem</option>
+                                        <option value="Limpeza e Zeladoria Urbana">Limpeza de Praças e Zeladoria Urbana</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-5">
+                                    <label class="form-label fw-bold text-secondary small text-uppercase">Bairro / Localidade</label>
+                                    <select name="bairro" class="form-select custom-input">
+                                        <option value="">Identificar pelo endereço</option>
+                                        <option value="Centro">Centro</option>
+                                        <option value="São Vicente">São Vicente</option>
+                                        <option value="Nossa Senhora de Fátima">Nossa Senhora de Fátima</option>
+                                        <option value="Esplanada">Esplanada</option>
+                                        <option value="COHAB">COHAB</option>
+                                        <option value="Bela Vista">Bela Vista</option>
+                                        <option value="Distrito de Caio Prado">Distrito de Caio Prado</option>
+                                        <option value="Distrito de São Sebastião">Distrito de São Sebastião</option>
+                                        <option value="Distrito de Angicos">Distrito de Angicos</option>
+                                        <option value="Zona Rural / Sítios">Zona Rural / Sítios</option>
+                                    </select>
+                                </div>
+                            </div>
                             
                             <div class="mb-4">
                                 <label class="form-label fw-bold text-secondary small text-uppercase">O que precisa de atenção?</label>
-                                <input type="text" name="titulo" class="form-control custom-input" placeholder="Ex: Reparo de asfalto ou iluminação" required>
+                                <input type="text" name="titulo" class="form-control custom-input" placeholder="Ex: Lâmpada queimada ou buraco na via" required>
                             </div>
 
                             <div class="mb-4">
@@ -38,7 +69,7 @@
                                 
                                 <div class="input-group">
                                     <span class="input-group-text border-0 bg-light text-danger"><i class="bi bi-geo-alt-fill"></i></span>
-                                    <input type="text" id="addressInput" name="localizacao" class="form-control custom-input border-start-0" placeholder="Clique no mapa para marcar o local" required>
+                                    <input type="text" id="addressInput" name="localizacao" class="form-control custom-input border-start-0" placeholder="Clique no mapa ou digite o endereço e ponto de referência" required>
                                 </div>
                                 <small class="text-muted mt-1 d-block"><i class="bi bi-info-circle me-1"></i> Clique no mapa para posicionar o marcador azul.</small>
 
@@ -63,8 +94,9 @@
                             </div>
 
                             <div class="mb-5">
-                                <label class="form-label fw-bold text-secondary small text-uppercase">Descrição Detalhada</label>
-                                <textarea name="descricao" class="form-control custom-input" rows="4" placeholder="Descreva os detalhes da solicitação..." required></textarea>
+                                <label class="form-label fw-bold text-secondary small text-uppercase">Descrição Objetiva da Solicitação</label>
+                                <textarea name="descricao" class="form-control custom-input" rows="4" placeholder="Descreva o problema de forma objetiva e respeitosa, sem citar nomes de moradores ou ofensas..." required></textarea>
+                                <small class="text-muted mt-1 d-block"><i class="bi bi-shield-check me-1"></i>O sistema possui filtro automático de civilidade e bloqueia termos ofensivos ou ataques pessoais.</small>
                             </div>
 
                             <div class="d-grid gap-3">
@@ -91,10 +123,8 @@
 
 <script>
     $(document).ready(function() {
-        // --- CONFIGURAÇÕES CLOUDINARY ---
         let selectedFiles = [];
 
-        // --- LÓGICA DO MAPA ---
         const latInicial = -6.5372;
         const lngInicial = -39.4958;
 
@@ -135,7 +165,6 @@
             updateFields(pos.lat, pos.lng);
         });
 
-        // --- LÓGICA DE PREVIEW DE IMAGENS ---
         $('#imgInput').on('change', function(e) {
             const files = Array.from(e.target.files);
             files.forEach(file => {
@@ -184,7 +213,6 @@
             }
         }
 
-        // --- LÓGICA DE SUBMIT COM CLOUDINARY ---
         $('#mainForm').on('submit', async function(e) {
             e.preventDefault();
             const btn = $('#submitBtn');
@@ -197,13 +225,10 @@
                 if (selectedFiles.length > 0) {
                     for (let file of selectedFiles) {
                         const response = await window.portalEnviarArquivo(file);
-
-                        // Injeta como 'imagens[]' para o backend receber a array
                         $urlsContainer.append(`<input type="hidden" name="imagens[]" value="${response.secure_url}">`);
                     }
                 }
 
-                // Envio final
                 this.submit();
 
             } catch (err) {

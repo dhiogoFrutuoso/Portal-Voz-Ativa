@@ -436,7 +436,11 @@ router.get("/perfil/:id", async (req, res) => {
     const vitrinesUsuario = await Vitrine.find({ usuario: req.params.id, isConfidential: { $ne: true } })
       .sort({ dataCriacao: -1 })
       .lean();
-    const chamadosDoUsuario = await Chamado.find({ usuario: req.params.id, isConfidential: { $ne: true } })
+    const chamadosDoUsuario = await Chamado.find({
+      usuario: req.params.id,
+      isConfidential: { $ne: true },
+      $or: [{ 'moderacao.status': 'aprovado' }, { 'moderacao.status': { $exists: false } }]
+    })
       .sort({ dataCriacao: -1 })
       .lean();
 

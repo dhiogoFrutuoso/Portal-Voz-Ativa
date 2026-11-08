@@ -23,8 +23,16 @@
 
                                 <div class="col-12 col-md-8">
                                     <div class="card-body p-4 p-lg-5 h-100 d-flex flex-column">
-                                        <div class="d-flex justify-content-between align-items-center mb-3">
-                                            {{> _estagio estagio=this.estagio status=this.status id=this._id tipo=@root.tipoProtocolo estagios=@root.estagios csrfToken=@root.csrfToken ehAdmin=@root.user.areAdmin}}
+                                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                                            <div class="d-flex align-items-center flex-wrap gap-2">
+                                                {{> _estagio estagio=this.estagio status=this.status id=this._id tipo=@root.tipoProtocolo estagios=@root.estagios csrfToken=@root.csrfToken ehAdmin=@root.user.areAdmin}}
+                                                {{#if this.categoria}}
+                                                    <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-2">{{this.categoria}}</span>
+                                                {{/if}}
+                                                <span class="badge bg-light text-secondary border rounded-pill px-3 py-2">
+                                                    {{#if this.isConfidential}}<i class="bi bi-incognito me-1"></i>Cidadão Protegido{{else}}<i class="bi bi-person me-1"></i>{{#if this.usuario.name}}{{this.usuario.name}}{{else}}Cidadão{{/if}}{{/if}}
+                                                </span>
+                                            </div>
                                             <div class="text-muted small">
                                                 <i class="bi bi-calendar3 me-1"></i> {{formatDate dataCriacao}}
                                             </div>
@@ -81,8 +89,16 @@
                         <div class="card shadow-lg border-0 rounded-4 overflow-hidden hover-lift bg-white" style="border-left: 8px solid #0d6efd !important;">
                             <div class="card-body p-4 p-lg-5 d-flex flex-column">
                                 
-                                <div class="d-flex justify-content-between align-items-center mb-4">
-                                    {{> _estagio estagio=this.estagio status=this.status id=this._id tipo=@root.tipoProtocolo estagios=@root.estagios csrfToken=@root.csrfToken ehAdmin=@root.user.areAdmin}}
+                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+                                    <div class="d-flex align-items-center flex-wrap gap-2">
+                                        {{> _estagio estagio=this.estagio status=this.status id=this._id tipo=@root.tipoProtocolo estagios=@root.estagios csrfToken=@root.csrfToken ehAdmin=@root.user.areAdmin}}
+                                        {{#if this.categoria}}
+                                            <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-2">{{this.categoria}}</span>
+                                        {{/if}}
+                                        <span class="badge bg-light text-secondary border rounded-pill px-3 py-2">
+                                            {{#if this.isConfidential}}<i class="bi bi-incognito me-1"></i>Cidadão Protegido{{else}}<i class="bi bi-person me-1"></i>{{#if this.usuario.name}}{{this.usuario.name}}{{else}}Cidadão{{/if}}{{/if}}
+                                        </span>
+                                    </div>
                                     <div class="text-muted small">
                                         <i class="bi bi-calendar3 me-1"></i> {{formatDate dataCriacao}}
                                     </div>

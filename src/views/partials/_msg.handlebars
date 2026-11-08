@@ -1,5 +1,43 @@
 <div id="portal-mensagens" aria-live="polite"></div>
-{{!-- Printa as mensagens de sucesso e erro --}}
+{{!-- Printa as mensagens de sucesso, comprovante de protocolo e erro --}}
+
+{{#if comprovanteProtocolo}}
+    <div class="container mt-4">
+        <div class="card border-0 shadow-lg rounded-4 overflow-hidden" style="border-left: 6px solid #198754 !important;">
+            <div class="card-body p-4 bg-white">
+                <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
+                    <div>
+                        <div class="d-flex align-items-center flex-wrap gap-2 mb-2">
+                            <span class="badge bg-success rounded-pill px-3 py-2 fw-bold">
+                                <i class="bi bi-check2-circle me-1"></i> Ocorrência Registrada
+                            </span>
+                            <span class="badge bg-warning text-dark rounded-pill px-3 py-2 fw-bold">
+                                <i class="bi bi-shield-check me-1"></i> Em Moderação Prévia
+                            </span>
+                            <span class="badge bg-light text-dark border font-monospace fs-6 px-3 py-1">
+                                {{comprovanteProtocolo.numero}}
+                            </span>
+                        </div>
+                        <h5 class="fw-bold text-dark mb-1">
+                            Protocolo gerado: <span class="font-monospace text-primary">{{comprovanteProtocolo.numero}}</span>
+                        </h5>
+                        <p class="small text-muted mb-0">
+                            Seu relato (<strong>{{comprovanteProtocolo.titulo}}</strong>) foi recebido e encontra-se retido na fila de moderação prévia da assessoria municipal, visível apenas para você e para a gestão até a aprovação.
+                        </p>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2 flex-shrink-0">
+                        <a href="{{comprovanteProtocolo.mailtoUrl}}" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">
+                            <i class="bi bi-envelope-paper-fill me-2"></i>Guardar Comprovante por E-mail
+                        </a>
+                        <a href="{{comprovanteProtocolo.linkProtocolo}}" class="btn btn-outline-dark rounded-pill px-4 fw-bold">
+                            <i class="bi bi-folder-check me-1"></i>Acompanhar Protocolo
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{{/if}}
 
 {{#if success_msg}}
     <div class="container mt-3">
@@ -27,4 +65,4 @@
         </div>
     </div>
 {{/if}}
-{{!-- [Melhoria Proativa Adicionada: mensagens de upload integradas aos avisos do portal] --}}
+{{!-- [Melhoria Proativa Adicionada: mensagens de upload e comprovante de protocolo integrados aos avisos do portal] --}}

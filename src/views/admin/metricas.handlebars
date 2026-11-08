@@ -1,0 +1,233 @@
+<header class="py-5 text-white shadow-lg" style="background: linear-gradient(145deg, #13315c 0%, #1d3557 50%, #e63946 100%); border-bottom: 5px solid #ffc107;">
+    <div class="container px-4">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <div>
+                <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold mb-2">
+                    <i class="bi bi-bar-chart-line-fill me-1"></i> DASHBOARD EXECUTIVO • PILOTO {{metricas.janelaDias}} DIAS
+                </span>
+                <h1 class="display-5 fw-bolder mb-1">Indicadores Operacionais de Cariús</h1>
+                <p class="lead mb-0 opacity-75 fw-light">
+                    Consolidação de demandas recebidas, taxa de resolução, tempo médio de resposta e distribuição por bairro.
+                </p>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                <a href="/admin/painel" class="btn btn-light fw-bold rounded-pill px-4 shadow-sm">
+                    <i class="bi bi-list-check me-1"></i> Painel de Moderação
+                </a>
+                <button type="button" onclick="window.print()" class="btn btn-outline-warning rounded-pill px-4 fw-bold">
+                    <i class="bi bi-printer-fill me-1"></i> Imprimir / Salvar PDF
+                </button>
+            </div>
+        </div>
+    </div>
+</header>
+
+<section class="py-5 bg-light">
+    <div class="container px-4">
+
+        {{!-- Cards Principais de KPI --}}
+        <div class="row g-3 mb-4">
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="card border-0 shadow-sm rounded-4 h-100 p-4 bg-white" style="border-top: 5px solid #13315c !important;">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="text-muted small fw-bold text-uppercase">Total de Chamados (Piloto)</span>
+                        <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-2">
+                            <i class="bi bi-inbox-fill"></i> {{metricas.janelaDias}}d
+                        </span>
+                    </div>
+                    <div class="display-5 fw-bolder text-dark mb-1">{{metricas.totalPiloto}}</div>
+                    <div class="small text-muted">
+                        <strong>{{metricas.totalMelhoriasPiloto}}</strong> melhorias • <strong>{{metricas.totalDenunciasPiloto}}</strong> denúncias
+                        <span class="d-block mt-1 text-secondary">(Acumulado histórico: {{metricas.totalHistorico}})</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="card border-0 shadow-sm rounded-4 h-100 p-4 bg-white" style="border-top: 5px solid #198754 !important;">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="text-muted small fw-bold text-uppercase">Demandas Resolvidas</span>
+                        <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2">
+                            <i class="bi bi-patch-check-fill"></i> Eficiência
+                        </span>
+                    </div>
+                    <div class="display-5 fw-bolder text-success mb-1">{{metricas.taxaResolucao}}%</div>
+                    <div class="small text-muted">
+                        <strong>{{metricas.resolvidos}}</strong> concluídas • <strong>{{metricas.emAtendimento}}</strong> em andamento • <strong>{{metricas.novos}}</strong> novas
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="card border-0 shadow-sm rounded-4 h-100 p-4 bg-white" style="border-top: 5px solid #0dcaf0 !important;">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="text-muted small fw-bold text-uppercase">Tempo Médio de Resposta</span>
+                        <span class="badge bg-info bg-opacity-10 text-dark rounded-pill px-3 py-2">
+                            <i class="bi bi-stopwatch-fill"></i> SLA
+                        </span>
+                    </div>
+                    <div class="display-5 fw-bolder text-dark mb-1">
+                        {{#if metricas.comPrimeiraResposta}}
+                            {{metricas.tempoMedioHoras}}h
+                        {{else}}
+                            —
+                        {{/if}}
+                    </div>
+                    <div class="small text-muted">
+                        {{#if metricas.comPrimeiraResposta}}
+                            Equivalente a <strong>{{metricas.tempoMedioDias}} dia(s)</strong> ({{metricas.comPrimeiraResposta}} casos respondidos)
+                        {{else}}
+                            Aguardando primeiras respostas da gestão
+                        {{/if}}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="card border-0 shadow-sm rounded-4 h-100 p-4 bg-white" style="border-top: 5px solid #ffc107 !important;">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="text-muted small fw-bold text-uppercase">Funil de Moderação Prévia</span>
+                        <span class="badge bg-warning text-dark rounded-pill px-3 py-2">
+                            <i class="bi bi-shield-check"></i> Triagem
+                        </span>
+                    </div>
+                    <div class="display-5 fw-bolder text-dark mb-1">{{metricas.pendentesModeracao}}</div>
+                    <div class="small text-muted">
+                        pendentes agora • <strong>{{metricas.aprovadosModeracao}}</strong> aprovados • <strong>{{metricas.encaminhadosModeracao}}</strong> encaminhados • <strong>{{metricas.bloqueadosModeracao}}</strong> bloqueados
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-4">
+            {{!-- Distribuição por Bairro --}}
+            <div class="col-12 col-lg-6">
+                <div class="card border-0 shadow-sm rounded-4 h-100 bg-white">
+                    <div class="card-header bg-white border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
+                        <h5 class="fw-bold mb-0">
+                            <i class="bi bi-geo-alt-fill text-danger me-2"></i>Ocorrências por Bairro / Localidade
+                        </h5>
+                        <span class="badge bg-light text-dark border rounded-pill">Top localidades</span>
+                    </div>
+                    <div class="card-body p-4">
+                        {{#if metricas.porBairro.length}}
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="table-light small text-uppercase text-muted">
+                                        <tr>
+                                            <th>Bairro / Localidade</th>
+                                            <th class="text-center">Total</th>
+                                            <th class="text-center">Resolvidas</th>
+                                            <th style="width: 35%;">Participação</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {{#each metricas.porBairro}}
+                                            <tr>
+                                                <td class="fw-bold text-dark">{{this.nome}}</td>
+                                                <td class="text-center"><span class="badge bg-dark rounded-pill px-3">{{this.total}}</span></td>
+                                                <td class="text-center">
+                                                    <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-2">
+                                                        {{this.resolvidos}} ({{this.taxaResolucao}}%)
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <div class="progress flex-grow-1" style="height: 8px;">
+                                                            <div class="progress-bar bg-primary" role="progressbar" style="width: {{this.percentual}}%;"></div>
+                                                        </div>
+                                                        <span class="small text-muted fw-bold">{{this.percentual}}%</span>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        {{/each}}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {{else}}
+                            <p class="text-muted text-center my-4">Nenhum registro contabilizado no período.</p>
+                        {{/if}}
+                    </div>
+                </div>
+            </div>
+
+            {{!-- Distribuição por Categoria do Escopo Piloto --}}
+            <div class="col-12 col-lg-6">
+                <div class="card border-0 shadow-sm rounded-4 h-100 bg-white">
+                    <div class="card-header bg-white border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
+                        <h5 class="fw-bold mb-0">
+                            <i class="bi bi-tags-fill text-primary me-2"></i>Demandas por Categoria (Escopo Piloto)
+                        </h5>
+                        <span class="badge bg-light text-dark border rounded-pill">{{metricas.anonimos}} relatos anônimos</span>
+                    </div>
+                    <div class="card-body p-4">
+                        {{#if metricas.porCategoria.length}}
+                            <div class="d-flex flex-column gap-3">
+                                {{#each metricas.porCategoria}}
+                                    <div>
+                                        <div class="d-flex justify-content-between align-items-center small mb-1">
+                                            <span class="fw-bold text-dark">{{this.nome}}</span>
+                                            <span class="text-muted"><strong>{{this.total}}</strong> ({{this.percentual}}%)</span>
+                                        </div>
+                                        <div class="progress" style="height: 10px;">
+                                            <div class="progress-bar bg-danger" role="progressbar" style="width: {{this.percentual}}%;"></div>
+                                        </div>
+                                    </div>
+                                {{/each}}
+                            </div>
+                        {{else}}
+                            <p class="text-muted text-center my-4">Nenhuma categoria registrada no período.</p>
+                        {{/if}}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{!-- Trilha de Auditoria Recente da Moderação --}}
+        <div class="card border-0 shadow-sm rounded-4 bg-white">
+            <div class="card-header bg-white border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0">
+                    <i class="bi bi-journal-check text-success me-2"></i>Trilha de Auditoria Recente da Moderação
+                </h5>
+                <span class="small text-muted">Quem moderou, quando e qual decisão foi tomada</span>
+            </div>
+            <div class="card-body p-4">
+                {{#if metricas.trilhaRecente.length}}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light small text-uppercase text-muted">
+                                <tr>
+                                    <th>Data/Hora</th>
+                                    <th>Protocolo</th>
+                                    <th>Ocorrência</th>
+                                    <th>Ação</th>
+                                    <th>Assessor / Moderador</th>
+                                    <th>Detalhes / Encaminhamento</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{#each metricas.trilhaRecente}}
+                                    <tr>
+                                        <td class="small text-muted">{{formatDate this.createdAt}}</td>
+                                        <td>
+                                            <a href="{{this.linkProtocolo}}" class="font-monospace fw-bold text-decoration-none">
+                                                {{this.protocolo}}
+                                            </a>
+                                        </td>
+                                        <td class="fw-semibold">{{recortar this.titulo 50}}</td>
+                                        <td><span class="badge bg-dark rounded-pill px-3">{{this.acao}}</span></td>
+                                        <td class="small fw-bold">{{this.moderadorNome}}</td>
+                                        <td class="small text-muted">{{this.detalhe}}</td>
+                                    </tr>
+                                {{/each}}
+                            </tbody>
+                        </table>
+                    </div>
+                {{else}}
+                    <p class="text-muted text-center my-3">Nenhuma ação de moderação registrada até o momento.</p>
+                {{/if}}
+            </div>
+        </div>
+
+    </div>
+</section>

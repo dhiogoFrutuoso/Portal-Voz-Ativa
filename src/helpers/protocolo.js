@@ -1,12 +1,13 @@
 /*
- * Regras de protocolo — estágios de atendimento e prazos de resposta.
+ * Regras de protocolo — estágios de atendimento, moderação prévia (Piloto 90 dias)
+ * e prazos de resposta.
  *
  * Vale apenas para Gestão de Melhorias e Denúncias Sigilosas: são as demandas
- * que o município recebe e responde. A Vitrine do Trabalhador é anúncio de
- * autônomo, não passa por protocolo.
+ * que o município recebe, modera e responde. A Vitrine do Trabalhador é anúncio
+ * de autônomo, não passa por protocolo.
  */
 
-// --- Estágios ---
+// --- Estágios Operacionais ---
 export const ESTAGIOS = {
     Novo: {
         rotulo: 'Novo',
@@ -63,14 +64,48 @@ export function estagioDe(status) {
     return { chave: normalizado, ...ESTAGIOS[normalizado] };
 }
 
+// --- Escopo do Piloto de 90 Dias (Zeladoria Urbana de Rápida Resposta) ---
+export const CATEGORIAS_MELHORIA_PILOTO = [
+    'Iluminação Pública',
+    'Reparo de Vias e Estradas',
+    'Coleta de Lixo e Entulho',
+    'Saneamento e Drenagem',
+    'Limpeza e Zeladoria Urbana'
+];
+
+export const BAIRROS_CARIUS = [
+    'Centro',
+    'São Vicente',
+    'Nossa Senhora de Fátima',
+    'Esplanada',
+    'COHAB',
+    'Bela Vista',
+    'Distrito de Caio Prado',
+    'Distrito de São Sebastião',
+    'Distrito de Angicos',
+    'Zona Rural / Sítios'
+];
+
 // --- Tipos oficiais de ocorrência e prazos de resposta (cláusula de atendimento) ---
-// Valores exatos enviados pelos formulários de criação e edição de denúncias.
+// Valores selecionáveis no piloto de 90 dias (priorizando infrações objetivas e zeladoria).
+export const TIPOS_OCORRENCIA_PILOTO = [
+    'Descarte Irregular de Lixo',
+    'Foco de Queimada',
+    'Maus-tratos contra Animais',
+    'Poluição Sonora',
+    'Vandalismo',
+    'Obstrução de Via ou Calçada',
+    'Outro'
+];
+
+// Lista completa aceita pelo backend (inclui categorias de compatibilidade com registros existentes).
 export const TIPOS_OCORRENCIA = [
     'Foco de Queimada',
     'Descarte Irregular de Lixo',
     'Maus-tratos contra Animais',
     'Poluição Sonora',
     'Vandalismo',
+    'Obstrução de Via ou Calçada',
     'Tráfico ou Uso de Drogas',
     'Outro'
 ];
@@ -83,6 +118,7 @@ const PRAZOS_DENUNCIA = {
     'Descarte Irregular de Lixo': 5,
     'Poluição Sonora': 5,
     'Vandalismo': 5,
+    'Obstrução de Via ou Calçada': 5,
     'Tráfico ou Uso de Drogas': 3,
     'Outro': 5,
     // Compatibilidade com registros antigos
@@ -173,10 +209,107 @@ export const eixoValido = (tipo) => Object.hasOwn(EIXOS_COM_PROTOCOLO, tipo);
 // Número de protocolo legível, derivado do id e da data (não expõe nada novo:
 // o id já aparece na URL pública do post).
 export function numeroDoProtocolo(doc, tipo) {
-    const ano = new Date(doc.dataCriacao || Date.now()).getFullYear();
-    const sufixo = String(doc._id).slice(-6).toUpperCase();
+    const ano = new Date(doc?.dataCriacao || Date.now()).getFullYear();
+    const sufixo = String(doc?._id || '000000').slice(-6).toUpperCase();
     const prefixo = tipo === 'denuncia' ? 'DEN' : 'MEL';
     return `${prefixo}-${ano}-${sufixo}`;
+}
+
+/*
+ * ============================================================================
+ * MODERAÇÃO PRÉVIA E ENCAMINHAMENTO INTERNO (PILOTO 90 DIAS)
+ * ============================================================================
+ */
+export const ESTADOS_MODERACAO = {
+    pendente: {
+        chave: 'pendente',
+        rotulo: 'Retido • Em Moderação',
+        rotuloCurto: 'Pendente',
+        descricao: 'Visível apenas para o autor e para a assessoria municipal até revisão.',
+        cor: 'warning',
+        icone: 'bi-hourglass-split'
+    },
+    aprovado: {
+        chave: 'aprovado',
+        rotulo: 'Aprovado no Feed',
+        rotuloCurto: 'Aprovado',
+        descricao: 'Revisado pela moderação e liberado para visualização pública.',
+        cor: 'success',
+        icone: 'bi-patch-check-fill'
+    },
+    encaminhado: {
+        chave: 'encaminhado',
+        rotulo: 'Encaminhado a Órgão',
+        rotuloCurto: 'Encaminhado',
+        descricao: 'Encaminhado internamente para secretaria municipal ou autoridade competente.',
+        cor: 'info',
+        icone: 'bi-send-check-fill'
+    },
+    bloqueado: {
+        chave: 'bloqueado',
+        rotulo: 'Bloqueado por Diretrizes',
+        rotuloCurto: 'Bloqueado',
+        descricao: 'Retido definitivamente por violação das diretrizes da plataforma.',
+        cor: 'danger',
+        icone: 'bi-slash-circle-fill'
+    }
+};
+
+export const LISTA_ESTADOS_MODERACAO = Object.keys(ESTADOS_MODERACAO);
+
+export const ORGAOS_ENCAMINHAMENTO = [
+    'Secretaria de Infraestrutura e Obras',
+    'Secretaria de Meio Ambiente e Agricultura',
+    'Autarquia de Trânsito e Guarda Municipal',
+    'Vigilância Sanitária e Endemias',
+    'Delegacia de Polícia Civil / Segurança Pública',
+    'Corpo de Bombeiros / Defesa Civil',
+    'Ouvidoria / Gabinete Municipal'
+];
+
+export function statusModeracaoDe(doc) {
+    const chaveBruta = doc?.moderacao?.status;
+    const chave = LISTA_ESTADOS_MODERACAO.includes(chaveBruta) ? chaveBruta : 'pendente';
+    return {
+        ...ESTADOS_MODERACAO[chave],
+        moderadoPorNome: doc?.moderacao?.moderadoPorNome || null,
+        moderadoEm: doc?.moderacao?.moderadoEm || null,
+        orgaoEncaminhado: doc?.moderacao?.orgaoEncaminhado || null,
+        motivoBloqueio: doc?.moderacao?.motivoBloqueio || null,
+        notaModeracao: doc?.moderacao?.notaModeracao || null,
+        textoEditadoPelaModeracao: Boolean(doc?.moderacao?.textoEditadoPelaModeracao),
+        trilha: Array.isArray(doc?.moderacao?.trilha) ? doc.moderacao.trilha : []
+    };
+}
+
+// Verifica se o documento foi formalmente aprovado para exibição no feed público.
+// Documentos legados sem o campo `moderacao.status` permanecem compatíveis.
+export function estaAprovadoParaFeed(doc) {
+    const statusMod = doc?.moderacao?.status;
+    return !statusMod || statusMod === 'aprovado';
+}
+
+// Filtro do MongoDB que garante que apenas conteúdos formalmente aprovados (ou legados
+// anteriores à criação do campo) entrem nos feeds públicos.
+export function filtroModeracaoPublica() {
+    return {
+        $or: [
+            { 'moderacao.status': 'aprovado' },
+            { 'moderacao.status': { $exists: false } }
+        ]
+    };
+}
+
+// Verifica se um usuário pode visualizar um chamado de melhoria (pendente/bloqueado
+// fica restrito ao autor e à equipe administrativa).
+export function podeVerChamado(doc, usuario) {
+    if (!doc) return false;
+    if (estaAprovadoParaFeed(doc)) return true;
+    if (!usuario) return false;
+    if (usuario.areAdmin) return true;
+
+    const autor = doc.usuario?._id || doc.usuario;
+    return Boolean(autor) && String(autor) === String(usuario._id);
 }
 
 /*
@@ -229,55 +362,47 @@ export const ehRegistroDeEstagio = (mensagem) => Boolean(mensagem && mensagem.st
 /*
  * Sigilo das denúncias.
  *
- * No hub público, denúncia é visível exclusivamente para a gestão municipal.
- * Foco de incêndio é a única exceção: é risco coletivo e serve de alerta,
- * então nasce público para qualquer visitante — inclusive anônimo. As demais
- * ficam de fora da listagem pública mesmo para quem denunciou; o autor
- * acompanha a própria denúncia por "Meus Protocolos", não pelo hub.
+ * No hub público, denúncia só aparece se for pública (Foco de Queimada ou
+ * liberada pela gestão) E estiver formalmente aprovada pela moderação prévia.
  */
 export const OCORRENCIAS_PUBLICAS = ['Foco de Queimada'];
 
 export const nasceSigilosa = (tipoOcorrencia) => !OCORRENCIAS_PUBLICAS.includes(tipoOcorrencia);
 
-/*
- * O que é público.
- *
- * Denúncias gravadas antes deste campo não têm `privada` definido. Tratá-las
- * como públicas exporia justamente o que precisa de sigilo, então o critério
- * para elas é o tipo de ocorrência — só incêndio passa. Assim a regra vale de
- * imediato, sem depender de rodar a migração.
- */
 const EH_PUBLICA = {
-    $or: [
-        { privada: false },
-        { privada: { $exists: false }, tipoOcorrencia: { $in: OCORRENCIAS_PUBLICAS } }
+    $and: [
+        {
+            $or: [
+                { privada: false },
+                { privada: { $exists: false }, tipoOcorrencia: { $in: OCORRENCIAS_PUBLICAS } }
+            ]
+        },
+        {
+            $or: [
+                { 'moderacao.status': 'aprovado' },
+                { 'moderacao.status': { $exists: false } }
+            ]
+        }
     ]
 };
 
-/*
- * Filtro do hub de denúncias.
- *
- * NINGUÉM vê denúncia sigilosa nessa listagem — nem quem denunciou, nem a
- * gestão. O hub mostra só o que é público (incêndio). A gestão trata as
- * sigilosas pelo painel do admin, que é a única tela onde elas aparecem
- * listadas. Por isso a função não recebe mais o usuário: não há exceção que
- * possa ser aplicada aqui.
- */
 export function filtroDeSigilo() {
     return EH_PUBLICA;
 }
 
 /*
  * Acesso direto a UMA denúncia (detalhe e linha do tempo do protocolo) — aqui
- * sim o autor continua tendo acesso à própria denúncia, mesmo sigilosa, para
- * poder acompanhar o atendimento. O que muda é só a listagem do hub acima.
+ * sim o autor continua tendo acesso à própria denúncia, mesmo sigilosa ou em
+ * moderação, para poder acompanhar o atendimento.
  */
 export function podeVerDenuncia(doc, usuario) {
+    if (!doc) return false;
+
     const ehPublica =
         doc?.privada === false ||
         (doc?.privada === undefined && OCORRENCIAS_PUBLICAS.includes(doc?.tipoOcorrencia));
 
-    if (ehPublica) return true;
+    if (ehPublica && estaAprovadoParaFeed(doc)) return true;
     if (!usuario) return false;
     if (usuario.areAdmin) return true;
 
@@ -285,38 +410,112 @@ export function podeVerDenuncia(doc, usuario) {
     return Boolean(autor) && String(autor) === String(usuario._id);
 }
 
-
 /*
- * Anonimato do denunciante.
+ * Anonimato do denunciante / cidadão.
  *
- * Denúncia sigilosa não pode revelar quem publicou — em tela nenhuma, nem
- * para a gestão. O vínculo com o usuário continua no banco (é ele que
- * permite ao autor acompanhar o próprio protocolo e receber respostas), mas
- * a identidade nunca chega à renderização.
+ * Quando a postagem é marcada como anônima (`isConfidential: true`) ou é uma
+ * denúncia sigilosa, a renderização pública e padrão mascara completamente a
+ * identidade do autor, mantendo o vínculo `usuario` e o log de IP no banco.
  */
 export const AUTOR_ANONIMO = {
     _id: null,
     name: 'Cidadão Protegido',
     profileImage: '/img/guest.webp',
     profession: 'Identidade protegida',
-    anonimo: true
+    anonimo: true,
+    isDeleted: false
 };
 
 export const ehDenunciaSigilosa = (doc) =>
     doc?.privada === true ||
     (doc?.privada === undefined && !OCORRENCIAS_PUBLICAS.includes(doc?.tipoOcorrencia));
 
-// Troca o autor por um perfil anônimo quando a denúncia é sigilosa.
+// Troca o autor por um perfil anônimo quando a publicação é anônima ou denúncia sigilosa.
 export function anonimizarAutor(autor, doc) {
     return (doc?.isConfidential || ehDenunciaSigilosa(doc)) ? { ...AUTOR_ANONIMO } : autor;
 }
 
 /*
+ * Comprovante de protocolo pré-formatado para compartilhamento via e-mail (mailto:).
+ */
+export function montarComprovanteEmail(doc, tipo) {
+    const eixo = EIXOS_COM_PROTOCOLO[tipo] || EIXOS_COM_PROTOCOLO.melhoria;
+    const numero = numeroDoProtocolo(doc, tipo);
+    const prazo = prazoDoProtocolo(doc, tipo);
+    const dataCriacao = new Date(doc?.dataCriacao || Date.now());
+    const dataFormatada = dataCriacao.toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    const baseUrl = (process.env.URL_PUBLICA || 'http://localhost:8080').replace(/\/+$/, '');
+    const linkProtocolo = `/protocolos/${tipo}/${doc._id}`;
+    const urlCompleta = `${baseUrl}${linkProtocolo}`;
+
+    const assunto = `[Comprovante Voz Ativa] Protocolo ${numero} - ${doc.titulo || eixo.rotulo}`;
+    const corpo = [
+        'COMPROVANTE DE REGISTRO - PORTAL VOZ ATIVA (CARIÚS/CE)',
+        '--------------------------------------------------------',
+        `Número do Protocolo: ${numero}`,
+        `Módulo: ${eixo.rotulo}`,
+        `Categoria/Ocorrência: ${doc.tipoOcorrencia || doc.categoria || eixo.rotulo}`,
+        `Título: ${doc.titulo}`,
+        `Localização: ${doc.localizacao}`,
+        `Data do Registro: ${dataFormatada}`,
+        `Status Inicial: Em Moderação Prévia / Aguardando Triagem`,
+        `Prazo Estimado de Resposta: Até ${prazo.dias} dias úteis`,
+        '',
+        `Acompanhe o andamento pelo link:`,
+        urlCompleta,
+        '',
+        'Guarde este e-mail como comprovante oficial do seu protocolo.'
+    ].join('\n');
+
+    return {
+        numero,
+        tipo,
+        rotuloEixo: eixo.rotulo,
+        titulo: doc.titulo,
+        localizacao: doc.localizacao,
+        dataFormatada,
+        prazoDias: prazo.dias,
+        linkProtocolo,
+        mailtoUrl: `mailto:?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(corpo)}`
+    };
+}
+
+/*
+ * Extração padronizada de bairro/localidade para o Dashboard Executivo.
+ */
+export function extrairBairro(doc) {
+    if (doc?.bairro && String(doc.bairro).trim() !== '') {
+        return String(doc.bairro).trim();
+    }
+    const loc = String(doc?.localizacao || '').trim();
+    if (!loc) return 'Não informado';
+
+    const locLower = loc.toLowerCase();
+    for (const bairro of BAIRROS_CARIUS) {
+        if (locLower.includes(bairro.toLowerCase())) {
+            return bairro;
+        }
+    }
+
+    const partes = loc
+        .split(/[,-]/)
+        .map((p) => p.trim())
+        .filter((p) => p && !/^(cari[uú]s|cear[aá]|brasil|regi[aã]o\s+.*)$/i.test(p) && !/^\d{5}-?\d{3}$/.test(p));
+
+    if (partes.length >= 2) {
+        return partes[1].slice(0, 45);
+    }
+    return (partes[0] || 'Centro').slice(0, 45);
+}
+
+/*
  * Recurso do cidadão contra o arquivamento.
- *
- * Monta os dados que as telas precisam: se existe, em que pé está e o que
- * cada lado pode fazer. Como recurso é sempre do denunciante, num protocolo
- * sigiloso ele também não pode identificar quem recorreu.
  */
 export const DECISOES_RECURSO = {
     pendente: { rotulo: 'Aguardando análise', cor: 'warning', icone: 'bi-hourglass-split' },
@@ -327,12 +526,9 @@ export const DECISOES_RECURSO = {
 export function montarRecurso(doc, sigilosa = false) {
     const bruto = doc?.recurso;
 
-    // Sem criadoEm o subdocumento existe só com os defaults do schema — não é
-    // um recurso de verdade.
     if (!bruto || !bruto.criadoEm) {
         return {
             existe: false,
-            // O cidadão só pode recorrer de um protocolo arquivado.
             podeAbrir: protocoloEncerrado(doc?.status) && normalizarStatus(doc?.status) === 'Improcedente'
         };
     }
@@ -351,7 +547,7 @@ export function montarRecurso(doc, sigilosa = false) {
         pendente: decisao === 'pendente',
         respostaTexto: bruto.respostaTexto || null,
         respondidoEm: bruto.respondidoEm || null,
-        autorAnonimo: Boolean(sigilosa)
+        autorAnonimo: Boolean(sigilosa || doc?.isConfidential)
     };
 }
 // [Melhoria Proativa Adicionada: validações e integrações de governança aplicadas ao fluxo existente]

@@ -4,7 +4,9 @@
      busca em tempo real devolve. --}}
 {{#each protocolos}}
                     <div class="linha-protocolo shadow-sm overflow-hidden item-filtravel {{#if this.novidades.paraAGestao}}linha-com-novidade{{/if}}"
-                         data-status="{{this.status}}" data-tipo="{{this.tipo}}" data-sigilo="{{#if this.privada}}sigilosa{{else}}publica{{/if}}"
+                         data-status="{{this.status}}" data-tipo="{{this.tipo}}"
+                         data-moderacao="{{this.moderacao.chave}}"
+                         data-sigilo="{{#if this.privada}}sigilosa{{else}}publica{{/if}}"
                          data-novidade="{{#if this.novidades.paraAGestao}}sim{{else}}nao{{/if}}"
                          data-recurso="{{#if this.recurso.pendente}}pendente{{else}}nao{{/if}}">
                         <div class="d-flex">
@@ -18,8 +20,22 @@
                                                 <i class="bi {{this.eixo.icone}} me-1"></i>{{this.eixo.rotuloCurto}}
                                             </span>
                                             <span class="badge bg-{{this.estagio.cor}} rounded-pill px-3">{{this.estagio.rotulo}}</span>
+                                            <span class="badge bg-{{this.moderacao.cor}} {{#if (eq this.moderacao.cor 'warning')}}text-dark{{/if}} rounded-pill px-3">
+                                                <i class="bi {{this.moderacao.icone}} me-1"></i>{{this.moderacao.rotulo}}
+                                            </span>
                                             {{#if this.tipoOcorrencia}}
                                                 <span class="badge bg-light text-dark border rounded-pill px-3">{{this.tipoOcorrencia}}</span>
+                                            {{/if}}
+                                            {{#if this.categoria}}
+                                                <span class="badge bg-light text-primary border rounded-pill px-3">{{this.categoria}}</span>
+                                            {{/if}}
+                                            {{#if this.bairro}}
+                                                <span class="badge bg-light text-secondary border rounded-pill px-3"><i class="bi bi-pin-map me-1"></i>{{this.bairro}}</span>
+                                            {{/if}}
+                                            {{#if this.isConfidential}}
+                                                <span class="badge bg-dark text-white rounded-pill px-3" title="Postagem anônima no feed público; autoria preservada internamente para fins judiciais">
+                                                    <i class="bi bi-incognito me-1"></i>Anônimo no Feed
+                                                </span>
                                             {{/if}}
                                             <span class="small text-muted font-monospace">{{this.numero}}</span>
                                             {{> _novidade mostrar=this.novidades.paraAGestao texto="o cidadão respondeu"}}
@@ -35,13 +51,13 @@
                                                 <img src="{{this.imagemPrincipal}}" alt="" class="miniatura flex-shrink-0">
                                             {{/if}}
 
-                                            <div>
+                                            <div class="w-100">
                                                 <h5 class="fw-bold mb-1">{{this.titulo}}</h5>
                                                 <p class="text-muted small mb-2">{{recortar this.descricao 180}}</p>
 
                                                 <div class="d-flex align-items-center flex-wrap gap-3 small text-muted">
                                                     {{#if this.autor}}
-                                                        <span class="d-flex align-items-center">
+                                                        <span class="d-flex align-items-center" title="Registro interno de autoria">
                                                             <img src="{{this.autor.profileImage}}" alt="" class="avatar-mini me-1">
                                                             {{this.autor.name}}
                                                         </span>
@@ -57,6 +73,89 @@
                                                         <span><i class="bi bi-hourglass-split me-1"></i>até {{formatDay this.limite}}</span>
                                                     {{/if}}
                                                 </div>
+
+                                                {{#if this.moderacao.moderadoEm}}
+                                                    <div class="small text-muted mt-2 pt-2 border-top">
+                                                        <i class="bi bi-person-check-fill text-success me-1"></i>
+                                                        Moderado por <strong>{{this.moderacao.moderadoPorNome}}</strong> em {{formatDate this.moderacao.moderadoEm}}
+                                                        {{#if this.moderacao.orgaoEncaminhado}}
+                                                            • Encaminhado: <strong>{{this.moderacao.orgaoEncaminhado}}</strong>
+                                                        {{/if}}
+                                                        {{#if this.moderacao.textoEditadoPelaModeracao}}
+                                                            <span class="badge bg-info bg-opacity-10 text-dark border ms-1">Texto revisado</span>
+                                                        {{/if}}
+                                                    </div>
+                                                {{/if}}
+
+                                                {{!-- Painel rápido de Moderação Prévia (Assessor Governamental) --}}
+                                                <div class="mt-3">
+                                                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold" type="button"
+                                                            data-bs-toggle="collapse" data-bs-target="#moderar-{{this._id}}">
+                                                        <i class="bi bi-sliders me-1"></i> Triagem / Moderar / Editar Texto / Encaminhar
+                                                    </button>
+                                                    {{#if (eq this.tipo 'denuncia')}}
+                                                        <a href="/admin/protocolo/denuncia/{{this._id}}/exportar-delegacia"
+                                                           class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-bold ms-1">
+                                                            <i class="bi bi-shield-shaded me-1"></i> Exportar p/ Delegacia
+                                                        </a>
+                                                    {{/if}}
+
+                                                    <div class="collapse mt-3" id="moderar-{{this._id}}">
+                                                        <div class="card card-body bg-light border-0 rounded-4 p-3">
+                                                            <h6 class="fw-bold small text-uppercase text-dark mb-2">
+                                                                <i class="bi bi-shield-check text-primary me-1"></i> Moderação Prévia do Assessor
+                                                            </h6>
+                                                            <form action="/admin/protocolo/{{this.tipo}}/{{this._id}}/moderar" method="POST">
+                                                                <input type="hidden" name="_csrf" value="{{@root.csrfToken}}">
+
+                                                                <div class="mb-2">
+                                                                    <label class="form-label small fw-bold mb-1">Ação de Moderação</label>
+                                                                    <select name="acao" class="form-select form-select-sm rounded-3" required>
+                                                                        <option value="aprovar" {{#if (eq this.moderacao.chave 'aprovado')}}selected{{/if}}>Aprovar para o Feed Público</option>
+                                                                        <option value="editar_aprovar">Editar Texto (Sanitizar) e Aprovar para o Feed</option>
+                                                                        <option value="editar_texto">Apenas Editar/Sanitizar Texto (Manter Status)</option>
+                                                                        <option value="encaminhar" {{#if (eq this.moderacao.chave 'encaminhado')}}selected{{/if}}>Encaminhar Internamente a Órgão Competente</option>
+                                                                        <option value="bloquear" {{#if (eq this.moderacao.chave 'bloqueado')}}selected{{/if}}>Bloquear por Violação das Diretrizes</option>
+                                                                    </select>
+                                                                </div>
+
+                                                                <div class="row g-2 mb-2">
+                                                                    <div class="col-12">
+                                                                        <label class="form-label small fw-bold mb-1">Título (remova nomes próprios ou ofensas antes de aprovar)</label>
+                                                                        <input type="text" name="titulo" value="{{this.titulo}}" maxlength="120" class="form-control form-control-sm rounded-3">
+                                                                    </div>
+                                                                    <div class="col-12">
+                                                                        <label class="form-label small fw-bold mb-1">Descrição revisada</label>
+                                                                        <textarea name="descricao" rows="3" maxlength="5000" class="form-control form-control-sm rounded-3">{{this.descricao}}</textarea>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="row g-2 mb-2">
+                                                                    <div class="col-12 col-md-6">
+                                                                        <label class="form-label small fw-bold mb-1">Órgão de Encaminhamento (se aplicável)</label>
+                                                                        <select name="orgaoEncaminhado" class="form-select form-select-sm rounded-3">
+                                                                            <option value="">— Selecionar órgão —</option>
+                                                                            {{#each @root.orgaosEncaminhamento}}
+                                                                                <option value="{{this}}" {{#if (eq this ../moderacao.orgaoEncaminhado)}}selected{{/if}}>{{this}}</option>
+                                                                            {{/each}}
+                                                                        </select>
+                                                                    </div>
+                                                                    <div class="col-12 col-md-6">
+                                                                        <label class="form-label small fw-bold mb-1">Motivo de bloqueio / Nota de auditoria</label>
+                                                                        <input type="text" name="notaModeracao" value="{{this.moderacao.notaModeracao}}" maxlength="500"
+                                                                               placeholder="Justificativa ou despacho interno..." class="form-control form-control-sm rounded-3">
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="d-flex justify-content-end gap-2 mt-2">
+                                                                    <button type="submit" class="btn btn-primary btn-sm rounded-3 px-3 fw-bold">
+                                                                        <i class="bi bi-check2-circle me-1"></i> Registrar Decisão de Moderação
+                                                                    </button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -66,9 +165,7 @@
                                          O bloco de sigilo tem formulário próprio, então precisa
                                          ficar FORA do formulário de estágio: <form> dentro de
                                          <form> é inválido em HTML, o navegador descarta o de
-                                         dentro e os dois campos _csrf acabam no mesmo envio.
-                                         O token virava array e toda troca de sigilo era recusada
-                                         como "sessão expirada". --}}
+                                         dentro e os dois campos _csrf acabam no mesmo envio. --}}
                                     <div class="col-12 col-md-4">
                                         <div class="bg-light rounded-3 p-3">
                                             <form action="/admin/protocolo/{{this.tipo}}/{{this._id}}/status" method="POST">
@@ -96,7 +193,7 @@
 
                                             <div class="d-grid gap-1 mt-2">
                                                 <a href="{{this.linkProtocolo}}" class="btn btn-outline-dark btn-sm rounded-3">
-                                                    <i class="bi bi-chat-square-text me-1"></i> Abrir atendimento
+                                                    <i class="bi bi-chat-square-text me-1"></i> Abrir atendimento completo
                                                 </a>
                                                 <a href="{{this.linkPost}}" class="btn btn-link btn-sm text-decoration-none">
                                                     ver publicação

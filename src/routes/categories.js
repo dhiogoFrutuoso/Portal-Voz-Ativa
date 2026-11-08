@@ -6,13 +6,11 @@ import 'dotenv/config';
 import { limitarRequisicoes } from '../config/rate-limit.js';
 
 // Rate Limiter
-
 const Limiter = limitarRequisicoes('publicacoes', {
   windowMs: 5 * 60 * 1000, // 5 minutos
   max: 30,
   message: "Muitas tentativas de registro, tente novamente mais tarde.",
 });
-
 
 // Importando modelos e helpers
 import '../models/categories.js'; 
@@ -38,8 +36,16 @@ import {
     dataLimite,
     LISTA_ESTAGIOS,
     TIPOS_OCORRENCIA,
+    TIPOS_OCORRENCIA_PILOTO,
+    CATEGORIAS_MELHORIA_PILOTO,
+    BAIRROS_CARIUS,
     filtroDeSigilo,
+    filtroModeracaoPublica,
     podeVerDenuncia,
+    podeVerChamado,
+    statusModeracaoDe,
+    montarComprovanteEmail,
+    extrairBairro,
     nasceSigilosa,
     anonimizarAutor,
     ehDenunciaSigilosa
@@ -47,10 +53,6 @@ import {
 
 /*
  * Junta filtros do Mongo sem perder nenhum.
- *
- * Espalhar dois objetos que usam `$or` (o recorte de sigilo e a busca textual)
- * fazia o segundo sobrescrever o primeiro em silêncio — e a busca acabava
- * revelando denúncia sigilosa. Com `$and` as duas condições precisam valer.
  */
 function combinarFiltros(...filtros) {
     const usados = filtros.filter((f) => f && Object.keys(f).length > 0);
@@ -75,10 +77,15 @@ function filtroDoHub(query, campos) {
     return { termo, filtro: { $or: campos.map((campo) => ({ [campo]: expressao })) } };
 }
 
-// Dados de estágio que os cards do hub exibem (e que o admin pode alterar ali mesmo).
+// Dados de estágio e moderação que os cards do hub exibem.
 const comEstagio = (doc) => {
     const status = normalizarStatus(doc.status);
-    return { ...doc, status, estagio: estagioDe(status) };
+    return {
+        ...doc,
+        status,
+        estagio: estagioDe(status),
+        moderacaoInfo: statusModeracaoDe(doc)
+    };
 };
 
 const estagiosParaSelect = () => LISTA_ESTAGIOS.map((chave) => estagioDe(chave));
@@ -123,16 +130,16 @@ async function alternarCurtida(Modelo, postId, usuarioId) {
 
 /*
  * Busca dos hubs: devolve só o pedaço de HTML com os cards, para a página
- * trocar a lista sem recarregar. O mesmo partial usado na página completa é
- * renderizado aqui, então o desenho do card não é duplicado.
+ * trocar a lista sem recarregar.
  */
-function montarBuscaDeHub({ Modelo, campos, colecao, partial, preparar, tipoProtocolo = null, aplicarSigilo = false }) {
+function montarBuscaDeHub({ Modelo, campos, colecao, partial, preparar, tipoProtocolo = null, aplicarSigilo = false, aplicarModeracao = false }) {
     return async (req, res) => {
         try {
             const { filtro } = filtroDoHub(req.query, campos);
-            const recorte = aplicarSigilo ? filtroDeSigilo() : {};
+            const recorteSigilo = aplicarSigilo ? filtroDeSigilo() : {};
+            const recorteModeracao = aplicarModeracao ? filtroModeracaoPublica() : {};
 
-            const docs = await Modelo.find(combinarFiltros(recorte, filtro))
+            const docs = await Modelo.find(combinarFiltros(recorteSigilo, recorteModeracao, filtro))
                 .select(PROJECAO_HUB)
                 .populate('usuario', 'name profileImage profession')
                 .sort({ dataCriacao: -1 })
@@ -142,8 +149,6 @@ function montarBuscaDeHub({ Modelo, campos, colecao, partial, preparar, tipoProt
             res.render(`partials/${partial}`, {
                 layout: false,
                 [colecao]: docs.map((doc) => preparar(doc, req)),
-                // O card do hub traz o seletor de estágio do admin: sem estes
-                // valores o seletor sairia vazio e o formulário, quebrado.
                 tipoProtocolo,
                 estagios: estagiosParaSelect()
             });
@@ -157,25 +162,19 @@ function montarBuscaDeHub({ Modelo, campos, colecao, partial, preparar, tipoProt
 // Prepara um chamado/denúncia/anúncio para os cards do hub.
 const prepararChamado = (doc, req) => comEstagio({
     ...doc,
+    usuario: anonimizarAutor(formatAuthor(doc.usuario), doc),
     jaCurtiu: req.user ? (doc.curtidas || []).some((id) => id.toString() === req.user._id.toString()) : false,
     imagemPrincipal: doc.imagens && doc.imagens.length > 0 ? doc.imagens[0] : null
 });
 
 const prepararVitrine = (doc, req) => ({
     ...doc,
-    usuario: formatAuthor(doc.usuario),
+    usuario: anonimizarAutor(formatAuthor(doc.usuario), doc),
     curtidas: doc.curtidas || [],
     imagemPrincipal: doc.imagens && doc.imagens.length > 0 ? doc.imagens[0] : null,
     jaCurtiu: req.user ? (doc.curtidas || []).some((id) => id.toString() === req.user._id.toString()) : false
 });
 
-/*
- * Curtir e comentar sem recarregar a página.
- *
- * O mesmo endpoint atende os dois jeitos: pedido normal do navegador continua
- * redirecionando (o site funciona sem JavaScript), e pedido com
- * `x-requested-with: fetch` recebe só o dado ou o pedaço de HTML que mudou.
- */
 const ehPedidoDeFetch = (req) => req.get('x-requested-with') === 'fetch';
 
 // Eixos que têm curtida e comentário, com o model e a rota de cada um.
@@ -187,14 +186,16 @@ const EIXOS_INTERACAO = {
 
 const eixoDeInteracao = (chave) => EIXOS_INTERACAO[chave] || null;
 
-// Carrega os comentários já formatados (autor anônimo quando for denúncia sigilosa).
+// Carrega os comentários já formatados (autor anônimo quando for denúncia sigilosa ou relato confidencial).
 async function comentariosDoPost(Modelo, id, eixo, usuario = null) {
     const doc = await Modelo.findById(id)
         .populate('comentarios.usuario', 'name profileImage profession')
-        .select('comentarios tipoOcorrencia privada titulo usuario isConfidential')
+        .select('comentarios tipoOcorrencia privada titulo usuario isConfidential moderacao')
         .lean();
 
-    if (!doc || (eixo === 'denuncias_sigilosas' && !podeVerDenuncia(doc, usuario))) return null;
+    if (!doc) return null;
+    if (eixo === 'denuncias_sigilosas' && !podeVerDenuncia(doc, usuario)) return null;
+    if (eixo === 'gestao_de_melhorias' && !podeVerChamado(doc, usuario)) return null;
 
     const sigilosa = doc.isConfidential || (eixo === 'denuncias_sigilosas' && ehDenunciaSigilosa(doc));
 
@@ -210,8 +211,6 @@ async function comentariosDoPost(Modelo, id, eixo, usuario = null) {
                 usuario: sigilosa
                     ? { ...anonimizarAutor(formatAuthor(c.usuario), doc), name: 'Participante anônimo' }
                     : formatAuthor(c.usuario),
-                // Cada um edita o que escreveu. A gestão não reescreve texto de
-                // ninguém, mas pode remover comentário impróprio de qualquer um.
                 podeEditar: meu,
                 podeExcluir: meu || ehAdmin
             };
@@ -225,22 +224,38 @@ const ehDonoDoPost = (req, doc) => {
     return Boolean(req.user && autor && String(autor) === String(req.user._id));
 };
 
-// Um :id fora do formato ObjectId derruba a query com CastError; barramos antes.
 const idValido = (id) => mongoose.Types.ObjectId.isValid(id);
 
 const Chamado = mongoose.model('chamados');
 const Denuncia = mongoose.model('denuncias');
 const Vitrine = mongoose.model('vitrine');
 const router = express.Router();
+
+// Protege o acesso direto a denúncias sigilosas e relatos retidos na moderação prévia
 router.use(async (req, res, next) => {
-    if (!req.path.startsWith('/denuncias_sigilosas/')) return next();
-    const id = req.path.match(/\/([a-f0-9]{24})(?:\/|$)/i)?.[1];
-    if (!id) return next();
-    try {
-        const doc = await Denuncia.findById(id).select('usuario privada tipoOcorrencia').lean();
-        if (!doc || !podeVerDenuncia(doc, req.user)) return res.status(404).send('Publicação não encontrada.');
-        next();
-    } catch { res.status(503).send('Não foi possível consultar a publicação.'); }
+    if (req.path.startsWith('/denuncias_sigilosas/')) {
+        const id = req.path.match(/\/([a-f0-9]{24})(?:\/|$)/i)?.[1];
+        if (!id) return next();
+        try {
+            const doc = await Denuncia.findById(id).select('usuario privada tipoOcorrencia moderacao').lean();
+            if (!doc || !podeVerDenuncia(doc, req.user)) return res.status(404).send('Publicação não encontrada.');
+            return next();
+        } catch {
+            return res.status(503).send('Não foi possível consultar a publicação.');
+        }
+    }
+    if (req.path.startsWith('/gestao_de_melhorias/')) {
+        const id = req.path.match(/\/([a-f0-9]{24})(?:\/|$)/i)?.[1];
+        if (!id) return next();
+        try {
+            const doc = await Chamado.findById(id).select('usuario moderacao').lean();
+            if (!doc || !podeVerChamado(doc, req.user)) return res.status(404).send('Publicação não encontrada ou em análise pela moderação.');
+            return next();
+        } catch {
+            return res.status(503).send('Não foi possível consultar a publicação.');
+        }
+    }
+    next();
 });
 
 // --- FUNÇÃO AUXILIAR PARA FORMATAR USUÁRIO (ANONIMIZAÇÃO ESTILO INSTAGRAM CASO EXCLUÍDO) ---
@@ -253,6 +268,9 @@ const formatAuthor = (u) => {
             profession: "Conta Indisponível",
             isDeleted: true
         };
+    }
+    if (u.anonimo) {
+        return u;
     }
     return {
         ...u,
@@ -270,10 +288,6 @@ const formatComments = (comentarios = []) => {
     }));
 };
 
-// --- CONFIGURAÇÃO DO MULTER ---
-// As mídias sobem direto do navegador para o Cloudinary e chegam aqui apenas como URL,
-// então o multer é usado só para interpretar o multipart/form-data (upload.none()).
-// Nada é gravado em disco: o sistema de arquivos do Render/Vercel é efêmero.
 const upload = multer();
 
 // --- ROTAS GERAIS ---
@@ -289,7 +303,10 @@ router.get('/gestao_de_melhorias/saiba-mais', (req, res) => {
 });
 
 router.get('/gestao_de_melhorias/abrir-chamado', isUser, (req, res) => {
-    res.render('categories/gestao_de_melhorias/abrir-chamado');
+    res.render('categories/gestao_de_melhorias/abrir-chamado', {
+        categoriasPiloto: CATEGORIAS_MELHORIA_PILOTO,
+        bairrosCarius: BAIRROS_CARIUS
+    });
 });
 
 router.post('/gestao_de_melhorias/abrir-chamado', isUser, Limiter, upload.none(), evidenciaPublicacao, async (req, res) => {
@@ -301,22 +318,33 @@ router.post('/gestao_de_melhorias/abrir-chamado', isUser, Limiter, upload.none()
             return res.redirect('/categories/gestao_de_melhorias/abrir-chamado');
         }
 
-        // O JS do formulário envia 'imagens[]'; aceitamos as variações e
-        // descartamos qualquer URL que não venha do nosso Cloudinary.
         const nomesImagens = normalizarMidias(
             req.body['imagens[]'] || req.body['imagens_urls[]'] || req.body.imagens
         );
 
-        const novoChamado = {
+        const bairroResolvido = validacao.data.bairro || extrairBairro(validacao.data);
+
+        const novoChamado = new Chamado({
             ...req.evidencia,
             ...validacao.data,
+            bairro: bairroResolvido,
             imagens: nomesImagens,
-            usuario: req.user._id
-        };
+            usuario: req.user._id,
+            moderacao: {
+                status: 'pendente',
+                trilha: [{
+                    acao: 'retido',
+                    detalhe: 'Relato recebido e retido na fila de moderação prévia do piloto.',
+                    createdAt: new Date()
+                }]
+            }
+        });
 
-        await new Chamado(novoChamado).save();
-        
-        req.flash('success_msg', 'Melhoria registrada com sucesso!');
+        await novoChamado.save();
+
+        const comprovante = montarComprovanteEmail(novoChamado, 'melhoria');
+        req.flash('comprovante_protocolo', JSON.stringify(comprovante));
+        req.flash('success_msg', `Melhoria registrada sob o protocolo ${comprovante.numero}! Seu relato aguarda revisão da moderação municipal antes de ir ao feed público.`);
         res.redirect('/categories/gestao_de_melhorias/hub');
     } catch (err) {
         console.error("Erro ao salvar chamado:", err);
@@ -329,33 +357,28 @@ router.get(
     '/gestao_de_melhorias/hub/buscar',
     montarBuscaDeHub({
         Modelo: Chamado,
-        campos: ['titulo', 'descricao', 'localizacao'],
+        campos: ['titulo', 'descricao', 'localizacao', 'categoria', 'bairro'],
         colecao: 'chamados',
         partial: '_cards_melhorias',
         preparar: prepararChamado,
-        tipoProtocolo: 'melhoria'
+        tipoProtocolo: 'melhoria',
+        aplicarModeracao: true
     })
 );
 
 router.get('/gestao_de_melhorias/hub', async (req, res) => {
     try {
-        const { termo, filtro } = filtroDoHub(req.query, ['titulo', 'descricao', 'localizacao']);
+        const { termo, filtro } = filtroDoHub(req.query, ['titulo', 'descricao', 'localizacao', 'categoria', 'bairro']);
 
-        const chamadosDocs = await Chamado.find(filtro)
+        // Feed público exibe apenas conteúdos formalmente aprovados pela moderação
+        const chamadosDocs = await Chamado.find(combinarFiltros(filtroModeracaoPublica(), filtro))
             .select(PROJECAO_HUB)
+            .populate('usuario', 'name profileImage profession')
             .sort({ dataCriacao: -1 })
             .limit(60)
             .lean();
 
-        const chamados = chamadosDocs.map(doc => {
-            // Lógica de curtidas
-            doc.jaCurtiu = req.user ? doc.curtidas.some(id => id.toString() === req.user._id.toString()) : false;
-
-            // Define a imagem principal para o card (primeira posição do array)
-            doc.imagemPrincipal = (doc.imagens && doc.imagens.length > 0) ? doc.imagens[0] : null;
-
-            return comEstagio(doc);
-        });
+        const chamados = chamadosDocs.map(doc => prepararChamado(doc, req));
 
         res.render('categories/gestao_de_melhorias/hub', {
             chamados,
@@ -363,6 +386,7 @@ router.get('/gestao_de_melhorias/hub', async (req, res) => {
             total: chamados.length,
             estagios: estagiosParaSelect(),
             filtrosEstagio: estagiosParaSelect(),
+            categoriasPiloto: CATEGORIAS_MELHORIA_PILOTO,
             tipoProtocolo: 'melhoria'
         });
     } catch (err) {
@@ -383,8 +407,8 @@ router.get('/gestao_de_melhorias/detalhes/:id', async (req, res) => {
             .populate('comentarios.usuario')
             .lean();
 
-        if (!chamadoDoc) {
-            req.flash("error_msg", "Este chamado não foi encontrada.");
+        if (!chamadoDoc || !podeVerChamado(chamadoDoc, req.user)) {
+            req.flash("error_msg", "Este chamado está em análise pela moderação ou restrito ao autor.");
             return res.redirect("/categories/gestao_de_melhorias/hub");
         }
 
@@ -393,21 +417,22 @@ router.get('/gestao_de_melhorias/detalhes/:id', async (req, res) => {
 
         const eDono = ehDonoDoPost(req, chamadoDoc);
         const status = normalizarStatus(chamadoDoc.status);
+        const moderacao = statusModeracaoDe(chamadoDoc);
 
         res.render("categories/gestao_de_melhorias/detalhes", {
             chamadoDoc: {
                 ...chamadoDoc,
-                usuario: formatAuthor(chamadoDoc.usuario),
+                usuario: anonimizarAutor(formatAuthor(chamadoDoc.usuario), chamadoDoc),
                 curtidas: curtidas,
                 comentarios: formatComments(chamadoDoc.comentarios),
                 imagens: chamadoDoc.imagens || [],
                 status,
                 estagio: estagioDe(status),
-                // O cartão lateral mostra o estágio real e o prazo, em vez do
-                // texto fixo que ficava desatualizado.
+                moderacao,
                 prazo: prazoDoProtocolo(chamadoDoc, 'melhoria'),
                 limite: dataLimite(chamadoDoc.dataCriacao, prazoDoProtocolo(chamadoDoc, 'melhoria').dias)
             },
+            comprovante: montarComprovanteEmail(chamadoDoc, 'melhoria'),
             jaCurtiu,
             eDono,
             podeAcompanhar: eDono || Boolean(req.user && req.user.areAdmin),
@@ -452,9 +477,12 @@ router.post('/gestao_de_melhorias/comentar/:id', async (req, res) => {
         }
 
         const validacao = comentarioSchema.safeParse(req.body);
-        if (!idValido(req.params.id) || !validacao.success) {
-            req.flash('error_msg', 'Comentário inválido.');
+        if (!idValido(req.params.id)) {
             return res.redirect('/categories/gestao_de_melhorias/hub');
+        }
+        if (!validacao.success) {
+            req.flash('error_msg', primeiraMensagem(validacao.error));
+            return res.redirect(`/categories/gestao_de_melhorias/detalhes/${req.params.id}`);
         }
 
         const novoComentario = {
@@ -481,14 +509,17 @@ router.get('/denuncias_sigilosas/saiba-mais', (req, res) => {
 });
 
 router.get('/denuncias_sigilosas/abrir-denuncia', isUser, (req, res) => {
-    res.render('categories/denuncias_sigilosas/abrir-denuncia');
+    res.render('categories/denuncias_sigilosas/abrir-denuncia', {
+        tiposOcorrenciaPiloto: TIPOS_OCORRENCIA_PILOTO,
+        bairrosCarius: BAIRROS_CARIUS
+    });
 });
 
 router.get(
     '/denuncias_sigilosas/hub/buscar',
     montarBuscaDeHub({
         Modelo: Denuncia,
-        campos: ['titulo', 'descricao', 'localizacao', 'tipoOcorrencia'],
+        campos: ['titulo', 'descricao', 'localizacao', 'tipoOcorrencia', 'bairro'],
         colecao: 'denuncias',
         partial: '_cards_denuncias',
         preparar: prepararChamado,
@@ -503,26 +534,19 @@ router.get('/denuncias_sigilosas/hub', async (req, res) => {
             'titulo',
             'descricao',
             'localizacao',
-            'tipoOcorrencia'
+            'tipoOcorrencia',
+            'bairro'
         ]);
 
-        // Denúncia sigilosa não aparece para quem não é o autor nem a gestão.
+        // Exibe apenas denúncias públicas E formalmente aprovadas pela moderação
         const denunciasDocs = await Denuncia.find(combinarFiltros(filtroDeSigilo(), filtro))
             .select(PROJECAO_HUB)
+            .populate('usuario', 'name profileImage profession')
             .sort({ dataCriacao: -1 })
             .limit(60)
             .lean();
 
-        const denunciasComLike = denunciasDocs.map(denuncia => {
-            const curtidasArray = denuncia.curtidas || [];
-            return comEstagio({
-                ...denuncia,
-                curtidas: curtidasArray,
-                // Mapeia a primeira URL do Cloudinary para imagemPrincipal
-                imagemPrincipal: denuncia.imagens && denuncia.imagens.length > 0 ? denuncia.imagens[0] : null,
-                jaCurtiu: req.user ? curtidasArray.some(id => id.toString() === req.user._id.toString()) : false
-            });
-        });
+        const denunciasComLike = denunciasDocs.map(denuncia => prepararChamado(denuncia, req));
 
         res.render('categories/denuncias_sigilosas/hub', {
             denuncias: denunciasComLike,
@@ -530,7 +554,7 @@ router.get('/denuncias_sigilosas/hub', async (req, res) => {
             total: denunciasComLike.length,
             estagios: estagiosParaSelect(),
             filtrosEstagio: estagiosParaSelect(),
-            filtrosOcorrencia: TIPOS_OCORRENCIA,
+            filtrosOcorrencia: TIPOS_OCORRENCIA_PILOTO,
             tipoProtocolo: 'denuncia'
         });
     } catch (err) {
@@ -540,7 +564,7 @@ router.get('/denuncias_sigilosas/hub', async (req, res) => {
     }
 });
 
-router.post('/denuncias_sigilosas/abrir-denuncia', Limiter, isUser, evidenciaPublicacao, async (req, res) => {
+router.post('/denuncias_sigilosas/abrir-denuncia', Limiter, isUser, upload.none(), evidenciaPublicacao, async (req, res) => {
     try {
         const validacao = denunciaSchema.safeParse(req.body);
 
@@ -549,31 +573,42 @@ router.post('/denuncias_sigilosas/abrir-denuncia', Limiter, isUser, evidenciaPub
             return res.redirect('/categories/denuncias_sigilosas/abrir-denuncia');
         }
 
-        const { tipoOcorrencia, titulo, descricao, localizacao, latitude, longitude } = validacao.data;
+        const { tipoOcorrencia, bairro, titulo, descricao, localizacao, latitude, longitude } = validacao.data;
 
-        // Só entram no banco URLs originadas do nosso Cloudinary.
         const imagensCloudinary = normalizarMidias(
-            req.body['imagens_urls[]'] || req.body.imagens_urls, 3
+            req.body['imagens_urls[]'] || req.body.imagens_urls || req.body['imagens[]'] || req.body.imagens, 3
         );
 
-        const novaDenuncia = {
+        const bairroResolvido = bairro || extrairBairro(validacao.data);
+
+        const novaDenuncia = new Denuncia({
             ...req.evidencia,
             tipoOcorrencia,
+            bairro: bairroResolvido,
             titulo: tipoOcorrencia === 'Outro' && titulo ? titulo : tipoOcorrencia,
             descricao,
             localizacao,
             latitude,
             longitude,
             imagens: imagensCloudinary,
-            // Só foco de incêndio nasce público; o resto fica sob sigilo.
             privada: nasceSigilosa(tipoOcorrencia),
-            // URL do vídeo vinda do input hidden preenchido pelo script do front
             video: normalizarVideo(req.body.video_url),
-            usuario: req.user._id
-        };
+            usuario: req.user._id,
+            moderacao: {
+                status: 'pendente',
+                trilha: [{
+                    acao: 'retido',
+                    detalhe: 'Denúncia recebida e retida na fila de moderação prévia do piloto.',
+                    createdAt: new Date()
+                }]
+            }
+        });
 
-        await new Denuncia(novaDenuncia).save();
-        req.flash('success_msg', 'Denúncia enviada com sucesso!');
+        await novaDenuncia.save();
+
+        const comprovante = montarComprovanteEmail(novaDenuncia, 'denuncia');
+        req.flash('comprovante_protocolo', JSON.stringify(comprovante));
+        req.flash('success_msg', `Denúncia registrada sob o protocolo ${comprovante.numero}! O relato está retido na moderação prévia e visível apenas para você e para a equipe administrativa.`);
         res.redirect('/categories/denuncias_sigilosas/hub');
     } catch (err) {
         console.error("Erro ao salvar denúncia:", err);
@@ -599,9 +634,8 @@ router.get('/denuncias_sigilosas/detalhes/:id', async (req, res) => {
             return res.redirect("/categories/denuncias_sigilosas/hub");
         }
 
-        // Sigilo vale também no acesso direto pela URL.
         if (!podeVerDenuncia(denuncia, req.user)) {
-            req.flash("error_msg", "Esta denúncia é sigilosa: só o autor e a gestão municipal têm acesso.");
+            req.flash("error_msg", "Esta denúncia é sigilosa ou está em moderação: só o autor e a gestão municipal têm acesso.");
             return res.redirect("/categories/denuncias_sigilosas/hub");
         }
 
@@ -610,22 +644,23 @@ router.get('/denuncias_sigilosas/detalhes/:id', async (req, res) => {
 
         const eDono = ehDonoDoPost(req, denuncia);
         const status = normalizarStatus(denuncia.status);
+        const moderacao = statusModeracaoDe(denuncia);
 
         res.render("categories/denuncias_sigilosas/detalhes", {
             denuncia: {
                 ...denuncia,
-                // Sigilosa não revela o denunciante em tela nenhuma.
                 usuario: anonimizarAutor(formatAuthor(denuncia.usuario), denuncia),
                 curtidas: curtidas,
                 comentarios: formatComments(denuncia.comentarios),
                 imagens: denuncia.imagens || [],
-                // Garante que o campo video chegue ao template (pode ser a URL do Cloudinary)
                 video: denuncia.video || null,
                 status,
                 estagio: estagioDe(status),
+                moderacao,
                 prazo: prazoDoProtocolo(denuncia, 'denuncia'),
                 limite: dataLimite(denuncia.dataCriacao, prazoDoProtocolo(denuncia, 'denuncia').dias)
             },
+            comprovante: montarComprovanteEmail(denuncia, 'denuncia'),
             jaCurtiu,
             eDono,
             podeAcompanhar: eDono || Boolean(req.user && req.user.areAdmin),
@@ -666,9 +701,12 @@ router.post('/denuncias_sigilosas/comentar/:id', async (req, res) => {
     }
     try {
         const validacao = comentarioSchema.safeParse(req.body);
-        if (!idValido(req.params.id) || !validacao.success) {
-            req.flash("error_msg", "Comentário inválido.");
+        if (!idValido(req.params.id)) {
             return res.redirect("/categories/denuncias_sigilosas/hub");
+        }
+        if (!validacao.success) {
+            req.flash("error_msg", primeiraMensagem(validacao.error));
+            return res.redirect(req.get('referer') || "/categories/denuncias_sigilosas/hub");
         }
 
         const novaCita = {
@@ -728,9 +766,8 @@ router.get('/vitrine_do_trabalhador/hub', async (req, res) => {
             const curtidasArray = anuncio.curtidas || []; 
             return {
                 ...anuncio,
-                usuario: formatAuthor(anuncio.usuario),
+                usuario: anonimizarAutor(formatAuthor(anuncio.usuario), anuncio),
                 curtidas: curtidasArray,
-                // Garante uma imagem de capa para o card do HUB
                 imagemPrincipal: anuncio.imagens && anuncio.imagens.length > 0 ? anuncio.imagens[0] : null,
                 jaCurtiu: req.user ? curtidasArray.some(id => id.toString() === req.user._id.toString()) : false
             };
@@ -777,11 +814,10 @@ router.get('/vitrine_do_trabalhador/detalhes/:id', async (req, res) => {
             linkEditar: `/categories/vitrine_do_trabalhador/editar/${vitrineDoc._id}`,
             vitrine: {
                 ...vitrineDoc,
-                usuario: formatAuthor(vitrineDoc.usuario),
+                usuario: anonimizarAutor(formatAuthor(vitrineDoc.usuario), vitrineDoc),
                 curtidas: curtidas,
                 comentarios: formatComments(vitrineDoc.comentarios),
                 imagens: vitrineDoc.imagens || [],
-                // Garante que a categoria exibida seja a especificada se for "Outros"
                 categoriaExibida: vitrineDoc.categoria === 'Outros' ? vitrineDoc.categoria_especificada : vitrineDoc.categoria
             }, 
             jaCurtiu 
@@ -815,9 +851,12 @@ router.post('/vitrine_do_trabalhador/curtir/:id', isUser, async (req, res) => {
 router.post('/vitrine_do_trabalhador/comentar/:id', isUser, async (req, res) => {
     try {
         const validacao = comentarioSchema.safeParse(req.body);
-        if (!idValido(req.params.id) || !validacao.success) {
-            req.flash("error_msg", "Comentário inválido.");
+        if (!idValido(req.params.id)) {
             return res.redirect("/categories/vitrine_do_trabalhador/hub");
+        }
+        if (!validacao.success) {
+            req.flash("error_msg", primeiraMensagem(validacao.error));
+            return res.redirect(req.get('referer') || "/categories/vitrine_do_trabalhador/hub");
         }
 
         const novoComentario = {
@@ -849,7 +888,6 @@ router.post('/vitrine_do_trabalhador/criar-vitrine', isUser, Limiter, upload.non
 
         const dados = validacao.data;
 
-        // Só entram no banco URLs originadas do nosso Cloudinary.
         const imagensVitrine = normalizarMidias(
             req.body['imagens_urls[]'] || req.body.imagens_urls
         );
@@ -883,12 +921,10 @@ router.post('/vitrine_do_trabalhador/criar-vitrine', isUser, Limiter, upload.non
     }
 });
 
-
 /* ------------------------------------------------------------------------
  * Curtir, comentar e listar comentários — genéricos para os três eixos.
  * ---------------------------------------------------------------------- */
 
-// Alterna a curtida. Responde JSON para o botão atualizar no lugar.
 router.post('/:eixo/curtida/:id', async (req, res) => {
     const eixo = eixoDeInteracao(req.params.eixo);
     const fetchando = ehPedidoDeFetch(req);
@@ -924,7 +960,6 @@ router.post('/:eixo/curtida/:id', async (req, res) => {
     }
 });
 
-// Lista os comentários — é o que o modal carrega ao abrir.
 router.get('/:eixo/comentarios/:id', async (req, res) => {
     const eixo = eixoDeInteracao(req.params.eixo);
 
@@ -943,7 +978,6 @@ router.get('/:eixo/comentarios/:id', async (req, res) => {
     }
 });
 
-// Comenta e devolve a lista atualizada, para o modal não recarregar a página.
 router.post('/:eixo/comentario/:id', Limiter, async (req, res) => {
     const eixo = eixoDeInteracao(req.params.eixo);
     const fetchando = ehPedidoDeFetch(req);
@@ -994,14 +1028,6 @@ router.post('/:eixo/comentario/:id', Limiter, async (req, res) => {
     }
 });
 
-
-/*
- * Editar e excluir comentário.
- *
- * Editar é só de quem escreveu — nem a gestão reescreve a fala de alguém.
- * Excluir é de quem escreveu ou de um administrador, que precisa poder tirar
- * comentário impróprio de qualquer pessoa.
- */
 async function acharComentario(Modelo, id, comentarioId, usuario, { exigirAutoria }) {
     if (!idValido(id) || !idValido(comentarioId)) {
         return { erro: 'Comentário não encontrado.', status: 400 };

@@ -1,19 +1,35 @@
 <header class="py-5 text-white shadow-lg" style="background: linear-gradient(145deg, #1d3557 0%, #e63946 100%); border-bottom: 5px solid #ffc107;">
     <div class="container px-4">
         <div class="row align-items-center g-3">
-            <div class="col-lg-8">
+            <div class="col-lg-7">
                 <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold mb-3">
-                    <i class="bi bi-shield-lock-fill me-1"></i> ÁREA RESTRITA
+                    <i class="bi bi-shield-lock-fill me-1"></i> ÁREA RESTRITA • ASSESSORIA MUNICIPAL
                 </span>
-                <h1 class="display-5 fw-bolder mb-2">Painel de Protocolos</h1>
-                <p class="lead mb-0 opacity-75 fw-light">
-                    Gestão de melhorias e denúncias sigilosas de Cariús.
+                <h1 class="display-5 fw-bolder mb-2">Painel de Protocolos e Moderação</h1>
+                <p class="lead mb-3 opacity-75 fw-light">
+                    Triagem prévia, edição de civilidade, encaminhamento institucional e gestão de chamados e denúncias de Cariús.
                 </p>
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="/admin/metricas" class="btn btn-warning text-dark fw-bold rounded-pill px-4 shadow-sm">
+                        <i class="bi bi-bar-chart-line-fill me-1"></i> Dashboard Executivo (Piloto 90 Dias)
+                    </a>
+                    <a href="/admin" class="btn btn-outline-light rounded-pill px-3">
+                        <i class="bi bi-shield-check me-1"></i> Diretrizes Éticas
+                    </a>
+                </div>
             </div>
-            <div class="col-lg-4 text-lg-end">
-                <div class="d-inline-block bg-white bg-opacity-10 border border-light border-opacity-25 rounded-4 px-4 py-3">
-                    <div class="small text-uppercase text-white-50 fw-bold">Protocolos listados</div>
-                    <div class="display-6 fw-bold">{{totalGeral}}</div>
+            <div class="col-lg-5 text-lg-end">
+                <div class="d-inline-flex flex-wrap gap-3 justify-content-lg-end">
+                    <div class="bg-warning text-dark rounded-4 px-4 py-3 text-start shadow-sm">
+                        <div class="small text-uppercase fw-bold opacity-75">Fila de Moderação</div>
+                        <div class="display-6 fw-bold">{{totalPendentesModeracao}}</div>
+                        <div class="small fw-semibold">aguardando triagem</div>
+                    </div>
+                    <div class="bg-white bg-opacity-10 border border-light border-opacity-25 rounded-4 px-4 py-3 text-start">
+                        <div class="small text-uppercase text-white-50 fw-bold">Total listado</div>
+                        <div class="display-6 fw-bold">{{totalGeral}}</div>
+                        <div class="small text-white-50">protocolos</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -68,6 +84,16 @@
                 </form>
 
                 <div class="filtros-grupo mt-3">
+                    <span class="filtros-rotulo">Moderação Prévia</span>
+                    <button type="button" class="btn-filtro ativo" data-filtro="moderacao" data-valor="">Todos</button>
+                    {{#each resumoModeracao}}
+                        <button type="button" class="btn-filtro" data-filtro="moderacao" data-valor="{{this.chave}}">
+                            <i class="bi {{this.icone}}"></i>{{this.rotulo}} ({{this.total}})
+                        </button>
+                    {{/each}}
+                </div>
+
+                <div class="filtros-grupo mt-2">
                     <span class="filtros-rotulo">Categoria</span>
                     <button type="button" class="btn-filtro ativo" data-filtro="tipo" data-valor="">Todas</button>
                     {{#each eixos}}

@@ -3,8 +3,7 @@
  * abriu a demanda e a gestão municipal.
  *
  * Vale para Gestão de Melhorias e Denúncias Sigilosas. A thread é privada:
- * só o autor do post e administradores acessam. O post em si segue público
- * no hub; o que fica restrito é a conversa do atendimento.
+ * só o autor do post e administradores acessam.
  */
 import express from 'express';
 import mongoose from 'mongoose';
@@ -27,13 +26,14 @@ import {
     ehRegistroDeEstagio,
     anonimizarAutor,
     ehDenunciaSigilosa,
-    protocoloEncerrado,
+    statusModeracaoDe,
+    montarComprovanteEmail,
+    ORGAOS_ENCAMINHAMENTO,
     montarRecurso,
     LISTA_ESTAGIOS
 } from '../helpers/protocolo.js';
 import {
     respostaProtocoloSchema,
-    statusProtocoloSchema,
     normalizarMidias,
     primeiraMensagem,
     buscaSchema,
@@ -48,10 +48,6 @@ const router = express.Router();
 const modeloDo = (tipo) => mongoose.model(EIXOS_COM_PROTOCOLO[tipo].model);
 const ehAdmin = (user) => Boolean(user && user.areAdmin);
 
-/*
- * Carrega o protocolo e decide se quem pediu pode vê-lo. Concentrar isso num
- * único middleware evita que uma rota nova esqueça a checagem de permissão.
- */
 async function carregarProtocolo(req, res, next) {
     const { tipo, id } = req.params;
 
@@ -89,16 +85,15 @@ async function carregarProtocolo(req, res, next) {
     }
 }
 
-// Monta os dados que a linha do tempo precisa, já com estágio e prazo resolvidos.
+// Monta os dados que a linha do tempo precisa, já com estágio, moderação, comprovante e prazo resolvidos.
 function montarProtocolo(doc, tipo, usuario = null) {
     const eixo = EIXOS_COM_PROTOCOLO[tipo];
     const status = normalizarStatus(doc.status);
     const prazo = prazoDoProtocolo(doc, tipo);
+    const moderacao = statusModeracaoDe(doc);
+    const comprovante = montarComprovanteEmail(doc, tipo);
 
-    // Numa denúncia sigilosa ninguém — nem a gestão que responde — fica
-    // sabendo quem denunciou. O vínculo continua no banco para o autor
-    // acompanhar o protocolo; o que não sai daqui é a identidade.
-    const sigilosa = tipo === 'denuncia' && ehDenunciaSigilosa(doc);
+    const sigilosa = Boolean(doc.isConfidential) || (tipo === 'denuncia' && ehDenunciaSigilosa(doc));
 
     return {
         ...doc,
@@ -106,6 +101,8 @@ function montarProtocolo(doc, tipo, usuario = null) {
         eixo,
         status,
         estagio: estagioDe(status),
+        moderacao,
+        comprovante,
         prazo,
         limite: dataLimite(doc.dataCriacao, prazo.dias),
         numero: numeroDoProtocolo(doc, tipo),
@@ -122,14 +119,9 @@ function montarProtocolo(doc, tipo, usuario = null) {
 
             return {
                 ...item,
-                // Mensagem do cidadão numa denúncia sigilosa também é anônima;
-                // a da gestão continua identificada, para o cidadão saber com
-                // quem está falando.
                 autor: sigilosa && item.papel === 'cidadao' ? anonimizarAutor(autorReal, doc) : autorReal,
                 ehAdmin: item.papel === 'admin',
                 podeEditar: minha,
-                // O registro de troca de estágio faz parte do histórico do
-                // atendimento: o texto pode ser corrigido, o registro não some.
                 podeExcluir: minha && !registroDeEstagio,
                 registroDeEstagio
             };
@@ -137,7 +129,6 @@ function montarProtocolo(doc, tipo, usuario = null) {
     };
 }
 
-// Guarda a data em que cada lado abriu a conversa, para o aviso de novidade sumir.
 async function marcarComoLido(tipo, doc, { eDono, eAdmin }) {
     const campos = {};
     if (eDono) campos.vistoPeloAutorEm = new Date();
@@ -148,15 +139,10 @@ async function marcarComoLido(tipo, doc, { eDono, eAdmin }) {
     try {
         await modeloDo(tipo).updateOne({ _id: doc._id }, { $set: campos });
     } catch (err) {
-        // Falhar aqui não pode impedir a leitura do protocolo.
         console.error('Erro ao marcar protocolo como lido:', err);
     }
 }
 
-/*
- * Carrega os protocolos do usuário, opcionalmente filtrados por um termo.
- * A mesma função serve à página e à busca em tempo real.
- */
 async function protocolosDoUsuario(req, termo) {
     const filtro = { usuario: req.user._id };
 
@@ -231,15 +217,14 @@ router.get('/:tipo/:id', isUser, carregarProtocolo, async (req, res) => {
 
     const protocolo = montarProtocolo(doc, tipo, req.user);
 
-    // A montagem acontece antes de marcar como lido, senão o próprio acesso
-    // apagaria o destaque das mensagens que o leitor ainda não tinha visto.
     await marcarComoLido(tipo, doc, { eDono, eAdmin });
 
     res.render('protocolos/timeline', {
         protocolo,
         eDono,
         eAdmin,
-        estagios: LISTA_ESTAGIOS.map((chave) => estagioDe(chave))
+        estagios: LISTA_ESTAGIOS.map((chave) => estagioDe(chave)),
+        orgaosEncaminhamento: ORGAOS_ENCAMINHAMENTO
     });
 });
 
@@ -255,7 +240,6 @@ router.post('/:tipo/:id/responder', isUser, carregarProtocolo, async (req, res) 
         return res.redirect(destino);
     }
 
-    // Uma imagem por resposta, e só do nosso Cloudinary.
     const [imagem] = normalizarMidias(req.body['imagem_url'] || req.body.imagem_url, 1);
 
     try {
@@ -271,8 +255,6 @@ router.post('/:tipo/:id/responder', isUser, carregarProtocolo, async (req, res) 
             }
         });
 
-        // Só a resposta da GESTÃO gera aviso: o cidadão não precisa receber
-        // e-mail da própria mensagem, e a gestão acompanha pelo painel.
         if (eAdmin && !eDono) {
             const autor = await mongoose
                 .model('users')
@@ -303,11 +285,6 @@ router.post('/:tipo/:id/responder', isUser, carregarProtocolo, async (req, res) 
     }
 });
 
-/*
- * Localiza uma mensagem do histórico e confere se quem pediu é o autor dela.
- * É esta checagem que garante a regra: cidadão não mexe em mensagem da gestão
- * e a gestão não mexe em mensagem do cidadão.
- */
 function encontrarMensagem(doc, msgId, usuario) {
     if (!mongoose.Types.ObjectId.isValid(msgId)) {
         return { erro: 'Mensagem não encontrada.' };
@@ -345,8 +322,6 @@ router.post('/:tipo/:id/mensagem/:msgId/editar', isUser, carregarProtocolo, asyn
         return res.redirect(destino);
     }
 
-    // A imagem só muda se vier uma nova ou se for pedida a remoção; do
-    // contrário fica como está.
     const [imagemNova] = normalizarMidias(req.body['imagem_url'] || req.body.imagem_url, 1);
     const removerImagem = req.body.remover_imagem === '1';
     const imagem = imagemNova || (removerImagem ? null : mensagem.imagem || null);
@@ -404,13 +379,7 @@ router.post('/:tipo/:id/mensagem/:msgId/excluir', isUser, carregarProtocolo, asy
     }
 });
 
-/*
- * Recurso contra o arquivamento.
- *
- * Só o autor abre, só quando a gestão marcou como Improcedente, e só uma vez:
- * o recurso é a chance de argumentar que a demanda é pertinente, não um canal
- * de mensagens paralelo (para isso existe a linha do tempo).
- */
+// --- RECURSO CONTRA ARQUIVAMENTO ---
 router.post('/:tipo/:id/recurso', isUser, carregarProtocolo, async (req, res) => {
     const { doc, tipo, eDono } = req.protocolo;
     const destino = `/protocolos/${tipo}/${doc._id}`;
@@ -437,7 +406,6 @@ router.post('/:tipo/:id/recurso', isUser, carregarProtocolo, async (req, res) =>
         return res.redirect(destino);
     }
 
-    // Um anexo só, e só se veio do nosso Cloudinary.
     const arquivo = normalizarAnexo(req.body.arquivo_url);
     const nomeArquivo = arquivo ? nomeDeArquivoSeguro(req.body.arquivo_nome) : null;
 

@@ -105,7 +105,7 @@ try {
     console.log('OK OTP: hash, cooldown concorrente, uso único, cinco tentativas, expiração e versão.');
 
     const evidence = { declaredAccuracy: true, authorIpAddress: '127.0.0.1', authorUserAgent: 'teste' };
-    const doc = await Chamado.create({ ...evidence, titulo: 'Teste de auditoria', descricao: 'Descrição válida de teste', localizacao: 'Centro', usuario: user._id, isConfidential: true });
+    const doc = await Chamado.create({ ...evidence, titulo: 'Teste de auditoria', descricao: 'Descrição válida de teste', localizacao: 'Centro', usuario: user._id, isConfidential: true, moderacao: { status: 'aprovado' } });
     await assert.rejects(Chamado.create({ titulo: 'Sem aceite', descricao: 'Descrição válida', localizacao: 'Centro' }));
     const created = await Chamado.findById(doc._id).select('+authorIpAddress');
     created.authorIpAddress = '1.1.1.1'; created.declaredAccuracy = false;

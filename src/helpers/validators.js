@@ -1,11 +1,11 @@
 import { z } from 'zod';
+import { analisarCivilidade, MENSAGEM_REESCRITA_CIVILIDADE } from './filtro-conteudo.js';
 
 // ---------------------------------------------------------------------------
-// Regras de validação e sanitização das entradas do usuário
+// Regras de validação, sanitização e civilidade das entradas do usuário
 // ---------------------------------------------------------------------------
 // Nada que chega do navegador é confiável: além de checar formato e tamanho,
-// removemos tags HTML dos campos livres. O Handlebars já escapa na saída, mas
-// evitar que a marcação sequer entre no banco é a segunda camada de defesa.
+// removemos tags HTML dos campos livres e validamos a civilidade do conteúdo.
 
 const removerTags = (texto) =>
     String(texto)
@@ -13,19 +13,27 @@ const removerTags = (texto) =>
         .replace(/[\u0000-\u001F\u007F]/g, ' ')
         .trim();
 
-const textoLimpo = (min, max, campo) =>
+const textoLimpo = (min, max, campo, { checarCivilidade = true } = {}) =>
     z
         .string({ required_error: `${campo} é obrigatório.`, invalid_type_error: `${campo} inválido.` })
         .transform(removerTags)
         .refine((v) => v.length >= min, { message: `${campo} precisa ter ao menos ${min} caractere(s).` })
-        .refine((v) => v.length <= max, { message: `${campo} pode ter no máximo ${max} caracteres.` });
+        .refine((v) => v.length <= max, { message: `${campo} pode ter no máximo ${max} caracteres.` })
+        .refine((v) => !checarCivilidade || analisarCivilidade(v).aprovado, {
+            message: MENSAGEM_REESCRITA_CIVILIDADE
+        });
 
 // z.preprocess (e não union com z.undefined) porque no Zod 4 uma chave ausente
 // no corpo da requisição não satisfaz z.undefined dentro de union.
-const textoOpcional = (max, campo) =>
+const textoOpcional = (max, campo, { checarCivilidade = true } = {}) =>
     z.preprocess(
         (v) => (v === undefined || v === null ? '' : removerTags(v)),
-        z.string().max(max, { message: `${campo} pode ter no máximo ${max} caracteres.` })
+        z
+            .string()
+            .max(max, { message: `${campo} pode ter no máximo ${max} caracteres.` })
+            .refine((v) => !checarCivilidade || !v || analisarCivilidade(v).aprovado, {
+                message: MENSAGEM_REESCRITA_CIVILIDADE
+            })
     );
 
 const coordenada = (limite) =>
@@ -68,8 +76,6 @@ export function normalizarVideo(url) {
 const MIMES_PERMITIDOS = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
 const TAMANHO_MAXIMO_AVATAR = 5 * 1024 * 1024; // 5 MB
 
-// Confere o cabeçalho declarado e a assinatura binária real do arquivo
-// (magic numbers), já que a extensão ou o mime informado podem ser forjados.
 const ASSINATURAS = [
     [0x89, 0x50, 0x4e, 0x47], // PNG
     [0xff, 0xd8, 0xff], // JPEG
@@ -125,6 +131,27 @@ export function validarImagemBase64(entrada) {
     return { base64: entrada };
 }
 
+// --- Categorias do Escopo do Piloto de 90 Dias ---
+export const CATEGORIAS_MELHORIA_VALIDAS = [
+    'Iluminação Pública',
+    'Reparo de Vias e Estradas',
+    'Coleta de Lixo e Entulho',
+    'Saneamento e Drenagem',
+    'Limpeza e Zeladoria Urbana',
+    'Gestão de Melhorias'
+];
+
+export const TIPOS_OCORRENCIA_VALIDOS = [
+    'Foco de Queimada',
+    'Descarte Irregular de Lixo',
+    'Maus-tratos contra Animais',
+    'Poluição Sonora',
+    'Vandalismo',
+    'Obstrução de Via ou Calçada',
+    'Tráfico ou Uso de Drogas',
+    'Outro'
+];
+
 // --- Esquemas por formulário ---
 export const registroSchema = z
     .object({
@@ -163,6 +190,13 @@ export const trocaDeSenhaSchema = z
     });
 
 export const chamadoSchema = z.object({
+    categoria: z.preprocess(
+        (v) => (v === undefined || v === null || String(v).trim() === '' ? 'Gestão de Melhorias' : removerTags(v)),
+        z.string().refine((v) => CATEGORIAS_MELHORIA_VALIDAS.includes(v), {
+            message: 'Selecione uma categoria válida de zeladoria urbana do piloto.'
+        })
+    ),
+    bairro: textoOpcional(80, 'Bairro'),
     titulo: textoLimpo(4, 120, 'Título'),
     descricao: textoLimpo(10, 3000, 'Descrição'),
     localizacao: textoLimpo(3, 200, 'Localização'),
@@ -170,21 +204,12 @@ export const chamadoSchema = z.object({
     longitude: coordenada(180)
 });
 
-export const TIPOS_OCORRENCIA_VALIDOS = [
-    'Foco de Queimada',
-    'Descarte Irregular de Lixo',
-    'Maus-tratos contra Animais',
-    'Poluição Sonora',
-    'Vandalismo',
-    'Tráfico ou Uso de Drogas',
-    'Outro'
-];
-
 export const denunciaSchema = z.object({
     tipoOcorrencia: textoLimpo(2, 80, 'Tipo de ocorrência').refine(
         (v) => TIPOS_OCORRENCIA_VALIDOS.includes(v),
-        { message: 'Selecione um tipo de ocorrência válido.' }
+        { message: 'Selecione um tipo de ocorrência válido do piloto.' }
     ),
+    bairro: textoOpcional(80, 'Bairro'),
     titulo: textoOpcional(120, 'Título'),
     descricao: textoLimpo(10, 3000, 'Descrição'),
     localizacao: textoLimpo(3, 200, 'Localização'),
@@ -207,6 +232,19 @@ export const vitrineSchema = z.object({
 
 export const comentarioSchema = z.object({
     texto: textoLimpo(1, 1000, 'Comentário')
+});
+
+// --- Schema de Moderação Prévia (Assessor Governamental) ---
+export const ACOES_MODERACAO_VALIDAS = ['aprovar', 'editar_aprovar', 'editar_texto', 'bloquear', 'encaminhar'];
+
+export const moderacaoSchema = z.object({
+    acao: z.enum(ACOES_MODERACAO_VALIDAS, { error: () => 'Ação de moderação inválida.' }),
+    titulo: textoOpcional(120, 'Título revisado'),
+    descricao: textoOpcional(3000, 'Descrição revisada'),
+    orgaoEncaminhado: textoOpcional(120, 'Órgão de destino', { checarCivilidade: false }),
+    motivoBloqueio: textoOpcional(500, 'Motivo do bloqueio', { checarCivilidade: false }),
+    notaModeracao: textoOpcional(1000, 'Nota da moderação', { checarCivilidade: false }),
+    liberarNoHub: z.preprocess((v) => v === '1' || v === 'true' || v === true, z.boolean())
 });
 
 // Converte o erro do Zod na primeira mensagem legível para o usuário.
@@ -246,7 +284,7 @@ export const statusProtocoloSchema = z.object({
 // Busca: o termo vai virar expressão regular no Mongo, então escapamos tudo que
 // tem significado especial — sem isso um ".*" do usuário varreria a coleção.
 export const buscaSchema = z.object({
-    q: textoOpcional(100, 'Busca')
+    q: textoOpcional(100, 'Busca', { checarCivilidade: false })
 });
 
 export function escaparRegex(termo) {
@@ -263,16 +301,10 @@ export const respostaRecursoSchema = z.object({
     texto: textoOpcional(2000, 'Resposta ao recurso')
 });
 
-/*
- * Anexo do recurso: um arquivo só, de qualquer tipo aceito (PDF, DOCX,
- * imagem...). Como o upload vai direto do navegador para o Cloudinary, o que
- * validamos aqui é a origem da URL — o mesmo critério das imagens.
- */
 export function normalizarAnexo(url) {
     return urlDeMidiaValida(url) ? url : null;
 }
 
-// O nome original serve so para exibir o link; nunca vira caminho no servidor.
 export function nomeDeArquivoSeguro(nome) {
     if (typeof nome !== 'string') return null;
 

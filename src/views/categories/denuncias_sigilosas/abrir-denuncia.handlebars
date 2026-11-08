@@ -5,11 +5,38 @@
                 
                 <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
                     <div class="card-header p-4 border-0 text-center" style="background-color: #dc3545;">
+                        <span class="badge bg-warning text-dark rounded-pill px-3 py-1 fw-bold small mb-2">
+                            <i class="bi bi-shield-check me-1"></i>TRIAGEM ADMINISTRATIVA • PILOTO 90 DIAS
+                        </span>
                         <h3 class="text-white fw-bold mb-0"><i class="bi bi-shield-lock-fill me-2"></i>Nova Denúncia Sigilosa</h3>
                         <p class="text-white-50 mb-0 small text-uppercase tracking-wider">Sua identidade está protegida por criptografia</p>
                     </div>
                     
                     <div class="card-body p-4 p-md-5 bg-white">
+
+                        {{!-- AVISO DE EMERGÊNCIA (190 e 181) --}}
+                        <div class="alert border-0 rounded-4 mb-4 p-3 shadow-sm"
+                             style="background: #fff0f1; border: 2px solid #dc3545 !important;">
+                            <div class="d-flex align-items-start gap-3">
+                                <i class="bi bi-telephone-inbound-fill text-danger fs-3 flex-shrink-0"></i>
+                                <div class="small">
+                                    <strong class="d-block text-danger text-uppercase mb-1">Atenção: Canal Cívico — Emergências Ligue 190 ou 181</strong>
+                                    O Portal Voz Ativa é um canal cívico de triagem administrativa e zeladoria. <strong>Ocorrências graves em tempo real, crimes em andamento ou risco imediato à vida devem ser comunicados imediatamente aos telefones oficiais de segurança:</strong>
+                                    <div class="d-flex flex-wrap gap-2 mt-2">
+                                        <a href="tel:190" class="btn btn-sm btn-danger rounded-pill fw-bold px-3">
+                                            <i class="bi bi-telephone-fill me-1"></i>190 • Polícia Militar
+                                        </a>
+                                        <a href="tel:181" class="btn btn-sm btn-dark rounded-pill fw-bold px-3">
+                                            <i class="bi bi-shield-lock-fill me-1"></i>181 • Disque-Denúncia
+                                        </a>
+                                        <a href="tel:193" class="btn btn-sm btn-outline-danger rounded-pill fw-bold px-3">
+                                            <i class="bi bi-fire me-1"></i>193 • Bombeiros
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <form id="mainForm" action="/categories/denuncias_sigilosas/abrir-denuncia" method="POST">
                         <input type="hidden" name="_csrf" value="{{csrfToken}}">
 
@@ -22,29 +49,47 @@
                                 A denúncia gera um número de protocolo e o prazo de resposta varia com a
                                 urgência: <strong>2 dias úteis</strong> para focos de queimada,
                                 <strong>3 dias</strong> para maus-tratos a animais e
-                                <strong>5 dias úteis</strong> para as demais ocorrências. O acompanhamento
+                                <strong>5 dias úteis</strong> para as demais ocorrências. Todo relato passa por <strong>moderação prévia</strong> e o acompanhamento
                                 fica em <a href="/protocolos" class="fw-bold">Meus Protocolos</a>, visível
                                 só para você e para a gestão.
                             </div>
                         </div>
                             
-                            <div class="mb-4">
-                                <label class="form-label fw-bold text-secondary small text-uppercase">Tipo de Ocorrência</label>
-                                <select name="tipoOcorrencia" id="tipoOcorrencia" class="form-select custom-input" required onchange="toggleOutroField()">
-                                    <option value="" selected disabled>Selecione o tipo de crime ou incidente...</option>
-                                    <option value="Foco de Queimada">Foco de Queimada / Incêndio</option>
-                                    <option value="Descarte Irregular de Lixo">Descarte Irregular de Lixo</option>
-                                    <option value="Maus-tratos contra Animais">Maus-tratos contra Animais</option>
-                                    <option value="Poluição Sonora">Poluição Sonora (Som Alto)</option>
-                                    <option value="Vandalismo">Vandalismo / Dano ao Patrimônio</option>
-                                    <option value="Tráfico ou Uso de Drogas">Atividade Suspeita / Entorpecentes</option>
-                                    <option value="Outro">Outro (Especificar abaixo)</option>
-                                </select>
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-7">
+                                    <label class="form-label fw-bold text-secondary small text-uppercase">Infração / Ocorrência (Escopo do Piloto)</label>
+                                    <select name="tipoOcorrencia" id="tipoOcorrencia" class="form-select custom-input" required onchange="toggleOutroField()">
+                                        <option value="" selected disabled>Selecione a infração objetiva...</option>
+                                        <option value="Descarte Irregular de Lixo">Descarte Irregular de Lixo / Entulho</option>
+                                        <option value="Foco de Queimada">Foco de Queimada / Incêndio Ambiental</option>
+                                        <option value="Maus-tratos contra Animais">Maus-tratos ou Abandono de Animais</option>
+                                        <option value="Poluição Sonora">Poluição Sonora (Perturbação do Sossego)</option>
+                                        <option value="Vandalismo">Vandalismo / Dano ao Patrimônio Público</option>
+                                        <option value="Obstrução de Via ou Calçada">Obstrução Irregular de Via ou Calçada</option>
+                                        <option value="Outro">Outra Infração Objetiva (Especificar abaixo)</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-5">
+                                    <label class="form-label fw-bold text-secondary small text-uppercase">Bairro / Localidade</label>
+                                    <select name="bairro" class="form-select custom-input">
+                                        <option value="">Identificar pelo endereço</option>
+                                        <option value="Centro">Centro</option>
+                                        <option value="São Vicente">São Vicente</option>
+                                        <option value="Nossa Senhora de Fátima">Nossa Senhora de Fátima</option>
+                                        <option value="Esplanada">Esplanada</option>
+                                        <option value="COHAB">COHAB</option>
+                                        <option value="Bela Vista">Bela Vista</option>
+                                        <option value="Distrito de Caio Prado">Distrito de Caio Prado</option>
+                                        <option value="Distrito de São Sebastião">Distrito de São Sebastião</option>
+                                        <option value="Distrito de Angicos">Distrito de Angicos</option>
+                                        <option value="Zona Rural / Sítios">Zona Rural / Sítios</option>
+                                    </select>
+                                </div>
                             </div>
 
                             <div class="mb-4 d-none" id="campoOutro">
                                 <label class="form-label fw-bold text-secondary small text-uppercase">Especifique a Ocorrência</label>
-                                <input type="text" name="titulo" id="inputOutro" class="form-control custom-input" placeholder="Ex: Construção irregular em área protegida">
+                                <input type="text" name="titulo" id="inputOutro" class="form-control custom-input" placeholder="Ex: Construção irregular em área pública">
                             </div>
 
                             <div class="mb-4">
@@ -81,8 +126,9 @@
                             </div>
 
                             <div class="mb-5">
-                                <label class="form-label fw-bold text-secondary small text-uppercase">Relato Detalhado dos Fatos</label>
-                                <textarea name="descricao" class="form-control custom-input" rows="4" placeholder="Descreva detalhadamente o ocorrido para facilitar a investigação..." required></textarea>
+                                <label class="form-label fw-bold text-secondary small text-uppercase">Relato Objetivo dos Fatos</label>
+                                <textarea name="descricao" class="form-control custom-input" rows="4" placeholder="Descreva os fatos com civilidade e objetividade, sem xingamentos ou ataques pessoais..." required></textarea>
+                                <small class="text-muted mt-1 d-block"><i class="bi bi-shield-check me-1"></i>Termos de baixo calão e ofensas pessoais são bloqueados automaticamente pelo filtro de civilidade.</small>
                             </div>
 
                             <div class="d-grid gap-3">
@@ -108,15 +154,23 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
+    function toggleOutroField() {
+        const select = document.getElementById('tipoOcorrencia');
+        const campoOutro = document.getElementById('campoOutro');
+        const inputOutro = document.getElementById('inputOutro');
+        if (select.value === 'Outro') {
+            campoOutro.classList.remove('d-none');
+            inputOutro.setAttribute('required', 'required');
+        } else {
+            campoOutro.classList.add('d-none');
+            inputOutro.removeAttribute('required');
+        }
+    }
+
     $(document).ready(function() {
-        let selectedFiles = [];
+        let selectedImages = [];
 
-
-        // --- LÓGICA DO MAPA ---
-        const latInicial = -6.5372;
-        const lngInicial = -39.4958;
-
-        const map = L.map('map').setView([latInicial, lngInicial], 15);
+        const map = L.map('map').setView([-6.5372, -39.4958], 15);
         const camadaTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
             attribution: '© OpenStreetMap © CARTO',
             subdomains: 'abcd',
@@ -128,129 +182,91 @@
             }).addTo(map);
         });
 
-        let marker = L.marker([latInicial, lngInicial], {draggable: true}).addTo(map);
+        let marker = L.marker([-6.5372, -39.4958], {draggable: true}).addTo(map);
 
-        function updateFields(lat, lng) {
-            document.getElementById('latInput').value = lat.toFixed(6);
-            document.getElementById('lngInput').value = lng.toFixed(6);
-            
+        function updateLocation(lat, lng) {
+            $('#latInput').val(lat.toFixed(6));
+            $('#lngInput').val(lng.toFixed(6));
             fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`)
                 .then(res => res.json())
                 .then(data => {
-                    if(data.display_name) {
-                        document.getElementById('addressInput').value = data.display_name;
-                    }
+                    if(data.display_name) $('#addressInput').val(data.display_name);
                 });
         }
 
-        map.on('click', e => {
-            marker.setLatLng(e.latlng);
-            updateFields(e.latlng.lat, e.latlng.lng);
-        });
+        map.on('click', e => { marker.setLatLng(e.latlng); updateLocation(e.latlng.lat, e.latlng.lng); });
+        marker.on('dragend', () => { const p = marker.getLatLng(); updateLocation(p.lat, p.lng); });
 
-        marker.on('dragend', () => {
-            const pos = marker.getLatLng();
-            updateFields(pos.lat, pos.lng);
-        });
-
-        // --- LÓGICA DE FOTOS ---
         $('#imgInput').on('change', function(e) {
             const files = Array.from(e.target.files);
-            files.forEach(file => {
-                if (selectedFiles.length < 3) selectedFiles.push(file);
-            });
-            renderPreview();
+            files.forEach(f => { if(selectedImages.length < 3) selectedImages.push(f); });
+            renderImgPreview();
         });
 
-        window.removeFile = function(index) {
-            selectedFiles.splice(index, 1);
-            renderPreview();
+        window.removeImg = (index) => { selectedImages.splice(index, 1); renderImgPreview(); };
+
+        function renderImgPreview() {
+            const $grid = $('#preview-grid');
+            $grid.empty().toggleClass('d-none', selectedImages.length === 0);
+            selectedImages.forEach((file, i) => {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    $grid.append(`
+                        <div class="col-4 position-relative">
+                            <img src="${e.target.result}" class="rounded-3 border w-100" style="height:60px; object-fit:cover;">
+                            <button type="button" onclick="removeImg(${i})" class="btn btn-danger btn-sm p-0 rounded-circle position-absolute top-0 end-0" style="width:18px;height:18px;font-size:10px;">×</button>
+                        </div>
+                    `);
+                };
+                reader.readAsDataURL(file);
+            });
         }
 
-        function renderPreview() {
-            const $previewGrid = $('#preview-grid');
-            $previewGrid.empty();
-            if (selectedFiles.length > 0) {
-                $previewGrid.removeClass('d-none');
-                selectedFiles.forEach((file, index) => {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const html = `
-                            <div class="col-4 position-relative">
-                                <div class="ratio ratio-1x1 shadow-sm rounded-3 overflow-hidden border">
-                                    <img src="${e.target.result}" class="object-fit-cover">
-                                </div>
-                                <button type="button" onclick="removeFile(${index})" 
-                                        class="btn btn-danger btn-sm position-absolute top-0 start-100 translate-middle rounded-circle p-0" 
-                                        style="width:22px; height:22px; z-index: 10; border: 2px solid white;">
-                                    <i class="bi bi-x"></i>
-                                </button>
-                            </div>`;
-                        $previewGrid.append(html);
-                    }
-                    reader.readAsDataURL(file);
-                });
-            } else {
-                $previewGrid.addClass('d-none');
-            }
-        }
-
-        // --- SUBMIT COM UPLOAD PARA CLOUDINARY ---
         $('#mainForm').on('submit', async function(e) {
             e.preventDefault();
-            const btn = $('#submitBtn');
-            const $urlsContainer = $('#cloudinaryUrlsContainer');
             
-            btn.html('<span class="spinner-border spinner-border-sm me-2"></span> Subindo mídias...').prop('disabled', true);
+            if(!$('#addressInput').val()) {
+                window.portalMensagem("Por favor, selecione o local da ocorrência no mapa.");
+                return;
+            }
+
+            const btn = $('#submitBtn');
+            const $container = $('#cloudinaryUrlsContainer');
+            const videoFile = document.getElementById('videoInput')?.files?.[0] || null;
+
+            btn.html('<span class="spinner-border spinner-border-sm me-2"></span> Enviando mídias...').prop('disabled', true);
+            $container.empty();
 
             try {
-                // 1. Upload das Imagens
-                $urlsContainer.empty();
-                for (let file of selectedFiles) {
-                    const data = await window.portalEnviarArquivo(file);
-                    $urlsContainer.append(`<input type="hidden" name="imagens_urls[]" value="${data.secure_url}">`);
+                for (let img of selectedImages) {
+                    const resImg = await window.portalEnviarArquivo(img);
+                    $container.append(`<input type="hidden" name="imagens_urls[]" value="${resImg.secure_url}">`);
                 }
 
-                const video = document.getElementById('videoInput').files[0];
-                if (video) {
-                    btn.html('<span class="spinner-border spinner-border-sm me-2"></span> Convertendo vídeo... mantenha esta aba aberta');
-                    const media = await window.portalEnviarArquivo(video);
-                    const field = document.createElement('input'); field.type = 'hidden'; field.name = 'video_url'; field.value = media.secure_url;
-                    $urlsContainer.append(field);
+                if (videoFile) {
+                    btn.html('<span class="spinner-border spinner-border-sm me-2"></span> Processando vídeo...');
+                    const resVid = await window.portalEnviarArquivo(videoFile, {
+                        onStatus: (texto) => btn.html(`<span class="spinner-border spinner-border-sm me-2"></span> ${texto}`)
+                    });
+                    $container.append(`<input type="hidden" name="video_url" value="${resVid.secure_url}">`);
                 }
+
+                btn.html('<span class="spinner-border spinner-border-sm me-2"></span> Finalizando...');
                 this.submit();
 
             } catch (err) {
-                console.error("Erro no upload:", err);
-                window.portalMensagem(err.message || "Não foi possível enviar os arquivos.");
+                console.error(err);
+                window.portalMensagem(err.message || "Erro no envio dos arquivos. Verifique sua conexão e tente novamente.");
                 btn.html('<i class="bi bi-shield-check me-2"></i>ENVIAR DENÚNCIA SIGILOSA').prop('disabled', false);
             }
         });
     });
-
-    function toggleOutroField() {
-        const select = document.getElementById('tipoOcorrencia');
-        const campoOutro = document.getElementById('campoOutro');
-        const inputOutro = document.getElementById('inputOutro');
-        
-        if (select.value === "Outro") {
-            campoOutro.classList.remove('d-none');
-            inputOutro.setAttribute('required', 'true');
-        } else {
-            campoOutro.classList.add('d-none');
-            inputOutro.removeAttribute('required');
-            inputOutro.value = "";
-        }
-    }
 </script>
 
 <style>
-    .custom-input { background-color: #f8f9fa!important; border: 1px solid #dee2e6!important; border-radius: 12px!important; padding: 12px 15px; }
-    .custom-input:focus { border-color: #dc3545!important; box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.1)!important; background-color: #fff!important; }
-    .border-dashed { border: 2px dashed #cbd5e0; transition: all 0.2s ease; cursor: pointer; }
-    .border-dashed:hover { background-color: #f1f3f5!important; border-color: #dc3545; }
-    .object-fit-cover { object-fit: cover; width: 100%; height: 100%; }
+    .custom-input { background-color: #f8f9fa !important; border: 1px solid #dee2e6 !important; border-radius: 12px !important; padding: 12px; }
+    .border-dashed { border: 2px dashed #dee2e6; cursor: pointer; transition: 0.3s; }
+    .border-dashed:hover { border-color: #dc3545; background-color: #fff5f5 !important; }
     .transition-base { transition: all 0.3s ease; }
-    .transition-base:hover { transform: translateY(-2px); filter: brightness(1.1); }
 </style>
 {{!-- // [Melhoria Proativa Adicionada: interface integrada à proteção de identidade e aos fluxos seguros do portal] --}}

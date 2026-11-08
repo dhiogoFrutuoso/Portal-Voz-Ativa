@@ -15,7 +15,12 @@ import '../models/denuncias.js';
 import '../models/vitrine.js';
 
 import isUser from '../helpers/isUser.js';
-import { nasceSigilosa, TIPOS_OCORRENCIA } from '../helpers/protocolo.js';
+import {
+    nasceSigilosa,
+    TIPOS_OCORRENCIA_PILOTO,
+    CATEGORIAS_MELHORIA_PILOTO,
+    extrairBairro
+} from '../helpers/protocolo.js';
 import {
     chamadoSchema,
     denunciaSchema,
@@ -28,7 +33,6 @@ import {
 const router = express.Router();
 const upload = multer();
 
-// Edição também é escrita no banco: mesmo teto das rotas de criação.
 const limiteEdicao = limitarRequisicoes('edicao', {
     windowMs: 5 * 60 * 1000,
     max: 30,
@@ -37,7 +41,6 @@ const limiteEdicao = limitarRequisicoes('edicao', {
 
 const idValido = (id) => mongoose.Types.ObjectId.isValid(id);
 
-// Índices das imagens que o autor decidiu manter, vindos do formulário.
 function indicesMantidos(entrada) {
     let lista = entrada ?? [];
     if (!Array.isArray(lista)) lista = [lista];
@@ -47,7 +50,6 @@ function indicesMantidos(entrada) {
         .filter((numero) => Number.isInteger(numero));
 }
 
-// As mesmas opções dos formulários de criação, para o editor não divergir deles.
 const CATEGORIAS_VITRINE = [
     'Serviços Gerais',
     'Alimentação',
@@ -57,10 +59,6 @@ const CATEGORIAS_VITRINE = [
     'Outros'
 ];
 
-/*
- * Cada eixo declara: o model, o esquema de validação, os campos editáveis e
- * para onde voltar depois de salvar.
- */
 export const EIXOS_EDITAVEIS = {
     gestao_de_melhorias: {
         chave: 'gestao_de_melhorias',
@@ -74,7 +72,9 @@ export const EIXOS_EDITAVEIS = {
         temProtocolo: true,
         hub: '/categories/gestao_de_melhorias/hub',
         detalhes: '/categories/gestao_de_melhorias/detalhes',
-        campos: (dados) => ({
+        campos: (dados, postAtual) => ({
+            categoria: dados.categoria || postAtual?.categoria || 'Gestão de Melhorias',
+            bairro: dados.bairro || postAtual?.bairro || extrairBairro(dados),
             titulo: dados.titulo,
             descricao: dados.descricao,
             localizacao: dados.localizacao,
@@ -96,13 +96,12 @@ export const EIXOS_EDITAVEIS = {
         detalhes: '/categories/denuncias_sigilosas/detalhes',
         campos: (dados, postAtual) => ({
             tipoOcorrencia: dados.tipoOcorrencia,
+            bairro: dados.bairro || postAtual?.bairro || extrairBairro(dados),
             titulo: dados.tipoOcorrencia === 'Outro' ? dados.titulo : dados.tipoOcorrencia,
             descricao: dados.descricao,
             localizacao: dados.localizacao,
             latitude: dados.latitude,
             longitude: dados.longitude,
-            // Recalcula o sigilo sempre que o tipo de ocorrência mudar (ou se
-            // o registro legado ainda não tinha o campo `privada` gravado).
             privada:
                 postAtual && postAtual.tipoOcorrencia === dados.tipoOcorrencia && typeof postAtual.privada === 'boolean'
                     ? postAtual.privada
@@ -136,13 +135,6 @@ export const EIXOS_EDITAVEIS = {
     }
 };
 
-/*
- * Carrega o post e confirma que quem pediu é o autor.
- *
- * Administrador NÃO entra aqui: o pedido é que só o próprio autor edite o
- * conteúdo. A gestão atua pelo estágio do protocolo, não reescrevendo o texto
- * do cidadão.
- */
 function carregarPostDoAutor(eixo) {
     return async (req, res, next) => {
         const { id } = req.params;
@@ -185,7 +177,8 @@ for (const eixo of Object.values(EIXOS_EDITAVEIS)) {
             post: req.post,
             imagensAtuais: req.post.imagens || [],
             video: req.post.video || null,
-            tiposOcorrencia: TIPOS_OCORRENCIA,
+            tiposOcorrencia: TIPOS_OCORRENCIA_PILOTO,
+            categoriasMelhoria: CATEGORIAS_MELHORIA_PILOTO,
             categoriasVitrine: CATEGORIAS_VITRINE
         });
     });
@@ -206,18 +199,11 @@ for (const eixo of Object.values(EIXOS_EDITAVEIS)) {
                 return res.redirect(destinoEditor);
             }
 
-            // O formulário devolve o ÍNDICE de cada imagem que ficou, não a URL:
-            // a URL exibida na página carrega a transformação de entrega (WebP) e
-            // publicações antigas guardam a imagem em base64 — nos dois casos o
-            // valor da tela não bate com o que está salvo. Resolvendo por índice,
-            // a imagem original é preservada exatamente como está no banco.
             const jaSalvas = Array.isArray(req.post.imagens) ? req.post.imagens : [];
             const mantidas = indicesMantidos(req.body['imagens_mantidas[]'] || req.body.imagens_mantidas)
                 .filter((i) => i >= 0 && i < jaSalvas.length)
                 .map((i) => jaSalvas[i]);
 
-            // Já as imagens novas vêm do navegador, então continuam limitadas às
-            // URLs do nosso Cloudinary.
             const novas = normalizarMidias(req.body['imagens_urls[]'] || req.body.imagens_urls, 5);
             const imagens = [...mantidas, ...novas].slice(0, 5);
 

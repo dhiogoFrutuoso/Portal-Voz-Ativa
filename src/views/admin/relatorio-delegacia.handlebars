@@ -1,0 +1,168 @@
+<style>
+    @media print {
+        nav, footer, .ocultar-impressao {
+            display: none !important;
+        }
+        body, .bg-light {
+            background: #ffffff !important;
+        }
+        .card {
+            box-shadow: none !important;
+            border: 1px solid #000 !important;
+        }
+    }
+</style>
+
+<section class="py-5 bg-light">
+    <div class="container px-4" style="max-width: 960px;">
+
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4 ocultar-impressao">
+            <a href="/protocolos/denuncia/{{relatorio.idInterno}}" class="btn btn-outline-secondary rounded-pill px-3">
+                <i class="bi bi-arrow-left me-1"></i> Voltar ao Protocolo
+            </a>
+            <div class="d-flex flex-wrap gap-2">
+                <button type="button" onclick="window.print()" class="btn btn-dark rounded-pill px-4 fw-bold shadow-sm">
+                    <i class="bi bi-printer-fill me-1"></i> Imprimir / Salvar PDF
+                </button>
+                <a href="/admin/protocolo/denuncia/{{relatorio.idInterno}}/exportar-delegacia?formato=txt"
+                   class="btn btn-danger rounded-pill px-4 fw-bold shadow-sm">
+                    <i class="bi bi-file-earmark-text-fill me-1"></i> Baixar .TXT Oficial
+                </a>
+                <a href="/admin/protocolo/denuncia/{{relatorio.idInterno}}/exportar-delegacia?formato=json"
+                   class="btn btn-outline-dark rounded-pill px-3 fw-bold">
+                    <i class="bi bi-filetype-json me-1"></i> Exportar .JSON
+                </a>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-lg rounded-4 bg-white overflow-hidden">
+            <div class="card-header bg-dark text-white p-4 border-bottom border-warning border-4">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                    <div>
+                        <span class="badge bg-danger text-white px-3 py-1 rounded-pill small fw-bold mb-2">
+                            DOCUMENTO RESERVADO • ENCAMINHAMENTO POLICIAL / AUTORIDADE COMPETENTE
+                        </span>
+                        <h3 class="fw-bolder mb-0">Relatório Estruturado de Ocorrência</h3>
+                        <p class="small text-white-50 mb-0">Portal Voz Ativa • Município de Cariús/CE</p>
+                    </div>
+                    <div class="text-md-end">
+                        <div class="small text-white-50">Protocolo Oficial</div>
+                        <div class="h4 font-monospace fw-bold text-warning mb-0">{{relatorio.protocolo}}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-4 p-md-5">
+                <div class="alert alert-warning border-start border-warning border-4 rounded-3 small mb-4">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <strong>Aviso Legal e Cadeia de Custódia:</strong> Este documento consolida os dados originais registrados no Portal Voz Ativa para instrução de notícia de fato ou verificação pela Delegacia de Polícia Civil / Polícia Militar / Ministério Público.
+                </div>
+
+                <h5 class="fw-bold text-uppercase text-secondary small border-bottom pb-2 mb-3">
+                    1. Dados Essenciais da Ocorrência
+                </h5>
+                <div class="row g-3 mb-4">
+                    <div class="col-12 col-md-4">
+                        <div class="p-3 bg-light rounded-3 h-100">
+                            <div class="small text-muted">Protocolo / ID</div>
+                            <div class="fw-bold font-monospace">{{relatorio.protocolo}}</div>
+                            <div class="small text-muted font-monospace" style="font-size: 0.72rem;">{{relatorio.idInterno}}</div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <div class="p-3 bg-light rounded-3 h-100">
+                            <div class="small text-muted">Natureza / Tipificação</div>
+                            <div class="fw-bold text-danger">{{relatorio.tipoOcorrencia}}</div>
+                            <div class="small text-muted">Data do fato/registro: {{formatDate relatorio.dataRegistro}}</div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <div class="p-3 bg-light rounded-3 h-100">
+                            <div class="small text-muted">Status e Triagem</div>
+                            <div class="fw-bold">{{relatorio.statusOperacional}} ({{relatorio.statusModeracao}})</div>
+                            <div class="small text-muted">Órgão: {{relatorio.orgaoEncaminhado}}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <h5 class="fw-bold text-uppercase text-secondary small border-bottom pb-2 mb-3">
+                    2. Localização Geográfica
+                </h5>
+                <div class="p-3 bg-light rounded-3 mb-4">
+                    <div class="row g-2">
+                        <div class="col-12 col-md-6">
+                            <span class="small text-muted d-block">Bairro / Localidade:</span>
+                            <strong>{{relatorio.bairro}}</strong>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <span class="small text-muted d-block">Coordenadas GPS:</span>
+                            <strong class="font-monospace">{{relatorio.coordenadas}}</strong>
+                        </div>
+                        <div class="col-12 mt-2">
+                            <span class="small text-muted d-block">Endereço / Ponto de Referência:</span>
+                            <strong>{{relatorio.localizacao}}</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <h5 class="fw-bold text-uppercase text-secondary small border-bottom pb-2 mb-3">
+                    3. Narrativa e Descrição dos Fatos
+                </h5>
+                <div class="p-4 border rounded-3 bg-white mb-4">
+                    <h6 class="fw-bold mb-2">{{relatorio.titulo}}</h6>
+                    <p class="mb-0" style="white-space: pre-wrap; line-height: 1.7;">{{relatorio.descricao}}</p>
+                </div>
+
+                <h5 class="fw-bold text-uppercase text-secondary small border-bottom pb-2 mb-3">
+                    4. Evidências Anexadas ({{relatorio.imagens.length}} foto(s){{#if relatorio.video}}, 1 vídeo{{/if}})
+                </h5>
+                <div class="mb-4">
+                    {{#if relatorio.imagens.length}}
+                        <div class="row g-3 mb-3">
+                            {{#each relatorio.imagens}}
+                                <div class="col-12 col-md-6">
+                                    <div class="border rounded-3 p-2 bg-light">
+                                        <img src="{{this}}" alt="Evidência" class="img-fluid rounded-2 mb-2" style="max-height: 220px; width: 100%; object-fit: cover;">
+                                        <div class="small font-monospace text-truncate">
+                                            <a href="{{this}}" target="_blank" rel="noopener noreferrer">{{this}}</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {{/each}}
+                        </div>
+                    {{else}}
+                        <p class="small text-muted">Nenhuma fotografia anexada.</p>
+                    {{/if}}
+
+                    {{#if relatorio.video}}
+                        <div class="p-3 bg-light rounded-3 border">
+                            <div class="small text-muted">Link direto da evidência em vídeo:</div>
+                            <a href="{{relatorio.video}}" target="_blank" rel="noopener noreferrer" class="font-monospace small">{{relatorio.video}}</a>
+                        </div>
+                    {{/if}}
+                </div>
+
+                <h5 class="fw-bold text-uppercase text-secondary small border-bottom pb-2 mb-3">
+                    5. Vínculo Interno de Autoria e Responsabilização Judicial
+                </h5>
+                <div class="p-3 bg-light rounded-3 border-start border-danger border-4 mb-4">
+                    <div class="small text-muted mb-1">
+                        Exibição no Feed Público: <strong>{{#if relatorio.postagemAnonimaNoFeed}}ANÔNIMA (Identidade Mascarada para Terceiros){{else}}PÚBLICA{{/if}}</strong>
+                    </div>
+                    <div class="small">
+                        <strong>Cadastro Interno (Uso Exclusivo mediante Requisição Judicial / Policial):</strong><br>
+                        ID Usuário: <span class="font-monospace">{{relatorio.autorInterno.id}}</span> •
+                        Nome: <strong>{{relatorio.autorInterno.nome}}</strong> •
+                        E-mail: <span class="font-monospace">{{relatorio.autorInterno.email}}</span> •
+                        Telefone: <strong>{{relatorio.autorInterno.telefone}}</strong>
+                    </div>
+                </div>
+
+                <div class="d-flex flex-wrap justify-content-between align-items-center small text-muted pt-3 border-top">
+                    <span>Emitido por: <strong>{{relatorio.emitidoPor}}</strong></span>
+                    <span>Data de emissão: <strong>{{formatDate relatorio.emitidoEm}}</strong></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

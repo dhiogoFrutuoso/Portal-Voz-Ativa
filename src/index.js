@@ -118,6 +118,14 @@ app.use((req, res, next) => {
     res.locals.success_msg = req.flash("success_msg");
     res.locals.error_msg = req.flash("error_msg");
     res.locals.error = req.flash("error");
+    const comprovanteBruto = req.flash("comprovante_protocolo");
+    if (comprovanteBruto && comprovanteBruto.length > 0) {
+        try {
+            res.locals.comprovanteProtocolo = JSON.parse(comprovanteBruto[0]);
+        } catch {
+            res.locals.comprovanteProtocolo = null;
+        }
+    }
     res.locals.user = req.user || null; // Essencial para o Hub identificar o usuário logado
     res.locals.cloudinaryCloudName = CLOUDINARY_CLOUD_NAME;
     res.locals.recaptchaSiteKey = RECAPTCHA_SITE_KEY;

@@ -54,11 +54,24 @@ const eixoMelhoria = {
 
 const usuario = { _id: 'u1', name: 'Maria Souza', profileImage: '/img/guest.webp', profession: 'Cidadã' };
 
+const moderacaoPadrao = {
+    chave: 'pendente', rotulo: 'Pendente de Moderação', cor: 'warning',
+    icone: 'bi-hourglass-split', resumo: 'Aguardando revisão prévia da assessoria.',
+    trilha: [{ moderadorNome: 'Assessoria', acao: 'Triagem inicial', detalhe: 'Em análise', createdAt: new Date('2026-02-20') }]
+};
+
+const comprovantePadrao = {
+    protocolo: 'MEL-2026-C5C5B8',
+    mailtoUrl: 'mailto:?subject=Comprovante%20MEL-2026-C5C5B8&body=Protocolo'
+};
+
 const protocolo = {
     _id: 'p1', tipo: 'melhoria', eixo: eixoMelhoria, titulo: 'Asfalto desgastado',
     descricao: 'Necessidade de reparo no asfalto do bairro São Vicente.',
-    localizacao: 'Rua Jonas Oliveira Lopes, Cariús', dataCriacao: new Date('2026-02-19'),
+    localizacao: 'Rua Jonas Oliveira Lopes, Cariús', bairro: 'São Vicente',
+    categoria: 'Reparo de Vias e Estradas', dataCriacao: new Date('2026-02-19'),
     status: 'Em Atendimento', estagio: { chave: 'Em Atendimento', ...estagios[1] },
+    moderacao: moderacaoPadrao, comprovante: comprovantePadrao,
     prazo: { dias: 10, ajustadoPelaGestao: true, texto: 'Responde em até 10 dias úteis.' },
     limite: new Date('2026-03-05'), numero: 'MEL-2026-C5C5B8',
     linkPost: '/categories/gestao_de_melhorias/detalhes/p1',
@@ -74,11 +87,12 @@ const base = { csrfToken: 'token-de-teste', cloudinaryCloudName: 'dnh7vok3r', cl
 
 const casos = [
     ['protocolos/timeline.handlebars', { ...base, protocolo, eDono: true, eAdmin: false, estagios },
-     ['Asfalto desgastado', 'Prazo de atendimento', 'Equipe enviada', 'token-de-teste',
+     ['Asfalto desgastado', 'Prazo de atendimento', 'Equipe enviada', 'token-de-teste', 'Guardar Comprovante por E-mail',
       '/mensagem/m1/editar', '/mensagem/m1/excluir'],
      ['Painel da gestão', '/admin/protocolo/', 'Atualizar protocolo',
       '/mensagem/m2/editar', '/mensagem/m2/excluir']],
-    ['protocolos/timeline.handlebars', { ...base, protocolo, eDono: false, eAdmin: true, estagios }, ['Painel da gestão', 'Atualizar protocolo']],
+    ['protocolos/timeline.handlebars', { ...base, protocolo, eDono: false, eAdmin: true, estagios, orgaosEncaminhamento: ['Secretaria Municipal de Obras e Infraestrutura'] },
+     ['Painel da gestão', 'Atualizar protocolo', 'Moderação Prévia (Assessoria)', 'Trilha de Auditoria da Moderação']],
     ['protocolos/lista.handlebars',
      { ...base, protocolos: [{ ...protocolo, novidades: { paraOAutor: true, paraAGestao: false } }],
        resumo: estagios.map((e) => ({ ...e, total: 2 })), termo: '', total: 1,
@@ -92,16 +106,46 @@ const casos = [
         ...base,
         protocolos: [{ ...protocolo, respostas: 2, autor: usuario, imagemPrincipal: null, linkProtocolo: '/protocolos/melhoria/p1', numero: 'MEL-2026-C5C5B8', novidades: { paraAGestao: true, paraOAutor: false } }],
         resumo: estagios.map((e) => ({ ...e, total: 3, ativo: e.chave === 'Novo', link: '/admin/painel?status=' + e.chave })),
+        resumoModeracao: [{ chave: 'pendente', rotulo: 'Pendente de Moderação', icone: 'bi-hourglass-split', total: 1 }],
+        totalPendentesModeracao: 1,
+        orgaosEncaminhamento: ['Secretaria Municipal de Obras e Infraestrutura'],
         totalGeral: 15, termo: 'asfalto', tipoFiltro: 'todos', statusFiltro: 'todos', estagios,
         eixos: [eixoMelhoria]
-    }, ['Painel de Protocolos', 'Alterar estágio', 'o cidadão respondeu', 'data-filtro="status"', 'data-busca-rota="/admin/painel/buscar"']],
+    }, ['Painel de Protocolos', 'Alterar estágio', 'o cidadão respondeu', 'data-filtro="status"', 'data-filtro="moderacao"', 'data-busca-rota="/admin/painel/buscar"']],
+    ['admin/metricas.handlebars', {
+        ...base,
+        metricas: {
+            janelaDias: 90, totalPiloto: 24, totalMelhoriasPiloto: 16, totalDenunciasPiloto: 8, totalHistorico: 30,
+            resolvidos: 12, emAtendimento: 8, novos: 4, taxaResolucao: 50,
+            pendentesModeracao: 3, aprovadosModeracao: 15, encaminhadosModeracao: 4, bloqueadosModeracao: 2,
+            anonimos: 7, comPrimeiraResposta: 18, tempoMedioHoras: 14.5, tempoMedioDias: 0.6,
+            porBairro: [{ nome: 'Centro', total: 10, resolvidos: 6, taxaResolucao: 60, percentual: 42 }],
+            porCategoria: [{ nome: 'Iluminação Pública', total: 8, percentual: 33 }],
+            trilhaRecente: [{ protocolo: 'MEL-2026-C5C5B8', linkProtocolo: '/protocolos/melhoria/p1', titulo: 'Asfalto desgastado', acao: 'Aprovado para o feed público', moderadorNome: 'Assessoria', detalhe: 'Revisado', createdAt: new Date() }]
+        }
+    }, ['Indicadores Operacionais de Cariús', '50%', '14.5h', 'Centro', 'Iluminação Pública', 'Trilha de Auditoria Recente da Moderação']],
+    ['admin/relatorio-delegacia.handlebars', {
+        ...base,
+        relatorio: {
+            protocolo: 'DEN-2026-123456', idInterno: 'd1', tipoOcorrencia: 'Maus-tratos contra Animais',
+            statusOperacional: 'Em Atendimento', statusModeracao: 'Encaminhado a Órgão Competente',
+            orgaoEncaminhado: 'Delegacia de Polícia Civil / Polícia Militar',
+            dataRegistro: new Date(), titulo: 'Maus-tratos em residência',
+            descricao: 'Descrição detalhada do caso.', localizacao: 'Rua Central, 100',
+            bairro: 'Centro', coordenadas: '-6.5372, -39.4936',
+            imagens: ['https://res.cloudinary.com/dnh7vok3r/image/upload/v1/a.png'], video: null,
+            postagemAnonimaNoFeed: true,
+            autorInterno: { id: 'u1', nome: 'Maria Souza', email: 'm@teste.local', telefone: '8899999999' },
+            emitidoPor: 'Assessoria', emitidoEm: new Date()
+        }
+    }, ['Relatório Estruturado de Ocorrência', 'DEN-2026-123456', 'Baixar .TXT Oficial', 'Maus-tratos contra Animais']],
     ['categories/editar.handlebars', {
         ...base,
         eixo: { chave: 'gestao_de_melhorias', model: 'chamados', rotulo: 'Melhoria', rotuloLongo: 'Gestão de Melhorias', cor: 'primary', icone: 'bi-tools', temVideo: false, temProtocolo: true, hub: '/categories/gestao_de_melhorias/hub', detalhes: '/categories/gestao_de_melhorias/detalhes' },
-        post: { _id: 'p1', titulo: 'Asfalto desgastado', descricao: 'Texto', localizacao: 'Rua X', latitude: -6.5, longitude: -39.4, imagens: ['https://res.cloudinary.com/dnh7vok3r/image/upload/v1/a.png'] },
+        post: { _id: 'p1', titulo: 'Asfalto desgastado', categoria: 'Reparo de Vias e Estradas', descricao: 'Texto', localizacao: 'Rua X', latitude: -6.5, longitude: -39.4, imagens: ['https://res.cloudinary.com/dnh7vok3r/image/upload/v1/a.png'] },
         imagensAtuais: ['https://res.cloudinary.com/dnh7vok3r/image/upload/v1/a.png'],
-        video: null, tiposOcorrencia: ['Foco de Queimada', 'Outro'], categoriasVitrine: ['Alimentação', 'Outros']
-    }, ['Editar Melhoria', 'Excluir publicação', 'imagens_mantidas']],
+        video: null, categoriasMelhoria: ['Iluminação Pública', 'Reparo de Vias e Estradas'], tiposOcorrencia: ['Foco de Queimada', 'Outro'], categoriasVitrine: ['Alimentação', 'Outros']
+    }, ['Editar Melhoria', 'Excluir publicação', 'imagens_mantidas', 'Reparo de Vias e Estradas']],
     ['categories/editar.handlebars', {
         ...base,
         eixo: { chave: 'denuncias_sigilosas', model: 'denuncias', rotulo: 'Denúncia', rotuloLongo: 'Denúncias Sigilosas', cor: 'danger', icone: 'bi-shield-lock-fill', temVideo: true, temProtocolo: true, hub: '/h', detalhes: '/d' },
@@ -143,7 +187,7 @@ casos.push(
     ['categories/denuncias_sigilosas/hub.handlebars',
      { ...base, user: admin, denuncias: [{ ...cardMelhoria, tipoOcorrencia: 'Foco de Queimada' }], termo: '', total: 1, estagios,
        filtrosEstagio: estagios, filtrosOcorrencia: ['Foco de Queimada', 'Vandalismo'], tipoProtocolo: 'denuncia' },
-     ['/admin/protocolo/denuncia/c1/status', 'Buscar por título', 'data-filtro="ocorrencia"']],
+     ['/admin/protocolo/denuncia/c1/status', 'Buscar por título', 'data-filtro="ocorrencia"', '190 Polícia Militar', '181 Disque-Denúncia']],
 
     ['categories/vitrine_do_trabalhador/hub.handlebars',
      { ...base, anuncios: [{ ...cardMelhoria, categoria: 'Alimentação' }], termo: 'bolo', total: 1,
@@ -151,12 +195,12 @@ casos.push(
      ['Buscar por serviço', 'data-filtro="categoria"', 'item-filtravel']],
 
     ['categories/gestao_de_melhorias/detalhes.handlebars',
-     { ...base, chamadoDoc: cardMelhoria, jaCurtiu: false, eDono: true, podeAcompanhar: true,
+     { ...base, chamadoDoc: cardMelhoria, moderacao: moderacaoPadrao, comprovante: comprovantePadrao, jaCurtiu: false, eDono: true, podeAcompanhar: true,
        linkProtocolo: '/protocolos/melhoria/c1', linkEditar: '/categories/gestao_de_melhorias/editar/c1' },
-     ['Esta publicação é sua', 'Acompanhar protocolo', 'Editar']],
+     ['Esta publicação é sua', 'Acompanhar protocolo', 'Editar', 'Guardar Comprovante por E-mail']],
 
     ['categories/gestao_de_melhorias/detalhes.handlebars',
-     { ...base, user: admin, chamadoDoc: cardMelhoria, jaCurtiu: false, eDono: false, podeAcompanhar: true,
+     { ...base, user: admin, chamadoDoc: cardMelhoria, moderacao: moderacaoPadrao, comprovante: comprovantePadrao, jaCurtiu: false, eDono: false, podeAcompanhar: true,
        linkProtocolo: '/protocolos/melhoria/c1', linkEditar: '/x' },
      ['Acesso da gestão', 'Abrir atendimento'],
      ['Esta publicação é sua', 'Editar</a>']],
@@ -173,15 +217,13 @@ casos.push(
      ['Esta publicação é sua', 'remover o anúncio']],
 
     ['categories/gestao_de_melhorias/abrir-chamado.handlebars',
-     { ...base }, ['Como funciona o atendimento', '10 dias úteis']],
+     { ...base }, ['Como funciona o atendimento', '10 dias úteis', 'Iluminação Pública', 'Postar de forma anônima']],
 
     ['categories/denuncias_sigilosas/abrir-denuncia.handlebars',
-     { ...base }, ['Como funciona o atendimento', '2 dias úteis']]
+     { ...base }, ['Como funciona o atendimento', '2 dias úteis', '190 • Polícia Militar', '181 • Disque-Denúncia']]
 );
 
 // --- Fragmentos devolvidos pela busca em tempo real ---
-// O card traz o seletor de estágio do admin; sem os dados de contexto ele sairia
-// vazio e quebraria a lista (era o que acontecia ao pesquisar).
 casos.push(
     ['partials/_cards_melhorias.handlebars',
      { ...base, layout: false, user: admin, chamados: [cardMelhoria], estagios, tipoProtocolo: 'melhoria' },
@@ -193,10 +235,6 @@ casos.push(
      ['item-filtravel'],
      ['/admin/protocolo/', '<option value="Resolvido"']],
 
-    // O toggle de sigilo é ação de gestão: fica só no painel do admin. O card
-    // público (usado no hub) não deve carregar essa marcação nem o botão,
-    // nem quando renderizado para o próprio admin — evita a confusão de
-    // "toguei e ainda aparece aqui na mesma tela".
     ['partials/_cards_denuncias.handlebars',
      { ...base, layout: false, user: admin,
        denuncias: [{ ...cardMelhoria, tipoOcorrencia: 'Vandalismo', privada: true }],
@@ -220,17 +258,12 @@ casos.push(
            numero: 'DEN-2026-C5C5B8', novidades: { paraAGestao: false, paraOAutor: false },
            privada: true, podeMudarSigilo: true
        }],
-       estagios
+       estagios,
+       orgaosEncaminhamento: ['Delegacia de Polícia Civil / Polícia Militar']
      },
-     ['Sigilosa', 'Tornar pública', '/admin/protocolo/denuncia/p1/sigilo']]
+     ['Sigilosa', 'Tornar pública', '/admin/protocolo/denuncia/p1/sigilo', '/admin/protocolo/denuncia/p1/moderar', 'Exportar p/ Delegacia']]
 );
 
-/*
- * Formulário dentro de formulário é inválido em HTML: o navegador descarta o
- * de dentro e manda os dois campos _csrf no mesmo envio, o que virava um
- * array e fazia o servidor recusar toda troca de sigilo como "sessão
- * expirada". Este teste falha se alguém aninhar de novo.
- */
 function formsAninhados(html) {
     const marcas = [...html.matchAll(/<form\b|<\/form>/g)].map((m) => m[0]);
     let profundidade = 0;
@@ -241,12 +274,6 @@ function formsAninhados(html) {
     return false;
 }
 
-/*
- * Dentro de {{#each}} o contexto passa a ser o item da lista, e {{csrfToken}}
- * renderiza VAZIO — o formulário sai com token em branco e o servidor recusa
- * a ação como "sessão expirada". Dentro de each é preciso @root.csrfToken.
- * Foi o que quebrou o botão de curtir nos cards dos hubs.
- */
 function csrfVazio(html) {
     return /name="_csrf"\s+value=""/.test(html);
 }

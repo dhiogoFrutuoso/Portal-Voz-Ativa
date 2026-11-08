@@ -99,20 +99,40 @@
                     <span class="badge bg-{{protocolo.estagio.cor}} px-3 py-2 rounded-pill fw-bold">
                         <i class="bi {{protocolo.estagio.icone}} me-1"></i> {{protocolo.estagio.rotulo}}
                     </span>
+                    <span class="badge bg-{{protocolo.moderacao.cor}} {{#if (eq protocolo.moderacao.cor 'warning')}}text-dark{{/if}} px-3 py-2 rounded-pill fw-bold">
+                        <i class="bi {{protocolo.moderacao.icone}} me-1"></i> {{protocolo.moderacao.rotulo}}
+                    </span>
                     <span class="text-white-50 small font-monospace">{{protocolo.numero}}</span>
                 </div>
 
                 <h1 class="fw-bolder mb-2">{{protocolo.titulo}}</h1>
-                <p class="mb-0 opacity-75">
+                <p class="mb-3 opacity-75">
                     <i class="bi bi-geo-alt-fill me-1"></i> {{protocolo.localizacao}}
+                    {{#if protocolo.bairro}} • <strong>{{protocolo.bairro}}</strong>{{/if}}
                 </p>
+
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{{protocolo.comprovante.mailtoUrl}}" class="btn btn-warning text-dark btn-sm rounded-pill px-3 fw-bold shadow-sm">
+                        <i class="bi bi-envelope-check-fill me-1"></i> Guardar Comprovante por E-mail
+                    </a>
+                    {{#if eAdmin}}
+                        {{#if (eq protocolo.tipo 'denuncia')}}
+                            <a href="/admin/protocolo/denuncia/{{protocolo._id}}/exportar-delegacia" class="btn btn-light btn-sm rounded-pill px-3 fw-bold shadow-sm">
+                                <i class="bi bi-shield-shaded text-danger me-1"></i> Exportar Relatório para Delegacia
+                            </a>
+                        {{/if}}
+                    {{/if}}
+                </div>
             </div>
 
             <div class="col-lg-4">
                 <div class="bg-white bg-opacity-10 border border-light border-opacity-25 rounded-4 p-4">
                     <div class="small text-uppercase text-white-50 fw-bold mb-2">Situação atual</div>
-                    <div class="h4 fw-bold mb-3">{{protocolo.estagio.rotulo}}</div>
-                    <div class="small opacity-75">{{protocolo.estagio.descricao}}</div>
+                    <div class="h4 fw-bold mb-2">{{protocolo.estagio.rotulo}}</div>
+                    <div class="small opacity-75 mb-2">{{protocolo.estagio.descricao}}</div>
+                    <div class="small badge bg-dark bg-opacity-50 text-white fw-normal text-wrap text-start p-2 rounded-3 w-100">
+                        <i class="bi {{protocolo.moderacao.icone}} me-1"></i> {{protocolo.moderacao.resumo}}
+                    </div>
                     <hr class="border-light opacity-25">
                     <div class="small">
                         <i class="bi bi-calendar-check me-1"></i>
@@ -342,9 +362,78 @@
             {{!-- Coluna lateral --}}
             <div class="col-lg-4">
                 {{#if eAdmin}}
+                    {{!-- Card de Moderação Prévia e Encaminhamento (Papel do Assessor Governamental) --}}
+                    <div class="card border-0 shadow-sm rounded-4 mb-4">
+                        <div class="card-header bg-primary text-white rounded-top-4 py-3">
+                            <i class="bi bi-shield-check me-2"></i> <span class="fw-bold">Moderação Prévia (Assessoria)</span>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <span class="small text-muted">Status de Publicação:</span>
+                                <span class="badge bg-{{protocolo.moderacao.cor}} {{#if (eq protocolo.moderacao.cor 'warning')}}text-dark{{/if}} rounded-pill px-3 py-2">
+                                    <i class="bi {{protocolo.moderacao.icone}} me-1"></i> {{protocolo.moderacao.rotulo}}
+                                </span>
+                            </div>
+
+                            <form action="/admin/protocolo/{{protocolo.tipo}}/{{protocolo._id}}/moderar" method="POST">
+                                <input type="hidden" name="_csrf" value="{{csrfToken}}">
+
+                                <label class="form-label small fw-bold text-uppercase text-muted">Decisão da Assessoria</label>
+                                <select name="acao" class="form-select rounded-3 mb-3" required>
+                                    <option value="aprovar" {{#if (eq protocolo.moderacao.chave 'aprovado')}}selected{{/if}}>Aprovar para o Feed Público</option>
+                                    <option value="editar_aprovar">Editar Texto e Aprovar para o Feed</option>
+                                    <option value="editar_texto">Apenas Editar/Sanitizar Texto</option>
+                                    <option value="encaminhar" {{#if (eq protocolo.moderacao.chave 'encaminhado')}}selected{{/if}}>Encaminhar a Órgão Competente</option>
+                                    <option value="bloquear" {{#if (eq protocolo.moderacao.chave 'bloqueado')}}selected{{/if}}>Bloquear por Violação</option>
+                                </select>
+
+                                <label class="form-label small fw-bold text-uppercase text-muted">Título (Revisão de Civilidade)</label>
+                                <input type="text" name="titulo" value="{{protocolo.titulo}}" maxlength="120" class="form-control rounded-3 mb-2">
+
+                                <label class="form-label small fw-bold text-uppercase text-muted">Texto da Ocorrência</label>
+                                <textarea name="descricao" rows="4" maxlength="5000" class="form-control rounded-3 mb-3">{{protocolo.descricao}}</textarea>
+
+                                <label class="form-label small fw-bold text-uppercase text-muted">Órgão Municipal / Autoridade</label>
+                                <select name="orgaoEncaminhado" class="form-select rounded-3 mb-3">
+                                    <option value="">— Selecionar se for encaminhar —</option>
+                                    {{#each orgaosEncaminhamento}}
+                                        <option value="{{this}}" {{#if (eq this ../protocolo.moderacao.orgaoEncaminhado)}}selected{{/if}}>{{this}}</option>
+                                    {{/each}}
+                                </select>
+
+                                <label class="form-label small fw-bold text-uppercase text-muted">Motivo / Despacho de Auditoria</label>
+                                <textarea name="notaModeracao" rows="2" maxlength="500" class="form-control rounded-3 mb-3"
+                                          placeholder="Ex.: Removida menção nominal a morador / Encaminhado à Secretaria de Obras...">{{protocolo.moderacao.notaModeracao}}</textarea>
+
+                                <button type="submit" class="btn btn-primary w-100 rounded-3 fw-bold py-2">
+                                    <i class="bi bi-check2-circle me-1"></i> Salvar Moderação
+                                </button>
+                            </form>
+
+                            {{#if protocolo.moderacao.trilha.length}}
+                                <hr>
+                                <h6 class="small fw-bold text-uppercase text-muted mb-2">
+                                    <i class="bi bi-journal-check me-1"></i> Trilha de Auditoria da Moderação
+                                </h6>
+                                <div class="d-flex flex-column gap-2" style="max-height: 220px; overflow-y: auto;">
+                                    {{#each protocolo.moderacao.trilha}}
+                                        <div class="p-2 bg-light rounded-3 border small">
+                                            <div class="d-flex justify-content-between">
+                                                <strong>{{this.moderadorNome}}</strong>
+                                                <span class="text-muted" style="font-size: 0.72rem;">{{formatDate this.createdAt}}</span>
+                                            </div>
+                                            <div class="text-primary fw-semibold">{{this.acao}}</div>
+                                            {{#if this.detalhe}}<div class="text-muted">{{this.detalhe}}</div>{{/if}}
+                                        </div>
+                                    {{/each}}
+                                </div>
+                            {{/if}}
+                        </div>
+                    </div>
+
                     <div class="card border-0 shadow-sm rounded-4 mb-4">
                         <div class="card-header bg-dark text-white rounded-top-4 py-3">
-                            <i class="bi bi-shield-lock me-2"></i> <span class="fw-bold">Painel da gestão</span>
+                            <i class="bi bi-shield-lock me-2"></i> <span class="fw-bold">Painel da gestão — Estágio e SLA</span>
                         </div>
                         <div class="card-body p-4">
                             <form action="/admin/protocolo/{{protocolo.tipo}}/{{protocolo._id}}/status" method="POST">
@@ -390,9 +479,27 @@
                             <dt class="col-5 text-muted fw-normal">Categoria</dt>
                             <dd class="col-7">{{protocolo.eixo.rotulo}}</dd>
 
+                            {{#if protocolo.categoria}}
+                                <dt class="col-5 text-muted fw-normal">Escopo</dt>
+                                <dd class="col-7">{{protocolo.categoria}}</dd>
+                            {{/if}}
+
                             {{#if protocolo.tipoOcorrencia}}
                                 <dt class="col-5 text-muted fw-normal">Ocorrência</dt>
                                 <dd class="col-7">{{protocolo.tipoOcorrencia}}</dd>
+                            {{/if}}
+
+                            {{#if protocolo.bairro}}
+                                <dt class="col-5 text-muted fw-normal">Bairro/Local</dt>
+                                <dd class="col-7">{{protocolo.bairro}}</dd>
+                            {{/if}}
+
+                            <dt class="col-5 text-muted fw-normal">Moderação</dt>
+                            <dd class="col-7">{{protocolo.moderacao.rotulo}}</dd>
+
+                            {{#if protocolo.moderacao.orgaoEncaminhado}}
+                                <dt class="col-5 text-muted fw-normal">Encaminhado</dt>
+                                <dd class="col-7">{{protocolo.moderacao.orgaoEncaminhado}}</dd>
                             {{/if}}
 
                             <dt class="col-5 text-muted fw-normal">Abertura</dt>
@@ -403,6 +510,18 @@
                         </dl>
 
                         <hr>
+
+                        <a href="{{protocolo.comprovante.mailtoUrl}}" class="btn btn-outline-success btn-sm w-100 rounded-3 mb-2 fw-bold">
+                            <i class="bi bi-envelope-check me-1"></i> Guardar Comprovante no E-mail
+                        </a>
+
+                        {{#if (eq protocolo.tipo 'denuncia')}}
+                            {{#if eAdmin}}
+                                <a href="/admin/protocolo/denuncia/{{protocolo._id}}/exportar-delegacia" class="btn btn-outline-danger btn-sm w-100 rounded-3 mb-2 fw-bold">
+                                    <i class="bi bi-shield-shaded me-1"></i> Exportar Relatório para Delegacia
+                                </a>
+                            {{/if}}
+                        {{/if}}
 
                         <a href="{{protocolo.linkPost}}" class="btn btn-outline-primary btn-sm w-100 rounded-3">
                             <i class="bi bi-box-arrow-up-right me-1"></i> Ver publicação no hub

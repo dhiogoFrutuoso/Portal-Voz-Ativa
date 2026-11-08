@@ -268,7 +268,7 @@ try {
     doc = await Chamado.findById(id).lean();
     checar(doc.historico.length === totalAntes - 1, 'autor exclui a própria mensagem');
 
-    console.log('\n--- Sigilo das denúncias ---');
+    console.log('\n--- Moderação prévia e Sigilo das denúncias ---');
     const queimada = await Denuncia.create({ declaredAccuracy: true, authorIpAddress: '127.0.0.1', authorUserAgent: 'teste',
         tipoOcorrencia: 'Foco de Queimada', titulo: 'Foco de Queimada',
         descricao: 'Fogo na vegetação perto da estrada.', localizacao: 'Serra',
@@ -280,8 +280,15 @@ try {
         usuario: autor._id, privada: true
     });
 
+    const hubAntesModeracao = await (await pedir('/categories/denuncias_sigilosas/hub')).text();
+    checar(!hubAntesModeracao.includes('Fogo na vegetação perto da estrada.'), 'nova ocorrência nasce pendente e NÃO vai ao feed público antes da moderação');
+
+    await pedir(`/admin/protocolo/denuncia/${queimada._id}/moderar`, {
+        como: 'gestor', metodo: 'POST', corpo: { acao: 'aprovar', notaModeracao: 'Ocorrência objetiva validada.' }
+    });
+
     const hubAnonimo = await (await pedir('/categories/denuncias_sigilosas/hub')).text();
-    checar(hubAnonimo.includes('Foco de Queimada'), 'incêndio aparece no hub público');
+    checar(hubAnonimo.includes('Foco de Queimada'), 'incêndio aprovado pela moderação aparece no hub público');
     checar(!hubAnonimo.includes('Depredação de patrimônio'), 'denúncia sigilosa não aparece para visitante');
 
     const hubTerceiro = await (await pedir('/categories/denuncias_sigilosas/hub', { como: 'outro' })).text();
@@ -384,7 +391,7 @@ try {
     console.log('\n--- Comentários: quem edita e quem exclui ---');
     const postComentarios = await Chamado.create({ declaredAccuracy: true, authorIpAddress: '127.0.0.1', authorUserAgent: 'teste',
         titulo: 'Praça sem iluminação', descricao: 'A praça central está no escuro.',
-        localizacao: 'Centro', usuario: autor._id
+        localizacao: 'Centro', usuario: autor._id, moderacao: { status: 'aprovado' }
     });
     const idPost = String(postComentarios._id);
 
@@ -482,6 +489,91 @@ try {
 
     await pedir(`/categories/gestao_de_melhorias/excluir/${id}`, { como: 'autor', metodo: 'POST' });
     checar(!(await Chamado.findById(id)), 'autor exclui a própria publicação');
+
+    console.log('\n--- Diretrizes do Piloto de 90 Dias (Moderação, Civilidade, Anonimato, Delegacia e Métricas) ---');
+    // 1. Filtro de civilidade bloqueia termos de baixo calão / xingamentos
+    const envioOfensivo = await pedir('/categories/gestao_de_melhorias/abrir-chamado', {
+        como: 'autor', metodo: 'POST',
+        corpo: {
+            declaredAccuracy: 'true',
+            categoria: 'Iluminação Pública',
+            bairro: 'Centro',
+            titulo: 'Poste quebrado na rua',
+            descricao: 'Aquele morador vagabundo e idiota quebrou a lâmpada da esquina.',
+            localizacao: 'Centro, Cariús'
+        }
+    });
+    checar(envioOfensivo.status === 302 && !(await Chamado.findOne({ titulo: 'Poste quebrado na rua' })), 'filtro de civilidade bloqueia relato com xingamentos explícitos e impede gravação no banco');
+
+    // 2. Envio válido com opção de anonimato nasce pendente de moderação
+    const envioAnonimo = await pedir('/categories/gestao_de_melhorias/abrir-chamado', {
+        como: 'autor', metodo: 'POST',
+        corpo: {
+            declaredAccuracy: 'true',
+            isConfidential: 'true',
+            categoria: 'Iluminação Pública',
+            bairro: 'Centro',
+            titulo: 'Lâmpada queimada no Centro com nome de Fulano',
+            descricao: 'O poste em frente à casa de Fulano está apagado há três noites.',
+            localizacao: 'Rua Principal, Centro, Cariús'
+        }
+    });
+    checar(envioAnonimo.status === 302, 'envio válido com anonimato é registrado');
+    let chamadoPiloto = await Chamado.findOne({ titulo: 'Lâmpada queimada no Centro com nome de Fulano' }).select('+authorIpAddress').lean();
+    checar(Boolean(chamadoPiloto), 'chamado do piloto salvo no banco');
+    checar(chamadoPiloto.moderacao?.status === 'pendente', 'novo chamado nasce retido/pendente de moderação');
+    checar(chamadoPiloto.isConfidential === true && String(chamadoPiloto.usuario) === String(autor._id) && Boolean(chamadoPiloto.authorIpAddress), 'anonimato mantém vínculo interno de autoria e IP no banco');
+
+    const hubMelhoriasAntes = await (await pedir('/categories/gestao_de_melhorias/hub')).text();
+    checar(!hubMelhoriasAntes.includes('Lâmpada queimada no Centro'), 'chamado pendente não aparece no feed público');
+    checar((await pedir(`/categories/gestao_de_melhorias/detalhes/${chamadoPiloto._id}`, { como: 'outro' })).status === 404, 'terceiro não acessa detalhe de chamado pendente');
+    checar((await pedir(`/categories/gestao_de_melhorias/detalhes/${chamadoPiloto._id}`, { como: 'autor' })).status === 200, 'autor acessa seu chamado mesmo pendente');
+
+    // 3. Assessor edita texto (remove menção nominal) e aprova para o feed público
+    await pedir(`/admin/protocolo/melhoria/${chamadoPiloto._id}/moderar`, {
+        como: 'gestor', metodo: 'POST',
+        corpo: {
+            acao: 'editar_aprovar',
+            titulo: 'Lâmpada queimada no Centro',
+            descricao: 'O poste próximo ao número 100 está apagado há três noites.',
+            notaModeracao: 'Removida menção nominal a morador antes de aprovar.'
+        }
+    });
+    chamadoPiloto = await Chamado.findById(chamadoPiloto._id).lean();
+    checar(chamadoPiloto.moderacao.status === 'aprovado', 'assessor aprova chamado após revisar texto');
+    checar(chamadoPiloto.moderacao.textoEditadoPelaModeracao === true && !chamadoPiloto.descricao.includes('Fulano'), 'texto sanitizado pela moderação foi salvo');
+    checar(chamadoPiloto.moderacao.trilha.length >= 2 && chamadoPiloto.moderacao.trilha.at(-1).moderadorNome === 'Gestor Teste', 'trilha de auditoria registra quem moderou e quando');
+
+    const hubMelhoriasDepois = await (await pedir('/categories/gestao_de_melhorias/hub')).text();
+    checar(hubMelhoriasDepois.includes('Lâmpada queimada no Centro'), 'chamado aprovado passa a exibir no feed público');
+    const detalheAnonimoPublico = await (await pedir(`/categories/gestao_de_melhorias/detalhes/${chamadoPiloto._id}`, { como: 'outro' })).text();
+    checar(detalheAnonimoPublico.includes('Cidadão Protegido') && !detalheAnonimoPublico.includes('Autor Teste'), 'visualização pública mascara completamente a identidade do autor anônimo');
+
+    // 4. Encaminhamento interno, bloqueio e exportação para delegacia
+    await pedir(`/admin/protocolo/denuncia/${vandalismo._id}/moderar`, {
+        como: 'gestor', metodo: 'POST',
+        corpo: {
+            acao: 'encaminhar',
+            orgaoEncaminhado: 'Delegacia de Polícia Civil / Polícia Militar',
+            notaModeracao: 'Encaminhado para apuração policial.'
+        }
+    });
+    const vandalismoEncaminhado = await Denuncia.findById(vandalismo._id).lean();
+    checar(vandalismoEncaminhado.moderacao.status === 'encaminhado' && vandalismoEncaminhado.moderacao.orgaoEncaminhado.includes('Delegacia'), 'encaminhamento interno registrado na denúncia');
+
+    const exportHtml = await pedir(`/admin/protocolo/denuncia/${vandalismo._id}/exportar-delegacia`, { como: 'gestor' });
+    checar(exportHtml.status === 200 && (await exportHtml.text()).includes('Relatório Estruturado de Ocorrência'), 'assessor visualiza relatório estruturado para delegacia');
+    const exportTxt = await pedir(`/admin/protocolo/denuncia/${vandalismo._id}/exportar-delegacia?formato=txt`, { como: 'gestor' });
+    checar(exportTxt.status === 200 && (await exportTxt.text()).includes('RELATÓRIO TÉCNICO DE OCORRÊNCIA'), 'exportação .TXT para delegacia funciona');
+    const exportJson = await pedir(`/admin/protocolo/denuncia/${vandalismo._id}/exportar-delegacia?formato=json`, { como: 'gestor' });
+    checar(exportJson.status === 200 && Boolean((await exportJson.json()).protocolo), 'exportação .JSON para delegacia funciona');
+    checar((await pedir(`/admin/protocolo/denuncia/${vandalismo._id}/exportar-delegacia`, { como: 'outro' })).status === 302, 'usuário comum é barrado da exportação para delegacia');
+
+    // 5. Dashboard Executivo de Métricas
+    const metricasResp = await pedir('/admin/metricas', { como: 'gestor' });
+    const metricasHtml = await metricasResp.text();
+    checar(metricasResp.status === 200 && metricasHtml.includes('Indicadores Operacionais de Cariús') && metricasHtml.includes('Centro'), 'dashboard executivo de métricas consolida dados do piloto para o admin');
+    checar((await pedir('/admin/metricas', { como: 'outro' })).status === 302, 'usuário comum é barrado do dashboard de métricas');
 } finally {
     servidor.close();
     await mongoose.disconnect();

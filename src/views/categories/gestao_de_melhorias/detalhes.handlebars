@@ -10,6 +10,26 @@
 
         {{> _acoes_post eDono=eDono podeAcompanhar=podeAcompanhar linkProtocolo=linkProtocolo linkEditar=linkEditar temProtocolo=true}}
 
+        {{#if podeAcompanhar}}
+        <div class="card border-0 shadow-sm rounded-4 mb-4 bg-white">
+            <div class="card-body p-3 px-4 d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <div class="d-flex align-items-center flex-wrap gap-2">
+                    <span class="badge bg-{{moderacao.cor}} rounded-pill px-3 py-2">
+                        <i class="bi {{moderacao.icone}} me-1"></i> {{moderacao.rotulo}}
+                    </span>
+                    <span class="small text-muted">
+                        Protocolo <strong>{{comprovante.protocolo}}</strong> — {{moderacao.resumo}}
+                    </span>
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{{comprovante.mailtoUrl}}" class="btn btn-sm btn-outline-primary rounded-pill fw-bold px-3">
+                        <i class="bi bi-envelope-check-fill me-1"></i> Guardar Comprovante por E-mail
+                    </a>
+                </div>
+            </div>
+        </div>
+        {{/if}}
+
         <div class="row gx-5">
             <div class="col-lg-8">
                 <div class="card shadow-lg border-0 rounded-4 overflow-hidden mb-4 bg-white">
@@ -39,9 +59,22 @@
                     {{/if}}
 
                     <div class="card-body p-4 p-md-5">
-                        <div class="d-flex align-items-center mb-3">
-                            <span class="badge bg-success px-3 py-2 rounded-pill me-3">Chamado Ativo</span>
-                            <small class="text-muted"><i class="bi bi-calendar3 me-1"></i> {{formatDate chamadoDoc.createdAt}}</small>
+                        <div class="d-flex align-items-center flex-wrap gap-2 mb-3">
+                            <span class="badge bg-success px-3 py-2 rounded-pill">Chamado Ativo</span>
+                            {{#if chamadoDoc.categoria}}
+                                <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill">{{chamadoDoc.categoria}}</span>
+                            {{/if}}
+                            {{#if chamadoDoc.bairro}}
+                                <span class="badge bg-light text-dark border px-3 py-2 rounded-pill"><i class="bi bi-pin-map-fill text-primary me-1"></i>{{chamadoDoc.bairro}}</span>
+                            {{/if}}
+                            <span class="badge bg-secondary bg-opacity-10 text-dark px-3 py-2 rounded-pill">
+                                {{#if chamadoDoc.isConfidential}}
+                                    <i class="bi bi-incognito text-secondary me-1"></i> Cidadão Protegido
+                                {{else}}
+                                    <i class="bi bi-person-fill text-primary me-1"></i> {{chamadoDoc.usuario.name}}
+                                {{/if}}
+                            </span>
+                            <small class="text-muted ms-auto"><i class="bi bi-calendar3 me-1"></i> {{formatDate chamadoDoc.createdAt}}</small>
                         </div>
                         
                         <h1 class="fw-bold text-dark display-6 mb-3">{{chamadoDoc.titulo}}</h1>

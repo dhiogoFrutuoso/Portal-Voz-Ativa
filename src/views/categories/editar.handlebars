@@ -99,6 +99,17 @@
                         <form action="/categories/{{eixo.chave}}/editar/{{post._id}}" method="POST" id="formEdicao">
                             <input type="hidden" name="_csrf" value="{{csrfToken}}">
 
+                            {{#if (eq eixo.chave 'gestao_de_melhorias')}}
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Categoria da melhoria (Escopo Piloto)</label>
+                                    <select name="categoria" id="categoriaMelhoria" class="form-select rounded-3" required>
+                                        {{#each categoriasMelhoria}}
+                                            <option value="{{this}}" {{#if (eq this ../post.categoria)}}selected{{/if}}>{{this}}</option>
+                                        {{/each}}
+                                    </select>
+                                </div>
+                            {{/if}}
+
                             {{#if (eq eixo.chave 'denuncias_sigilosas')}}
                                 <div class="mb-3">
                                     <label class="form-label fw-bold">Tipo de ocorrência</label>
