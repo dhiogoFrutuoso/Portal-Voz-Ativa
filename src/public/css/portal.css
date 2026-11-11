@@ -976,16 +976,11 @@ button, input, select, textarea {
     background-color: #FFFFFF;
     border: none !important;
     border-radius: 12px;
-    padding: 1.4rem;
+    padding: 0.85rem;
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
     position: relative;
     overflow: hidden;
     z-index: 1;
-    transition: transform 0.25s ease;
-}
-
-.dsgov-hero-illustration:hover {
-    transform: translateY(-4px);
 }
 
 .dsgov-hero-illustration img,
@@ -994,10 +989,11 @@ button, input, select, textarea {
     width: 100%;
     max-width: 100%;
     height: auto;
-    max-height: 320px;
+    max-height: 330px;
     object-fit: contain;
     border-radius: 8px;
     margin: 0 auto;
+    mix-blend-mode: multiply;
 }
 
 /* --- Caixa de Busca Direta DSGOV (Superfície Branca Sem Borda Rígida) --- */
@@ -1005,19 +1001,20 @@ button, input, select, textarea {
     background-color: #FFFFFF;
     border: none !important;
     border-radius: 10px;
-    padding: 0.75rem;
+    padding: 0.65rem;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
 }
 
 .dsgov-search-select {
     border: none;
     border-radius: 8px;
-    font-size: 1.02rem;
+    font-size: 0.95rem;
     font-weight: 600;
     color: var(--dsgov-navy);
     background-color: #F0F2F5;
     min-height: 50px;
-    padding: 0.65rem 2rem 0.65rem 0.95rem;
+    padding: 0.6rem 1.75rem 0.6rem 0.75rem;
+    text-overflow: ellipsis;
 }
 
 .dsgov-search-input {
@@ -1189,9 +1186,9 @@ button, input, select, textarea {
 }
 
 .dsgov-mosaic-featured-illo {
-    background-color: #F8FAFC;
+    background-color: #FFFFFF;
     border: none !important;
-    padding: 2rem;
+    padding: 1.5rem 1.75rem;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1205,12 +1202,13 @@ button, input, select, textarea {
 .dsgov-mosaic-featured-illo svg {
     display: block;
     max-width: 100%;
-    max-height: 250px;
+    max-height: 260px;
     width: auto;
     height: auto;
     object-fit: contain;
-    border-radius: 10px;
+    border-radius: 0;
     margin: 0 auto;
+    mix-blend-mode: multiply;
 }
 
 .dsgov-mosaic-card {
@@ -1234,14 +1232,17 @@ button, input, select, textarea {
     box-shadow: var(--dsgov-shadow-hover);
 }
 
-/* Cabeçalho ilustrado dedicado dentro de cada card de serviço (sem borda rígida) */
-.dsgov-card-illo-banner {
+/* Cabeçalho ilustrado integrado diretamente à superfície branca do card (sem caixa interna) */
+.dsgov-card-illo-banner,
+.dsgov-card-illo-banner.banner-red,
+.dsgov-card-illo-banner.banner-green {
     width: 100%;
-    height: 165px;
-    border-radius: 10px;
-    background-color: #F8FAFC;
+    height: 175px;
+    border-radius: 0;
+    background-color: #FFFFFF;
     border: none !important;
-    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #F1F3F5 !important;
+    padding: 0 0 1rem 0;
     margin-bottom: 1.35rem;
     display: flex;
     align-items: center;
@@ -1251,23 +1252,16 @@ button, input, select, textarea {
     z-index: 1;
 }
 
-.dsgov-card-illo-banner.banner-red {
-    background-color: #FFF9F8;
-}
-
-.dsgov-card-illo-banner.banner-green {
-    background-color: #F6FBF7;
-}
-
 .dsgov-card-illo-banner svg,
 .dsgov-card-illo-banner img {
     display: block;
-    max-height: 145px;
+    max-height: 160px;
     max-width: 100%;
     width: auto;
     height: auto;
     object-fit: contain;
-    border-radius: 8px;
+    border-radius: 0;
+    mix-blend-mode: multiply;
 }
 
 /* Contêiner de miniatura controlada (48px a 64px máx.) */
@@ -1468,49 +1462,88 @@ button, input, select, textarea {
     background-color: #FFFFFF;
     border: none !important;
     border-radius: 12px;
-    padding: 1.65rem;
+    padding: 1.25rem;
     text-align: center;
     box-shadow: var(--dsgov-shadow-card);
     position: relative;
     overflow: hidden;
     z-index: 1;
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
-.dsgov-lineart-frame:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--dsgov-shadow-hover);
+/* Dentro do carrossel, a ilustração já está num card branco: sem sombra ou moldura duplicada */
+.dsgov-carousel-box .dsgov-lineart-frame,
+.dsgov-carousel-illo {
+    background-color: #FFFFFF;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0.5rem;
+    text-align: center;
 }
 
 .dsgov-lineart-img {
     width: 100%;
     max-width: 480px;
-    max-height: 350px;
+    max-height: 340px;
     height: auto;
     object-fit: contain;
-    border-radius: 8px;
+    border-radius: 0;
     display: block;
     margin: 0 auto;
+    mix-blend-mode: multiply;
+}
+
+/* Links reais de escopo no card de serviço (clicáveis) */
+.dsgov-pillar-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    background-color: #F0F4FA;
+    border: none !important;
+    border-radius: 8px;
+    padding: 0.5rem 0.95rem;
+    font-size: 0.96rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--dsgov-blue);
+    text-decoration: none;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.dsgov-pillar-link:hover {
+    background-color: var(--dsgov-blue);
+    color: #FFFFFF !important;
+    transform: translateY(-2px);
+}
+
+/* Selos/itens informativos estáticos nas seções editoriais (não parecem botões) */
+.dsgov-editorial-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    background-color: transparent;
+    border-left: 3px solid var(--dsgov-blue);
+    border-radius: 0;
+    padding: 0.2rem 0.7rem;
+    font-size: 0.98rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: #2D3748;
+    cursor: default;
 }
 
 .dsgov-pillar-chip {
     display: inline-flex;
     align-items: center;
     gap: 0.45rem;
-    background-color: #F0F2F5;
-    border: none !important;
-    border-radius: 8px;
-    padding: 0.5rem 0.95rem;
+    background-color: transparent;
+    border-left: 3px solid var(--dsgov-blue);
+    border-radius: 0;
+    padding: 0.2rem 0.7rem;
     font-size: 0.98rem;
     font-weight: 600;
     line-height: 1.4;
-    color: var(--dsgov-navy);
-    transition: background-color 0.2s ease, transform 0.2s ease;
-}
-
-.dsgov-pillar-chip:hover {
-    background-color: var(--dsgov-blue-soft);
-    transform: translateY(-2px);
+    color: #2D3748;
+    cursor: default;
 }
 
 /* --- Badges Sólidos Semânticos DSGOV (Caixa Alta Moderada) --- */
@@ -1586,15 +1619,16 @@ button, input, select, textarea {
 }
 
 .dsgov-step-illo {
-    height: 120px;
-    background-color: #F8FAFC;
+    height: 115px;
+    background-color: #FFFFFF;
     border: none !important;
-    border-radius: 10px;
+    border-bottom: 1px solid #F1F3F5 !important;
+    border-radius: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-bottom: 1.3rem;
-    padding: 0.75rem;
+    padding: 0 0 0.85rem 0;
     position: relative;
     overflow: hidden;
 }

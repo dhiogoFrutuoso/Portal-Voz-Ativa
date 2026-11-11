@@ -552,11 +552,19 @@ export function gerarTextoComprovanteOficial(doc, tipo) {
  * Extração padronizada de bairro/localidade para o Dashboard Executivo.
  */
 export function extrairBairro(doc) {
+    const ehGenericoOuPais = (val) =>
+        /^(brazil|brasil|cear[aá]|ce|cari[uú]s|regi[aã]o\s+.*|n[aã]o\s+informado|unnamed\s+road)$/i.test(
+            String(val || '').trim()
+        );
+
     if (doc?.bairro && String(doc.bairro).trim() !== '') {
-        return String(doc.bairro).trim();
+        const b = String(doc.bairro).trim();
+        if (!ehGenericoOuPais(b)) {
+            return b;
+        }
     }
     const loc = String(doc?.localizacao || '').trim();
-    if (!loc) return 'Não informado';
+    if (!loc) return 'Cariús - CE (Zona Urbana/Rural)';
 
     const locLower = loc.toLowerCase();
     for (const bairro of BAIRROS_CARIUS) {
@@ -568,12 +576,15 @@ export function extrairBairro(doc) {
     const partes = loc
         .split(/[,-]/)
         .map((p) => p.trim())
-        .filter((p) => p && !/^(cari[uú]s|cear[aá]|brasil|regi[aã]o\s+.*)$/i.test(p) && !/^\d{5}-?\d{3}$/.test(p));
+        .filter((p) => p && !ehGenericoOuPais(p) && !/^\d{5}-?\d{3}$/.test(p));
 
     if (partes.length >= 2) {
         return partes[1].slice(0, 45);
     }
-    return (partes[0] || 'Centro').slice(0, 45);
+    if (partes.length === 1) {
+        return partes[0].slice(0, 45);
+    }
+    return 'Cariús - CE (Zona Urbana/Rural)';
 }
 
 /*

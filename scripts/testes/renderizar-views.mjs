@@ -92,6 +92,7 @@ const base = { csrfToken: 'token-de-teste', cloudinaryCloudName: 'dnh7vok3r', cl
 const casos = [
     ['index.handlebars', {
         ...base,
+        user: null,
         paginaInicial: true,
         indicadoresResumo: { publicadas: 12, emAtendimento: 5, resolvidas: 7, vitrinesAtivas: 9 },
         demandasRecentes: [{
@@ -101,8 +102,8 @@ const casos = [
             linkDetalhes: '/categories/gestao_de_melhorias/detalhes/p1'
         }]
     },
-    ['Plataforma Cívica Independente de Cariús', 'A sua voz transforma o nosso município.', 'Explorar Serviços', 'Acompanhar Meu Pedido', '100% Gratuito', 'Sigilo Assegurado', 'Direto ao Ponto', 'Comércio Valorizado', 'Navegue por Categoria', 'Conserto de Ruas e Iluminação', 'Fazer Denúncia com Sigilo', 'Encontrar Profissionais e Serviços', 'carrosselDestaquesCivicos', 'filtrarCategoriaServico', 'Cidadania Ativa e o Cuidado com o Patrimônio Coletivo', 'A verdadeira transformação de um município começa quando o cidadão deixa de ser apenas espectador e assume seu papel como guardião da sua cidade.', 'Segurança Comunitária e Proteção Mútua', 'A segurança e a tranquilidade pública são direitos de todos e responsabilidade de cada um de nós.', 'Lei Federal nº 13.460/2017', 'O Dever do Poder Público: Escuta, Eficiência e Transparência', 'Artigo 37 da Constituição Federal', 'Valorização do Trabalhador e da Economia Local', 'A riqueza do nosso município está nas mãos de quem trabalha e produz aqui todos os dias.', 'Do Relato à Solução: 4 Passos Simples', 'Você aponta a necessidade', 'A equipe analisa com responsabilidade', 'Direcionamento para a equipe executora', 'A cidade evolui com transparência', 'Preciso pagar alguma coisa para usar?', 'Alguém vai saber que fui eu que denunciei?', '/img/ilustracao-hero-civica.webp', '/img/ilustracao-card-ruas-iluminacao.webp', '/img/ilustracao-card-denuncia-sigilo.webp', '/img/ilustracao-card-vitrine-trabalhador.webp', '/img/ilustracao-cidadania-patrimonio.webp', '/img/ilustracao-cidadania-acolhimento.webp', '/img/ilustracao-dever-poder-publico.webp', '/img/ilustracao-trabalhadores-cidade.webp', '190 • Polícia Militar', '181 • Disque-Denúncia'],
-    ['SLA', 'Zeladoria Urbana', 'Triagem Moderada', 'Rito Processual', 'Metadados EXIF', 'Comprovante .TXT/PDF', 'icon-seguranca.webp', 'icon-economia.webp', 'pessoas-juntas.webp', 'pessoas-unidas.webp', 'pessoas-trabalhando.webp', 'cariús-panorama.webp']],
+    ['Entrar com sua conta', 'Selecione abaixo o canal de atendimento ideal para a sua necessidade.', 'Plataforma Cívica Independente de Cariús', 'A sua voz transforma o nosso município.', 'Explorar Serviços', 'Acompanhar Meu Pedido', '100% Gratuito', 'Sigilo Assegurado', 'Direto ao Ponto', 'Comércio Valorizado', 'Navegue por Categoria', 'Conserto de Ruas e Iluminação', 'Fazer Denúncia com Sigilo', 'Encontrar Profissionais e Serviços', 'carrosselDestaquesCivicos', 'Casos Práticos do Dia a Dia em Cariús', 'Como pedir troca de lâmpada no seu bairro', 'Como divulgar seu serviço autônomo', 'Como denunciar queimadas e lixo com sigilo total', 'Como baixar e acompanhar seu protocolo', 'filtrarCategoriaServico', 'Cidadania Ativa e o Cuidado com o Patrimônio Coletivo', 'A verdadeira transformação de um município começa quando o cidadão deixa de ser apenas espectador e assume seu papel como guardião da sua cidade.', 'Segurança Comunitária e Proteção Mútua', 'A segurança e a tranquilidade pública são direitos de todos e responsabilidade de cada um de nós.', 'Lei Federal nº 13.460/2017', 'O Dever do Poder Público: Escuta, Eficiência e Transparência', 'Artigo 37 da Constituição Federal', 'Valorização do Trabalhador e da Economia Local', 'A riqueza do nosso município está nas mãos de quem trabalha e produz aqui todos os dias.', 'Do Relato à Solução: 4 Passos Simples', 'Você aponta a necessidade', 'A equipe analisa com responsabilidade', 'Direcionamento para a equipe executora', 'A cidade evolui com transparência', 'Preciso pagar alguma coisa para usar?', 'Alguém vai saber que fui eu que denunciei?', '/img/ilustracao-hero-civica.webp', '/img/ilustracao-card-ruas-iluminacao.webp', '/img/ilustracao-card-denuncia-sigilo.webp', '/img/ilustracao-card-vitrine-trabalhador.webp', '/img/ilustracao-caso-lampada-bairro.webp', '/img/ilustracao-caso-servico-autonomo.webp', '/img/ilustracao-caso-denuncia-queimada.webp', '/img/ilustracao-caso-baixar-protocolo.webp', '/img/ilustracao-cidadania-patrimonio.webp', '/img/ilustracao-cidadania-acolhimento.webp', '/img/ilustracao-dever-poder-publico.webp', '/img/ilustracao-trabalhadores-cidade.webp', '190 • Polícia Militar', '181 • Disque-Denúncia'],
+    ['em menos de 3 segundos', 'Acesso Público', 'SLA', 'Zeladoria Urbana', 'Triagem Moderada', 'Rito Processual', 'Metadados EXIF', 'Comprovante .TXT/PDF', 'icon-seguranca.webp', 'icon-economia.webp', 'pessoas-juntas.webp', 'pessoas-unidas.webp', 'pessoas-trabalhando.webp', 'cariús-panorama.webp']],
     ['protocolos/timeline.handlebars', { ...base, protocolo, eDono: true, eAdmin: false, estagios },
      ['Asfalto desgastado', 'Prazo de atendimento', 'Equipe enviada', 'token-de-teste', 'Guardar Comprovante por E-mail', 'Baixar Comprovante (.TXT)',
       '/mensagem/m1/editar', '/mensagem/m1/excluir'],
@@ -307,12 +308,24 @@ for (const [view, contexto, esperados, proibidos = []] of casos) {
         const vazados = proibidos.filter((t) => html.includes(t));
         const aninhados = formsAninhados(html);
         const tokenVazio = csrfVazio(html);
+        let imgsDuplicadas = [];
+        if (view === 'index.handlebars') {
+            const srcs = [...html.matchAll(/<img\b[^>]*\bsrc="([^"]+)"/g)].map((m) => m[1]);
+            const vistos = new Set();
+            for (const s of srcs) {
+                if (vistos.has(s)) imgsDuplicadas.push(s);
+                vistos.add(s);
+            }
+        }
 
         if (tokenVazio) {
             console.log(`FALHA  ${rotulo} -> tem _csrf vazio (use @root.csrfToken dentro de each)`);
             falhas++;
         } else if (aninhados) {
             console.log(`FALHA  ${rotulo} -> tem <form> dentro de <form> (quebra o token CSRF)`);
+            falhas++;
+        } else if (imgsDuplicadas.length > 0) {
+            console.log(`FALHA  ${rotulo} -> imagens repetidas: ${imgsDuplicadas.join(' | ')}`);
             falhas++;
         } else if (faltando.length > 0 || vazados.length > 0) {
             if (faltando.length > 0) console.log(`FALHA  ${rotulo} -> não encontrado: ${faltando.join(' | ')}`);
