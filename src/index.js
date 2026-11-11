@@ -275,8 +275,8 @@ app.get('/', async (req, res) => {
                 return {
                     _id: doc._id,
                     numero: numeroDoProtocolo(doc, 'melhoria'),
-                    eixoRotulo: 'Gestão de Melhorias',
-                    categoria: doc.categoria || 'Zeladoria Urbana',
+                    eixoRotulo: 'Melhorias no Bairro',
+                    categoria: doc.categoria || 'Conserto de Ruas e Iluminação',
                     titulo: doc.titulo,
                     bairro: extrairBairro(doc),
                     dataCriacao: doc.dataCriacao,

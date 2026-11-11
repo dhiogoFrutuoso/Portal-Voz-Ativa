@@ -95,13 +95,14 @@ const casos = [
         paginaInicial: true,
         indicadoresResumo: { publicadas: 12, emAtendimento: 5, resolvidas: 7, vitrinesAtivas: 9 },
         demandasRecentes: [{
-            _id: 'p1', numero: 'MEL-2026-C5C5B8', eixoRotulo: 'Gestão de Melhorias',
+            _id: 'p1', numero: 'MEL-2026-C5C5B8', eixoRotulo: 'Melhorias no Bairro',
             categoria: 'Reparo de Vias e Estradas', titulo: 'Asfalto desgastado na Rua Principal',
             bairro: 'Centro', dataCriacao: new Date('2026-02-19'), status: 'Em Atendimento',
             linkDetalhes: '/categories/gestao_de_melhorias/detalhes/p1'
         }]
     },
-    ['Ouvidoria Cidadã, Zeladoria Urbana e Vitrine do Trabalhador', 'Carta de Serviços Digitais', 'MEL-2026-C5C5B8', 'Alto Contraste', 'CEARÁ DE VALORES']],
+    ['O que você precisa hoje em Cariús?', 'Conserto de Ruas e Iluminação', 'Fazer Denúncia com Sigilo', 'Encontrar Profissionais e Serviços', 'Como Funciona (3 passos simples)', 'Pedir Reparo', 'Fazer Denúncia Segura', 'Ver Trabalhadores', 'Acompanhar meu Pedido', '190 • Polícia Militar', '181 • Disque-Denúncia', 'Termos de Uso e Privacidade'],
+    ['SLA', 'Zeladoria Urbana', 'Triagem Moderada', 'Rito Processual', 'Metadados EXIF', 'Comprovante .TXT/PDF']],
     ['protocolos/timeline.handlebars', { ...base, protocolo, eDono: true, eAdmin: false, estagios },
      ['Asfalto desgastado', 'Prazo de atendimento', 'Equipe enviada', 'token-de-teste', 'Guardar Comprovante por E-mail', 'Baixar Comprovante (.TXT)',
       '/mensagem/m1/editar', '/mensagem/m1/excluir'],

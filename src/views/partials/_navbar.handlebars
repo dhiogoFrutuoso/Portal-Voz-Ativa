@@ -4,7 +4,7 @@
     <div class="d-flex align-items-center gap-2">
       <span class="dsgov-topbar-sigla">PORTAL VOZ ATIVA</span>
       <span class="dsgov-topbar-sep d-none d-sm-inline" aria-hidden="true">|</span>
-      <span class="dsgov-topbar-sub d-none d-sm-inline">SISTEMA CÍVICO DE OUVIDORIA E SERVIÇOS AO CIDADÃO</span>
+      <span class="dsgov-topbar-sub d-none d-sm-inline">SERVIÇOS E ATENDIMENTO AO CIDADÃO DE CARIÚS</span>
     </div>
 
     <div class="d-flex align-items-center flex-wrap gap-3">
@@ -17,7 +17,6 @@
         <button type="button" id="btnAltoContraste" class="dsgov-topbar-btn" aria-pressed="false" title="Alternar modo de alto contraste">
           <i class="bi bi-circle-half me-1" aria-hidden="true"></i>Alto Contraste
         </button>
-        <a href="/termos-de-uso" class="dsgov-topbar-link d-none d-md-inline">Transparência</a>
         <a href="https://cearadevalores.com.br/" target="_blank" rel="noopener noreferrer" class="dsgov-topbar-link fw-bold">CEARÁ DE VALORES</a>
       </div>
     </div>
@@ -29,7 +28,7 @@
   <div class="container">
     <a class="navbar-brand d-flex align-items-center py-1" href="/">
       <div class="dsgov-brand-mark">
-        <span class="dsgov-brand-kicker">OUVIDORIA DIGITAL E ZELADORIA URBANA • CARIÚS/CE</span>
+        <span class="dsgov-brand-kicker">CARIÚS • CEARÁ</span>
         <span class="dsgov-brand-title">Portal Voz Ativa</span>
       </div>
     </a>
@@ -44,7 +43,7 @@
           <a class="nav-link dsgov-nav-link{{#if paginaInicial}} active{{/if}}" href="/"{{#if paginaInicial}} aria-current="page"{{/if}}>Início</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link dsgov-nav-link" href="/categories">Carta de Serviços</a>
+          <a class="nav-link dsgov-nav-link" href="/categories">Serviços</a>
         </li>
         <li class="nav-item">
           <a class="nav-link dsgov-nav-link{{#if paginaProjeto}} active{{/if}}" href="/project"{{#if paginaProjeto}} aria-current="page"{{/if}}>O Projeto</a>
@@ -60,7 +59,7 @@
         {{#if user}}
           <li class="nav-item">
             <a class="nav-link dsgov-nav-link" href="/protocolos">
-               <i class="bi bi-folder-check me-1"></i>Meus Protocolos
+               <i class="bi bi-folder-check me-1"></i>Meus Pedidos
             </a>
           </li>
           <li class="nav-item">
@@ -75,11 +74,11 @@
           </li>
         {{else}}
           <li class="nav-item ms-lg-2">
-            <a class="btn dsgov-btn-outline btn-sm px-3" href="/users/register">Cadastrar-se</a>
+            <a class="btn dsgov-btn-outline btn-sm px-3" href="/users/register">Criar Conta</a>
           </li>
           <li class="nav-item ms-lg-2 register">
             <a class="btn dsgov-btn-primary btn-sm px-3" href="/users/login">
-              <i class="bi bi-person-fill me-1"></i>Entrar com sua conta
+              <i class="bi bi-person-fill me-1"></i>Entrar
             </a>
           </li>
         {{/if}}
