@@ -101,7 +101,7 @@ const casos = [
             linkDetalhes: '/categories/gestao_de_melhorias/detalhes/p1'
         }]
     },
-    ['O que você precisa hoje em Cariús?', 'Conserto de Ruas e Iluminação', 'Fazer Denúncia com Sigilo', 'Encontrar Profissionais e Serviços', 'Como Funciona (3 passos simples)', 'Pedir Reparo', 'Fazer Denúncia Segura', 'Ver Trabalhadores', 'Acompanhar meu Pedido', '190 • Polícia Militar', '181 • Disque-Denúncia', 'Termos de Uso e Privacidade'],
+    ['Plataforma Cívica Independente de Cariús', 'A sua voz transforma o nosso município.', 'Explorar Serviços', 'Acompanhar Meu Pedido', '100% Gratuito', 'Sigilo Assegurado', 'Direto ao Ponto', 'Comércio Valorizado', 'Conserto de Ruas e Iluminação', 'Fazer Denúncia com Sigilo', 'Encontrar Profissionais e Serviços', 'Como a Sua Participação Funciona', 'Você aponta a necessidade', 'A equipe analisa com responsabilidade', 'A cidade evolui com transparência', 'Preciso pagar alguma coisa para usar?', 'Alguém vai saber que fui eu que denunciei?', '190 • Polícia Militar', '181 • Disque-Denúncia'],
     ['SLA', 'Zeladoria Urbana', 'Triagem Moderada', 'Rito Processual', 'Metadados EXIF', 'Comprovante .TXT/PDF']],
     ['protocolos/timeline.handlebars', { ...base, protocolo, eDono: true, eAdmin: false, estagios },
      ['Asfalto desgastado', 'Prazo de atendimento', 'Equipe enviada', 'token-de-teste', 'Guardar Comprovante por E-mail', 'Baixar Comprovante (.TXT)',

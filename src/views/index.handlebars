@@ -1,49 +1,187 @@
 {{!-- ==========================================================================
-     PORTAL VOZ ATIVA — PÁGINA INICIAL SIMPLIFICADA (PADRÃO GOV.BR / DSGOV)
-     Linguagem popular e direta, letras grandes e um botão de ação por serviço.
+     PORTAL VOZ ATIVA — LANDING PAGE ILUSTRADA (PADRÃO INEP / GOV.BR / DSGOV)
+     Narrativa cívica acolhedora, ilustrações vetoriais Flat 2D em SVG nativo,
+     tipografia ampla e linguagem simples para toda a população de Cariús.
      ========================================================================== --}}
 
-{{!-- 1. Topo Limpo com Pergunta Central e Busca Rápida --}}
-<header class="dsgov-hero-band text-center" id="busca-portal">
+{{!-- 1. HERO SECTION EXPANDIDO (TEXTO MOTIVADOR + ILUSTRAÇÃO 2D INEP/GOV.BR) --}}
+<header class="dsgov-hero-band" id="busca-portal">
     <div class="container">
-        <h1 class="dsgov-hero-title">
-            O que você precisa hoje em Cariús?
-        </h1>
+        <div class="row g-5 align-items-center">
+            {{!-- Coluna Esquerda: Texto Motivador, Botões Duplos e Busca Rápida --}}
+            <div class="col-12 col-lg-7">
+                <div class="dsgov-hero-badge">
+                    <i class="bi bi-check2-circle" aria-hidden="true"></i>
+                    Plataforma Cívica Independente de Cariús
+                </div>
 
-        <form id="formBuscaPortal" action="/categories/gestao_de_melhorias/hub" method="GET" class="dsgov-search-box text-start" role="search" aria-label="Pesquisar no portal">
-            <div class="row g-2 align-items-center">
-                <div class="col-12 col-md-4">
-                    <label for="selectEixoBusca" class="visually-hidden">Onde pesquisar</label>
-                    <select id="selectEixoBusca" class="form-select dsgov-search-select w-100"
-                            onchange="var f=document.getElementById('formBuscaPortal');if(f)f.action=this.value;">
-                        <option value="/categories/gestao_de_melhorias/hub">Conserto de Ruas e Iluminação</option>
-                        <option value="/categories/denuncias_sigilosas/hub">Denúncias da Comunidade</option>
-                        <option value="/categories/vitrine_do_trabalhador/hub">Profissionais e Serviços</option>
-                    </select>
+                <h1 class="dsgov-hero-title">
+                    A sua voz transforma o nosso município.
+                </h1>
+
+                <p class="dsgov-hero-lead">
+                    Um canal direto, seguro e gratuito para você pedir consertos na sua rua, denunciar problemas com total proteção e valorizar os trabalhadores da nossa terra.
+                </p>
+
+                <div class="d-flex flex-wrap gap-3 mb-4">
+                    <a href="#servicos-cidadao" class="dsgov-btn-hero-primary">
+                        <i class="bi bi-grid-fill" aria-hidden="true"></i> Explorar Serviços
+                    </a>
+                    <a href="/protocolos" class="dsgov-btn-hero-outline">
+                        <i class="bi bi-folder-check" aria-hidden="true"></i> Acompanhar Meu Pedido
+                    </a>
                 </div>
-                <div class="col-12 col-md-6">
-                    <label for="inputTermoBusca" class="visually-hidden">Digite o que você procura</label>
-                    <input type="search" id="inputTermoBusca" name="q" maxlength="100"
-                           class="form-control dsgov-search-input w-100"
-                           placeholder="Digite uma rua, bairro, problema ou profissão...">
-                </div>
-                <div class="col-12 col-md-2 d-grid">
-                    <button type="submit" class="btn dsgov-btn-primary dsgov-search-btn">
-                        <i class="bi bi-search me-1" aria-hidden="true"></i>Buscar
-                    </button>
+
+                {{!-- Barra de Busca Rápida logo abaixo dos botões --}}
+                <form id="formBuscaPortal" action="/categories/gestao_de_melhorias/hub" method="GET" class="dsgov-search-box" role="search" aria-label="Pesquisar no portal">
+                    <div class="row g-2 align-items-center">
+                        <div class="col-12 col-sm-4">
+                            <label for="selectEixoBusca" class="visually-hidden">Onde pesquisar</label>
+                            <select id="selectEixoBusca" class="form-select dsgov-search-select w-100"
+                                    onchange="var f=document.getElementById('formBuscaPortal');if(f)f.action=this.value;">
+                                <option value="/categories/gestao_de_melhorias/hub">Conserto de Ruas e Iluminação</option>
+                                <option value="/categories/denuncias_sigilosas/hub">Denúncias da Comunidade</option>
+                                <option value="/categories/vitrine_do_trabalhador/hub">Profissionais e Serviços</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-sm-5">
+                            <label for="inputTermoBusca" class="visually-hidden">Digite o que você procura</label>
+                            <input type="search" id="inputTermoBusca" name="q" maxlength="100"
+                                   class="form-control dsgov-search-input w-100"
+                                   placeholder="O que você precisa hoje em Cariús?">
+                        </div>
+                        <div class="col-12 col-sm-3 d-grid">
+                            <button type="submit" class="btn dsgov-btn-primary dsgov-search-btn">
+                                <i class="bi bi-search me-1" aria-hidden="true"></i>Buscar
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            {{!-- Coluna Direita: Ilustração Vetorial Flat 2D (Estilo INEP / Gov.br) --}}
+            <div class="col-12 col-lg-5">
+                <div class="dsgov-hero-illustration text-center">
+                    <svg viewBox="0 0 480 340" width="100%" height="auto" role="img" aria-label="Ilustração de cidadãos participando da melhoria da cidade com celular e protocolo">
+                        {{!-- Fundo da cena urbana acolhedora --}}
+                        <rect x="10" y="10" width="460" height="320" rx="12" fill="#0C326F"/>
+                        <circle cx="95" cy="75" r="36" fill="#1351B4" opacity="0.55"/>
+                        <circle cx="390" cy="65" r="22" fill="#FFCD07" opacity="0.9"/>
+
+                        {{!-- Casario comunitário e praça ao fundo --}}
+                        <rect x="40" y="155" width="75" height="105" rx="4" fill="#1B4B99"/>
+                        <polygon points="35,155 77,122 120,155" fill="#1351B4"/>
+                        <rect x="56" y="175" width="18" height="22" rx="2" fill="#FFCD07"/>
+                        <rect x="82" y="175" width="18" height="22" rx="2" fill="#FFCD07"/>
+                        <rect x="68" y="218" width="20" height="42" rx="2" fill="#071D41"/>
+
+                        {{!-- Poste de iluminação pública aceso --}}
+                        <rect x="152" y="105" width="6" height="155" fill="#D9E2EC"/>
+                        <path d="M155 108 Q180 92 198 108" stroke="#D9E2EC" stroke-width="5" fill="none" stroke-linecap="round"/>
+                        <circle cx="198" cy="113" r="10" fill="#FFCD07"/>
+                        <circle cx="198" cy="113" r="22" fill="#FFCD07" opacity="0.22"/>
+
+                        {{!-- Árvore da praça --}}
+                        <rect x="388" y="205" width="12" height="55" fill="#8D6E63"/>
+                        <circle cx="394" cy="182" r="34" fill="#168821"/>
+                        <circle cx="374" cy="196" r="24" fill="#1E9E2A"/>
+                        <circle cx="412" cy="196" r="24" fill="#1E9E2A"/>
+
+                        {{!-- Calçada / chão da praça --}}
+                        <rect x="20" y="260" width="440" height="52" rx="6" fill="#071D41"/>
+                        <line x1="40" y1="286" x2="440" y2="286" stroke="#1351B4" stroke-width="3" stroke-dasharray="18 12"/>
+
+                        {{!-- Prancheta de Protocolo Oficial (Centro-Direita) --}}
+                        <rect x="268" y="88" width="118" height="152" rx="8" fill="#FFFFFF" stroke="#DCDCDC" stroke-width="2"/>
+                        <rect x="302" y="78" width="50" height="18" rx="4" fill="#FFCD07"/>
+                        <rect x="284" y="114" width="56" height="8" rx="4" fill="#1351B4"/>
+                        <rect x="284" y="132" width="84" height="6" rx="3" fill="#CBD5E1"/>
+                        <rect x="284" y="146" width="76" height="6" rx="3" fill="#CBD5E1"/>
+                        <rect x="284" y="160" width="64" height="6" rx="3" fill="#CBD5E1"/>
+                        {{!-- Selo verde de Protocolo Atendido na prancheta --}}
+                        <circle cx="327" cy="202" r="20" fill="#E6F4EA" stroke="#168821" stroke-width="2.5"/>
+                        <polyline points="318,202 325,209 338,194" fill="none" stroke="#168821" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+
+                        {{!-- Personagem Cidadão (Flat 2D) interagindo com celular --}}
+                        <circle cx="212" cy="154" r="20" fill="#F4A261"/>
+                        <path d="M192 148 Q212 126 232 148" fill="#071D41"/>
+                        <path d="M178 260 L186 184 Q212 176 238 184 L246 260 Z" fill="#1351B4"/>
+                        {{!-- Braço erguendo smartphone --}}
+                        <path d="M232 192 L262 174" stroke="#F4A261" stroke-width="11" stroke-linecap="round"/>
+                        <rect x="256" y="152" width="18" height="30" rx="3" fill="#071D41" stroke="#FFFFFF" stroke-width="2"/>
+                        <circle cx="265" cy="164" r="3" fill="#FFCD07"/>
+                    </svg>
                 </div>
             </div>
-        </form>
+        </div>
     </div>
 </header>
 
-{{!-- 2. Os 4 Serviços Principais (Fonte Grande, 1 Frase Simples e 1 Botão Largo) --}}
-<section class="py-5" id="servicos-cidadao" aria-labelledby="titulo-servicos">
+{{!-- 2. SEÇÃO DE IMPACTO CIDADÃO (NÚMEROS E COMPROMISSOS QUE GERAM CONFIANÇA) --}}
+<section class="dsgov-impact-strip" aria-label="Compromissos com o cidadão">
     <div class="container">
-        <div class="dsgov-section-header d-flex flex-wrap justify-content-between align-items-center gap-2">
-            <h2 id="titulo-servicos" class="dsgov-section-title">Serviços para Você</h2>
+        <div class="row g-3">
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="dsgov-impact-item">
+                    <div class="dsgov-impact-icon">
+                        <i class="bi bi-Patch-check-fill bi-patch-check-fill" aria-hidden="true"></i>
+                    </div>
+                    <div>
+                        <h2 class="dsgov-impact-title">100% Gratuito</h2>
+                        <p class="dsgov-impact-text">Serviço comunitário aberto a toda a população.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="dsgov-impact-item" style="border-left-color: var(--dsgov-red);">
+                    <div class="dsgov-impact-icon" style="background-color: var(--dsgov-red-soft); color: var(--dsgov-red);">
+                        <i class="bi bi-shield-lock-fill" aria-hidden="true"></i>
+                    </div>
+                    <div>
+                        <h2 class="dsgov-impact-title">Sigilo Assegurado</h2>
+                        <p class="dsgov-impact-text">Sua identidade protegida por lei.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="dsgov-impact-item" style="border-left-color: var(--dsgov-yellow);">
+                    <div class="dsgov-impact-icon" style="background-color: var(--dsgov-yellow-soft); color: #8A6D00;">
+                        <i class="bi bi-bell-fill" aria-hidden="true"></i>
+                    </div>
+                    <div>
+                        <h2 class="dsgov-impact-title">Direto ao Ponto</h2>
+                        <p class="dsgov-impact-text">Notificações e acompanhamento por protocolo.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="dsgov-impact-item" style="border-left-color: var(--dsgov-green);">
+                    <div class="dsgov-impact-icon" style="background-color: var(--dsgov-green-soft); color: var(--dsgov-green);">
+                        <i class="bi bi-shop" aria-hidden="true"></i>
+                    </div>
+                    <div>
+                        <h2 class="dsgov-impact-title">Comércio Valorizado</h2>
+                        <p class="dsgov-impact-text">Apoio aos autônomos locais de Cariús.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{{!-- 3. CARDS DE SERVIÇOS REINVENTADOS (COM MICRO-ILUSTRAÇÕES VETORIAIS DE TOPO) --}}
+<section class="dsgov-section-pad" id="servicos-cidadao" aria-labelledby="titulo-servicos">
+    <div class="container">
+        <div class="dsgov-section-header d-flex flex-wrap justify-content-between align-items-end gap-2">
+            <div>
+                <span class="dsgov-section-kicker">Atendimento Digital</span>
+                <h2 id="titulo-servicos" class="dsgov-section-title">Escolha o Serviço que Você Precisa</h2>
+            </div>
             <a href="/categories" class="btn dsgov-btn-outline">
-                Ver mural da cidade <i class="bi bi-arrow-right ms-1"></i>
+                Ver todos os murais <i class="bi bi-arrow-right ms-1"></i>
             </a>
         </div>
 
@@ -51,120 +189,190 @@
             {{!-- Card 1: Conserto de Ruas e Iluminação --}}
             <div class="col-12 col-md-6 col-xl-3">
                 <article class="dsgov-service-card accent-blue">
-                    <div>
-                        <div class="dsgov-service-icon icon-blue">
-                            <i class="bi bi-lightbulb-fill" aria-hidden="true"></i>
-                        </div>
-                        <h3 class="dsgov-service-title">
-                            Conserto de Ruas e Iluminação
-                        </h3>
-                        <p class="dsgov-service-desc">
-                            Avise sobre poste apagado, buraco na rua ou lixo acumulado no seu bairro.
-                        </p>
+                    <div class="dsgov-card-illo-header bg-illo-blue" aria-hidden="true">
+                        <svg viewBox="0 0 220 96" width="180" height="84">
+                            <rect x="18" y="68" width="184" height="14" rx="4" fill="#1351B4" opacity="0.2"/>
+                            <line x1="36" y1="75" x2="184" y2="75" stroke="#1351B4" stroke-width="3" stroke-dasharray="10 8"/>
+                            <rect x="64" y="22" width="5" height="46" fill="#071D41"/>
+                            <path d="M66 24 Q84 14 96 24" stroke="#071D41" stroke-width="4" fill="none" stroke-linecap="round"/>
+                            <circle cx="96" cy="28" r="8" fill="#FFCD07"/>
+                            <circle cx="96" cy="28" r="16" fill="#FFCD07" opacity="0.3"/>
+                            <circle cx="148" cy="48" r="20" fill="#FFFFFF" stroke="#1351B4" stroke-width="3"/>
+                            <path d="M140 52 L148 40 L156 52 Z" fill="#1351B4"/>
+                        </svg>
                     </div>
-                    <a href="/categories/gestao_de_melhorias/abrir-chamado" class="dsgov-card-cta cta-blue">
-                        <i class="bi bi-plus-circle-fill" aria-hidden="true"></i> Pedir Reparo
-                    </a>
+                    <div class="dsgov-card-body">
+                        <div>
+                            <h3 class="dsgov-service-title">
+                                Conserto de Ruas e Iluminação
+                            </h3>
+                            <p class="dsgov-service-desc">
+                                Avise sobre poste apagado, buraco na rua ou lixo acumulado no seu bairro.
+                            </p>
+                        </div>
+                        <a href="/categories/gestao_de_melhorias/abrir-chamado" class="dsgov-card-cta cta-blue">
+                            <i class="bi bi-plus-circle-fill" aria-hidden="true"></i> Pedir Reparo
+                        </a>
+                    </div>
                 </article>
             </div>
 
             {{!-- Card 2: Fazer Denúncia com Sigilo --}}
             <div class="col-12 col-md-6 col-xl-3">
                 <article class="dsgov-service-card accent-red">
-                    <div>
-                        <div class="dsgov-service-icon icon-red">
-                            <i class="bi bi-shield-lock-fill" aria-hidden="true"></i>
-                        </div>
-                        <h3 class="dsgov-service-title">
-                            Fazer Denúncia com Sigilo
-                        </h3>
-                        <p class="dsgov-service-desc">
-                            Denuncie queimadas, maus-tratos a animais ou descarte de lixo sem mostrar seu nome.
-                        </p>
+                    <div class="dsgov-card-illo-header bg-illo-red" aria-hidden="true">
+                        <svg viewBox="0 0 220 96" width="180" height="84">
+                            <circle cx="110" cy="48" r="36" fill="#E52207" opacity="0.1"/>
+                            <path d="M110 14 L144 26 V48 C144 68 128 80 110 86 C92 80 76 68 76 48 V26 Z" fill="#FFFFFF" stroke="#E52207" stroke-width="3"/>
+                            <rect x="98" y="44" width="24" height="18" rx="3" fill="#E52207"/>
+                            <path d="M103 44 V38 C103 33 117 33 117 38 V44" fill="none" stroke="#071D41" stroke-width="3"/>
+                            <circle cx="110" cy="53" r="2.5" fill="#FFFFFF"/>
+                        </svg>
                     </div>
-                    <a href="/categories/denuncias_sigilosas/abrir-denuncia" class="dsgov-card-cta cta-red">
-                        <i class="bi bi-shield-check" aria-hidden="true"></i> Fazer Denúncia Segura
-                    </a>
+                    <div class="dsgov-card-body">
+                        <div>
+                            <h3 class="dsgov-service-title">
+                                Fazer Denúncia com Sigilo
+                            </h3>
+                            <p class="dsgov-service-desc">
+                                Denuncie queimadas, maus-tratos a animais ou descarte de lixo sem mostrar seu nome.
+                            </p>
+                        </div>
+                        <a href="/categories/denuncias_sigilosas/abrir-denuncia" class="dsgov-card-cta cta-red">
+                            <i class="bi bi-shield-check" aria-hidden="true"></i> Fazer Denúncia Segura
+                        </a>
+                    </div>
                 </article>
             </div>
 
             {{!-- Card 3: Encontrar Profissionais e Serviços --}}
             <div class="col-12 col-md-6 col-xl-3">
                 <article class="dsgov-service-card accent-green">
-                    <div>
-                        <div class="dsgov-service-icon icon-green">
-                            <i class="bi bi-briefcase-fill" aria-hidden="true"></i>
-                        </div>
-                        <h3 class="dsgov-service-title">
-                            Encontrar Profissionais e Serviços
-                        </h3>
-                        <p class="dsgov-service-desc">
-                            Encontre trabalhadores e pequenos negócios de Cariús ou divulgue o seu serviço de graça.
-                        </p>
+                    <div class="dsgov-card-illo-header bg-illo-green" aria-hidden="true">
+                        <svg viewBox="0 0 220 96" width="180" height="84">
+                            <rect x="64" y="34" width="92" height="46" rx="5" fill="#FFFFFF" stroke="#168821" stroke-width="3"/>
+                            <path d="M58 34 L70 18 H150 L162 34 Z" fill="#168821"/>
+                            <rect x="96" y="52" width="28" height="28" fill="#E6F4EA" stroke="#168821" stroke-width="2"/>
+                            <circle cx="164" cy="64" r="14" fill="#FFCD07"/>
+                            <polyline points="158,64 163,69 171,59" fill="none" stroke="#071D41" stroke-width="2.5" stroke-linecap="round"/>
+                        </svg>
                     </div>
-                    <a href="/categories/vitrine_do_trabalhador/hub" class="dsgov-card-cta cta-green">
-                        <i class="bi bi-people-fill" aria-hidden="true"></i> Ver Trabalhadores
-                    </a>
+                    <div class="dsgov-card-body">
+                        <div>
+                            <h3 class="dsgov-service-title">
+                                Encontrar Profissionais e Serviços
+                            </h3>
+                            <p class="dsgov-service-desc">
+                                Encontre trabalhadores e pequenos negócios de Cariús ou divulgue o seu serviço de graça.
+                            </p>
+                        </div>
+                        <a href="/categories/vitrine_do_trabalhador/hub" class="dsgov-card-cta cta-green">
+                            <i class="bi bi-people-fill" aria-hidden="true"></i> Ver Trabalhadores
+                        </a>
+                    </div>
                 </article>
             </div>
 
             {{!-- Card 4: Acompanhar meu Pedido --}}
             <div class="col-12 col-md-6 col-xl-3">
                 <article class="dsgov-service-card accent-navy">
-                    <div>
-                        <div class="dsgov-service-icon icon-navy">
-                            <i class="bi bi-folder-check" aria-hidden="true"></i>
-                        </div>
-                        <h3 class="dsgov-service-title">
-                            Acompanhar meu Pedido
-                        </h3>
-                        <p class="dsgov-service-desc">
-                            Veja a resposta da equipe para o seu pedido e baixe o seu comprovante pelo protocolo.
-                        </p>
+                    <div class="dsgov-card-illo-header bg-illo-navy" aria-hidden="true">
+                        <svg viewBox="0 0 220 96" width="180" height="84">
+                            <rect x="70" y="14" width="68" height="68" rx="6" fill="#FFFFFF" stroke="#071D41" stroke-width="3"/>
+                            <line x1="84" y1="32" x2="122" y2="32" stroke="#1351B4" stroke-width="4" stroke-linecap="round"/>
+                            <line x1="84" y1="46" x2="118" y2="46" stroke="#94A3B8" stroke-width="3" stroke-linecap="round"/>
+                            <line x1="84" y1="58" x2="108" y2="58" stroke="#94A3B8" stroke-width="3" stroke-linecap="round"/>
+                            <circle cx="136" cy="58" r="18" fill="#E8F0FE" stroke="#1351B4" stroke-width="3"/>
+                            <line x1="149" y1="71" x2="162" y2="82" stroke="#071D41" stroke-width="4" stroke-linecap="round"/>
+                        </svg>
                     </div>
-                    <a href="/protocolos" class="dsgov-card-cta cta-navy">
-                        <i class="bi bi-search" aria-hidden="true"></i> Acompanhar meu Pedido
-                    </a>
+                    <div class="dsgov-card-body">
+                        <div>
+                            <h3 class="dsgov-service-title">
+                                Acompanhar meu Pedido
+                            </h3>
+                            <p class="dsgov-service-desc">
+                                Veja a resposta da equipe para o seu pedido e baixe o seu comprovante pelo protocolo.
+                            </p>
+                        </div>
+                        <a href="/protocolos" class="dsgov-card-cta cta-navy">
+                            <i class="bi bi-search" aria-hidden="true"></i> Acompanhar meu Pedido
+                        </a>
+                    </div>
                 </article>
             </div>
         </div>
     </div>
 </section>
 
-{{!-- 3. Como Funciona (3 passos simples) --}}
-<section class="py-5 bg-white border-top border-bottom" id="como-funciona" aria-labelledby="titulo-como-funciona">
+{{!-- 4. SEÇÃO "COMO A SUA PARTICIPAÇÃO FUNCIONA" (PASSO A PASSO ILUSTRADO EM 3 BLOCOS) --}}
+<section class="dsgov-section-pad bg-white border-top border-bottom" id="como-funciona" aria-labelledby="titulo-como-funciona">
     <div class="container">
         <div class="dsgov-section-header">
-            <h2 id="titulo-como-funciona" class="dsgov-section-title">Como Funciona (3 passos simples)</h2>
+            <span class="dsgov-section-kicker">Simples, Rápido e Transparente</span>
+            <h2 id="titulo-como-funciona" class="dsgov-section-title">Como a Sua Participação Funciona</h2>
         </div>
 
         <div class="row g-4">
+            {{!-- Passo 1 --}}
             <div class="col-12 col-md-4">
                 <div class="dsgov-step-card">
-                    <div class="dsgov-step-num">1</div>
-                    <h3 class="dsgov-step-title">1. Você relata o problema</h3>
+                    <div class="dsgov-step-illo" aria-hidden="true">
+                        <svg viewBox="0 0 200 88" width="170" height="78">
+                            <rect x="44" y="14" width="68" height="60" rx="6" fill="#FFFFFF" stroke="#1351B4" stroke-width="3"/>
+                            <circle cx="78" cy="44" r="13" fill="#E8F0FE" stroke="#1351B4" stroke-width="2.5"/>
+                            <path d="M140 18 C128 18 120 27 120 38 C120 53 140 72 140 72 C140 72 160 53 160 38 C160 27 152 18 140 18 Z" fill="#E52207"/>
+                            <circle cx="140" cy="37" r="6" fill="#FFFFFF"/>
+                        </svg>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="dsgov-step-num">1</span>
+                        <h3 class="dsgov-step-title mb-0">Você aponta a necessidade</h3>
+                    </div>
                     <p class="dsgov-step-desc">
-                        Tire uma foto, diga a rua e envie sem complicação.
+                        O cidadão envia a foto e a rua em menos de 2 minutos.
                     </p>
                 </div>
             </div>
 
+            {{!-- Passo 2 --}}
             <div class="col-12 col-md-4">
                 <div class="dsgov-step-card">
-                    <div class="dsgov-step-num">2</div>
-                    <h3 class="dsgov-step-title">2. A equipe recebe e analisa</h3>
+                    <div class="dsgov-step-illo" aria-hidden="true">
+                        <svg viewBox="0 0 200 88" width="170" height="78">
+                            <rect x="46" y="12" width="66" height="64" rx="6" fill="#FFFFFF" stroke="#071D41" stroke-width="3"/>
+                            <line x1="60" y1="30" x2="96" y2="30" stroke="#1351B4" stroke-width="3" stroke-linecap="round"/>
+                            <line x1="60" y1="44" x2="92" y2="44" stroke="#94A3B8" stroke-width="3" stroke-linecap="round"/>
+                            <path d="M138 20 L162 29 V46 C162 60 151 70 138 75 C125 70 114 60 114 46 V29 Z" fill="#FFCD07" stroke="#071D41" stroke-width="2.5"/>
+                            <polyline points="130,47 136,53 147,40" fill="none" stroke="#071D41" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="dsgov-step-num">2</span>
+                        <h3 class="dsgov-step-title mb-0">A equipe analisa com responsabilidade</h3>
+                    </div>
                     <p class="dsgov-step-desc">
-                        Sua solicitação é verificada com sigilo garantido.
+                        Triagem cuidadosa para garantir a segurança e a veracidade.
                     </p>
                 </div>
             </div>
 
+            {{!-- Passo 3 --}}
             <div class="col-12 col-md-4">
                 <div class="dsgov-step-card">
-                    <div class="dsgov-step-num">3</div>
-                    <h3 class="dsgov-step-title">3. O serviço é realizado</h3>
+                    <div class="dsgov-step-illo" aria-hidden="true">
+                        <svg viewBox="0 0 200 88" width="170" height="78">
+                            <rect x="28" y="58" width="144" height="14" rx="4" fill="#E6F4EA"/>
+                            <circle cx="100" cy="42" r="26" fill="#168821"/>
+                            <polyline points="88,42 97,51 114,33" fill="none" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="dsgov-step-num">3</span>
+                        <h3 class="dsgov-step-title mb-0">A cidade evolui com transparência</h3>
+                    </div>
                     <p class="dsgov-step-desc">
-                        Acompanhe o andamento pelo seu número de protocolo.
+                        A demanda é resolvida e o progresso fica registrado para a comunidade.
                     </p>
                 </div>
             </div>
@@ -172,27 +380,102 @@
     </div>
 </section>
 
-{{!-- 4. Pedidos Recentes da Comunidade (Tabela Espaçada e de Fácil Leitura) --}}
-<section class="py-5" id="pedidos-recentes" aria-labelledby="titulo-recentes">
+{{!-- 5. SEÇÃO DE PERGUNTAS FREQUENTES RÁPIDAS (FAQ DO CIDADÃO) --}}
+<section class="dsgov-section-pad" id="perguntas-frequentes" aria-labelledby="titulo-faq">
     <div class="container">
-        <div class="dsgov-section-header d-flex flex-wrap justify-content-between align-items-center gap-2">
-            <h2 id="titulo-recentes" class="dsgov-section-title">Pedidos Recentes na Cidade</h2>
+        <div class="dsgov-section-header">
+            <span class="dsgov-section-kicker">Tire Suas Dúvidas</span>
+            <h2 id="titulo-faq" class="dsgov-section-title">Perguntas Frequentes do Cidadão</h2>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-10">
+                <div class="accordion dsgov-faq-accordion" id="accordionFaqCidadao">
+                    {{!-- Pergunta 1 --}}
+                    <div class="accordion-item">
+                        <h3 class="accordion-header" id="faqHeading1">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse1" aria-expanded="true" aria-controls="faqCollapse1">
+                                Preciso pagar alguma coisa para usar?
+                            </button>
+                        </h3>
+                        <div id="faqCollapse1" class="accordion-collapse collapse show" aria-labelledby="faqHeading1" data-bs-parent="#accordionFaqCidadao">
+                            <div class="accordion-body">
+                                Não, o Portal Voz Ativa é e sempre será 100% gratuito.
+                            </div>
+                        </div>
+                    </div>
+
+                    {{!-- Pergunta 2 --}}
+                    <div class="accordion-item">
+                        <h3 class="accordion-header" id="faqHeading2">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse2" aria-expanded="false" aria-controls="faqCollapse2">
+                                Alguém vai saber que fui eu que denunciei?
+                            </button>
+                        </h3>
+                        <div id="faqCollapse2" class="accordion-collapse collapse" aria-labelledby="faqHeading2" data-bs-parent="#accordionFaqCidadao">
+                            <div class="accordion-body">
+                                Não. Você pode escolher a opção de sigilo e seus dados pessoais jamais serão expostos ao público.
+                            </div>
+                        </div>
+                    </div>
+
+                    {{!-- Pergunta 3 --}}
+                    <div class="accordion-item">
+                        <h3 class="accordion-header" id="faqHeading3">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse3" aria-expanded="false" aria-controls="faqCollapse3">
+                                Como sei se meu pedido foi atendido?
+                            </button>
+                        </h3>
+                        <div id="faqCollapse3" class="accordion-collapse collapse" aria-labelledby="faqHeading3" data-bs-parent="#accordionFaqCidadao">
+                            <div class="accordion-body">
+                                Você recebe um número de protocolo na hora e pode consultar o andamento quando quiser.
+                            </div>
+                        </div>
+                    </div>
+
+                    {{!-- Pergunta 4 --}}
+                    <div class="accordion-item">
+                        <h3 class="accordion-header" id="faqHeading4">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse4" aria-expanded="false" aria-controls="faqCollapse4">
+                                Como divulgo meu trabalho aqui?
+                            </button>
+                        </h3>
+                        <div id="faqCollapse4" class="accordion-collapse collapse" aria-labelledby="faqHeading4" data-bs-parent="#accordionFaqCidadao">
+                            <div class="accordion-body">
+                                Basta acessar a Vitrine do Trabalhador e cadastrar seus serviços gratuitamente.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{{!-- 6. MURAL DE DEMANDAS RECENTES E AVISO DE EMERGÊNCIA (190 e 181) --}}
+<section class="dsgov-section-pad bg-white border-top" id="pedidos-recentes" aria-labelledby="titulo-recentes">
+    <div class="container">
+        <div class="dsgov-section-header d-flex flex-wrap justify-content-between align-items-end gap-2">
+            <div>
+                <span class="dsgov-section-kicker">Acompanhamento Comunitário</span>
+                <h2 id="titulo-recentes" class="dsgov-section-title">Últimas Demandas Aprovadas na Cidade</h2>
+            </div>
             <a href="/categories/gestao_de_melhorias/hub" class="btn dsgov-btn-outline">
                 Ver todos os pedidos
             </a>
         </div>
 
-        <div class="dsgov-table-box mb-4">
+        <div class="dsgov-table-box mb-5">
             <div class="table-responsive">
                 <table class="table table-hover dsgov-table">
                     <thead>
                         <tr>
                             <th scope="col">Protocolo</th>
-                            <th scope="col">O que foi pedido</th>
+                            <th scope="col">O que foi solicitado</th>
                             <th scope="col">Bairro / Local</th>
                             <th scope="col">Data</th>
                             <th scope="col">Situação</th>
-                            <th scope="col" class="text-end">Ver</th>
+                            <th scope="col" class="text-end">Detalhes</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -233,7 +516,7 @@
                         {{else}}
                             <tr>
                                 <td colspan="6" class="text-center py-4 text-muted">
-                                    Nenhum pedido público registrado ainda. Use os botões acima para enviar o primeiro pedido do seu bairro.
+                                    Nenhum pedido público registrado ainda. Use os cartões acima para enviar o primeiro pedido do seu bairro.
                                 </td>
                             </tr>
                         {{/if}}
@@ -242,7 +525,7 @@
             </div>
         </div>
 
-        {{!-- 5. Telefones de Emergência Visíveis e Limpos (190 e 181) --}}
+        {{!-- Faixa de Emergência (190 e 181) --}}
         <div class="dsgov-emergency-bar d-flex flex-wrap justify-content-between align-items-center gap-3">
             <div class="d-flex align-items-center gap-3">
                 <i class="bi bi-telephone-fill text-danger fs-3" aria-hidden="true"></i>
@@ -253,10 +536,10 @@
             </div>
             <div class="d-flex flex-wrap gap-3">
                 <span class="dsgov-badge dsgov-badge-red fs-6 px-3 py-2">
-                    190 • Polícia Militar
+                    <i class="bi bi-telephone-outbound-fill me-1" aria-hidden="true"></i> 190 • Polícia Militar
                 </span>
                 <span class="dsgov-badge dsgov-badge-neutral fs-6 px-3 py-2">
-                    181 • Disque-Denúncia
+                    <i class="bi bi-shield-fill-exclamation me-1" aria-hidden="true"></i> 181 • Disque-Denúncia
                 </span>
             </div>
         </div>
