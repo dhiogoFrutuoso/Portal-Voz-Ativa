@@ -123,7 +123,7 @@ app.set('views', path.join(RAIZ, 'src', 'views'));
 app.use(express.static(path.join(RAIZ, 'src', 'public')));
 app.use(otimizarMidiaNaRenderizacao);
 
-app.get('/', (req, res) => res.render('index'));
+app.get('/', (req, res) => res.render('index', { paginaInicial: true, demandasRecentes: [] }));
 app.use('/project', project);
 app.use('/protocolos', protocolos);
 app.use('/admin', admin);

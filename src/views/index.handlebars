@@ -1,13 +1,13 @@
 {{!-- ==========================================================================
      PORTAL VOZ ATIVA — LANDING PAGE EDITORIAL CÍVICA (PADRÃO GOV.BR / DSGOV)
-     Narrativa institucional humanizada, Mosaico Assimétrico de Serviços,
-     Ilustrações Editorial Line Art e Guia Cidadão Completo para Cariús/CE.
+     Tipografia institucional Rawline / Public Sans, contenção estrita de layout,
+     Mosaico Assimétrico de Serviços e Ilustrações Editorial Line Art 2D.
      ========================================================================== --}}
 
-{{!-- 1. HERO SECTION EXPANDIDO (TEXTO MOTIVADOR + ILUSTRAÇÃO EDITORIAL LINE ART) --}}
+{{!-- 1. HERO SECTION EXPANDIDO (TEXTO MOTIVADOR + CENA HORIZONTAL EDITORIAL LINE ART) --}}
 <header class="dsgov-hero-band" id="busca-portal">
     <div class="container">
-        <div class="row g-5 align-items-center">
+        <div class="row g-4 g-lg-5 align-items-center">
             {{!-- Coluna Esquerda: Texto Motivador, Botões Duplos e Busca Rápida --}}
             <div class="col-12 col-lg-7">
                 <div class="dsgov-hero-badge">
@@ -59,18 +59,18 @@
                 </form>
             </div>
 
-            {{!-- Coluna Direita: Ilustração Editorial Line Art com Personagens Colaborando --}}
+            {{!-- Coluna Direita: Cena Horizontal Editorial Line Art (Cidadãos + Servidora + Praça) --}}
             <div class="col-12 col-lg-5">
                 <div class="dsgov-hero-illustration text-center">
-                    <img src="/img/pessoas-juntas.webp"
-                         alt="Cidadãos de Cariús reunidos colaborando com demandas comunitárias e acompanhamento de protocolos"
-                         width="540"
-                         height="380"
+                    <img src="/img/ilustracao-hero-civica.webp"
+                         alt="Ilustração editorial em traço fino mostrando cidadãos conversando com servidora técnica e exibindo protocolo validado no celular em uma praça pública"
+                         width="640"
+                         height="360"
                          fetchpriority="high">
-                    <div class="mt-2 pt-1 d-flex align-items-center justify-content-between px-2 text-start">
-                        <span class="small fw-semibold" style="color: var(--dsgov-navy);">
+                    <div class="mt-2 pt-2 border-top d-flex flex-wrap align-items-center justify-content-between gap-2 px-1 text-start">
+                        <span class="small fw-medium" style="color: var(--dsgov-navy);">
                             <i class="bi bi-people-fill me-1" style="color: var(--dsgov-blue);" aria-hidden="true"></i>
-                            Participação Cidadã Ativa em Cariús/CE
+                            Cidadãos e gestão conectados pelo bem de Cariús
                         </span>
                         <span class="dsgov-badge dsgov-badge-blue">Acesso Público</span>
                     </div>
@@ -135,14 +135,14 @@
     </div>
 </section>
 
-{{!-- 3. NOVO DESIGN DOS CARDS DE SERVIÇOS — MOSAICO / GRID EDITORIAL ASSIMÉTRICO --}}
+{{!-- 3. CARDS DE SERVIÇOS — MOSAICO EDITORIAL ASSIMÉTRICO COM ILUSTRAÇÕES INTEGRADAS E CONTIDAS --}}
 <section class="dsgov-section-pad" id="servicos-cidadao" aria-labelledby="titulo-servicos">
     <div class="container">
         <div class="dsgov-section-header d-flex flex-wrap justify-content-between align-items-end gap-3">
             <div>
                 <span class="dsgov-section-kicker">Atendimento Digital ao Cidadão</span>
                 <h2 id="titulo-servicos" class="dsgov-section-title">Escolha o Serviço que Você Precisa</h2>
-                <p class="text-muted mb-0 mt-1" style="font-size: 1.05rem;">
+                <p class="text-muted mb-0 mt-1" style="font-size: 1.02rem;">
                     Canais diretos organizados em linguagem simples para resolver demandas do seu bairro ou distrito.
                 </p>
             </div>
@@ -160,14 +160,14 @@
                             <span class="dsgov-badge dsgov-badge-blue">
                                 <i class="bi bi-tools me-1" aria-hidden="true"></i> Serviço Mais Solicitado
                             </span>
-                            <span class="text-muted small fw-semibold">Prazo de resposta: até 10 dias úteis</span>
+                            <span class="text-muted small fw-medium">Prazo de resposta: até 10 dias úteis</span>
                         </div>
 
-                        <h3 class="dsgov-service-title" style="font-size: 1.75rem;">
+                        <h3 class="dsgov-service-title" style="font-size: 1.6rem;">
                             Conserto de Ruas e Iluminação
                         </h3>
 
-                        <p class="dsgov-service-desc mb-3" style="font-size: 1.12rem;">
+                        <p class="dsgov-service-desc mb-3">
                             Avise sobre poste apagado, buraco na rua, calçamento danificado ou lixo acumulado no seu bairro ou sítio. Você envia uma foto do local e recebe um número de protocolo na hora para cobrar e acompanhar a solução.
                         </p>
 
@@ -185,7 +185,7 @@
                     </div>
 
                     <div class="d-flex flex-wrap align-items-center gap-3 pt-2">
-                        <a href="/categories/gestao_de_melhorias/abrir-chamado" class="dsgov-card-cta cta-blue px-4" style="width: auto;">
+                        <a href="/categories/gestao_de_melhorias/abrir-chamado" class="dsgov-card-cta cta-blue px-4">
                             <i class="bi bi-plus-circle-fill" aria-hidden="true"></i> Pedir Reparo Agora
                         </a>
                         <a href="/categories/gestao_de_melhorias/hub" class="btn dsgov-btn-outline py-2 px-3">
@@ -194,52 +194,85 @@
                     </div>
                 </div>
 
+                {{!-- Cena Ilustrada Lateral Integrada (Editorial Line Art Vetorial Limpa e Contida) --}}
                 <div class="col-12 col-lg-5 dsgov-mosaic-featured-illo">
-                    <div class="text-center">
-                        <img src="/img/cariús-panorama.webp"
-                             alt="Ilustração editorial sobre iluminação pública, ideias e melhorias para o município"
-                             class="img-fluid"
-                             style="max-height: 250px; object-fit: contain;"
-                             loading="lazy">
-                        <p class="small text-muted mb-0 mt-2 fw-semibold">
-                            Registro rápido com foto, localização no mapa e comprovante oficial.
-                        </p>
-                    </div>
+                    <svg viewBox="0 0 380 220" width="360" height="200" role="img" aria-label="Ilustração editorial de rua iluminada, manutenção urbana e registro de protocolo pelo celular">
+                        {{!-- Fundo suave em tom pastel azul --}}
+                        <rect x="14" y="14" width="352" height="192" rx="12" fill="#DCE8F5"/>
+                        {{!-- Calçada e via urbana em traço editorial --}}
+                        <path d="M26 174 H354" stroke="#1E293B" stroke-width="2.2" stroke-linecap="round"/>
+                        <path d="M46 190 H334" stroke="#64748B" stroke-width="2" stroke-dasharray="12 10" stroke-linecap="round"/>
+                        {{!-- Árvore da praça em pastel verde --}}
+                        <circle cx="76" cy="118" r="28" fill="#E3F2E1" stroke="#1E293B" stroke-width="2"/>
+                        <circle cx="96" cy="126" r="20" fill="#E3F2E1" stroke="#1E293B" stroke-width="2"/>
+                        <line x1="82" y1="138" x2="82" y2="174" stroke="#1E293B" stroke-width="2.5" stroke-linecap="round"/>
+                        {{!-- Poste de iluminação pública aceso --}}
+                        <line x1="154" y1="54" x2="154" y2="174" stroke="#1E293B" stroke-width="3" stroke-linecap="round"/>
+                        <path d="M154 56 Q176 42 194 56" fill="none" stroke="#1E293B" stroke-width="2.5" stroke-linecap="round"/>
+                        <circle cx="196" cy="62" r="16" fill="#FEF7E0"/>
+                        <circle cx="196" cy="62" r="8" fill="#FFCD07" stroke="#1E293B" stroke-width="2"/>
+                        {{!-- Personagem cidadã apontando melhoria com celular e prancheta de protocolo --}}
+                        <circle cx="246" cy="92" r="16" fill="#FDE68A" stroke="#1E293B" stroke-width="2"/>
+                        <path d="M232 86 Q246 70 260 86" fill="#1E293B"/>
+                        <path d="M222 174 L228 116 Q246 110 264 116 L270 174 Z" fill="#FFFFFF" stroke="#1E293B" stroke-width="2"/>
+                        {{!-- Cartão de protocolo validado ao lado --}}
+                        <rect x="284" y="64" width="62" height="84" rx="6" fill="#FFFFFF" stroke="#1E293B" stroke-width="2"/>
+                        <line x1="296" y1="82" x2="332" y2="82" stroke="#1351B4" stroke-width="2.5" stroke-linecap="round"/>
+                        <line x1="296" y1="94" x2="334" y2="94" stroke="#64748B" stroke-width="2" stroke-linecap="round"/>
+                        <line x1="296" y1="106" x2="324" y2="106" stroke="#64748B" stroke-width="2" stroke-linecap="round"/>
+                        <circle cx="315" cy="128" r="11" fill="#E3F2E1" stroke="#1E293B" stroke-width="1.8"/>
+                        <polyline points="310,128 314,132 321,123" fill="none" stroke="#168821" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <p class="small text-muted mb-0 mt-2 text-center">
+                        Envio rápido com foto, localização no mapa e comprovante imediato.
+                    </p>
                 </div>
             </div>
         </article>
 
-        {{!-- BLOCO 2 DO MOSAICO: Dois Cards Médios Horizontais (Denúncias Sigilosas + Vitrine do Trabalhador) --}}
+        {{!-- BLOCO 2 DO MOSAICO: Dois Cards Médios com Ilustrações Temáticas Limpas e Contidas --}}
         <div class="row g-4 mb-4">
             {{!-- Card Médio Esquerdo: Fazer Denúncia com Sigilo --}}
             <div class="col-12 col-lg-6">
                 <article class="dsgov-mosaic-card accent-red">
                     <div>
-                        <div class="d-flex flex-column flex-sm-row align-items-start gap-3 mb-3">
-                            <div class="dsgov-mosaic-thumb bg-illo-red">
-                                <img src="/img/icon-seguranca.webp"
-                                     alt="Ilustração de proteção e sigilo ao cidadão denunciante"
-                                     loading="lazy">
-                            </div>
-                            <div>
-                                <span class="dsgov-badge dsgov-badge-red mb-2">
-                                    <i class="bi bi-shield-lock-fill me-1" aria-hidden="true"></i> Proteção de Identidade
-                                </span>
-                                <h3 class="dsgov-service-title mb-2">
-                                    Fazer Denúncia com Sigilo
-                                </h3>
-                                <p class="dsgov-service-desc mb-0">
-                                    Denuncie queimadas ilegais, maus-tratos a animais, vandalismo ou descarte irregular de lixo sem mostrar seu nome no mural público.
-                                </p>
-                            </div>
+                        {{!-- Faixa Ilustrada Dedicada e Contida (Zero sobreposição com o texto) --}}
+                        <div class="dsgov-card-illo-banner banner-red" aria-hidden="true">
+                            <svg viewBox="0 0 360 100" width="320" height="90">
+                                {{!-- Envelope / Processo Confidencial --}}
+                                <rect x="52" y="22" width="96" height="60" rx="6" fill="#FFFFFF" stroke="#1E293B" stroke-width="2"/>
+                                <polyline points="54,24 100,54 146,24" fill="none" stroke="#1E293B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <rect x="66" y="14" width="68" height="14" rx="3" fill="#FCE8E6" stroke="#1E293B" stroke-width="1.8"/>
+                                {{!-- Linha conectora tracejada --}}
+                                <line x1="158" y1="52" x2="196" y2="52" stroke="#1E293B" stroke-width="2" stroke-dasharray="5 5"/>
+                                {{!-- Escudo Editorial Contido com Cadeado de Proteção Legal --}}
+                                <path d="M236 14 L268 25 V48 C268 68 253 81 236 88 C219 81 204 68 204 48 V25 Z" fill="#FFFFFF" stroke="#1E293B" stroke-width="2.2"/>
+                                <path d="M236 22 L260 30 V47 C260 62 249 72 236 78 C223 72 212 62 212 47 V30 Z" fill="#FCE8E6"/>
+                                <rect x="226" y="45" width="20" height="16" rx="3" fill="#FFFFFF" stroke="#1E293B" stroke-width="2"/>
+                                <path d="M230 45 V39 C230 34 242 34 242 39 V45" fill="none" stroke="#1E293B" stroke-width="2"/>
+                                <circle cx="236" cy="53" r="2" fill="#E52207"/>
+                                {{!-- Selo LGPD / Sigilo --}}
+                                <rect x="282" y="36" width="44" height="28" rx="5" fill="#FFFFFF" stroke="#1E293B" stroke-width="1.8"/>
+                                <polyline points="295,50 302,56 314,43" fill="none" stroke="#168821" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
                         </div>
+
+                        <span class="dsgov-badge dsgov-badge-red mb-2">
+                            <i class="bi bi-shield-lock-fill me-1" aria-hidden="true"></i> Proteção de Identidade
+                        </span>
+                        <h3 class="dsgov-service-title">
+                            Fazer Denúncia com Sigilo
+                        </h3>
+                        <p class="dsgov-service-desc mb-3">
+                            Denuncie queimadas ilegais, maus-tratos a animais, vandalismo ou descarte irregular de lixo sem mostrar seu nome no mural público.
+                        </p>
                     </div>
 
                     <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 pt-3 border-top">
-                        <a href="/categories/denuncias_sigilosas/hub" class="text-decoration-none fw-bold small" style="color: var(--dsgov-navy);">
+                        <a href="/categories/denuncias_sigilosas/hub" class="text-decoration-none fw-semibold small" style="color: var(--dsgov-navy);">
                             Consultar mural de ocorrências <i class="bi bi-chevron-right" aria-hidden="true"></i>
                         </a>
-                        <a href="/categories/denuncias_sigilosas/abrir-denuncia" class="dsgov-card-cta cta-red px-4" style="width: auto;">
+                        <a href="/categories/denuncias_sigilosas/abrir-denuncia" class="dsgov-card-cta cta-red px-4">
                             <i class="bi bi-shield-check" aria-hidden="true"></i> Fazer Denúncia Segura
                         </a>
                     </div>
@@ -250,31 +283,41 @@
             <div class="col-12 col-lg-6">
                 <article class="dsgov-mosaic-card accent-green">
                     <div>
-                        <div class="d-flex flex-column flex-sm-row align-items-start gap-3 mb-3">
-                            <div class="dsgov-mosaic-thumb bg-illo-green">
-                                <img src="/img/icon-economia.webp"
-                                     alt="Ilustração de valorização dos trabalhadores e pequenos negócios locais"
-                                     loading="lazy">
-                            </div>
-                            <div>
-                                <span class="dsgov-badge dsgov-badge-green mb-2">
-                                    <i class="bi bi-shop me-1" aria-hidden="true"></i> Economia da Nossa Terra
-                                </span>
-                                <h3 class="dsgov-service-title mb-2">
-                                    Encontrar Profissionais e Serviços
-                                </h3>
-                                <p class="dsgov-service-desc mb-0">
-                                    Encontre pedreiros, eletricistas, costureiras, agricultores e comércios de Cariús, ou cadastre o seu próprio serviço gratuitamente.
-                                </p>
-                            </div>
+                        {{!-- Faixa Ilustrada Dedicada e Contida (Zero sobreposição com o texto) --}}
+                        <div class="dsgov-card-illo-banner banner-green" aria-hidden="true">
+                            <svg viewBox="0 0 360 100" width="320" height="90">
+                                {{!-- Fachada de Comércio / Feira Local em Line Art --}}
+                                <rect x="48" y="36" width="104" height="50" rx="4" fill="#FFFFFF" stroke="#1E293B" stroke-width="2"/>
+                                <path d="M42 36 L54 18 H146 L158 36 Z" fill="#E3F2E1" stroke="#1E293B" stroke-width="2" stroke-linejoin="round"/>
+                                <rect x="64" y="50" width="32" height="22" rx="2" fill="#DCE8F5" stroke="#1E293B" stroke-width="1.8"/>
+                                <rect x="108" y="48" width="26" height="38" rx="2" fill="#FEF7E0" stroke="#1E293B" stroke-width="1.8"/>
+                                {{!-- Maleta de Ferramentas / Ofícios Autônomos --}}
+                                <rect x="192" y="38" width="76" height="48" rx="6" fill="#FFFFFF" stroke="#1E293B" stroke-width="2"/>
+                                <path d="M214 38 V28 C214 25 246 25 246 28 V38" fill="none" stroke="#1E293B" stroke-width="2"/>
+                                <line x1="192" y1="56" x2="268" y2="56" stroke="#1E293B" stroke-width="2"/>
+                                <rect x="223" y="51" width="14" height="10" rx="2" fill="#FFCD07" stroke="#1E293B" stroke-width="1.8"/>
+                                {{!-- Selo de Valorização Local --}}
+                                <circle cx="304" cy="54" r="20" fill="#E3F2E1" stroke="#1E293B" stroke-width="2"/>
+                                <polyline points="295,54 302,61 314,47" fill="none" stroke="#168821" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
                         </div>
+
+                        <span class="dsgov-badge dsgov-badge-green mb-2">
+                            <i class="bi bi-shop me-1" aria-hidden="true"></i> Economia da Nossa Terra
+                        </span>
+                        <h3 class="dsgov-service-title">
+                            Encontrar Profissionais e Serviços
+                        </h3>
+                        <p class="dsgov-service-desc mb-3">
+                            Encontre pedreiros, eletricistas, costureiras, agricultores e comércios de Cariús, ou cadastre o seu próprio serviço gratuitamente.
+                        </p>
                     </div>
 
                     <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 pt-3 border-top">
-                        <a href="/categories/vitrine_do_trabalhador/expor-servico" class="text-decoration-none fw-bold small" style="color: var(--dsgov-green);">
+                        <a href="/categories/vitrine_do_trabalhador/expor-servico" class="text-decoration-none fw-semibold small" style="color: var(--dsgov-green);">
                             + Divulgar meu trabalho grátis
                         </a>
-                        <a href="/categories/vitrine_do_trabalhador/hub" class="dsgov-card-cta cta-green px-4" style="width: auto;">
+                        <a href="/categories/vitrine_do_trabalhador/hub" class="dsgov-card-cta cta-green px-4">
                             <i class="bi bi-people-fill" aria-hidden="true"></i> Ver Trabalhadores
                         </a>
                     </div>
@@ -287,14 +330,14 @@
             <div class="row g-3 align-items-center">
                 <div class="col-12 col-lg-5">
                     <div class="d-flex align-items-start gap-3">
-                        <div class="dsgov-impact-icon flex-shrink-0" style="width: 52px; height: 52px; font-size: 1.5rem;">
+                        <div class="dsgov-impact-icon flex-shrink-0" style="width: 48px; height: 48px; font-size: 1.4rem;">
                             <i class="bi bi-file-earmark-check-fill" aria-hidden="true"></i>
                         </div>
                         <div>
-                            <h3 class="dsgov-service-title mb-1" style="font-size: 1.3rem;">
+                            <h3 class="dsgov-service-title mb-1" style="font-size: 1.22rem;">
                                 Acompanhar meu Pedido ou Baixar Comprovante
                             </h3>
-                            <p class="text-muted mb-0" style="font-size: 0.98rem;">
+                            <p class="text-muted mb-0" style="font-size: 0.96rem;">
                                 Já abriu um chamado? Consulte a resposta oficial da equipe ou baixe a segunda via do seu protocolo.
                             </p>
                         </div>
@@ -380,12 +423,12 @@
         <div class="row g-5 align-items-center">
             <div class="col-12 col-lg-6 order-2 order-lg-1">
                 <figure class="dsgov-lineart-frame mb-0">
-                    <img src="/img/pessoas-pensativas.webp"
-                         alt="Ilustração editorial em traço fino mostrando moradores dialogando e analisando informações com responsabilidade"
+                    <img src="/img/ilustracao-cidadania-acolhimento.webp"
+                         alt="Ilustração editorial em traço fino representando acolhimento, escuta protegida e diálogo entre moradores e ouvidoria"
                          class="dsgov-lineart-img"
                          loading="lazy">
                     <figcaption class="small text-muted mt-3">
-                        <strong>Proteção jurídica e técnica:</strong> remoção automática de dados de localização das fotos e reserva de identidade do denunciante.
+                        <strong>Acolhimento e proteção jurídica:</strong> escuta segura da população com remoção automática de metadados das fotos e reserva de identidade.
                     </figcaption>
                 </figure>
             </div>
@@ -464,7 +507,7 @@
                     <div class="d-flex align-items-start gap-3">
                         <i class="bi bi-file-earmark-text-fill fs-3" style="color: var(--dsgov-blue);" aria-hidden="true"></i>
                         <div>
-                            <h3 class="h6 fw-bold mb-1" style="color: var(--dsgov-navy);">Garantia de Protocolo Documentado</h3>
+                            <h3 class="h6 fw-semibold mb-1" style="color: var(--dsgov-navy);">Garantia de Protocolo Documentado</h3>
                             <p class="small text-muted mb-0">
                                 Todo chamado aberto gera um comprovante imediato que você pode salvar no celular, receber por e-mail ou imprimir para acompanhamento formal.
                             </p>
@@ -494,8 +537,8 @@
         <div class="row g-5 align-items-center">
             <div class="col-12 col-lg-6 order-2 order-lg-1">
                 <figure class="dsgov-lineart-frame mb-0">
-                    <img src="/img/pessoas-socialiazando.webp"
-                         alt="Ilustração editorial em traço fino de trabalhadores e moradores conversando e fortalecendo os laços da comunidade"
+                    <img src="/img/ilustracao-trabalhadores-cidade.webp"
+                         alt="Ilustração editorial em traço fino de trabalhadores autônomos, artesã e profissional de manutenção valorizando a economia local de Cariús"
                          class="dsgov-lineart-img"
                          loading="lazy">
                     <figcaption class="small text-muted mt-3">
@@ -523,7 +566,7 @@
                 </blockquote>
 
                 <div class="d-flex flex-wrap gap-3 mt-4">
-                    <a href="/categories/vitrine_do_trabalhador/expor-servico" class="dsgov-card-cta cta-green px-4" style="width: auto;">
+                    <a href="/categories/vitrine_do_trabalhador/expor-servico" class="dsgov-card-cta cta-green px-4">
                         <i class="bi bi-briefcase-fill" aria-hidden="true"></i> Divulgar Meu Trabalho Grátis
                     </a>
                     <a href="/categories/vitrine_do_trabalhador/hub" class="btn dsgov-btn-outline">
@@ -541,7 +584,7 @@
         <div class="dsgov-section-header text-center mx-auto" style="max-width: 760px;">
             <span class="dsgov-section-kicker">Como a Sua Participação Funciona</span>
             <h2 id="titulo-como-funciona" class="dsgov-section-title">Do Relato à Solução: 4 Passos Simples</h2>
-            <p class="text-muted mb-0 mt-2" style="font-size: 1.05rem;">
+            <p class="text-muted mb-0 mt-2" style="font-size: 1.02rem;">
                 Todo o caminho da sua solicitação foi pensado para ser rápido no celular e transparente do início ao fim.
             </p>
         </div>
@@ -551,20 +594,15 @@
             <div class="col-12 col-md-6 col-xl-3">
                 <div class="dsgov-step-card">
                     <div class="dsgov-step-illo" aria-hidden="true">
-                        {{!-- Ilustração Editorial Line Art: Cidadão registrando foto e localização no celular --}}
-                        <svg viewBox="0 0 240 120" width="210" height="105">
+                        <svg viewBox="0 0 240 120" width="210" height="100">
                             <ellipse cx="120" cy="64" rx="92" ry="46" fill="#DCE8F5"/>
-                            {{!-- Smartphone em perspectiva frontal com traço contínuo --}}
                             <rect x="88" y="16" width="52" height="88" rx="8" fill="#FFFFFF" stroke="#1E293B" stroke-width="2.2"/>
                             <line x1="106" y1="23" x2="122" y2="23" stroke="#1E293B" stroke-width="2" stroke-linecap="round"/>
                             <rect x="95" y="30" width="38" height="48" rx="4" fill="#F4F7FA" stroke="#1E293B" stroke-width="1.6"/>
-                            {{!-- Câmera / Foto capturada --}}
                             <circle cx="114" cy="54" r="10" fill="#DCE8F5" stroke="#1E293B" stroke-width="1.8"/>
                             <circle cx="114" cy="54" r="4" fill="#1351B4"/>
-                            {{!-- Pino de endereço / GPS --}}
                             <path d="M162 28 C151 28 143 36 143 47 C143 61 162 79 162 79 C162 79 181 61 181 47 C181 36 173 28 162 28 Z" fill="#FFFFFF" stroke="#1E293B" stroke-width="2.2"/>
                             <circle cx="162" cy="46" r="6" fill="#FFCD07" stroke="#1E293B" stroke-width="1.8"/>
-                            {{!-- Mão segurando o aparelho em line art --}}
                             <path d="M68 82 Q78 68 88 72 L88 94 Q74 96 64 90 Z" fill="#FFFFFF" stroke="#1E293B" stroke-width="2"/>
                         </svg>
                     </div>
@@ -582,15 +620,12 @@
             <div class="col-12 col-md-6 col-xl-3">
                 <div class="dsgov-step-card">
                     <div class="dsgov-step-illo" aria-hidden="true">
-                        {{!-- Ilustração Editorial Line Art: Triagem responsável e proteção de dados --}}
-                        <svg viewBox="0 0 240 120" width="210" height="105">
+                        <svg viewBox="0 0 240 120" width="210" height="100">
                             <ellipse cx="120" cy="64" rx="92" ry="46" fill="#E3F2E1"/>
-                            {{!-- Documento analisado --}}
                             <rect x="64" y="18" width="68" height="84" rx="6" fill="#FFFFFF" stroke="#1E293B" stroke-width="2.2"/>
                             <line x1="78" y1="36" x2="118" y2="36" stroke="#1E293B" stroke-width="2" stroke-linecap="round"/>
                             <line x1="78" y1="48" x2="114" y2="48" stroke="#64748B" stroke-width="2" stroke-linecap="round"/>
                             <line x1="78" y1="60" x2="106" y2="60" stroke="#64748B" stroke-width="2" stroke-linecap="round"/>
-                            {{!-- Escudo protetor de dados e veracidade --}}
                             <path d="M148 24 L180 35 V56 C180 76 165 89 148 96 C131 89 116 76 116 56 V35 Z" fill="#FFFFFF" stroke="#1E293B" stroke-width="2.2"/>
                             <path d="M148 32 L172 40 V55 C172 70 161 80 148 86 C135 80 124 70 124 55 V40 Z" fill="#DCE8F5"/>
                             <polyline points="138,58 145,65 160,49" fill="none" stroke="#1E293B" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
@@ -610,18 +645,14 @@
             <div class="col-12 col-md-6 col-xl-3">
                 <div class="dsgov-step-card">
                     <div class="dsgov-step-illo" aria-hidden="true">
-                        {{!-- Ilustração Editorial Line Art: Encaminhamento formal para a equipe executora --}}
-                        <svg viewBox="0 0 240 120" width="210" height="105">
+                        <svg viewBox="0 0 240 120" width="210" height="100">
                             <ellipse cx="120" cy="64" rx="92" ry="46" fill="#F4F7FA"/>
-                            {{!-- Prancheta de Ordem de Serviço / Encaminhamento --}}
                             <rect x="54" y="22" width="64" height="78" rx="6" fill="#FFFFFF" stroke="#1E293B" stroke-width="2.2"/>
                             <rect x="72" y="15" width="28" height="12" rx="3" fill="#FFCD07" stroke="#1E293B" stroke-width="1.8"/>
                             <line x1="66" y1="42" x2="104" y2="42" stroke="#1E293B" stroke-width="2" stroke-linecap="round"/>
                             <line x1="66" y1="54" x2="98" y2="54" stroke="#64748B" stroke-width="2" stroke-linecap="round"/>
-                            {{!-- Seta de direcionamento formal --}}
                             <path d="M124 58 H146" stroke="#1351B4" stroke-width="2.6" stroke-linecap="round"/>
                             <polyline points="140,51 148,58 140,65" fill="none" stroke="#1351B4" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
-                            {{!-- Capacete / Equipe Técnica Executora --}}
                             <path d="M154 68 C154 48 196 48 196 68 Z" fill="#FFCD07" stroke="#1E293B" stroke-width="2.2"/>
                             <rect x="148" y="68" width="54" height="7" rx="3" fill="#FFFFFF" stroke="#1E293B" stroke-width="2"/>
                         </svg>
@@ -640,15 +671,12 @@
             <div class="col-12 col-md-6 col-xl-3">
                 <div class="dsgov-step-card">
                     <div class="dsgov-step-illo" aria-hidden="true">
-                        {{!-- Ilustração Editorial Line Art: Conclusão da demanda e transparência comunitária --}}
-                        <svg viewBox="0 0 240 120" width="210" height="105">
+                        <svg viewBox="0 0 240 120" width="210" height="100">
                             <ellipse cx="120" cy="64" rx="92" ry="46" fill="#E3F2E1"/>
-                            {{!-- Painel de Transparência Comunitária --}}
                             <rect x="52" y="22" width="136" height="76" rx="8" fill="#FFFFFF" stroke="#1E293B" stroke-width="2.2"/>
                             <line x1="52" y1="38" x2="188" y2="38" stroke="#1E293B" stroke-width="1.8"/>
                             <circle cx="64" cy="30" r="3" fill="#1E293B"/>
                             <circle cx="74" cy="30" r="3" fill="#1E293B"/>
-                            {{!-- Selo de Conclusão e Transparência --}}
                             <circle cx="92" cy="68" r="18" fill="#E3F2E1" stroke="#1E293B" stroke-width="2.2"/>
                             <polyline points="83,68 90,75 102,60" fill="none" stroke="#168821" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
                             <line x1="120" y1="58" x2="172" y2="58" stroke="#1E293B" stroke-width="2.2" stroke-linecap="round"/>
@@ -675,7 +703,7 @@
         <div class="dsgov-section-header text-center mx-auto" style="max-width: 760px;">
             <span class="dsgov-section-kicker">Tire Suas Dúvidas com Clareza</span>
             <h2 id="titulo-faq" class="dsgov-section-title">Perguntas Frequentes do Cidadão</h2>
-            <p class="text-muted mb-0 mt-2" style="font-size: 1.05rem;">
+            <p class="text-muted mb-0 mt-2" style="font-size: 1.02rem;">
                 Respostas diretas sobre gratuidade, proteção de identidade, prazos de resposta e uso do portal.
             </p>
         </div>
@@ -816,14 +844,14 @@
                         {{#if demandasRecentes.length}}
                             {{#each demandasRecentes}}
                                 <tr>
-                                    <td class="font-monospace fw-bold" style="color: var(--dsgov-blue);">
+                                    <td class="font-monospace fw-semibold" style="color: var(--dsgov-blue);">
                                         {{this.numero}}
                                     </td>
                                     <td>
-                                        <div class="fw-bold text-dark">{{recortar this.titulo 65}}</div>
-                                        <div class="text-muted" style="font-size: 0.92rem;">{{this.categoria}}</div>
+                                        <div class="fw-semibold text-dark">{{recortar this.titulo 65}}</div>
+                                        <div class="text-muted" style="font-size: 0.9rem;">{{this.categoria}}</div>
                                     </td>
-                                    <td class="fw-semibold">
+                                    <td class="fw-medium">
                                         {{this.bairro}}
                                     </td>
                                     <td class="text-muted">
@@ -864,8 +892,8 @@
             <div class="d-flex align-items-center gap-3">
                 <i class="bi bi-telephone-fill text-danger fs-3" aria-hidden="true"></i>
                 <div>
-                    <strong class="d-block fs-5" style="color: var(--dsgov-navy);">Urgência ou crime acontecendo agora?</strong>
-                    <span class="text-muted" style="font-size: 1rem;">O portal não substitui o acionamento policial imediato. Para emergências em andamento, ligue gratuitamente:</span>
+                    <strong class="d-block fs-5 fw-semibold" style="color: var(--dsgov-navy);">Urgência ou crime acontecendo agora?</strong>
+                    <span class="text-muted" style="font-size: 0.98rem;">O portal não substitui o acionamento policial imediato. Para emergências em andamento, ligue gratuitamente:</span>
                 </div>
             </div>
             <div class="d-flex flex-wrap gap-3">

@@ -26,6 +26,7 @@ const CDN_STYLES = [
     'https://unpkg.com',
     'https://cdnjs.cloudflare.com',
     'https://fonts.googleapis.com',
+    'https://cdngovbr-ds.estaleiro.serpro.gov.br',
     'https://cdn.linearicons.com'
 ];
 
@@ -41,6 +42,7 @@ export const securityHeaders = helmet({
                 "'self'",
                 'https://cdn.jsdelivr.net',
                 'https://fonts.gstatic.com',
+                'https://cdngovbr-ds.estaleiro.serpro.gov.br',
                 'https://cdnjs.cloudflare.com',
                 'https://cdn.linearicons.com',
                 'data:'
