@@ -909,10 +909,11 @@ body {
 }
 
 .dsgov-hero-illustration {
-    background-color: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    border-radius: 8px;
-    padding: 1.25rem;
+    background-color: #FFFFFF;
+    border: 2px solid rgba(255, 255, 255, 0.25);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
 }
 
 /* --- Caixa de Busca Direta DSGOV --- */
@@ -1026,76 +1027,90 @@ body {
     margin-bottom: 0;
 }
 
-/* --- Cartões de Serviço Reinventados (com Ilustração Vetorial no Topo) --- */
-.dsgov-service-card {
-    background-color: var(--dsgov-surface);
-    border: 1px solid var(--dsgov-border);
-    border-radius: 6px;
-    overflow: hidden;
+/* --- Cartões de Serviço — Mosaico Editorial Assimétrico (Padrão Gov.br Moderno) --- */
+.dsgov-mosaic-featured {
+    background-color: #FFFFFF;
+    border: 1px solid #E0E0E0;
+    border-left: 6px solid var(--dsgov-blue);
+    border-radius: 8px;
+    padding: 2rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dsgov-mosaic-featured:hover {
+    border-color: var(--dsgov-blue);
+    box-shadow: 0 8px 24px rgba(7, 29, 65, 0.06);
+}
+
+.dsgov-mosaic-card {
+    background-color: #FFFFFF;
+    border: 1px solid #E0E0E0;
+    border-radius: 8px;
+    padding: 1.75rem;
     height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    transition: border-color 0.15s ease;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.dsgov-service-card:hover {
+.dsgov-mosaic-card:hover {
     border-color: var(--dsgov-blue);
+    box-shadow: 0 8px 24px rgba(7, 29, 65, 0.06);
 }
 
-.dsgov-service-card.accent-blue { border-top: 5px solid var(--dsgov-blue); }
-.dsgov-service-card.accent-red { border-top: 5px solid var(--dsgov-red); }
-.dsgov-service-card.accent-green { border-top: 5px solid var(--dsgov-green); }
-.dsgov-service-card.accent-navy { border-top: 5px solid var(--dsgov-navy); }
-
-.dsgov-card-illo-header {
-    height: 120px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.85rem 1.25rem;
-    border-bottom: 1px solid var(--dsgov-border);
+.dsgov-mosaic-card.mosaic-red {
+    border-left: 5px solid var(--dsgov-red);
 }
 
-.dsgov-card-illo-header.bg-illo-blue { background-color: #F0F5FF; }
-.dsgov-card-illo-header.bg-illo-red { background-color: #FFF2F0; }
-.dsgov-card-illo-header.bg-illo-green { background-color: #EEFAF0; }
-.dsgov-card-illo-header.bg-illo-navy { background-color: #EEF2F7; }
+.dsgov-mosaic-card.mosaic-green {
+    border-left: 5px solid var(--dsgov-green);
+}
 
-.dsgov-card-body {
-    padding: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    flex: 1 1 auto;
-    justify-content: space-between;
+.dsgov-mosaic-protocol-bar {
+    background-color: #FFFFFF;
+    border: 1px solid #E0E0E0;
+    border-left: 6px solid var(--dsgov-navy);
+    border-radius: 8px;
+    padding: 1.65rem 2rem;
+}
+
+.dsgov-mosaic-thumb {
+    width: 72px;
+    height: 72px;
+    border-radius: 8px;
+    object-fit: contain;
+    background-color: #F8F9FA;
+    border: 1px solid #EAECEF;
+    padding: 0.5rem;
+    flex-shrink: 0;
 }
 
 .dsgov-service-title {
-    font-size: 1.35rem;
+    font-size: 1.4rem;
     font-weight: 800;
     color: var(--dsgov-navy);
     line-height: 1.25;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.6rem;
 }
 
 .dsgov-service-desc {
     font-size: 1.05rem;
     color: #333333;
-    line-height: 1.55;
-    margin-bottom: 1.5rem;
+    line-height: 1.6;
+    margin-bottom: 1.25rem;
 }
 
 .dsgov-card-cta {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
-    width: 100%;
+    gap: 0.55rem;
     min-height: 50px;
     font-size: 1.05rem;
     font-weight: 700;
-    border-radius: 4px;
-    padding: 0.7rem 1.2rem;
+    border-radius: 6px;
+    padding: 0.7rem 1.4rem;
     text-decoration: none;
     transition: background-color 0.15s ease, border-color 0.15s ease;
 }
@@ -1127,6 +1142,83 @@ body {
     color: #FFFFFF !important;
 }
 .dsgov-card-cta.cta-navy:hover { background-color: var(--dsgov-navy-mid); }
+
+/* --- Seções Editoriais Cívicas, Molduras de Ilustração Line Art e Citações --- */
+.dsgov-editorial-text {
+    font-size: 1.08rem;
+    color: #2D3748;
+    line-height: 1.72;
+    margin-bottom: 1.15rem;
+}
+
+.dsgov-editorial-quote {
+    background-color: #FFFFFF;
+    border: 1px solid #E0E0E0;
+    border-left: 5px solid var(--dsgov-blue);
+    border-radius: 8px;
+    padding: 1.35rem 1.6rem;
+    margin: 1.5rem 0;
+    font-size: 1.1rem;
+    font-style: italic;
+    font-weight: 600;
+    color: var(--dsgov-navy);
+    line-height: 1.55;
+}
+
+.dsgov-editorial-quote.quote-red {
+    border-left-color: var(--dsgov-red);
+    background-color: #FFFDFB;
+}
+
+.dsgov-editorial-quote.quote-green {
+    border-left-color: var(--dsgov-green);
+    background-color: #F9FDFB;
+}
+
+.dsgov-lineart-frame {
+    background-color: #FFFFFF;
+    border: 1px solid #E0E0E0;
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.dsgov-lineart-frame.frame-blue {
+    background-color: #EAF2FF;
+    border-color: #C9DDFB;
+}
+
+.dsgov-lineart-frame.frame-green {
+    background-color: #E8F7EE;
+    border-color: #BFE8CE;
+}
+
+.dsgov-lineart-frame.frame-warm {
+    background-color: #FFF5EC;
+    border-color: #F6D8BE;
+}
+
+.dsgov-lineart-img {
+    width: 100%;
+    max-width: 460px;
+    height: auto;
+    border-radius: 8px;
+    display: block;
+    margin: 0 auto;
+}
+
+.dsgov-pillar-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background-color: #FFFFFF;
+    border: 1px solid #DCDCDC;
+    border-radius: 6px;
+    padding: 0.45rem 0.85rem;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--dsgov-navy);
+}
 
 /* --- Badges Sólidos Semânticos DSGOV --- */
 .dsgov-badge {
@@ -1346,8 +1438,12 @@ body.dsgov-alto-contraste .dsgov-breadcrumb-bar,
 body.dsgov-alto-contraste .dsgov-hero-band,
 body.dsgov-alto-contraste .dsgov-impact-strip,
 body.dsgov-alto-contraste .dsgov-impact-item,
-body.dsgov-alto-contraste .dsgov-service-card,
-body.dsgov-alto-contraste .dsgov-card-illo-header,
+body.dsgov-alto-contraste .dsgov-mosaic-featured,
+body.dsgov-alto-contraste .dsgov-mosaic-card,
+body.dsgov-alto-contraste .dsgov-mosaic-protocol-bar,
+body.dsgov-alto-contraste .dsgov-editorial-quote,
+body.dsgov-alto-contraste .dsgov-lineart-frame,
+body.dsgov-alto-contraste .dsgov-pillar-chip,
 body.dsgov-alto-contraste .dsgov-stat-card,
 body.dsgov-alto-contraste .dsgov-table-box,
 body.dsgov-alto-contraste .dsgov-step-card,
