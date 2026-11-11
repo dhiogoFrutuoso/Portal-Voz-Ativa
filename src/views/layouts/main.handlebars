@@ -34,9 +34,9 @@
     {{>_navbar}}
     {{> _msg}}
 
-    <div class="container conteudo-principal">
+    <main id="conteudo-principal" class="{{#unless paginaInicial}}container {{/unless}}conteudo-principal">
         {{{body}}}
-    </div>
+    </main>
 
     {{>_footer}}
 

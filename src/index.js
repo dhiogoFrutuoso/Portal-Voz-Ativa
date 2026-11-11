@@ -23,8 +23,17 @@ import categories from './routes/categories.js';
 import project from './routes/project.js';
 import protocolos from './routes/protocolos.js';
 import edicao from './routes/edicao.js';
+import mongoose from 'mongoose';
 import auth from './config/auth.js';
 import { conectarBanco } from './config/db.js';
+import {
+    numeroDoProtocolo,
+    estagioDe,
+    normalizarStatus,
+    extrairBairro,
+    filtroModeracaoPublica,
+    filtroDeSigilo
+} from './helpers/protocolo.js';
 import './models/user.js';
 
 const app = express();
@@ -200,8 +209,111 @@ app.use(validarMidiasRecebidas);
 app.use(conta);
 app.use(legal);
 
-app.get('/', (req, res) => {
-    res.render('index');
+app.get('/', async (req, res) => {
+    let demandasRecentes = [];
+    let indicadoresResumo = {
+        publicadas: 0,
+        emAtendimento: 0,
+        resolvidas: 0,
+        vitrinesAtivas: 0
+    };
+
+    try {
+        const Chamado = mongoose.model('chamados');
+        const Denuncia = mongoose.model('denuncias');
+        const Vitrine = mongoose.model('vitrine');
+
+        const filtroMelhoria = filtroModeracaoPublica();
+        const filtroDenuncia = {
+            ...filtroDeSigilo(),
+            $or: [
+                { 'moderacao.status': 'aprovado' },
+                { 'moderacao.status': { $exists: false } }
+            ]
+        };
+
+        const [
+            ultimosChamados,
+            ultimasDenuncias,
+            totalChamadosPub,
+            totalDenunciasPub,
+            chamadosAtendimento,
+            denunciasAtendimento,
+            chamadosResolvidos,
+            denunciasResolvidas,
+            vitrinesAtivas
+        ] = await Promise.all([
+            Chamado.find(filtroMelhoria)
+                .select('titulo categoria localizacao bairro status dataCriacao')
+                .sort({ dataCriacao: -1 })
+                .limit(5)
+                .lean(),
+            Denuncia.find(filtroDenuncia)
+                .select('titulo tipoOcorrencia localizacao bairro status dataCriacao')
+                .sort({ dataCriacao: -1 })
+                .limit(5)
+                .lean(),
+            Chamado.countDocuments(filtroMelhoria),
+            Denuncia.countDocuments(filtroDenuncia),
+            Chamado.countDocuments({ ...filtroMelhoria, status: { $in: ['Em Atendimento', 'Em Análise', 'Encaminhado'] } }),
+            Denuncia.countDocuments({ ...filtroDenuncia, status: { $in: ['Em Atendimento', 'Em Análise', 'Encaminhado'] } }),
+            Chamado.countDocuments({ ...filtroMelhoria, status: 'Resolvido' }),
+            Denuncia.countDocuments({ ...filtroDenuncia, status: 'Resolvido' }),
+            Vitrine.countDocuments({})
+        ]);
+
+        indicadoresResumo = {
+            publicadas: totalChamadosPub + totalDenunciasPub,
+            emAtendimento: chamadosAtendimento + denunciasAtendimento,
+            resolvidas: chamadosResolvidos + denunciasResolvidas,
+            vitrinesAtivas
+        };
+
+        const combinadas = [
+            ...ultimosChamados.map((doc) => {
+                const status = normalizarStatus(doc.status);
+                return {
+                    _id: doc._id,
+                    numero: numeroDoProtocolo(doc, 'melhoria'),
+                    eixoRotulo: 'Gestão de Melhorias',
+                    categoria: doc.categoria || 'Zeladoria Urbana',
+                    titulo: doc.titulo,
+                    bairro: extrairBairro(doc),
+                    dataCriacao: doc.dataCriacao,
+                    status,
+                    estagio: estagioDe(status),
+                    linkDetalhes: `/categories/gestao_de_melhorias/detalhes/${doc._id}`
+                };
+            }),
+            ...ultimasDenuncias.map((doc) => {
+                const status = normalizarStatus(doc.status);
+                return {
+                    _id: doc._id,
+                    numero: numeroDoProtocolo(doc, 'denuncia'),
+                    eixoRotulo: 'Denúncia Pública',
+                    categoria: doc.tipoOcorrencia || 'Fiscalização',
+                    titulo: doc.titulo,
+                    bairro: extrairBairro(doc),
+                    dataCriacao: doc.dataCriacao,
+                    status,
+                    estagio: estagioDe(status),
+                    linkDetalhes: `/categories/denuncias_sigilosas/detalhes/${doc._id}`
+                };
+            })
+        ];
+
+        demandasRecentes = combinadas
+            .sort((a, b) => new Date(b.dataCriacao) - new Date(a.dataCriacao))
+            .slice(0, 6);
+    } catch {
+        // Fallback silencioso caso o banco não possua registros ainda
+    }
+
+    res.render('index', {
+        paginaInicial: true,
+        demandasRecentes,
+        indicadoresResumo
+    });
 });
 
 app.use('/categories', edicao);

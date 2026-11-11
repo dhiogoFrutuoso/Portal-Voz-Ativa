@@ -603,3 +603,576 @@ section.py-5 + section.py-5 {
 .area-comentarios button {
     cursor: pointer;
 }
+
+/* ==========================================================================
+   9. Padrão Digital de Governo (DSGOV) — Cabeçalho, Rodapé e Landing Page
+   ========================================================================== */
+
+:root {
+    --dsgov-navy: #071D41;
+    --dsgov-navy-mid: #0C326F;
+    --dsgov-blue: #1351B4;
+    --dsgov-blue-hover: #0C326F;
+    --dsgov-blue-soft: #E8F0FE;
+    --dsgov-green: #168821;
+    --dsgov-green-soft: #E6F4EA;
+    --dsgov-yellow: #FFCD07;
+    --dsgov-yellow-soft: #FEF7E0;
+    --dsgov-red: #E52207;
+    --dsgov-red-soft: #FCE8E6;
+    --dsgov-bg: #F8F9FA;
+    --dsgov-surface: #FFFFFF;
+    --dsgov-border: #DCDCDC;
+    --dsgov-border-strong: #BDBDBD;
+    --dsgov-text: #1B1B1B;
+    --dsgov-muted: #555555;
+    --dsgov-font: 'Rawline', 'Public Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+body {
+    background-color: var(--dsgov-bg);
+    color: var(--dsgov-text);
+    font-family: var(--dsgov-font);
+}
+
+/* --- Barra Institucional Superior (Topbar) --- */
+.dsgov-topbar {
+    background-color: var(--dsgov-navy);
+    color: #FFFFFF;
+    font-size: 0.75rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.dsgov-topbar-sigla {
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: #FFFFFF;
+}
+
+.dsgov-topbar-sep {
+    color: rgba(255, 255, 255, 0.35);
+}
+
+.dsgov-topbar-sub {
+    color: #D9E2EC;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+}
+
+.dsgov-topbar-link {
+    color: #E4E7EB;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.15s ease;
+}
+
+.dsgov-topbar-link:hover,
+.dsgov-topbar-link:focus-visible {
+    color: var(--dsgov-yellow);
+    text-decoration: underline;
+}
+
+.dsgov-topbar-btn {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    color: #FFFFFF;
+    border-radius: 4px;
+    padding: 0.12rem 0.55rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.dsgov-topbar-btn:hover,
+.dsgov-topbar-btn[aria-pressed="true"] {
+    background-color: var(--dsgov-yellow);
+    border-color: var(--dsgov-yellow);
+    color: var(--dsgov-navy);
+}
+
+/* --- Navbar Principal DSGOV --- */
+.dsgov-navbar {
+    background-color: var(--dsgov-surface);
+    border-bottom: 1px solid var(--dsgov-border);
+    padding-top: 0.65rem;
+    padding-bottom: 0.65rem;
+}
+
+.dsgov-brand-mark {
+    border-left: 4px solid var(--dsgov-blue);
+    padding-left: 0.75rem;
+    line-height: 1.2;
+}
+
+.dsgov-brand-kicker {
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--dsgov-muted);
+    text-transform: uppercase;
+}
+
+.dsgov-brand-title {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--dsgov-navy);
+    letter-spacing: -0.01em;
+}
+
+.dsgov-nav-link {
+    color: var(--dsgov-text) !important;
+    font-size: 0.88rem;
+    font-weight: 600;
+    padding: 0.5rem 0.85rem !important;
+    border-bottom: 3px solid transparent;
+    transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.dsgov-nav-link:hover,
+.dsgov-nav-link.active {
+    color: var(--dsgov-blue) !important;
+    border-bottom-color: var(--dsgov-blue);
+}
+
+/* --- Botões Sólidos Padrão Governo (cantos 4px, sem pílulas exageradas) --- */
+.dsgov-btn-primary {
+    background-color: var(--dsgov-blue);
+    border: 1px solid var(--dsgov-blue);
+    color: #FFFFFF !important;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 0.5rem 1.15rem;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.dsgov-btn-primary:hover,
+.dsgov-btn-primary:focus-visible {
+    background-color: var(--dsgov-blue-hover);
+    border-color: var(--dsgov-blue-hover);
+    color: #FFFFFF !important;
+}
+
+.dsgov-btn-outline {
+    background-color: #FFFFFF;
+    border: 1px solid var(--dsgov-blue);
+    color: var(--dsgov-blue) !important;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 0.5rem 1.15rem;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.dsgov-btn-outline:hover,
+.dsgov-btn-outline:focus-visible {
+    background-color: var(--dsgov-blue-soft);
+    color: var(--dsgov-blue-hover) !important;
+}
+
+.dsgov-btn-secondary {
+    background-color: #F1F3F5;
+    border: 1px solid var(--dsgov-border-strong);
+    color: var(--dsgov-text) !important;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 0.5rem 1rem;
+}
+
+.dsgov-btn-secondary:hover {
+    background-color: #E2E6EA;
+}
+
+/* --- Breadcrumb DSGOV --- */
+.dsgov-breadcrumb-bar {
+    background-color: #FFFFFF;
+    border-bottom: 1px solid var(--dsgov-border);
+    font-size: 0.82rem;
+}
+
+.dsgov-breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    color: var(--dsgov-muted);
+}
+
+.dsgov-breadcrumb a {
+    color: var(--dsgov-blue);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.dsgov-breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+/* --- Faixa Institucional de Comando e Busca (Hero DSGOV) --- */
+.dsgov-hero-band {
+    background-color: var(--dsgov-navy);
+    color: #FFFFFF;
+    border-bottom: 4px solid var(--dsgov-blue);
+    padding: 2.75rem 0;
+}
+
+.dsgov-hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    color: #FFFFFF;
+    font-size: 0.74rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.28rem 0.7rem;
+    border-radius: 4px;
+    margin-bottom: 0.9rem;
+}
+
+.dsgov-hero-title {
+    font-size: clamp(1.75rem, 3vw, 2.45rem);
+    font-weight: 800;
+    color: #FFFFFF;
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+    margin-bottom: 0.75rem;
+}
+
+.dsgov-hero-subtitle {
+    font-size: 1rem;
+    color: #D9E2EC;
+    line-height: 1.55;
+    max-width: 44rem;
+    margin-bottom: 1.5rem;
+}
+
+/* --- Caixa de Busca Direta DSGOV --- */
+.dsgov-search-box {
+    background-color: #FFFFFF;
+    border: 1px solid var(--dsgov-border);
+    border-radius: 6px;
+    padding: 0.55rem;
+}
+
+.dsgov-search-select {
+    border: 1px solid var(--dsgov-border);
+    border-radius: 4px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--dsgov-navy);
+    background-color: #F8F9FA;
+    padding: 0.55rem 2rem 0.55rem 0.75rem;
+}
+
+.dsgov-search-input {
+    border: 1px solid var(--dsgov-border);
+    border-radius: 4px;
+    font-size: 0.92rem;
+    color: var(--dsgov-text);
+    padding: 0.55rem 0.85rem;
+}
+
+.dsgov-search-input:focus,
+.dsgov-search-select:focus {
+    border-color: var(--dsgov-blue);
+    box-shadow: 0 0 0 2px rgba(19, 81, 180, 0.2);
+    outline: none;
+}
+
+.dsgov-quick-tags {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.45rem;
+    margin-top: 0.85rem;
+    font-size: 0.78rem;
+}
+
+.dsgov-quick-tag {
+    display: inline-block;
+    color: #E4E7EB;
+    background-color: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    padding: 0.2rem 0.6rem;
+    text-decoration: none;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.dsgov-quick-tag:hover {
+    background-color: #FFFFFF;
+    color: var(--dsgov-navy);
+}
+
+/* --- Painel Lateral de Acesso Rápido na Faixa Institucional --- */
+.dsgov-protocolo-panel {
+    background-color: #FFFFFF;
+    color: var(--dsgov-text);
+    border: 1px solid var(--dsgov-border);
+    border-top: 4px solid var(--dsgov-yellow);
+    border-radius: 6px;
+    padding: 1.35rem;
+}
+
+/* --- Títulos de Seção Padrão Governo --- */
+.dsgov-section-header {
+    border-bottom: 2px solid var(--dsgov-border);
+    padding-bottom: 0.65rem;
+    margin-bottom: 1.5rem;
+}
+
+.dsgov-section-kicker {
+    font-size: 0.74rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--dsgov-blue);
+    margin-bottom: 0.2rem;
+}
+
+.dsgov-section-title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--dsgov-navy);
+    margin-bottom: 0;
+}
+
+/* --- Cartões de Serviço (Carta de Serviços) --- */
+.dsgov-service-card {
+    background-color: var(--dsgov-surface);
+    border: 1px solid var(--dsgov-border);
+    border-radius: 6px;
+    padding: 1.35rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: border-color 0.15s ease;
+}
+
+.dsgov-service-card:hover {
+    border-color: var(--dsgov-blue);
+}
+
+.dsgov-service-card.accent-blue { border-top: 4px solid var(--dsgov-blue); }
+.dsgov-service-card.accent-red { border-top: 4px solid var(--dsgov-red); }
+.dsgov-service-card.accent-green { border-top: 4px solid var(--dsgov-green); }
+.dsgov-service-card.accent-navy { border-top: 4px solid var(--dsgov-navy); }
+
+.dsgov-service-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.dsgov-service-icon.icon-blue { background-color: var(--dsgov-blue-soft); color: var(--dsgov-blue); }
+.dsgov-service-icon.icon-red { background-color: var(--dsgov-red-soft); color: var(--dsgov-red); }
+.dsgov-service-icon.icon-green { background-color: var(--dsgov-green-soft); color: var(--dsgov-green); }
+.dsgov-service-icon.icon-navy { background-color: #E6EBF2; color: var(--dsgov-navy); }
+
+/* --- Badges Sólidos Semânticos DSGOV --- */
+.dsgov-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 0.22rem 0.55rem;
+    border-radius: 4px;
+    line-height: 1.2;
+}
+
+.dsgov-badge-blue { background-color: var(--dsgov-blue); color: #FFFFFF; }
+.dsgov-badge-green { background-color: var(--dsgov-green); color: #FFFFFF; }
+.dsgov-badge-yellow { background-color: var(--dsgov-yellow); color: #1B1B1B; }
+.dsgov-badge-red { background-color: var(--dsgov-red); color: #FFFFFF; }
+.dsgov-badge-neutral { background-color: #E9ECEF; color: #333333; border: 1px solid #CED4DA; }
+
+/* --- Blocos de Indicadores e Tabelas Institucionais --- */
+.dsgov-stat-card {
+    background-color: #FFFFFF;
+    border: 1px solid var(--dsgov-border);
+    border-left: 4px solid var(--dsgov-blue);
+    border-radius: 6px;
+    padding: 1rem 1.15rem;
+    height: 100%;
+}
+
+.dsgov-stat-number {
+    font-size: 1.65rem;
+    font-weight: 800;
+    color: var(--dsgov-navy);
+    line-height: 1.1;
+}
+
+.dsgov-stat-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--dsgov-muted);
+    margin-top: 0.2rem;
+}
+
+.dsgov-table-box {
+    background-color: #FFFFFF;
+    border: 1px solid var(--dsgov-border);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.dsgov-table {
+    margin-bottom: 0;
+    font-size: 0.88rem;
+}
+
+.dsgov-table thead th {
+    background-color: #F1F3F5;
+    color: var(--dsgov-navy);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    border-bottom: 2px solid var(--dsgov-border);
+    padding: 0.75rem 1rem;
+}
+
+.dsgov-table tbody td {
+    padding: 0.8rem 1rem;
+    vertical-align: middle;
+    border-bottom: 1px solid #EAECEF;
+}
+
+/* --- Etapas do Processo Administrativo (Fluxo Oficial) --- */
+.dsgov-step-card {
+    background-color: #FFFFFF;
+    border: 1px solid var(--dsgov-border);
+    border-radius: 6px;
+    padding: 1.25rem;
+    height: 100%;
+}
+
+.dsgov-step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    background-color: var(--dsgov-navy);
+    color: #FFFFFF;
+    font-weight: 800;
+    font-size: 0.85rem;
+    margin-bottom: 0.75rem;
+}
+
+/* --- Rodapé Institucional DSGOV --- */
+.dsgov-footer {
+    background-color: var(--dsgov-navy);
+    color: #FFFFFF;
+    border-top: 4px solid var(--dsgov-blue);
+}
+
+.dsgov-footer-kicker {
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--dsgov-yellow);
+    text-transform: uppercase;
+}
+
+.dsgov-footer-heading {
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #FFFFFF;
+    margin-bottom: 0.85rem;
+}
+
+.dsgov-footer-text {
+    color: #CFD8E3;
+    line-height: 1.5;
+}
+
+.dsgov-footer-list li {
+    margin-bottom: 0.45rem;
+}
+
+.dsgov-footer-list a,
+.dsgov-footer-link {
+    color: #CFD8E3;
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: color 0.15s ease;
+}
+
+.dsgov-footer-list a:hover,
+.dsgov-footer-link:hover {
+    color: #FFFFFF;
+    text-decoration: underline;
+}
+
+.dsgov-btn-footer {
+    background-color: transparent;
+    border: 1px solid #FFFFFF;
+    color: #FFFFFF !important;
+    font-weight: 700;
+    border-radius: 4px;
+}
+
+.dsgov-btn-footer:hover {
+    background-color: #FFFFFF;
+    color: var(--dsgov-navy) !important;
+}
+
+.dsgov-footer-divider {
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.dsgov-footer-bottom {
+    color: #CFD8E3;
+}
+
+/* --- Modo de Alto Contraste (Acessibilidade DSGOV) --- */
+body.dsgov-alto-contraste {
+    background-color: #000000 !important;
+    color: #FFFFFF !important;
+}
+
+body.dsgov-alto-contraste .dsgov-navbar,
+body.dsgov-alto-contraste .dsgov-breadcrumb-bar,
+body.dsgov-alto-contraste .dsgov-hero-band,
+body.dsgov-alto-contraste .dsgov-service-card,
+body.dsgov-alto-contraste .dsgov-stat-card,
+body.dsgov-alto-contraste .dsgov-table-box,
+body.dsgov-alto-contraste .dsgov-step-card,
+body.dsgov-alto-contraste .dsgov-protocolo-panel,
+body.dsgov-alto-contraste .dsgov-search-box,
+body.dsgov-alto-contraste .dsgov-footer,
+body.dsgov-alto-contraste .card {
+    background-color: #000000 !important;
+    color: #FFFFFF !important;
+    border-color: #FFFF00 !important;
+}
+
+body.dsgov-alto-contraste a,
+body.dsgov-alto-contraste .dsgov-brand-title,
+body.dsgov-alto-contraste .dsgov-section-title,
+body.dsgov-alto-contraste .dsgov-stat-number,
+body.dsgov-alto-contraste .dsgov-nav-link {
+    color: #FFFF00 !important;
+}

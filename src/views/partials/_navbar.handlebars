@@ -1,65 +1,85 @@
-<div class="bg-secondary text-white py-1" style="font-size: 0.75rem; background-color: #13315c !important;">
-  <div class="container d-flex justify-content-between">
-    <div class="d-md-block">BRASIL</div>
-    <div class="d-none d-md-block">
-      <a href="https://cearadevalores.com.br/" class="text-white text-decoration-none me-3">CEARÁ DE VALORES</a>
+{{!-- Barra Institucional de Utilidades e Acessibilidade (Padrão DSGOV) --}}
+<div class="dsgov-topbar" role="region" aria-label="Barra de utilidades e acessibilidade">
+  <div class="container d-flex flex-wrap justify-content-between align-items-center py-1 gap-2">
+    <div class="d-flex align-items-center gap-2">
+      <span class="dsgov-topbar-sigla">PORTAL VOZ ATIVA</span>
+      <span class="dsgov-topbar-sep d-none d-sm-inline" aria-hidden="true">|</span>
+      <span class="dsgov-topbar-sub d-none d-sm-inline">SISTEMA CÍVICO DE OUVIDORIA E SERVIÇOS AO CIDADÃO</span>
+    </div>
+
+    <div class="d-flex align-items-center flex-wrap gap-3">
+      <div class="d-none d-lg-flex align-items-center gap-3 dsgov-atalhos" aria-label="Atalhos de navegação">
+        <a href="#conteudo-principal" accesskey="1" class="dsgov-topbar-link">Conteúdo [1]</a>
+        <a href="#servicos-cidadao" accesskey="2" class="dsgov-topbar-link">Serviços [2]</a>
+        <a href="#busca-portal" accesskey="3" class="dsgov-topbar-link">Busca [3]</a>
+      </div>
+      <div class="d-flex align-items-center gap-3">
+        <button type="button" id="btnAltoContraste" class="dsgov-topbar-btn" aria-pressed="false" title="Alternar modo de alto contraste">
+          <i class="bi bi-circle-half me-1" aria-hidden="true"></i>Alto Contraste
+        </button>
+        <a href="/termos-de-uso" class="dsgov-topbar-link d-none d-md-inline">Transparência</a>
+        <a href="https://cearadevalores.com.br/" target="_blank" rel="noopener noreferrer" class="dsgov-topbar-link fw-bold">CEARÁ DE VALORES</a>
+      </div>
     </div>
   </div>
 </div>
 
-<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top py-3">
+{{!-- Cabeçalho Institucional Principal (Padrão DSGOV) --}}
+<nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top dsgov-navbar" aria-label="Navegação principal do portal">
   <div class="container">
-    <a class="navbar-brand d-flex align-items-center" href="/">
-      <div class="border-start border-4 border-warning ps-3">
-        <span class="d-block fw-light mb-0" style="font-size: 0.9rem; letter-spacing: 1px;">INICIATIVA CÍVICA DE CARIÚS</span>
-        <span class="d-block fw-bold text-uppercase h5 mb-0" style="color: #13315c;">Portal Voz Ativa</span>
+    <a class="navbar-brand d-flex align-items-center py-1" href="/">
+      <div class="dsgov-brand-mark">
+        <span class="dsgov-brand-kicker">OUVIDORIA DIGITAL E ZELADORIA URBANA • CARIÚS/CE</span>
+        <span class="dsgov-brand-title">Portal Voz Ativa</span>
       </div>
     </a>
 
-    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navGov" aria-controls="navGov" aria-expanded="false" aria-label="Abrir menu de navegação">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navGov" aria-controls="navGov" aria-expanded="false" aria-label="Abrir menu de navegação">
       <span class="navbar-toggler-icon"></span>
     </button>
 
     <div class="collapse navbar-collapse" id="navGov">
-      <ul class="navbar-nav ms-auto mb-2 mb-lg-0 fw-semibold text-uppercase" style="font-size: 0.85rem;">
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center dsgov-nav-list">
         <li class="nav-item">
-          <a class="nav-link px-3 text-dark border-hover" href="/">Início</a>
+          <a class="nav-link dsgov-nav-link{{#if paginaInicial}} active{{/if}}" href="/"{{#if paginaInicial}} aria-current="page"{{/if}}>Início</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link px-3 text-dark border-hover" href="/categories">Categorias</a>
+          <a class="nav-link dsgov-nav-link" href="/categories">Carta de Serviços</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link px-3 text-dark border-hover{{#if paginaProjeto}} active{{/if}}" href="/project"{{#if paginaProjeto}} aria-current="page"{{/if}}>O projeto</a>
+          <a class="nav-link dsgov-nav-link{{#if paginaProjeto}} active{{/if}}" href="/project"{{#if paginaProjeto}} aria-current="page"{{/if}}>O Projeto</a>
         </li>
         {{#if this.user.areAdmin}}
           <li class="nav-item">
-            <a class="nav-link px-3 text-dark border-hover" href="/admin/">
-               <i class="bi bi-shield-lock me-1"></i> admin
+            <a class="nav-link dsgov-nav-link" href="/admin/">
+               <i class="bi bi-shield-lock me-1"></i>Painel Admin
             </a>
           </li>
         {{/if}}
-        
+
         {{#if user}}
           <li class="nav-item">
-            <a class="nav-link px-3 text-dark border-hover" href="/protocolos">
-               <i class="bi bi-folder-check me-1"></i> Protocolos
+            <a class="nav-link dsgov-nav-link" href="/protocolos">
+               <i class="bi bi-folder-check me-1"></i>Meus Protocolos
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link text-dark border-hover" href="/users/perfil/{{this.user._id}}">
-               <i class="bi bi-person-circle me-1"></i> Perfil
+            <a class="nav-link dsgov-nav-link" href="/users/perfil/{{this.user._id}}">
+               <i class="bi bi-person-badge me-1"></i>Perfil
             </a>
           </li>
-          <li class="nav-item ms-lg-3">
-            <a class="btn btn-outline-dark btn-sm px-4 rounded-0 fw-bold" href="/users/logout">SAIR</a>
+          <li class="nav-item ms-lg-2">
+            <a class="btn dsgov-btn-secondary btn-sm px-3" href="/users/logout">
+              <i class="bi bi-box-arrow-right me-1"></i>Sair
+            </a>
           </li>
         {{else}}
-          <li class="nav-item ms-lg-3">
-            <a class="nav-link text-dark px-3 border-hover" href="/users/login">Entrar</a>
+          <li class="nav-item ms-lg-2">
+            <a class="btn dsgov-btn-outline btn-sm px-3" href="/users/register">Cadastrar-se</a>
           </li>
-          <li class="nav-item ms-lg-1 register">
-            <a class="btn btn-primary btn-sm px-3 rounded-0 fw-bold shadow-sm" style="background-color: #13315c; border-color: #13315c;" href="/users/register">
-              CADASTRAR-SE
+          <li class="nav-item ms-lg-2 register">
+            <a class="btn dsgov-btn-primary btn-sm px-3" href="/users/login">
+              <i class="bi bi-person-fill me-1"></i>Entrar com sua conta
             </a>
           </li>
         {{/if}}
@@ -68,44 +88,23 @@
   </div>
 </nav>
 
-<style>
-  /*
-   * O sublinhado amarelo é um efeito de mouse, então só existe onde há mouse.
-   * A versão anterior aplicava `max-width: 0` aos links em telas até 800px, o
-   * que espremia cada item do menu a uns 16px e quebrava o texto letra a letra
-   * quando o menu era aberto no celular.
-   */
-  @media (hover: hover) and (min-width: 992px) {
-    .border-hover {
-      position: relative;
-      transition: color 0.2s ease;
-      text-decoration: none;
-    }
-
-    .border-hover::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      bottom: -3px;
-      width: 100%;
-      height: 3px;
-      background-color: #f9ca24;
-      transform: scaleX(0);
-      transform-origin: center;
-      transition: transform 0.15s ease-in-out;
-    }
-
-    .border-hover:hover {
-      color: #13315c !important;
-    }
-
-    .border-hover:hover::after {
-      transform: scaleX(1);
-    }
-
-    .navbar-brand:hover {
-      opacity: 0.8;
-    }
-  }
-</style>
+<script>
+  (function () {
+    try {
+      var chave = 'voz_ativa_alto_contraste';
+      var btn = document.getElementById('btnAltoContraste');
+      if (localStorage.getItem(chave) === '1') {
+        document.body.classList.add('dsgov-alto-contraste');
+        if (btn) btn.setAttribute('aria-pressed', 'true');
+      }
+      if (btn) {
+        btn.addEventListener('click', function () {
+          var ativo = document.body.classList.toggle('dsgov-alto-contraste');
+          btn.setAttribute('aria-pressed', ativo ? 'true' : 'false');
+          try { localStorage.setItem(chave, ativo ? '1' : '0'); } catch (e) {}
+        });
+      }
+    } catch (e) {}
+  })();
+</script>
 {{!-- // [Melhoria Proativa Adicionada: interface integrada à proteção de identidade e aos fluxos seguros do portal] --}}

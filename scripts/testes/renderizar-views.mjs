@@ -90,6 +90,18 @@ const protocolo = {
 const base = { csrfToken: 'token-de-teste', cloudinaryCloudName: 'dnh7vok3r', cloudinaryUploadPreset: 'Portal-Voz-Ativa', user: usuario };
 
 const casos = [
+    ['index.handlebars', {
+        ...base,
+        paginaInicial: true,
+        indicadoresResumo: { publicadas: 12, emAtendimento: 5, resolvidas: 7, vitrinesAtivas: 9 },
+        demandasRecentes: [{
+            _id: 'p1', numero: 'MEL-2026-C5C5B8', eixoRotulo: 'Gestão de Melhorias',
+            categoria: 'Reparo de Vias e Estradas', titulo: 'Asfalto desgastado na Rua Principal',
+            bairro: 'Centro', dataCriacao: new Date('2026-02-19'), status: 'Em Atendimento',
+            linkDetalhes: '/categories/gestao_de_melhorias/detalhes/p1'
+        }]
+    },
+    ['Ouvidoria Cidadã, Zeladoria Urbana e Vitrine do Trabalhador', 'Carta de Serviços Digitais', 'MEL-2026-C5C5B8', 'Alto Contraste', 'CEARÁ DE VALORES']],
     ['protocolos/timeline.handlebars', { ...base, protocolo, eDono: true, eAdmin: false, estagios },
      ['Asfalto desgastado', 'Prazo de atendimento', 'Equipe enviada', 'token-de-teste', 'Guardar Comprovante por E-mail', 'Baixar Comprovante (.TXT)',
       '/mensagem/m1/editar', '/mensagem/m1/excluir'],

@@ -1,494 +1,533 @@
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&family=Nunito:wght@400;600;800&display=swap');
+{{!-- ==========================================================================
+     PORTAL VOZ ATIVA — LANDING PAGE NO PADRÃO DIGITAL DE GOVERNO (DSGOV)
+     Sobriedade institucional, superfície off-white (#F8F9FA), cartões de 1px
+     (#DCDCDC), busca direta, Carta de Serviços e Transparência Pública.
+     ========================================================================== --}}
 
-    @media screen and (min-width: 391px) {
-        .btn-light-effect { 
-            position: relative; 
-            overflow: hidden; 
-            z-index: 1; 
-            transition: all 0.3s ease; 
-        }
+{{!-- 1. Barra de Trilha de Navegação (Breadcrumb) e Status Operacional --}}
+<div class="dsgov-breadcrumb-bar py-2">
+    <div class="container d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <nav aria-label="Trilha de navegação">
+            <ol class="dsgov-breadcrumb">
+                <li>
+                    <a href="/"><i class="bi bi-house-door-fill me-1" aria-hidden="true"></i>Início</a>
+                </li>
+                <li aria-hidden="true"><i class="bi bi-chevron-right small"></i></li>
+                <li><a href="/categories">Ouvidoria e Serviços</a></li>
+                <li aria-hidden="true"><i class="bi bi-chevron-right small"></i></li>
+                <li class="fw-semibold text-dark" aria-current="page">Painel de Atendimento ao Cidadão</li>
+            </ol>
+        </nav>
+        <div class="d-flex align-items-center gap-2 small text-muted">
+            <span class="dsgov-badge dsgov-badge-green">
+                <i class="bi bi-check-circle-fill" aria-hidden="true"></i> Sistema Operacional
+            </span>
+            <span class="d-none d-md-inline">Cariús/CE • Atendimento Digital e Triagem Moderada</span>
+        </div>
+    </div>
+</div>
 
-        .btn-light-effect span { 
-            position: relative; 
-            z-index: 2; 
-        }
-
-        .btn-light-effect::before {
-            content: ""; 
-            position: absolute; 
-            top: 0; 
-            left: -300%; /* Começa bem fora da tela */
-            width: 300%; 
-            height: 300%;
-            /* O segredo: as paradas de cor (0%, 45%, 50%, 55%, 100%) criam uma linha fina */
-            background: linear-gradient(
-                120deg, 
-                transparent 40%, 
-                rgba(255, 255, 255, 0.315) 50%, 
-                transparent 60%
-            );
-            transition: all 3s cubic-bezier(0.19, 1, 0.22, 1); /* Transição mais elegante */
-            z-index: 1;
-        }
-
-        .btn-light-effect:hover::before { 
-            left: 150%; /* Atravessa a tela inteira */
-        }
-    }
-    
-    @media screen and (max-width: 390px) {
-        .btn-light-effect { 
-            position: relative; 
-            overflow: hidden; 
-            z-index: 1; 
-            transition: all 0.3s ease; 
-        }
-
-        .btn-light-effect span { 
-            position: relative; 
-            z-index: 2; 
-        }
-
-        .btn-light-effect::before {
-            content: ""; 
-            position: absolute; 
-            top: 0; 
-            left: -900%; /* Começa bem fora da tela */
-            width: 900%; 
-            height: 300%;
-            /* O segredo: as paradas de cor (0%, 45%, 50%, 55%, 100%) criam uma linha fina */
-            background: linear-gradient(
-                120deg, 
-                transparent 40%, 
-                rgba(255, 255, 255, 0.315) 50%, 
-                transparent 60%
-            );
-            transition: all 3s cubic-bezier(0.19, 1, 0.22, 1); /* Transição mais elegante */
-            z-index: 1;
-        }
-
-        .btn-light-effect:hover::before { 
-            left: 150%; /* Atravessa a tela inteira */
-        }
-    }
-
-    @media screen and (max-width: 390px) { 
-        .div-overflow-wrap {
-            overflow-wrap: break-word; 
-        }
-    }
-
-    /* Seção de Citação - Estilo Premium 2026 */
-    .quote-section {
-        position: relative;
-        padding: 100px 0;
-        background: linear-gradient(rgba(19, 49, 92, 0.9), rgba(19, 49, 92, 0.9)), 
-                    url('/img/tecnologia-social.webp'); 
-        background-attachment: fixed; /* Efeito Parallax */
-        background-size: cover;
-        background-position: center;
-        border-radius: 80px; /* Bordas arredondadas conforme o seu site */
-        margin: 60px 20px;
-        overflow: hidden;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    /* Brilho pulsante sutil no fundo (substitui o efeito de hover) */
-    .quote-section::after {
-        content: "";
-        position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%);
-        animation: pulse-glow 8s infinite alternate;
-        z-index: 1;
-    }
-
-    @keyframes pulse-glow {
-        0% { transform: translate(-10%, -10%); opacity: 0.5; }
-        100% { transform: translate(10%, 10%); opacity: 0.8; }
-    }
-
-    .quote-content {
-        position: relative;
-        z-index: 2; /* Garante que o texto fique acima do brilho */
-    }
-
-    .quote-text {
-        font-family: 'Poppins', sans-serif;
-        font-style: italic;
-        line-height: 1.4;
-        text-shadow: 0 2px 10px rgba(0,0,0,0.3);
-    }
-
-    .divider-glow {
-        height: 3px;
-        width: 60px;
-        background: linear-gradient(90deg, transparent, #006aff, transparent);
-        margin: 30px auto;
-    }
-
-    .badge-reflexao {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(5px);
-        padding: 5px 15px;
-        border-radius: 50px;
-        font-size: 0.8rem;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-    :root {
-        --section-blue: #13315cd9;
-        --primary-blue: #2568f8;
-        --secundary-blue: #2b83ff;
-        --terciary-blue: #2b83ff;
-        --fourth-blue: #1652a7;
-        --accent-blue: #006aff;
-        --accent-orange: #ff8c42;
-        --accent-green: #2a7428;
-        --primary-green: #39a035;
-        --secundary-green: #38a735;
-        --accent-red: #f94144;
-        --primary-red: #fc595c;
-        --bg-soft: #f0f4f8;
-        --white: #ffffff;
-        --black: #000000;
-    }
-
-    body { font-family: 'Nunito', sans-serif; background-color: var(--white); color: #2d3436; overflow-x: hidden; }
-    h1, h2, h3, h4, h5, h6 { font-family: 'Poppins', sans-serif; }
-
-    /* Estilo Arredondado e Moderno */
-    .rounded-huge { border-radius: 4rem !important; }
-    .rounded-soft { border-radius: 2.5rem !important; }
-    .btn-round { border-radius: 50px; padding: 14px 30px; font-weight: 700; transition: 0.3s; border: none; }
-    
-    /* Hero Section */
-    .hero-gradient {
-        background: radial-gradient(circle at top right, #eef2f7, var(--white));
-        padding: 80px 0;
-        border-radius: 0 0 100px 100px;
-        border-bottom: 5px solid var(--primary-blue);
-    }
-
-    /* Cards e Efeitos de Flutuação */
-    .floating-card {
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        border: none !important;
-        background: var(--white);
-        box-shadow: 0 15px 35px rgba(0,0,0,0.05);
-        border-radius: 2rem !important;
-    }
-    .floating-card:hover {
-        transform: translateY(-15px);
-        box-shadow: 0 30px 60px rgba(0,0,0,0.12) !important;
-    }
-
-    .floating-section {
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        border: none !important;
-        background: #13315c;
-        box-shadow: 0 15px 35px rgba(0,0,0,0.05);
-        border-radius: 2rem !important;
-        color: #333; 
-    }
-
-    .floating-section:hover {
-        transform: translateY(-15px);
-        background: #13315c !important;
-        box-shadow: 0 30px 60px rgba(19, 49, 92, 0.5) !important;
-        color: #ffffff !important;
-    }
-
-    .floating-section:hover h1, 
-    .floating-section:hover h2, 
-    .floating-section:hover p,
-    .floating-section:hover span {
-        color: #ffffff !important;
-    }
-
-    /* Citações Estilizadas */
-    .quote-card {
-        background: var(--white);
-        border-left: 8px solid var(--primary-blue);
-        padding: 2rem;
-        border-radius: 1.5rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-        font-style: italic;
-    }
-
-    .divider-custom {
-        height: 6px;
-        width: 100px;
-        background: linear-gradient(to right, var(--primary-blue), var(--primary-blue));
-        border-radius: 10px;
-        margin: 25px 0;
-    }
-
-    .img-side {
-        width: 100%;
-        border-radius: 3.5rem;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.2);
-        transition: 0.5s;
-    }
-    .img-side:hover { transform: scale(1.02); }
-
-    /* Overlay para seção de citação final */
-    .quote-section {
-        position: relative;
-        padding: 120px 0;
-        background-size: cover;
-        background-position: center;
-        background-attachment: fixed;
-        border-radius: 100px;
-        margin: 50px 20px;
-        overflow: hidden;
-    }
-    .quote-overlay {
-        position: absolute;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(19, 49, 92, 0.85);
-    }
-    .feature-icon { font-size: 2.5rem; color: var(--primary-blue); margin-bottom: 1rem; }
-</style>
-
-<header class="hero-gradient mb-5">
-    <div class="container px-5">
-        <div class="row gx-5 align-items-center">
-            <div class="col-lg-7 text-center text-lg-start">
-                <div class="badge bg-white text-primary px-4 py-2 rounded-pill mb-3 shadow-sm border">
-                    🚀 Projeto Ceará de Valores 2026
+{{!-- 2. Faixa Institucional de Comando e Busca Direta (Hero DSGOV) --}}
+<header class="dsgov-hero-band" id="busca-portal">
+    <div class="container">
+        <div class="row g-4 align-items-center">
+            <div class="col-lg-8">
+                <div class="dsgov-hero-tag">
+                    <i class="bi bi-bank2" aria-hidden="true"></i>
+                    Plataforma Cívica de Ouvidoria, Zeladoria e Fomento Local
                 </div>
-                <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400&display=swap" rel="stylesheet">
-                <h2 class="display-5 fw-bolder text-dark mb-2">Sua Voz tem Valor</h2>
-
-                <p class="lead text-muted mb-5 fs-4">
-                    O <strong>Voz Ativa</strong> é uma plataforma de ouvidoria digital e fomento econômico que centraliza a comunicação entre o cidadão e a gestão municipal.
+                <h1 class="dsgov-hero-title">
+                    Ouvidoria Cidadã, Zeladoria Urbana e Vitrine do Trabalhador
+                </h1>
+                <p class="dsgov-hero-subtitle">
+                    Registre solicitações de infraestrutura com geolocalização, envie denúncias com proteção de identidade, acompanhe prazos de resposta por número de protocolo e consulte profissionais autônomos de Cariús.
                 </p>
-                <div class="d-grid gap-3 d-sm-flex justify-content-sm-center justify-content-lg-start">
-                    <a class="btn btn-primary btn-round shadow-lg btn-lg" style="background: var(--primary-blue);" href="/categories">Conhecer Tecnologias</a>
-                    {{#if user}}
-                    {{else}}
-                        <a class="btn btn-outline-dark btn-round btn-lg" href="/users/register">Cadastrar-se</a>
-                        <a class="btn btn-outline-dark btn-round btn-lg" href="/users/login">Entrar</a>
-                    {{/if}}
+
+                {{!-- Formulário de Busca Direta nos Hubs Públicos --}}
+                <form id="formBuscaPortal" action="/categories/gestao_de_melhorias/hub" method="GET" class="dsgov-search-box" role="search" aria-label="Pesquisar demandas e serviços no portal">
+                    <div class="row g-2 align-items-center">
+                        <div class="col-12 col-sm-4 col-md-4">
+                            <label for="selectEixoBusca" class="visually-hidden">Módulo de pesquisa</label>
+                            <select id="selectEixoBusca" class="form-select dsgov-search-select w-100"
+                                    onchange="var f=document.getElementById('formBuscaPortal');if(f)f.action=this.value;">
+                                <option value="/categories/gestao_de_melhorias/hub">Gestão de Melhorias</option>
+                                <option value="/categories/denuncias_sigilosas/hub">Denúncias Públicas</option>
+                                <option value="/categories/vitrine_do_trabalhador/hub">Vitrine do Trabalhador</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-sm-5 col-md-6">
+                            <label for="inputTermoBusca" class="visually-hidden">Termo de busca</label>
+                            <input type="search" id="inputTermoBusca" name="q" maxlength="100"
+                                   class="form-control dsgov-search-input w-100"
+                                   placeholder="O que você procura? Ex.: iluminação, asfalto, centro, eletricista...">
+                        </div>
+                        <div class="col-12 col-sm-3 col-md-2 d-grid">
+                            <button type="submit" class="btn dsgov-btn-primary">
+                                <i class="bi bi-search me-1" aria-hidden="true"></i>Buscar
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                {{!-- Atalhos de Assuntos Mais Buscados --}}
+                <div class="dsgov-quick-tags" aria-label="Assuntos mais procurados">
+                    <span class="text-white-50 fw-semibold me-1">Acesso rápido:</span>
+                    <a href="/categories/gestao_de_melhorias/hub?q=Ilumina%C3%A7%C3%A3o" class="dsgov-quick-tag">Iluminação Pública</a>
+                    <a href="/categories/gestao_de_melhorias/hub?q=Reparo" class="dsgov-quick-tag">Reparo de Vias</a>
+                    <a href="/categories/gestao_de_melhorias/hub?q=Coleta" class="dsgov-quick-tag">Coleta de Lixo e Entulho</a>
+                    <a href="/categories/denuncias_sigilosas/hub?q=Queimada" class="dsgov-quick-tag">Foco de Queimada</a>
+                    <a href="/categories/vitrine_do_trabalhador/hub" class="dsgov-quick-tag">Serviços Autônomos</a>
                 </div>
             </div>
-            <div class="col-lg-5 d-none d-lg-block">
-                <img src="/img/pessoas-socialiazando.webp" class="img-fluid animate__animated animate__zoomIn" alt="Cidadãos">
+
+            {{!-- Painel Lateral de Protocolo e Acesso Rápido do Cidadão --}}
+            <div class="col-lg-4">
+                <div class="dsgov-protocolo-panel">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <span class="text-uppercase fw-bold small text-muted" style="font-size: 0.7rem; letter-spacing: 0.05em;">
+                                ATENDIMENTO E PROTOCOLO
+                            </span>
+                            <h2 class="h5 fw-bold mb-0" style="color: var(--dsgov-navy);">
+                                Central do Cidadão
+                            </h2>
+                        </div>
+                        <span class="dsgov-badge dsgov-badge-blue">24h</span>
+                    </div>
+                    <p class="small text-muted mb-3">
+                        Consulte o histórico das suas manifestações, emita comprovantes oficiais em <strong>.TXT / PDF</strong> e acompanhe os prazos regulamentares.
+                    </p>
+
+                    <div class="d-grid gap-2">
+                        {{#if user}}
+                            <a href="/protocolos" class="btn dsgov-btn-primary text-start d-flex justify-content-between align-items-center">
+                                <span><i class="bi bi-folder2-open me-2"></i>Consultar Meus Protocolos</span>
+                                <i class="bi bi-arrow-right"></i>
+                            </a>
+                            <a href="/categories/gestao_de_melhorias/abrir-chamado" class="btn dsgov-btn-outline text-start d-flex justify-content-between align-items-center">
+                                <span><i class="bi bi-plus-square me-2"></i>Registrar Nova Solicitação</span>
+                                <i class="bi bi-arrow-right"></i>
+                            </a>
+                            {{#if user.areAdmin}}
+                                <a href="/admin/painel" class="btn dsgov-btn-secondary text-start d-flex justify-content-between align-items-center">
+                                    <span><i class="bi bi-shield-check me-2"></i>Painel de Moderação e Gestão</span>
+                                    <i class="bi bi-arrow-right"></i>
+                                </a>
+                            {{/if}}
+                        {{else}}
+                            <a href="/users/login" class="btn dsgov-btn-primary text-start d-flex justify-content-between align-items-center">
+                                <span><i class="bi bi-box-arrow-in-right me-2"></i>Entrar para Acompanhar Protocolos</span>
+                                <i class="bi bi-arrow-right"></i>
+                            </a>
+                            <a href="/users/register" class="btn dsgov-btn-outline text-start d-flex justify-content-between align-items-center">
+                                <span><i class="bi bi-person-plus me-2"></i>Criar Conta Cidadã Gratuita</span>
+                                <i class="bi bi-arrow-right"></i>
+                            </a>
+                            <a href="/categories" class="btn dsgov-btn-secondary text-start d-flex justify-content-between align-items-center">
+                                <span><i class="bi bi-grid-3x3-gap me-2"></i>Consultar Mural Público</span>
+                                <i class="bi bi-arrow-right"></i>
+                            </a>
+                        {{/if}}
+                    </div>
+
+                    <div class="mt-3 pt-2 border-top d-flex justify-content-between align-items-center small text-muted">
+                        <span><i class="bi bi-shield-lock-fill text-primary me-1"></i>Opção de relato anônimo</span>
+                        <span>SLA: 1 a 10 dias úteis</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </header>
 
-<section class="py-5" id="sobre">
-    <div class="container px-5 my-5">
-        <div class="row gx-5 justify-content-center">
-            <div class="col-lg-10">
-                <div class="text-center mb-5">
-                    <h2 class="display-5 fw-bolder text-dark mb-2">Cidadania não é apenas votar</h2>
-                    <p class="lead text-muted">A essência política por trás do Voz Ativa</p>
-                    <div class="divider-custom mx-auto"></div>
-                </div>
-                <div class="row gx-5 align-items-center">
-                    <div class="col-12 col-md-6 text-justify fs-5">
-                        <p>Inspirados no <strong>Projeto Ceará de Valores</strong>, o Voz Ativa surge do entendimento de que a gestão pública não pode ser cega. Como dizia <strong>Aristóteles</strong> em sua obra 'A Política', o homem é um animal político destinado a viver em sociedade. Para o filósofo, a cidade existe para proporcionar uma 'vida boa' aos seus habitantes.</p>
-                        <p>Nossa plataforma profissionaliza essa comunicação através de um web-app de alta performance, permitindo que cada morador de Cariús seja um colaborador ativo.</p>
-                    </div>
-                    <div class="col-12 col-md-6 text-justify fs-5">
-                        <p>Fundamentamos nossas ações na pedagogia de <strong>Paulo Freire</strong>, que ensina que a educação e a consciência política são ferramentas de transformação. Ao dar ao trabalhador local uma <em>Vitrine Profissional</em>, fomentamos a autonomia econômica.</p>
-                        <p>O Voz Ativa é uma ferramenta de <strong>Tecnologia Social</strong>. Não é apenas software; é um pacto de transparência entre quem governa e quem é governado.</p>
-                    </div>
-                </div>
-                <div class="p-5 mt-5 bg-soft rounded-soft shadow-sm text-center border-start border-5 border-primary">
-                    <h4 class="mb-0 italic">"Onde a palavra é silenciada, a liberdade deixa de existir." — Hannah Arendt</h4>
-                </div>
+{{!-- 3. Carta de Serviços Públicos e Módulos Operacionais (4 Cards DSGOV) --}}
+<section class="py-5" id="servicos-cidadao">
+    <div class="container">
+        <div class="dsgov-section-header d-flex flex-wrap justify-content-between align-items-end gap-2">
+            <div>
+                <div class="dsgov-section-kicker">Carta de Serviços Digitais</div>
+                <h2 class="dsgov-section-title">Canais de Manifestação, Fiscalização e Trabalho</h2>
             </div>
+            <a href="/categories" class="btn dsgov-btn-outline btn-sm">
+                Ver todos os módulos <i class="bi bi-arrow-right ms-1"></i>
+            </a>
         </div>
-    </div>
-</section>
 
-<section class="py-5" style="background: var(--bg-soft); border-radius: 120px; margin: 0 15px;">
-    <div class="container px-5">
-        <div class="row gx-5 align-items-center">
-            <div class="col-lg-6">
-                <img src="/img/cariús-panorama.webp" alt="Cariús" class="img-side mb-4 mb-lg-0">
-            </div>
-            <div class="col-lg-6">
-                <h2 class="display-5 fw-bolder mb-2" style="color: var(--accent-green);">Desenvolvimento e Liberdade</h2>
-                <div class="quote-card" style="border-left-color: var(--primary-green);">
-                    <p class="mb-0">"O desenvolvimento deve ser avaliado pela expansão das liberdades humanas." — <strong>Amartya Sen</strong></p>
-                </div>
-                <p class="text-justify fs-5 text-muted mb-4">
-                    Entendemos que o desenvolvimento não é apenas crescimento econômico, mas transformação social. Através da nossa <strong>Vitrine do Trabalhador</strong>, criamos um modo de produção baseado na cooperação.
-                </p>
-                <div class="quote-card" style="border-left-color: var(--secundary-green);">
-                    <p class="mb-0">"A economia está incrustada nas relações sociais." — <strong>Karl Polanyi</strong></p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-<br>
-
-<section class="py-5" style="">
-    <div class="container px-5">
-        <div class="row gx-5 align-items-center">
-            <div class="col-lg-6 order-lg-2">
-                <img src="/img/tecnologia-social.webp" alt="Participação" class="img-side mb-4 mb-lg-0">
-            </div>
-            <div class="col-lg-6 order-lg-1">
-                <h2 class="display-5 fw-bolder mb-2" style="color: var(--primary-blue);">Cidadania Ativa</h2>
-                <div class="quote-card" style="border-left-color: var(--secundary-blue);">
-                    <p class="mb-0">"A cidadania nasce da ação e da participação no espaço público." — <strong>Hannah Arendt</strong></p>
-                </div>
-                <p class="text-justify fs-5 text-muted mb-4">
-                    Como o homem é, por natureza, um animal político, o Voz Ativa oferece o poder em público. A legitimidade da nossa gestão municipal surge do diálogo livre entre você e o governo.
-                </p>
-                <div class="quote-card" style="border-left-color: var(--terciary-blue);">
-                    <p class="mb-0">"A democracia precisa ser vivida para ser aprendida." — <strong>John Dewey</strong></p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-<br>
-
-<section class="py-5" style="background: var(--bg-soft); border-radius: 120px; margin: 0 15px;">
-    <div class="container px-5">
-        <div class="row gx-5 align-items-center">
-            <div class="col-lg-6 text-center">
-                <img src="/img/heroi-comunidade.webp" alt="Herói" class="img-side mb-4 mb-lg-0">
-            </div>
-            <div class="col-lg-6">
-                <h2 class="display-5 fw-bolder mb-2" style="color: var(--accent-red);">Consciência e Autonomia</h2>
-                <p class="text-justify fs-5 text-muted mb-4">
-                    A educação não transforma o mundo; ela muda as pessoas para que elas o transformem. Nosso aprendizado é um processo social voltado para formar indivíduos capazes de criar.
-                </p>
-                <div class="quote-card" style="border-left-color: var(--primary-red);">
-                    <p class="mb-0">"O saber está distribuído por toda a humanidade." — <strong>Pierre Lévy</strong></p>
-                </div>
-                <p class="text-justify fs-5 text-muted">
-                    Utilizamos a técnica subordinada à ética para garantir que a tecnologia reflita nossas escolhas sociais e prepare Cariús para a complexidade do futuro.
-                </p>
-            </div>
-        </div>
-    </div>
-</section>
-<br>
-
-<section class="py-5 rounded-huge mx-md-3" id="recursos">
-    <div class="container px-5 my-5">
-        <div class="text-center mb-5">
-        <h2 class="display-5 fw-bolder text-dark mb-2">Inteligência Governamental</h2>
-            <p class="lead text-muted">Módulos integrados para uma gestão 360º</p>
-        </div>
-        <div class="row gx-5">
-            <div class="col-lg-4 mb-5">
-                <div class="card h-100 floating-card p-4">
-                    <div class="card-body">
-                        <div class="feature-icon"><i class="bi bi-geo-alt"></i></div>
-                        <div class="badge bg-primary rounded-pill mb-3">Cidadania</div>
-                        <h5 class="fw-bold mb-3">Gestão de Melhorias</h5>
-                        <p class="card-text">Feedbacks e sugestões com geolocalização. Ideal para apontar problemas em vias e iluminação.</p>
-                        <p class="small text-muted mt-3">Mapeamento via GPS com feedback direto da gestão.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 mb-5">
-                <div class="card h-100 floating-card p-4" style="background: #fffafa;">
-                    <div class="card-body">
-                        <div class="feature-icon text-danger"><i class="bi bi-shield-lock"></i></div>
-                        <div class="badge bg-danger rounded-pill mb-3">Segurança</div>
-                        <h5 class="fw-bold mb-3">Denúncias Sigilosas</h5>
-                        <p class="card-text">Criptografia de ponta a ponta para proteger sua identidade em denúncias de crimes.</p>
-                        <p class="small text-muted mt-3">Protocolo anônimo para combate a crimes e queimadas.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 mb-5">
-                <div class="card h-100 floating-card p-4">
-                    <div class="card-body">
-                        <div class="feature-icon text-success"><i class="bi bi-briefcase"></i></div>
-                        <div class="badge bg-success rounded-pill mb-3">Economia</div>
-                        <h5 class="fw-bold mb-3">Vitrine do Trabalhador</h5>
-                        <p class="card-text">Fomento às vendas locais sem intermediários. Divulgação gratuita de mão de obra.</p>
-                        <p class="small text-muted mt-3">Conexão direta entre o autônomo e o mercado local.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<section class="py-5" id="projeto">
-    <div class="container px-5">
-        <div class="row align-items-center g-5">
-            <div class="col-lg-6">
-                <h6 class="text-primary fw-bold text-uppercase mb-3">Sobre a Plataforma</h6>
-                <h1 class="display-5 mb-3" style="font-family: 'Poppins', sans-serif; font-weight: 200; letter-spacing: 1px; line-height: 1.2; color: var(--fourth-blue);"><span style="color: var(--black); font-weight: 500;">Um ecossistema digital de alta performance.</span></h2>
-                <p class="fs-5 text-muted mb-4">
-                    O Portal Voz Ativa é um <strong>web-app</strong> centralizador projetado para encurtar a distância entre o cidadão e o poder público.
-                </p>
-                <div class="p-4 bg-light rounded-soft border shadow-sm mb-4 floating-card">
-                    <h5 class="fw-bold">Resultados Esperados:</h5>
-                    <ul class="list-unstyled mb-0">
-                        <li class="mb-2"><i class="bi bi-check2-circle text-success me-2"></i> <strong>Confiança:</strong> Histórico público de sugestões.</li>
-                        <li class="mb-2"><i class="bi bi-check2-circle text-success me-2"></i> <strong>Renda:</strong> Novas frentes para prestadores locais.</li>
-                        <li><i class="bi bi-check2-circle text-success me-2"></i> <strong>Segurança:</strong> Resposta rápida para queimadas.</li>
-                    </ul>
-                </div>
-            </div>
-            <div class="col-lg-6">
-                <div class="p-5 bg-white rounded-huge shadow-lg border-start border-5 border-primary floating-card">
-                    <h4 class="fw-900 mb-5">Eixos de Impacto Estratégico</h4>
-                    <div class="d-flex mb-4">
-                        <div class="feature-icon me-4"><i class="bi bi-cpu"></i></div>
-                        <div>
-                            <h5 class="fw-bold">Inovação Tecnológica</h5>
-                            <p class="text-muted small">Criptografia e geolocalização precisa.</p>
+        <div class="row g-3">
+            {{!-- Card 1: Gestão de Melhorias --}}
+            <div class="col-12 col-md-6 col-xl-3">
+                <article class="dsgov-service-card accent-blue">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="dsgov-service-icon icon-blue">
+                                <i class="bi bi-tools" aria-hidden="true"></i>
+                            </div>
+                            <span class="dsgov-badge dsgov-badge-blue">Zeladoria Urbana</span>
                         </div>
+                        <h3 class="h5 fw-bold mb-2" style="color: var(--dsgov-navy);">
+                            Gestão de Melhorias
+                        </h3>
+                        <p class="small text-muted mb-3">
+                            Solicitação de reparos em iluminação pública, pavimentação de vias e estradas, coleta de lixo/entulho e manutenção de espaços comunitários.
+                        </p>
+                        <ul class="list-unstyled small text-secondary mb-3 border-top pt-2">
+                            <li class="mb-1"><i class="bi bi-clock me-1 text-primary"></i> <strong>Prazo (SLA):</strong> 3 a 10 dias úteis</li>
+                            <li class="mb-1"><i class="bi bi-geo-alt me-1 text-primary"></i> <strong>Recursos:</strong> Mapa GPS + Fotos</li>
+                            <li><i class="bi bi-file-earmark-check me-1 text-primary"></i> <strong>Retorno:</strong> Comprovante .TXT/PDF</li>
+                        </ul>
                     </div>
-                    <div class="d-flex mb-4">
-                        <div class="feature-icon me-4"><i class="bi bi-graph-up-arrow"></i></div>
-                        <div style="max-width: 127px; display:inline-block">
-                            <h5 class="fw-bold div-overflow-wrap">Inovação social</h5>
-                            <p class="text-muted small">Vitrine gratuita para fomento da economia local.</p>
+                    <div class="d-grid gap-2 pt-2 border-top">
+                        <a href="/categories/gestao_de_melhorias/abrir-chamado" class="btn dsgov-btn-primary btn-sm">
+                            <i class="bi bi-plus-circle me-1"></i>Abrir Solicitação
+                        </a>
+                        <a href="/categories/gestao_de_melhorias/hub" class="btn dsgov-btn-secondary btn-sm">
+                            Consultar Demandas Públicas
+                        </a>
+                    </div>
+                </article>
+            </div>
+
+            {{!-- Card 2: Denúncias Sigilosas --}}
+            <div class="col-12 col-md-6 col-xl-3">
+                <article class="dsgov-service-card accent-red">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="dsgov-service-icon icon-red">
+                                <i class="bi bi-shield-lock-fill" aria-hidden="true"></i>
+                            </div>
+                            <span class="dsgov-badge dsgov-badge-red">Sigilo Protegido</span>
                         </div>
+                        <h3 class="h5 fw-bold mb-2" style="color: var(--dsgov-navy);">
+                            Denúncias Sigilosas
+                        </h3>
+                        <p class="small text-muted mb-3">
+                            Comunicação de infrações objetivas: focos de queimada, maus-tratos contra animais, descarte irregular de resíduos, poluição sonora e vandalismo.
+                        </p>
+                        <ul class="list-unstyled small text-secondary mb-3 border-top pt-2">
+                            <li class="mb-1"><i class="bi bi-clock me-1 text-danger"></i> <strong>Prazo (SLA):</strong> 1 a 5 dias úteis</li>
+                            <li class="mb-1"><i class="bi bi-incognito me-1 text-danger"></i> <strong>Proteção:</strong> Identidade preservada</li>
+                            <li><i class="bi bi-camera-video me-1 text-danger"></i> <strong>Anexos:</strong> Fotos e vídeo de evidência</li>
+                        </ul>
                     </div>
-                    <div class="d-flex">
-                        <div class="feature-icon me-4"><i class="bi bi-shield-check"></i></div>
-                        <div>
-                            <h5 class="fw-bold">Cidadania Ativa</h5>
-                            <p class="text-muted small">Transparência e redução de ruídos.</p>
+                    <div class="d-grid gap-2 pt-2 border-top">
+                        <a href="/categories/denuncias_sigilosas/abrir-denuncia" class="btn dsgov-btn-primary btn-sm" style="background-color: var(--dsgov-red); border-color: var(--dsgov-red);">
+                            <i class="bi bi-shield-exclamation me-1"></i>Registrar Denúncia
+                        </a>
+                        <a href="/categories/denuncias_sigilosas/hub" class="btn dsgov-btn-secondary btn-sm">
+                            Consultar Alertas Públicos
+                        </a>
+                    </div>
+                </article>
+            </div>
+
+            {{!-- Card 3: Vitrine do Trabalhador --}}
+            <div class="col-12 col-md-6 col-xl-3">
+                <article class="dsgov-service-card accent-green">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="dsgov-service-icon icon-green">
+                                <i class="bi bi-briefcase-fill" aria-hidden="true"></i>
+                            </div>
+                            <span class="dsgov-badge dsgov-badge-green">Economia Local</span>
                         </div>
+                        <h3 class="h5 fw-bold mb-2" style="color: var(--dsgov-navy);">
+                            Vitrine do Trabalhador
+                        </h3>
+                        <p class="small text-muted mb-3">
+                            Cadastro público e gratuito de profissionais autônomos, prestadores de serviços, produtores rurais e pequenos comércios de Cariús.
+                        </p>
+                        <ul class="list-unstyled small text-secondary mb-3 border-top pt-2">
+                            <li class="mb-1"><i class="bi bi-check2-circle me-1 text-success"></i> <strong>Custo:</strong> 100% gratuito</li>
+                            <li class="mb-1"><i class="bi bi-whatsapp me-1 text-success"></i> <strong>Contato:</strong> Direto e sem intermediários</li>
+                            <li><i class="bi bi-shop me-1 text-success"></i> <strong>Catálogo:</strong> Busca por ofício e bairro</li>
+                        </ul>
                     </div>
+                    <div class="d-grid gap-2 pt-2 border-top">
+                        <a href="/categories/vitrine_do_trabalhador/criar-vitrine" class="btn dsgov-btn-primary btn-sm" style="background-color: var(--dsgov-green); border-color: var(--dsgov-green);">
+                            <i class="bi bi-person-workspace me-1"></i>Divulgar Meu Serviço
+                        </a>
+                        <a href="/categories/vitrine_do_trabalhador/hub" class="btn dsgov-btn-secondary btn-sm">
+                            Acessar Catálogo de Profissionais
+                        </a>
+                    </div>
+                </article>
+            </div>
+
+            {{!-- Card 4: Consulta de Protocolos e Comprovantes --}}
+            <div class="col-12 col-md-6 col-xl-3">
+                <article class="dsgov-service-card accent-navy">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="dsgov-service-icon icon-navy">
+                                <i class="bi bi-file-earmark-text-fill" aria-hidden="true"></i>
+                            </div>
+                            <span class="dsgov-badge dsgov-badge-neutral">Acompanhamento</span>
+                        </div>
+                        <h3 class="h5 fw-bold mb-2" style="color: var(--dsgov-navy);">
+                            Consulta de Protocolo
+                        </h3>
+                        <p class="small text-muted mb-3">
+                            Acompanhamento da linha do tempo de atendimento, respostas da gestão, emissão de 2ª via do comprovante oficial e interposição de recursos.
+                        </p>
+                        <ul class="list-unstyled small text-secondary mb-3 border-top pt-2">
+                            <li class="mb-1"><i class="bi bi-download me-1 text-dark"></i> <strong>Comprovante:</strong> Download .TXT e PDF</li>
+                            <li class="mb-1"><i class="bi bi-clock-history me-1 text-dark"></i> <strong>Histórico:</strong> Linha do tempo auditável</li>
+                            <li><i class="bi bi-arrow-counterclockwise me-1 text-dark"></i> <strong>Garantia:</strong> Direito a recurso</li>
+                        </ul>
+                    </div>
+                    <div class="d-grid gap-2 pt-2 border-top">
+                        <a href="/protocolos" class="btn dsgov-btn-primary btn-sm">
+                            <i class="bi bi-folder-check me-1"></i>Acessar Meus Protocolos
+                        </a>
+                        <a href="#fluxo-atendimento" class="btn dsgov-btn-secondary btn-sm">
+                            Como Funciona o Atendimento
+                        </a>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </div>
+</section>
+
+{{!-- 4. Painel de Transparência Ativa e Demandas Públicas Recentes --}}
+<section class="py-4 border-top border-bottom bg-white" id="transparencia-demandas">
+    <div class="container py-2">
+        <div class="dsgov-section-header d-flex flex-wrap justify-content-between align-items-end gap-2">
+            <div>
+                <div class="dsgov-section-kicker">Transparência e Dados Abertos</div>
+                <h2 class="dsgov-section-title">Resumo Operacional e Últimas Demandas Aprovadas</h2>
+            </div>
+            <div class="d-flex gap-2">
+                {{#if user.areAdmin}}
+                    <a href="/admin/metricas" class="btn dsgov-btn-primary btn-sm">
+                        <i class="bi bi-bar-chart-line me-1"></i>Indicadores Executivos
+                    </a>
+                {{/if}}
+                <a href="/categories/gestao_de_melhorias/hub" class="btn dsgov-btn-outline btn-sm">
+                    Consultar Mural Completo
+                </a>
+            </div>
+        </div>
+
+        {{!-- Indicadores Sólidos --}}
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-lg-3">
+                <div class="dsgov-stat-card">
+                    <div class="dsgov-stat-number">{{#if indicadoresResumo}}{{indicadoresResumo.publicadas}}{{else}}0{{/if}}</div>
+                    <div class="dsgov-stat-label">Demandas Públicas no Mural</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="dsgov-stat-card" style="border-left-color: var(--dsgov-yellow);">
+                    <div class="dsgov-stat-number">{{#if indicadoresResumo}}{{indicadoresResumo.emAtendimento}}{{else}}0{{/if}}</div>
+                    <div class="dsgov-stat-label">Protocolos em Atendimento</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="dsgov-stat-card" style="border-left-color: var(--dsgov-green);">
+                    <div class="dsgov-stat-number">{{#if indicadoresResumo}}{{indicadoresResumo.resolvidas}}{{else}}0{{/if}}</div>
+                    <div class="dsgov-stat-label">Solicitações Concluídas</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="dsgov-stat-card" style="border-left-color: var(--dsgov-navy);">
+                    <div class="dsgov-stat-number">{{#if indicadoresResumo}}{{indicadoresResumo.vitrinesAtivas}}{{else}}0{{/if}}</div>
+                    <div class="dsgov-stat-label">Trabalhadores Cadastrados</div>
+                </div>
+            </div>
+        </div>
+
+        {{!-- Tabela Institucional de Demandas Recentes --}}
+        <div class="dsgov-table-box">
+            <div class="px-3 py-2 bg-light border-bottom d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <span class="fw-bold small text-uppercase" style="color: var(--dsgov-navy); letter-spacing: 0.04em;">
+                    <i class="bi bi-list-Columns-reverse me-1"></i> Registros Públicos Recentes (Aprovados pela Triagem de Ouvidoria)
+                </span>
+                <span class="small text-muted">Ocorrências sigilosas permanecem restritas ao autor e à moderação</span>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover dsgov-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Protocolo</th>
+                            <th scope="col">Módulo / Categoria</th>
+                            <th scope="col">Assunto da Manifestação</th>
+                            <th scope="col">Bairro / Localidade</th>
+                            <th scope="col">Data</th>
+                            <th scope="col">Situação</th>
+                            <th scope="col" class="text-end">Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#if demandasRecentes.length}}
+                            {{#each demandasRecentes}}
+                                <tr>
+                                    <td class="font-monospace fw-bold" style="color: var(--dsgov-blue);">
+                                        {{this.numero}}
+                                    </td>
+                                    <td>
+                                        <div class="fw-semibold text-dark">{{this.eixoRotulo}}</div>
+                                        <div class="small text-muted">{{this.categoria}}</div>
+                                    </td>
+                                    <td class="fw-semibold text-dark">
+                                        {{recortar this.titulo 65}}
+                                    </td>
+                                    <td>
+                                        <i class="bi bi-geo-alt text-muted me-1"></i>{{this.bairro}}
+                                    </td>
+                                    <td class="text-muted small">
+                                        {{formatDay this.dataCriacao}}
+                                    </td>
+                                    <td>
+                                        {{#if (eq this.status 'Resolvido')}}
+                                            <span class="dsgov-badge dsgov-badge-green">Resolvido</span>
+                                        {{else if (eq this.status 'Em Atendimento')}}
+                                            <span class="dsgov-badge dsgov-badge-yellow">Em Atendimento</span>
+                                        {{else if (eq this.status 'Improcedente')}}
+                                            <span class="dsgov-badge dsgov-badge-neutral">Improcedente</span>
+                                        {{else}}
+                                            <span class="dsgov-badge dsgov-badge-blue">{{this.status}}</span>
+                                        {{/if}}
+                                    </td>
+                                    <td class="text-end">
+                                        <a href="{{this.linkDetalhes}}" class="btn dsgov-btn-outline btn-sm py-1 px-2">
+                                            Detalhar
+                                        </a>
+                                    </td>
+                                </tr>
+                            {{/each}}
+                        {{else}}
+                            <tr>
+                                <td colspan="7" class="text-center py-4 text-muted">
+                                    <i class="bi bi-inbox me-1"></i> Nenhuma demanda pública listada no momento. Utilize os canais acima para registrar uma nova solicitação ou consulte os murais setoriais.
+                                </td>
+                            </tr>
+                        {{/if}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+{{!-- 5. Rito de Atendimento e Governança (Passo a Passo Oficial) --}}
+<section class="py-5" id="fluxo-atendimento">
+    <div class="container">
+        <div class="dsgov-section-header">
+            <div class="dsgov-section-kicker">Rito Processual de Ouvidoria</div>
+            <h2 class="dsgov-section-title">Como Funciona o Tratamento das Manifestações</h2>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="dsgov-step-card">
+                    <div class="dsgov-step-num">01</div>
+                    <h3 class="h6 fw-bold mb-2" style="color: var(--dsgov-navy);">
+                        Registro e Comprovante
+                    </h3>
+                    <p class="small text-muted mb-0">
+                        O cidadão preenche o relato com localização e fotos, podendo optar pelo anonimato. O sistema emite na hora o código de protocolo e o comprovante para download (<code>.TXT</code> / PDF) ou e-mail.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="dsgov-step-card">
+                    <div class="dsgov-step-num">02</div>
+                    <h3 class="h6 fw-bold mb-2" style="color: var(--dsgov-navy);">
+                        Moderação Prévia e Sigilo
+                    </h3>
+                    <p class="small text-muted mb-0">
+                        Toda nova publicação passa por validação automática de civilidade e revisão prévia da assessoria para proteger dados pessoais e impedir exposições indevidas antes de ir ao mural público.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="dsgov-step-card">
+                    <div class="dsgov-step-num">03</div>
+                    <h3 class="h6 fw-bold mb-2" style="color: var(--dsgov-navy);">
+                        Encaminhamento e Prazo (SLA)
+                    </h3>
+                    <p class="small text-muted mb-0">
+                        A demanda é encaminhada ao setor ou autoridade competente com prazo regulamentar (de 1 a 10 dias úteis conforme a urgência). Denúncias graves contam com relatório técnico estruturado.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="dsgov-step-card">
+                    <div class="dsgov-step-num">04</div>
+                    <h3 class="h6 fw-bold mb-2" style="color: var(--dsgov-navy);">
+                        Resolução e Direito a Recurso
+                    </h3>
+                    <p class="small text-muted mb-0">
+                        Todas as respostas e mudanças de estágio ficam gravadas na linha do tempo do protocolo. Caso uma solicitação seja arquivada como improcedente, o autor pode interpor recurso fundamentado.
+                    </p>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<section class="quote-section btn btn-light-effect floating-section">
-    <div class="container quote-content text-center text-white">
-        <div class="row justify-content-center">
-            <div class="col-lg-10">
-                <div class="d-flex justify-content-center mb-4">
-                    <span class="badge-reflexao text-uppercase" style="letter-spacing: 2px;">Ação e Pensamento</span>
+{{!-- 6. Diretrizes de Segurança, Proteção de Dados (LGPD) e Canais de Emergência --}}
+<section class="pb-5">
+    <div class="container">
+        <div class="row g-3">
+            <div class="col-12 col-lg-8">
+                <div class="dsgov-service-card">
+                    <div>
+                        <div class="dsgov-section-kicker">Governança, Ética e Responsabilidade</div>
+                        <h3 class="h5 fw-bold mb-2" style="color: var(--dsgov-navy);">
+                            Compromisso com a Proteção de Dados e a Utilidade Pública
+                        </h3>
+                        <p class="small text-muted mb-3">
+                            Desenvolvido no âmbito do programa <strong>Ceará de Valores</strong>, o Portal Voz Ativa adota práticas estritas de segurança da informação: remoção automática de metadados EXIF de fotografias, validação binária de arquivos, trilha de auditoria imutável e preservação do sigilo do manifestante nos termos da Lei Geral de Proteção de Dados (Lei nº 13.709/2018).
+                        </p>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2 pt-2 border-top">
+                        <a href="/project" class="btn dsgov-btn-outline btn-sm">
+                            Conhecer a Metodologia do Projeto
+                        </a>
+                        <a href="/politica-de-privacidade" class="btn dsgov-btn-secondary btn-sm">
+                            Política de Privacidade e LGPD
+                        </a>
+                        <a href="/termos-de-uso" class="btn dsgov-btn-secondary btn-sm">
+                            Termos de Uso e Civilidade
+                        </a>
+                    </div>
                 </div>
-                
-                <h2 class="display-5 fw-bolder mb-2">
-                    "A democracia é o exercício do diálogo, e o diálogo só é possível quando todos têm canais para serem ouvidos. Onde a voz do cidadão é silenciada, a gestão se torna cega."
-                </h2>
-                
-                <div class="divider-glow"></div>
-                
-                <p class="mb-0 fw-bold opacity-75 small" style="letter-spacing: 1px;">
-                    REFLEXÃO VOZ ATIVA • CARIÚS 2026
-                </p>
+            </div>
+
+            <div class="col-12 col-lg-4">
+                <div class="dsgov-service-card" style="border-top: 4px solid var(--dsgov-yellow); background-color: #FFFDF5;">
+                    <div>
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <i class="bi bi-telephone-inbound-fill text-danger fs-5" aria-hidden="true"></i>
+                            <h3 class="h6 fw-bold mb-0" style="color: var(--dsgov-navy);">
+                                Telefones de Emergência Imediata
+                            </h3>
+                        </div>
+                        <p class="small text-muted mb-3">
+                            O Portal Voz Ativa destina-se ao registro de demandas administrativas e triagem de ouvidoria. Em situações de flagrante ou risco à vida, acione imediatamente:
+                        </p>
+                        <ul class="list-unstyled small mb-0">
+                            <li class="py-1 border-bottom d-flex justify-content-between">
+                                <span><strong>Polícia Militar</strong> (Emergências)</span>
+                                <span class="fw-bold font-monospace text-danger">190</span>
+                            </li>
+                            <li class="py-1 border-bottom d-flex justify-content-between">
+                                <span><strong>Disque-Denúncia</strong> (Estadual)</span>
+                                <span class="fw-bold font-monospace text-dark">181</span>
+                            </li>
+                            <li class="py-1 d-flex justify-content-between">
+                                <span><strong>Corpo de Bombeiros</strong> (Incêndios)</span>
+                                <span class="fw-bold font-monospace text-danger">193</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
