@@ -1,7 +1,8 @@
 {{!-- ==========================================================================
      PORTAL VOZ ATIVA — LANDING PAGE EDITORIAL CÍVICA (PADRÃO GOV.BR / DSGOV)
-     Tipografia institucional Rawline / Public Sans, contenção estrita de layout,
-     Mosaico Assimétrico de Serviços e Ilustrações Editorial Line Art 2D.
+     Fonte Oficial Rawline, Superfície Limpa Sem Bordas (Elevação Suave),
+     Navegação Interativa por Categoria, Carrossel Dinâmico e Ilustrações
+     100% Originais em Estilo Editorial Line Art 2D.
      ========================================================================== --}}
 
 {{!-- 1. HERO SECTION EXPANDIDO (TEXTO MOTIVADOR + CENA HORIZONTAL EDITORIAL LINE ART) --}}
@@ -67,8 +68,8 @@
                          width="640"
                          height="360"
                          fetchpriority="high">
-                    <div class="mt-2 pt-2 border-top d-flex flex-wrap align-items-center justify-content-between gap-2 px-1 text-start">
-                        <span class="small fw-medium" style="color: var(--dsgov-navy);">
+                    <div class="mt-3 pt-2 d-flex flex-wrap align-items-center justify-content-between gap-2 px-1 text-start">
+                        <span class="fw-semibold" style="color: var(--dsgov-navy); font-size: 0.98rem;">
                             <i class="bi bi-people-fill me-1" style="color: var(--dsgov-blue);" aria-hidden="true"></i>
                             Cidadãos e gestão conectados pelo bem de Cariús
                         </span>
@@ -80,10 +81,10 @@
     </div>
 </header>
 
-{{!-- 2. FAIXA DE COMPROMISSOS CIDADÃOS (CREDIBILIDADE IMEDIATA) --}}
+{{!-- 2. FAIXA DE COMPROMISSOS CIDADÃOS (CARDS BRANCOS SEM BORDAS ESTILO GOV.BR) --}}
 <section class="dsgov-impact-strip" aria-label="Compromissos com o cidadão">
     <div class="container">
-        <div class="row g-3">
+        <div class="row g-4">
             <div class="col-12 col-sm-6 col-xl-3">
                 <div class="dsgov-impact-item">
                     <div class="dsgov-impact-icon">
@@ -97,7 +98,7 @@
             </div>
 
             <div class="col-12 col-sm-6 col-xl-3">
-                <div class="dsgov-impact-item" style="border-left-color: var(--dsgov-red);">
+                <div class="dsgov-impact-item">
                     <div class="dsgov-impact-icon" style="background-color: var(--dsgov-red-soft); color: var(--dsgov-red);">
                         <i class="bi bi-shield-lock-fill" aria-hidden="true"></i>
                     </div>
@@ -109,7 +110,7 @@
             </div>
 
             <div class="col-12 col-sm-6 col-xl-3">
-                <div class="dsgov-impact-item" style="border-left-color: var(--dsgov-yellow);">
+                <div class="dsgov-impact-item">
                     <div class="dsgov-impact-icon" style="background-color: var(--dsgov-yellow-soft); color: #8A6D00;">
                         <i class="bi bi-bell-fill" aria-hidden="true"></i>
                     </div>
@@ -121,7 +122,7 @@
             </div>
 
             <div class="col-12 col-sm-6 col-xl-3">
-                <div class="dsgov-impact-item" style="border-left-color: var(--dsgov-green);">
+                <div class="dsgov-impact-item">
                     <div class="dsgov-impact-icon" style="background-color: var(--dsgov-green-soft); color: var(--dsgov-green);">
                         <i class="bi bi-shop" aria-hidden="true"></i>
                     </div>
@@ -135,15 +136,15 @@
     </div>
 </section>
 
-{{!-- 3. CARDS DE SERVIÇOS — MOSAICO EDITORIAL ASSIMÉTRICO COM ILUSTRAÇÕES INTEGRADAS E CONTIDAS --}}
-<section class="dsgov-section-pad" id="servicos-cidadao" aria-labelledby="titulo-servicos">
+{{!-- 3. NAVEGUE POR CATEGORIA — CARDS DE SERVIÇOS SEM BORDAS (PADRÃO GOV.BR) COM FILTRO INTERATIVO --}}
+<section class="dsgov-section-pad dsgov-section-gray" id="servicos-cidadao" aria-labelledby="titulo-servicos">
     <div class="container">
         <div class="dsgov-section-header d-flex flex-wrap justify-content-between align-items-end gap-3">
             <div>
-                <span class="dsgov-section-kicker">Atendimento Digital ao Cidadão</span>
+                <span class="dsgov-section-kicker">Navegue por Categoria • Atendimento Digital</span>
                 <h2 id="titulo-servicos" class="dsgov-section-title">Escolha o Serviço que Você Precisa</h2>
-                <p class="text-muted mb-0 mt-1" style="font-size: 1.02rem;">
-                    Canais diretos organizados em linguagem simples para resolver demandas do seu bairro ou distrito.
+                <p class="dsgov-section-lead">
+                    Clique em uma categoria abaixo ou escolha diretamente o cartão do serviço desejado em menos de 3 segundos.
                 </p>
             </div>
             <a href="/categories" class="btn dsgov-btn-outline">
@@ -151,8 +152,27 @@
             </a>
         </div>
 
+        {{!-- Abas Interativas de Categoria (Feedback Visual Imediato) --}}
+        <div class="dsgov-cat-nav" role="tablist" aria-label="Filtrar serviços por categoria">
+            <button type="button" class="dsgov-cat-btn ativo" role="tab" aria-selected="true" data-cat-target="todos" onclick="filtrarCategoriaServico('todos', this)">
+                <i class="bi bi-grid-fill" aria-hidden="true"></i> Todos os Serviços
+            </button>
+            <button type="button" class="dsgov-cat-btn" role="tab" aria-selected="false" data-cat-target="melhorias" onclick="filtrarCategoriaServico('melhorias', this)">
+                <i class="bi bi-tools" aria-hidden="true"></i> Conserto de Ruas e Iluminação
+            </button>
+            <button type="button" class="dsgov-cat-btn" role="tab" aria-selected="false" data-cat-target="denuncias" onclick="filtrarCategoriaServico('denuncias', this)">
+                <i class="bi bi-shield-lock-fill" aria-hidden="true"></i> Denúncias com Sigilo
+            </button>
+            <button type="button" class="dsgov-cat-btn" role="tab" aria-selected="false" data-cat-target="trabalhadores" onclick="filtrarCategoriaServico('trabalhadores', this)">
+                <i class="bi bi-shop" aria-hidden="true"></i> Profissionais e Serviços
+            </button>
+            <button type="button" class="dsgov-cat-btn" role="tab" aria-selected="false" data-cat-target="protocolo" onclick="filtrarCategoriaServico('protocolo', this)">
+                <i class="bi bi-file-earmark-check-fill" aria-hidden="true"></i> Consultar Protocolo
+            </button>
+        </div>
+
         {{!-- BLOCO 1 DO MOSAICO: Card Horizontal Duplo de Maior Destaque (Conserto de Ruas e Iluminação) --}}
-        <article class="dsgov-mosaic-featured mb-4">
+        <article class="dsgov-mosaic-featured mb-4 item-categoria-servico" data-cat-item="melhorias">
             <div class="row g-0 align-items-stretch">
                 <div class="col-12 col-lg-7 p-4 p-xl-5 d-flex flex-column justify-content-between">
                     <div>
@@ -160,10 +180,10 @@
                             <span class="dsgov-badge dsgov-badge-blue">
                                 <i class="bi bi-tools me-1" aria-hidden="true"></i> Serviço Mais Solicitado
                             </span>
-                            <span class="text-muted small fw-medium">Prazo de resposta: até 10 dias úteis</span>
+                            <span class="text-muted fw-semibold" style="font-size: 0.98rem;">Prazo de resposta: até 10 dias úteis</span>
                         </div>
 
-                        <h3 class="dsgov-service-title" style="font-size: 1.6rem;">
+                        <h3 class="dsgov-service-title" style="font-size: clamp(1.45rem, 2.2vw, 1.75rem);">
                             Conserto de Ruas e Iluminação
                         </h3>
 
@@ -188,73 +208,38 @@
                         <a href="/categories/gestao_de_melhorias/abrir-chamado" class="dsgov-card-cta cta-blue px-4">
                             <i class="bi bi-plus-circle-fill" aria-hidden="true"></i> Pedir Reparo Agora
                         </a>
-                        <a href="/categories/gestao_de_melhorias/hub" class="btn dsgov-btn-outline py-2 px-3">
+                        <a href="/categories/gestao_de_melhorias/hub" class="btn dsgov-btn-outline">
                             <i class="bi bi-eye me-1" aria-hidden="true"></i> Ver Pedidos dos Moradores
                         </a>
                     </div>
                 </div>
 
-                {{!-- Cena Ilustrada Lateral Integrada (Editorial Line Art Vetorial Limpa e Contida) --}}
+                {{!-- Cena Ilustrada Lateral Nova (Editorial Line Art — Técnico com Poste e Calçada Urbana) --}}
                 <div class="col-12 col-lg-5 dsgov-mosaic-featured-illo">
-                    <svg viewBox="0 0 380 220" width="360" height="200" role="img" aria-label="Ilustração editorial de rua iluminada, manutenção urbana e registro de protocolo pelo celular">
-                        {{!-- Fundo suave em tom pastel azul --}}
-                        <rect x="14" y="14" width="352" height="192" rx="12" fill="#DCE8F5"/>
-                        {{!-- Calçada e via urbana em traço editorial --}}
-                        <path d="M26 174 H354" stroke="#1E293B" stroke-width="2.2" stroke-linecap="round"/>
-                        <path d="M46 190 H334" stroke="#64748B" stroke-width="2" stroke-dasharray="12 10" stroke-linecap="round"/>
-                        {{!-- Árvore da praça em pastel verde --}}
-                        <circle cx="76" cy="118" r="28" fill="#E3F2E1" stroke="#1E293B" stroke-width="2"/>
-                        <circle cx="96" cy="126" r="20" fill="#E3F2E1" stroke="#1E293B" stroke-width="2"/>
-                        <line x1="82" y1="138" x2="82" y2="174" stroke="#1E293B" stroke-width="2.5" stroke-linecap="round"/>
-                        {{!-- Poste de iluminação pública aceso --}}
-                        <line x1="154" y1="54" x2="154" y2="174" stroke="#1E293B" stroke-width="3" stroke-linecap="round"/>
-                        <path d="M154 56 Q176 42 194 56" fill="none" stroke="#1E293B" stroke-width="2.5" stroke-linecap="round"/>
-                        <circle cx="196" cy="62" r="16" fill="#FEF7E0"/>
-                        <circle cx="196" cy="62" r="8" fill="#FFCD07" stroke="#1E293B" stroke-width="2"/>
-                        {{!-- Personagem cidadã apontando melhoria com celular e prancheta de protocolo --}}
-                        <circle cx="246" cy="92" r="16" fill="#FDE68A" stroke="#1E293B" stroke-width="2"/>
-                        <path d="M232 86 Q246 70 260 86" fill="#1E293B"/>
-                        <path d="M222 174 L228 116 Q246 110 264 116 L270 174 Z" fill="#FFFFFF" stroke="#1E293B" stroke-width="2"/>
-                        {{!-- Cartão de protocolo validado ao lado --}}
-                        <rect x="284" y="64" width="62" height="84" rx="6" fill="#FFFFFF" stroke="#1E293B" stroke-width="2"/>
-                        <line x1="296" y1="82" x2="332" y2="82" stroke="#1351B4" stroke-width="2.5" stroke-linecap="round"/>
-                        <line x1="296" y1="94" x2="334" y2="94" stroke="#64748B" stroke-width="2" stroke-linecap="round"/>
-                        <line x1="296" y1="106" x2="324" y2="106" stroke="#64748B" stroke-width="2" stroke-linecap="round"/>
-                        <circle cx="315" cy="128" r="11" fill="#E3F2E1" stroke="#1E293B" stroke-width="1.8"/>
-                        <polyline points="310,128 314,132 321,123" fill="none" stroke="#168821" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    <p class="small text-muted mb-0 mt-2 text-center">
+                    <img src="/img/ilustracao-card-ruas-iluminacao.webp"
+                         alt="Ilustração editorial em traço fino mostrando profissional técnico com prancheta e celular ao lado de poste de iluminação pública aceso e calçada arborizada"
+                         width="520"
+                         height="290"
+                         loading="lazy">
+                    <p class="text-muted mb-0 mt-3 text-center" style="font-size: 0.98rem;">
                         Envio rápido com foto, localização no mapa e comprovante imediato.
                     </p>
                 </div>
             </div>
         </article>
 
-        {{!-- BLOCO 2 DO MOSAICO: Dois Cards Médios com Ilustrações Temáticas Limpas e Contidas --}}
+        {{!-- BLOCO 2 DO MOSAICO: Dois Cards Médios Sem Bordas com Ilustrações Editorial Line Art Exclusivas --}}
         <div class="row g-4 mb-4">
             {{!-- Card Médio Esquerdo: Fazer Denúncia com Sigilo --}}
-            <div class="col-12 col-lg-6">
-                <article class="dsgov-mosaic-card accent-red">
+            <div class="col-12 col-lg-6 item-categoria-servico" data-cat-item="denuncias">
+                <article class="dsgov-mosaic-card">
                     <div>
-                        {{!-- Faixa Ilustrada Dedicada e Contida (Zero sobreposição com o texto) --}}
-                        <div class="dsgov-card-illo-banner banner-red" aria-hidden="true">
-                            <svg viewBox="0 0 360 100" width="320" height="90">
-                                {{!-- Envelope / Processo Confidencial --}}
-                                <rect x="52" y="22" width="96" height="60" rx="6" fill="#FFFFFF" stroke="#1E293B" stroke-width="2"/>
-                                <polyline points="54,24 100,54 146,24" fill="none" stroke="#1E293B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <rect x="66" y="14" width="68" height="14" rx="3" fill="#FCE8E6" stroke="#1E293B" stroke-width="1.8"/>
-                                {{!-- Linha conectora tracejada --}}
-                                <line x1="158" y1="52" x2="196" y2="52" stroke="#1E293B" stroke-width="2" stroke-dasharray="5 5"/>
-                                {{!-- Escudo Editorial Contido com Cadeado de Proteção Legal --}}
-                                <path d="M236 14 L268 25 V48 C268 68 253 81 236 88 C219 81 204 68 204 48 V25 Z" fill="#FFFFFF" stroke="#1E293B" stroke-width="2.2"/>
-                                <path d="M236 22 L260 30 V47 C260 62 249 72 236 78 C223 72 212 62 212 47 V30 Z" fill="#FCE8E6"/>
-                                <rect x="226" y="45" width="20" height="16" rx="3" fill="#FFFFFF" stroke="#1E293B" stroke-width="2"/>
-                                <path d="M230 45 V39 C230 34 242 34 242 39 V45" fill="none" stroke="#1E293B" stroke-width="2"/>
-                                <circle cx="236" cy="53" r="2" fill="#E52207"/>
-                                {{!-- Selo LGPD / Sigilo --}}
-                                <rect x="282" y="36" width="44" height="28" rx="5" fill="#FFFFFF" stroke="#1E293B" stroke-width="1.8"/>
-                                <polyline points="295,50 302,56 314,43" fill="none" stroke="#168821" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
+                        <div class="dsgov-card-illo-banner banner-red">
+                            <img src="/img/ilustracao-card-denuncia-sigilo.webp"
+                                 alt="Ilustração editorial em traço fino mostrando cidadã enviando relato confidencial protegido e ouvidora acolhendo a demanda com segurança"
+                                 width="420"
+                                 height="236"
+                                 loading="lazy">
                         </div>
 
                         <span class="dsgov-badge dsgov-badge-red mb-2">
@@ -268,8 +253,8 @@
                         </p>
                     </div>
 
-                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 pt-3 border-top">
-                        <a href="/categories/denuncias_sigilosas/hub" class="text-decoration-none fw-semibold small" style="color: var(--dsgov-navy);">
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 pt-3">
+                        <a href="/categories/denuncias_sigilosas/hub" class="text-decoration-none fw-semibold" style="color: var(--dsgov-navy); font-size: 1rem;">
                             Consultar mural de ocorrências <i class="bi bi-chevron-right" aria-hidden="true"></i>
                         </a>
                         <a href="/categories/denuncias_sigilosas/abrir-denuncia" class="dsgov-card-cta cta-red px-4">
@@ -280,26 +265,15 @@
             </div>
 
             {{!-- Card Médio Direito: Encontrar Profissionais e Serviços --}}
-            <div class="col-12 col-lg-6">
-                <article class="dsgov-mosaic-card accent-green">
+            <div class="col-12 col-lg-6 item-categoria-servico" data-cat-item="trabalhadores">
+                <article class="dsgov-mosaic-card">
                     <div>
-                        {{!-- Faixa Ilustrada Dedicada e Contida (Zero sobreposição com o texto) --}}
-                        <div class="dsgov-card-illo-banner banner-green" aria-hidden="true">
-                            <svg viewBox="0 0 360 100" width="320" height="90">
-                                {{!-- Fachada de Comércio / Feira Local em Line Art --}}
-                                <rect x="48" y="36" width="104" height="50" rx="4" fill="#FFFFFF" stroke="#1E293B" stroke-width="2"/>
-                                <path d="M42 36 L54 18 H146 L158 36 Z" fill="#E3F2E1" stroke="#1E293B" stroke-width="2" stroke-linejoin="round"/>
-                                <rect x="64" y="50" width="32" height="22" rx="2" fill="#DCE8F5" stroke="#1E293B" stroke-width="1.8"/>
-                                <rect x="108" y="48" width="26" height="38" rx="2" fill="#FEF7E0" stroke="#1E293B" stroke-width="1.8"/>
-                                {{!-- Maleta de Ferramentas / Ofícios Autônomos --}}
-                                <rect x="192" y="38" width="76" height="48" rx="6" fill="#FFFFFF" stroke="#1E293B" stroke-width="2"/>
-                                <path d="M214 38 V28 C214 25 246 25 246 28 V38" fill="none" stroke="#1E293B" stroke-width="2"/>
-                                <line x1="192" y1="56" x2="268" y2="56" stroke="#1E293B" stroke-width="2"/>
-                                <rect x="223" y="51" width="14" height="10" rx="2" fill="#FFCD07" stroke="#1E293B" stroke-width="1.8"/>
-                                {{!-- Selo de Valorização Local --}}
-                                <circle cx="304" cy="54" r="20" fill="#E3F2E1" stroke="#1E293B" stroke-width="2"/>
-                                <polyline points="295,54 302,61 314,47" fill="none" stroke="#168821" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
+                        <div class="dsgov-card-illo-banner banner-green">
+                            <img src="/img/ilustracao-card-vitrine-trabalhador.webp"
+                                 alt="Ilustração editorial em traço fino mostrando trabalhadores autônomos e costureira local em frente à vitrine comunitária"
+                                 width="420"
+                                 height="236"
+                                 loading="lazy">
                         </div>
 
                         <span class="dsgov-badge dsgov-badge-green mb-2">
@@ -313,8 +287,8 @@
                         </p>
                     </div>
 
-                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 pt-3 border-top">
-                        <a href="/categories/vitrine_do_trabalhador/expor-servico" class="text-decoration-none fw-semibold small" style="color: var(--dsgov-green);">
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 pt-3">
+                        <a href="/categories/vitrine_do_trabalhador/expor-servico" class="text-decoration-none fw-semibold" style="color: var(--dsgov-green); font-size: 1rem;">
                             + Divulgar meu trabalho grátis
                         </a>
                         <a href="/categories/vitrine_do_trabalhador/hub" class="dsgov-card-cta cta-green px-4">
@@ -325,19 +299,19 @@
             </div>
         </div>
 
-        {{!-- BLOCO 3 DO MOSAICO: Card Horizontal Inferior de Consulta de Protocolo com Input Integrado --}}
-        <div class="dsgov-mosaic-protocol-bar">
+        {{!-- BLOCO 3 DO MOSAICO: Card Horizontal Inferior de Consulta de Protocolo Sem Borda --}}
+        <div class="dsgov-mosaic-protocol-bar item-categoria-servico" data-cat-item="protocolo">
             <div class="row g-3 align-items-center">
                 <div class="col-12 col-lg-5">
                     <div class="d-flex align-items-start gap-3">
-                        <div class="dsgov-impact-icon flex-shrink-0" style="width: 48px; height: 48px; font-size: 1.4rem;">
+                        <div class="dsgov-impact-icon flex-shrink-0">
                             <i class="bi bi-file-earmark-check-fill" aria-hidden="true"></i>
                         </div>
                         <div>
-                            <h3 class="dsgov-service-title mb-1" style="font-size: 1.22rem;">
+                            <h3 class="dsgov-service-title mb-1">
                                 Acompanhar meu Pedido ou Baixar Comprovante
                             </h3>
-                            <p class="text-muted mb-0" style="font-size: 0.96rem;">
+                            <p class="text-muted mb-0" style="font-size: 1.05rem;">
                                 Já abriu um chamado? Consulte a resposta oficial da equipe ou baixe a segunda via do seu protocolo.
                             </p>
                         </div>
@@ -367,11 +341,132 @@
 </section>
 
 {{!-- ==========================================================================
-     SEÇÕES EDITORIAIS E EDUCATIVAS (NARRATIVA CÍVICA EXPANDIDA)
+     4. CARROSSEL INTERATIVO DE DESTAQUES CÍVICOS E SEÇÕES EDITORIAIS
      ========================================================================== --}}
 
+{{!-- CARROSSEL INTERATIVO DE DESTAQUES CÍVICOS (NAVEGAÇÃO RÁPIDA ENTRE OS 4 PILARES) --}}
+<section class="dsgov-section-pad dsgov-section-light" id="destaques-interativos" aria-labelledby="titulo-carrossel-civico">
+    <div class="container">
+        <div class="dsgov-section-header text-center mx-auto" style="max-width: 820px;">
+            <span class="dsgov-section-kicker">Por Que Participar • Guia Interativo</span>
+            <h2 id="titulo-carrossel-civico" class="dsgov-section-title">Conheça a Força da Participação Cidadã</h2>
+            <p class="dsgov-section-lead">
+                Navegue pelos slides abaixo ou role a página para conhecer em detalhes como o Portal Voz Ativa protege seus direitos e melhora Cariús.
+            </p>
+        </div>
+
+        <div id="carrosselDestaquesCivicos" class="carousel slide dsgov-carousel-box" data-bs-ride="false">
+            <div class="carousel-inner">
+                {{!-- Slide 1 --}}
+                <div class="carousel-item active">
+                    <div class="row g-4 align-items-center">
+                        <div class="col-12 col-lg-5 text-center">
+                            <img src="/img/ilustracao-cidadania-patrimonio.webp"
+                                 alt="Família caminhando na praça e jovem cuidando do jardim comunitário"
+                                 class="dsgov-lineart-img"
+                                 loading="lazy">
+                        </div>
+                        <div class="col-12 col-lg-7">
+                            <span class="dsgov-badge dsgov-badge-blue mb-2">Pilar 1 de 4 • Patrimônio Coletivo</span>
+                            <h3 class="dsgov-service-title" style="font-size: 1.65rem;">Ruas Iluminadas e Praças Bem Cuidadas</h3>
+                            <p class="dsgov-editorial-text">
+                                Quando você avisa sobre um buraco na via ou uma lâmpada queimada, está protegendo idosos, crianças e trabalhadores de toda a sua vizinhança. Cada chamado vira um compromisso público documentado.
+                            </p>
+                            <a href="#cidadania-ativa" class="btn dsgov-btn-outline">
+                                Ler mais sobre Cidadania Ativa <i class="bi bi-arrow-down ms-1" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                {{!-- Slide 2 --}}
+                <div class="carousel-item">
+                    <div class="row g-4 align-items-center">
+                        <div class="col-12 col-lg-5 text-center">
+                            <img src="/img/ilustracao-cidadania-acolhimento.webp"
+                                 alt="Ouvidora acolhendo moradores com sigilo e respeito"
+                                 class="dsgov-lineart-img"
+                                 loading="lazy">
+                        </div>
+                        <div class="col-12 col-lg-7">
+                            <span class="dsgov-badge dsgov-badge-red mb-2">Pilar 2 de 4 • Sigilo Garantido por Lei</span>
+                            <h3 class="dsgov-service-title" style="font-size: 1.65rem;">Denúncias Seguras Sem Expor Sua Família</h3>
+                            <p class="dsgov-editorial-text">
+                                Amparado pela Lei Federal nº 13.460/2017 e pela LGPD, o portal limpa automaticamente os dados ocultos das fotos e oculta seu nome no mural público quando você escolhe a opção anônima.
+                            </p>
+                            <a href="#seguranca-comunitaria" class="btn dsgov-btn-outline">
+                                Conhecer a Proteção Legal <i class="bi bi-arrow-down ms-1" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                {{!-- Slide 3 --}}
+                <div class="carousel-item">
+                    <div class="row g-4 align-items-center">
+                        <div class="col-12 col-lg-5 text-center">
+                            <img src="/img/ilustracao-dever-poder-publico.webp"
+                                 alt="Servidores analisando protocolos com transparência"
+                                 class="dsgov-lineart-img"
+                                 loading="lazy">
+                        </div>
+                        <div class="col-12 col-lg-7">
+                            <span class="dsgov-badge dsgov-badge-blue mb-2">Pilar 3 de 4 • Artigo 37 da Constituição</span>
+                            <h3 class="dsgov-service-title" style="font-size: 1.65rem;">Transparência e Resposta por Protocolo</h3>
+                            <p class="dsgov-editorial-text">
+                                Pedir melhorias públicas é um direito constitucional, não um favor. Todo chamado gera um protocolo oficial que você pode baixar em `.TXT` ou PDF para acompanhar cada etapa da solução.
+                            </p>
+                            <a href="#dever-poder-publico" class="btn dsgov-btn-outline">
+                                Ver os 5 Princípios Públicos <i class="bi bi-arrow-down ms-1" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                {{!-- Slide 4 --}}
+                <div class="carousel-item">
+                    <div class="row g-4 align-items-center">
+                        <div class="col-12 col-lg-5 text-center">
+                            <img src="/img/ilustracao-trabalhadores-cidade.webp"
+                                 alt="Trabalhadores autônomos e artesã local de Cariús"
+                                 class="dsgov-lineart-img"
+                                 loading="lazy">
+                        </div>
+                        <div class="col-12 col-lg-7">
+                            <span class="dsgov-badge dsgov-badge-green mb-2">Pilar 4 de 4 • Renda na Nossa Terra</span>
+                            <h3 class="dsgov-service-title" style="font-size: 1.65rem;">Vitrine Gratuita para os Trabalhadores de Cariús</h3>
+                            <p class="dsgov-editorial-text">
+                                Eletricistas, pedreiros, costureiras, agricultores e pequenos negócios divulgam seus serviços sem pagar nada e recebem clientes diretamente pelo WhatsApp ou telefone.
+                            </p>
+                            <a href="#economia-local" class="btn dsgov-btn-outline">
+                                Explorar Economia Local <i class="bi bi-arrow-down ms-1" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{!-- Botões Seletores de Slide Interativos --}}
+            <div class="dsgov-carousel-pills" role="tablist" aria-label="Selecionar destaque cívico">
+                <button type="button" class="dsgov-carousel-pill active" data-bs-target="#carrosselDestaquesCivicos" data-bs-slide-to="0" aria-current="true" onclick="atualizarPillCarrossel(this)">
+                    1. Patrimônio Coletivo
+                </button>
+                <button type="button" class="dsgov-carousel-pill" data-bs-target="#carrosselDestaquesCivicos" data-bs-slide-to="1" onclick="atualizarPillCarrossel(this)">
+                    2. Sigilo e Segurança
+                </button>
+                <button type="button" class="dsgov-carousel-pill" data-bs-target="#carrosselDestaquesCivicos" data-bs-slide-to="2" onclick="atualizarPillCarrossel(this)">
+                    3. Dever Constitucional
+                </button>
+                <button type="button" class="dsgov-carousel-pill" data-bs-target="#carrosselDestaquesCivicos" data-bs-slide-to="3" onclick="atualizarPillCarrossel(this)">
+                    4. Trabalhadores Locais
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
 {{!-- SEÇÃO EDITORIAL 1: Cidadania Ativa e o Cuidado com o Patrimônio Coletivo --}}
-<section class="dsgov-section-pad bg-white border-top" id="cidadania-ativa" aria-labelledby="titulo-cidadania-ativa">
+<section class="dsgov-section-pad dsgov-section-gray" id="cidadania-ativa" aria-labelledby="titulo-cidadania-ativa">
     <div class="container">
         <div class="row g-5 align-items-center">
             <div class="col-12 col-lg-6">
@@ -404,11 +499,11 @@
 
             <div class="col-12 col-lg-6">
                 <figure class="dsgov-lineart-frame mb-0">
-                    <img src="/img/pessoas-unidas.webp"
-                         alt="Ilustração editorial em traço fino de cidadãos unidos celebrando conquistas e melhorias comunitárias"
+                    <img src="/img/ilustracao-cidadania-patrimonio.webp"
+                         alt="Ilustração editorial em traço fino de família e jovem cuidando juntos de uma praça pública arborizada e iluminada"
                          class="dsgov-lineart-img"
                          loading="lazy">
-                    <figcaption class="small text-muted mt-3">
+                    <figcaption class="text-muted mt-3" style="font-size: 0.98rem;">
                         <strong>Comunidade participativa:</strong> moradores da sede e dos distritos rurais conectados pela melhoria contínua dos espaços públicos de Cariús.
                     </figcaption>
                 </figure>
@@ -418,7 +513,7 @@
 </section>
 
 {{!-- SEÇÃO EDITORIAL 2: Segurança Comunitária e Proteção Mútua --}}
-<section class="dsgov-section-pad border-top" id="seguranca-comunitaria" aria-labelledby="titulo-seguranca-comunitaria">
+<section class="dsgov-section-pad dsgov-section-light" id="seguranca-comunitaria" aria-labelledby="titulo-seguranca-comunitaria">
     <div class="container">
         <div class="row g-5 align-items-center">
             <div class="col-12 col-lg-6 order-2 order-lg-1">
@@ -427,8 +522,8 @@
                          alt="Ilustração editorial em traço fino representando acolhimento, escuta protegida e diálogo entre moradores e ouvidoria"
                          class="dsgov-lineart-img"
                          loading="lazy">
-                    <figcaption class="small text-muted mt-3">
-                        <strong>Acolhimento e proteção jurídica:</strong> escuta segura da população com remoção automática de metadados das fotos e reserva de identidade.
+                    <figcaption class="text-muted mt-3" style="font-size: 0.98rem;">
+                        <strong>Acolhimento e proteção jurídica:</strong> escuta segura da população com remoção automática de informações ocultas das fotos e reserva de identidade.
                     </figcaption>
                 </figure>
             </div>
@@ -468,7 +563,7 @@
 </section>
 
 {{!-- SEÇÃO EDITORIAL 3: O Dever do Poder Público: Escuta, Eficiência e Transparência --}}
-<section class="dsgov-section-pad bg-white border-top" id="dever-poder-publico" aria-labelledby="titulo-dever-publico">
+<section class="dsgov-section-pad dsgov-section-gray" id="dever-poder-publico" aria-labelledby="titulo-dever-publico">
     <div class="container">
         <div class="row g-5 align-items-center">
             <div class="col-12 col-lg-6">
@@ -503,12 +598,12 @@
                     O princípio da <strong>Impessoalidade</strong> garante que todo cidadão — more ele no Centro ou no sítio mais distante — tenha sua demanda registrada com o mesmo respeito, sem privilégios. Já os princípios da <strong>Publicidade</strong> e da <strong>Eficiência</strong> asseguram que cada pedido gere um protocolo rastreável, permitindo que a comunidade acompanhe prazos, respostas técnicas e soluções concluídas com total clareza.
                 </p>
 
-                <div class="p-3 rounded border bg-light mt-3">
+                <div class="dsgov-editorial-quote mt-3">
                     <div class="d-flex align-items-start gap-3">
-                        <i class="bi bi-file-earmark-text-fill fs-3" style="color: var(--dsgov-blue);" aria-hidden="true"></i>
-                        <div>
-                            <h3 class="h6 fw-semibold mb-1" style="color: var(--dsgov-navy);">Garantia de Protocolo Documentado</h3>
-                            <p class="small text-muted mb-0">
+                        <i class="bi bi-file-earmark-text-fill fs-3" style="color: var(--dsgov-blue); font-style: normal;" aria-hidden="true"></i>
+                        <div style="font-style: normal;">
+                            <h3 class="h5 fw-bold mb-1" style="color: var(--dsgov-navy);">Garantia de Protocolo Documentado</h3>
+                            <p class="text-muted mb-0" style="font-size: 1.02rem;">
                                 Todo chamado aberto gera um comprovante imediato que você pode salvar no celular, receber por e-mail ou imprimir para acompanhamento formal.
                             </p>
                         </div>
@@ -518,11 +613,11 @@
 
             <div class="col-12 col-lg-6">
                 <figure class="dsgov-lineart-frame mb-0">
-                    <img src="/img/pessoas-trabalhando.webp"
+                    <img src="/img/ilustracao-dever-poder-publico.webp"
                          alt="Ilustração editorial em traço fino de equipe técnica analisando e respondendo demandas públicas no computador"
                          class="dsgov-lineart-img"
                          loading="lazy">
-                    <figcaption class="small text-muted mt-3">
+                    <figcaption class="text-muted mt-3" style="font-size: 0.98rem;">
                         <strong>Atendimento estruturado e transparente:</strong> análise técnica das ocorrências, histórico de respostas e encaminhamento aos órgãos responsáveis.
                     </figcaption>
                 </figure>
@@ -532,7 +627,7 @@
 </section>
 
 {{!-- SEÇÃO EDITORIAL 4: Valorização do Trabalhador e da Economia Local --}}
-<section class="dsgov-section-pad border-top" id="economia-local" aria-labelledby="titulo-economia-local">
+<section class="dsgov-section-pad dsgov-section-light" id="economia-local" aria-labelledby="titulo-economia-local">
     <div class="container">
         <div class="row g-5 align-items-center">
             <div class="col-12 col-lg-6 order-2 order-lg-1">
@@ -541,7 +636,7 @@
                          alt="Ilustração editorial em traço fino de trabalhadores autônomos, artesã e profissional de manutenção valorizando a economia local de Cariús"
                          class="dsgov-lineart-img"
                          loading="lazy">
-                    <figcaption class="small text-muted mt-3">
+                    <figcaption class="text-muted mt-3" style="font-size: 0.98rem;">
                         <strong>Fortalecimento produtivo de Cariús:</strong> conexão direta e sem intermediários entre quem precisa de um serviço e quem trabalha no município.
                     </figcaption>
                 </figure>
@@ -578,13 +673,13 @@
     </div>
 </section>
 
-{{!-- SEÇÃO 5: GUIA EM 4 PASSOS ILUSTRADOS — "DO RELATO À SOLUÇÃO" (EDITORIAL LINE ART SVG) --}}
-<section class="dsgov-section-pad bg-white border-top border-bottom" id="como-funciona" aria-labelledby="titulo-como-funciona">
+{{!-- SEÇÃO 5: GUIA EM 4 PASSOS ILUSTRADOS — "DO RELATO À SOLUÇÃO" (CARDS SEM BORDAS) --}}
+<section class="dsgov-section-pad dsgov-section-gray" id="como-funciona" aria-labelledby="titulo-como-funciona">
     <div class="container">
-        <div class="dsgov-section-header text-center mx-auto" style="max-width: 760px;">
+        <div class="dsgov-section-header text-center mx-auto" style="max-width: 780px;">
             <span class="dsgov-section-kicker">Como a Sua Participação Funciona</span>
             <h2 id="titulo-como-funciona" class="dsgov-section-title">Do Relato à Solução: 4 Passos Simples</h2>
-            <p class="text-muted mb-0 mt-2" style="font-size: 1.02rem;">
+            <p class="dsgov-section-lead">
                 Todo o caminho da sua solicitação foi pensado para ser rápido no celular e transparente do início ao fim.
             </p>
         </div>
@@ -697,13 +792,13 @@
     </div>
 </section>
 
-{{!-- SEÇÃO 6: FAQ CÍVICO EXPANDIDO (7 PERGUNTAS PRÁTICAS EM SANFONA ACESSÍVEL) --}}
-<section class="dsgov-section-pad" id="perguntas-frequentes" aria-labelledby="titulo-faq">
+{{!-- SEÇÃO 6: FAQ CÍVICO EXPANDIDO (7 PERGUNTAS PRÁTICAS EM SANFONA SEM BORDAS) --}}
+<section class="dsgov-section-pad dsgov-section-light" id="perguntas-frequentes" aria-labelledby="titulo-faq">
     <div class="container">
-        <div class="dsgov-section-header text-center mx-auto" style="max-width: 760px;">
+        <div class="dsgov-section-header text-center mx-auto" style="max-width: 780px;">
             <span class="dsgov-section-kicker">Tire Suas Dúvidas com Clareza</span>
             <h2 id="titulo-faq" class="dsgov-section-title">Perguntas Frequentes do Cidadão</h2>
-            <p class="text-muted mb-0 mt-2" style="font-size: 1.02rem;">
+            <p class="dsgov-section-lead">
                 Respostas diretas sobre gratuidade, proteção de identidade, prazos de resposta e uso do portal.
             </p>
         </div>
@@ -815,7 +910,7 @@
 </section>
 
 {{!-- SEÇÃO 7: MURAL DE DEMANDAS RECENTES E AVISO DE EMERGÊNCIA (190 e 181) --}}
-<section class="dsgov-section-pad bg-white border-top" id="pedidos-recentes" aria-labelledby="titulo-recentes">
+<section class="dsgov-section-pad dsgov-section-gray" id="pedidos-recentes" aria-labelledby="titulo-recentes">
     <div class="container">
         <div class="dsgov-section-header d-flex flex-wrap justify-content-between align-items-end gap-2">
             <div>
@@ -849,7 +944,7 @@
                                     </td>
                                     <td>
                                         <div class="fw-semibold text-dark">{{recortar this.titulo 65}}</div>
-                                        <div class="text-muted" style="font-size: 0.9rem;">{{this.categoria}}</div>
+                                        <div class="text-muted" style="font-size: 0.95rem;">{{this.categoria}}</div>
                                     </td>
                                     <td class="fw-medium">
                                         {{this.bairro}}
@@ -887,13 +982,13 @@
             </div>
         </div>
 
-        {{!-- Faixa de Emergência Policial (190 e 181) --}}
+        {{!-- Faixa de Emergência Policial (190 e 181 Sem Borda Rígida) --}}
         <div class="dsgov-emergency-bar d-flex flex-wrap justify-content-between align-items-center gap-3">
             <div class="d-flex align-items-center gap-3">
                 <i class="bi bi-telephone-fill text-danger fs-3" aria-hidden="true"></i>
                 <div>
                     <strong class="d-block fs-5 fw-semibold" style="color: var(--dsgov-navy);">Urgência ou crime acontecendo agora?</strong>
-                    <span class="text-muted" style="font-size: 0.98rem;">O portal não substitui o acionamento policial imediato. Para emergências em andamento, ligue gratuitamente:</span>
+                    <span class="text-muted" style="font-size: 1.05rem;">O portal não substitui o acionamento policial imediato. Para emergências em andamento, ligue gratuitamente:</span>
                 </div>
             </div>
             <div class="d-flex flex-wrap gap-3">
@@ -907,3 +1002,57 @@
         </div>
     </div>
 </section>
+
+{{!-- Script de Interatividade Rápida (Abas "Navegue por Categoria" e Carrossel Cívico) --}}
+<script>
+    function filtrarCategoriaServico(categoria, botaoClicado) {
+        var botoes = document.querySelectorAll('.dsgov-cat-btn');
+        for (var i = 0; i < botoes.length; i++) {
+            botoes[i].classList.remove('ativo');
+            botoes[i].setAttribute('aria-selected', 'false');
+        }
+        if (botaoClicado) {
+            botaoClicado.classList.add('ativo');
+            botaoClicado.setAttribute('aria-selected', 'true');
+        }
+        var itens = document.querySelectorAll('.item-categoria-servico');
+        for (var j = 0; j < itens.length; j++) {
+            var catItem = itens[j].getAttribute('data-cat-item');
+            if (categoria === 'todos' || catItem === categoria) {
+                itens[j].style.display = '';
+            } else {
+                itens[j].style.display = 'none';
+            }
+        }
+    }
+
+    function atualizarPillCarrossel(pillClicada) {
+        var pills = document.querySelectorAll('.dsgov-carousel-pill');
+        for (var i = 0; i < pills.length; i++) {
+            pills[i].classList.remove('active');
+            pills[i].removeAttribute('aria-current');
+        }
+        if (pillClicada) {
+            pillClicada.classList.add('active');
+            pillClicada.setAttribute('aria-current', 'true');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var carrossel = document.getElementById('carrosselDestaquesCivicos');
+        if (carrossel) {
+            carrossel.addEventListener('slide.bs.carousel', function (evento) {
+                var pills = document.querySelectorAll('.dsgov-carousel-pill');
+                for (var i = 0; i < pills.length; i++) {
+                    if (i === evento.to) {
+                        pills[i].classList.add('active');
+                        pills[i].setAttribute('aria-current', 'true');
+                    } else {
+                        pills[i].classList.remove('active');
+                        pills[i].removeAttribute('aria-current');
+                    }
+                }
+            });
+        }
+    });
+</script>

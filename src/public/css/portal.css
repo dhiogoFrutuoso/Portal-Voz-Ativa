@@ -18,6 +18,8 @@
  * já tinha `mt-auto`; faltava o body ser uma coluna flex de altura mínima
  * igual à da janela para essa margem automática ter o que empurrar.
  */
+@import url("https://cdngovbr-ds.estaleiro.serpro.gov.br/design-system/fonts/rawline/css/rawline.css");
+
 html {
     height: 100%;
 }
@@ -605,8 +607,8 @@ section.py-5 + section.py-5 {
 }
 
 /* ==========================================================================
-   9. Padrão Digital de Governo (DSGOV) — Tipografia Rawline/Public Sans,
-      Contenção Estrita de Layout, Cabeçalho, Rodapé e Landing Page
+   9. Padrão Digital de Governo (DSGOV / Gov.br) — Fonte Oficial Rawline,
+      Superfícies Sem Bordas com Elevação Suave, Tipografia Expandida e Carrossel
    ========================================================================== */
 
 :root {
@@ -621,13 +623,16 @@ section.py-5 + section.py-5 {
     --dsgov-yellow-soft: #FEF7E0;
     --dsgov-red: #E52207;
     --dsgov-red-soft: #FCE8E6;
-    --dsgov-bg: #F8F9FA;
+    --dsgov-bg: #F0F2F5;
+    --dsgov-bg-alt: #F8F9FA;
     --dsgov-surface: #FFFFFF;
     --dsgov-border: #DCDCDC;
     --dsgov-border-strong: #BDBDBD;
     --dsgov-text: #1B1B1B;
-    --dsgov-muted: #555555;
-    --dsgov-font: 'Rawline', 'Public Sans', 'Source Sans 3', 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --dsgov-muted: #4A5568;
+    --dsgov-shadow-card: 0 4px 16px rgba(0, 0, 0, 0.04);
+    --dsgov-shadow-hover: 0 12px 28px rgba(7, 29, 65, 0.09);
+    --dsgov-font: "Rawline", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 /* Regra global de contenção de mídia em qualquer resolução (Desktop e Mobile) */
@@ -642,21 +647,25 @@ canvas {
 body {
     background-color: var(--dsgov-bg);
     color: var(--dsgov-text);
-    font-family: var(--dsgov-font);
+    font-family: "Rawline", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     font-weight: 400;
+    font-size: 1.0625rem;
     line-height: 1.6;
     letter-spacing: normal;
     -webkit-font-smoothing: antialiased;
 }
 
 p {
+    font-family: var(--dsgov-font);
     font-weight: 400;
+    font-size: 1.0625rem;
     line-height: 1.6;
     letter-spacing: normal;
 }
 
-h1, h2, h3, h4, h5, h6 {
-    font-family: var(--dsgov-font);
+h1, h2, h3, h4, h5, h6,
+button, input, select, textarea {
+    font-family: "Rawline", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     letter-spacing: normal;
 }
 
@@ -664,14 +673,15 @@ h1, h2, h3, h4, h5, h6 {
 .dsgov-topbar {
     background-color: var(--dsgov-navy);
     color: #FFFFFF;
-    font-size: 0.78rem;
+    font-size: 0.85rem;
     font-weight: 400;
     border-bottom: 1px solid rgba(255, 255, 255, 0.14);
 }
 
 .dsgov-topbar-sigla {
     font-weight: 600;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
     color: #FFFFFF;
 }
 
@@ -702,9 +712,9 @@ h1, h2, h3, h4, h5, h6 {
     background: transparent;
     border: 1px solid rgba(255, 255, 255, 0.35);
     color: #FFFFFF;
-    border-radius: 4px;
-    padding: 0.12rem 0.55rem;
-    font-size: 0.75rem;
+    border-radius: 6px;
+    padding: 0.18rem 0.65rem;
+    font-size: 0.8rem;
     font-weight: 500;
     cursor: pointer;
     transition: background-color 0.15s ease, border-color 0.15s ease;
@@ -720,29 +730,29 @@ h1, h2, h3, h4, h5, h6 {
 /* --- Navbar Principal DSGOV --- */
 .dsgov-navbar {
     background-color: var(--dsgov-surface);
-    border-bottom: 1px solid var(--dsgov-border);
-    padding-top: 0.65rem;
-    padding-bottom: 0.65rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
 }
 
 .dsgov-brand-mark {
     border-left: 4px solid var(--dsgov-blue);
-    padding-left: 0.75rem;
+    padding-left: 0.85rem;
     line-height: 1.25;
 }
 
 .dsgov-brand-kicker {
     display: block;
-    font-size: 0.7rem;
+    font-size: 0.76rem;
     font-weight: 600;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.05em;
     color: var(--dsgov-muted);
     text-transform: uppercase;
 }
 
 .dsgov-brand-title {
     display: block;
-    font-size: 1.22rem;
+    font-size: 1.3rem;
     font-weight: 700;
     color: var(--dsgov-navy);
     letter-spacing: normal;
@@ -750,9 +760,9 @@ h1, h2, h3, h4, h5, h6 {
 
 .dsgov-nav-link {
     color: var(--dsgov-text) !important;
-    font-size: 0.92rem;
+    font-size: 1rem;
     font-weight: 500;
-    padding: 0.5rem 0.85rem !important;
+    padding: 0.55rem 0.9rem !important;
     border-bottom: 3px solid transparent;
     transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
 }
@@ -763,94 +773,108 @@ h1, h2, h3, h4, h5, h6 {
     border-bottom-color: var(--dsgov-blue);
 }
 
-/* --- Botões Sólidos Padrão Governo (cantos 4px, peso médio 600) --- */
+/* --- Botões Sólidos Padrão Governo (cantos 8px, peso médio 600) --- */
 .dsgov-btn-primary {
     background-color: var(--dsgov-blue);
-    border: 1px solid var(--dsgov-blue);
+    border: none;
     color: #FFFFFF !important;
     font-weight: 600;
-    border-radius: 4px;
-    padding: 0.55rem 1.2rem;
+    font-size: 1.05rem;
+    border-radius: 8px;
+    padding: 0.65rem 1.35rem;
     line-height: 1.4;
     letter-spacing: normal;
-    transition: background-color 0.15s ease, border-color 0.15s ease;
+    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .dsgov-btn-primary:hover,
 .dsgov-btn-primary:focus-visible {
     background-color: var(--dsgov-blue-hover);
-    border-color: var(--dsgov-blue-hover);
     color: #FFFFFF !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(19, 81, 180, 0.22);
 }
 
 .dsgov-btn-outline {
     background-color: #FFFFFF;
-    border: 1px solid var(--dsgov-blue);
+    border: 1.5px solid var(--dsgov-blue);
     color: var(--dsgov-blue) !important;
     font-weight: 600;
-    border-radius: 4px;
-    padding: 0.55rem 1.2rem;
+    font-size: 1.02rem;
+    border-radius: 8px;
+    padding: 0.6rem 1.3rem;
     line-height: 1.4;
     letter-spacing: normal;
-    transition: background-color 0.15s ease, color 0.15s ease;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
 
 .dsgov-btn-outline:hover,
 .dsgov-btn-outline:focus-visible {
     background-color: var(--dsgov-blue-soft);
     color: var(--dsgov-blue-hover) !important;
+    transform: translateY(-2px);
 }
 
 .dsgov-btn-secondary {
     background-color: #F1F3F5;
-    border: 1px solid var(--dsgov-border-strong);
+    border: none;
     color: var(--dsgov-text) !important;
-    font-weight: 500;
-    border-radius: 4px;
-    padding: 0.5rem 1rem;
+    font-weight: 600;
+    border-radius: 8px;
+    padding: 0.6rem 1.15rem;
 }
 
 .dsgov-btn-secondary:hover {
     background-color: #E2E6EA;
 }
 
-/* --- Breadcrumb DSGOV --- */
+/* --- Breadcrumb DSGOV (Caixa Alta Moderada) --- */
 .dsgov-breadcrumb-bar {
     background-color: #FFFFFF;
-    border-bottom: 1px solid var(--dsgov-border);
-    font-size: 0.85rem;
+    font-size: 0.88rem;
 }
 
 .dsgov-breadcrumb {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.45rem;
     margin: 0;
     padding: 0;
     list-style: none;
     color: var(--dsgov-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 600;
 }
 
 .dsgov-breadcrumb a {
     color: var(--dsgov-blue);
     text-decoration: none;
-    font-weight: 500;
+    font-weight: 600;
 }
 
 .dsgov-breadcrumb a:hover {
     text-decoration: underline;
 }
 
-/* --- Espaçamento Generoso entre Seções (60px a 80px no Desktop) --- */
+/* --- Espaçamento Generoso entre Seções (72px no Desktop) --- */
 .dsgov-section-pad {
     padding: 4.5rem 0;
     position: relative;
 }
 
+.dsgov-section-gray {
+    background-color: #F0F2F5;
+}
+
+.dsgov-section-light {
+    background-color: #F8F9FA;
+}
+
 @media (max-width: 767.98px) {
     .dsgov-section-pad {
-        padding: 2.75rem 0;
+        padding: 3rem 0;
     }
 }
 
@@ -858,8 +882,7 @@ h1, h2, h3, h4, h5, h6 {
 .dsgov-hero-band {
     background-color: var(--dsgov-navy);
     color: #FFFFFF;
-    border-bottom: 4px solid var(--dsgov-blue);
-    padding: 3.75rem 0 3.5rem;
+    padding: 4rem 0 3.75rem;
     position: relative;
     overflow: hidden;
 }
@@ -867,95 +890,102 @@ h1, h2, h3, h4, h5, h6 {
 .dsgov-hero-badge {
     display: inline-flex;
     align-items: center;
-    gap: 0.45rem;
-    background-color: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.25);
+    gap: 0.5rem;
+    background-color: rgba(255, 255, 255, 0.12);
     color: var(--dsgov-yellow);
-    font-size: 0.85rem;
+    font-size: 0.88rem;
     font-weight: 600;
-    letter-spacing: 0.02em;
-    padding: 0.35rem 0.85rem;
-    border-radius: 4px;
-    margin-bottom: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.42rem 0.95rem;
+    border-radius: 8px;
+    margin-bottom: 1.25rem;
 }
 
 .dsgov-hero-title {
-    font-size: clamp(1.95rem, 3.2vw, 2.65rem);
+    font-size: clamp(2.15rem, 3.6vw, 2.85rem);
     font-weight: 700;
     color: #FFFFFF;
-    line-height: 1.25;
+    line-height: 1.22;
     letter-spacing: normal;
-    margin-bottom: 1rem;
+    margin-bottom: 1.1rem;
 }
 
 .dsgov-hero-lead {
-    font-size: clamp(1.05rem, 1.25vw, 1.18rem);
+    font-size: clamp(1.1rem, 1.35vw, 1.22rem);
     font-weight: 400;
     color: #E2E8F0;
-    line-height: 1.6;
+    line-height: 1.65;
     letter-spacing: normal;
-    margin-bottom: 1.65rem;
-    max-width: 42rem;
+    margin-bottom: 1.8rem;
+    max-width: 44rem;
 }
 
 .dsgov-btn-hero-primary {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
-    min-height: 48px;
-    padding: 0.65rem 1.45rem;
-    font-size: 1.02rem;
+    gap: 0.55rem;
+    min-height: 52px;
+    padding: 0.75rem 1.6rem;
+    font-size: 1.08rem;
     font-weight: 600;
     line-height: 1.4;
     letter-spacing: normal;
     background-color: var(--dsgov-blue);
-    border: 2px solid var(--dsgov-blue);
+    border: none;
     color: #FFFFFF !important;
-    border-radius: 4px;
+    border-radius: 8px;
     text-decoration: none;
-    transition: background-color 0.15s ease, border-color 0.15s ease;
+    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .dsgov-btn-hero-primary:hover {
     background-color: #1B64D8;
-    border-color: #1B64D8;
     color: #FFFFFF !important;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
 }
 
 .dsgov-btn-hero-outline {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
-    min-height: 48px;
-    padding: 0.65rem 1.45rem;
-    font-size: 1.02rem;
+    gap: 0.55rem;
+    min-height: 52px;
+    padding: 0.75rem 1.6rem;
+    font-size: 1.08rem;
     font-weight: 600;
     line-height: 1.4;
     letter-spacing: normal;
-    background-color: transparent;
-    border: 2px solid #FFFFFF;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: none;
     color: #FFFFFF !important;
-    border-radius: 4px;
+    border-radius: 8px;
     text-decoration: none;
-    transition: background-color 0.15s ease, color 0.15s ease;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
 
 .dsgov-btn-hero-outline:hover {
     background-color: #FFFFFF;
     color: var(--dsgov-navy) !important;
+    transform: translateY(-3px);
 }
 
 .dsgov-hero-illustration {
     background-color: #FFFFFF;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 10px;
-    padding: 1.25rem;
-    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.16);
+    border: none !important;
+    border-radius: 12px;
+    padding: 1.4rem;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
     position: relative;
     overflow: hidden;
     z-index: 1;
+    transition: transform 0.25s ease;
+}
+
+.dsgov-hero-illustration:hover {
+    transform: translateY(-4px);
 }
 
 .dsgov-hero-illustration img,
@@ -966,150 +996,202 @@ h1, h2, h3, h4, h5, h6 {
     height: auto;
     max-height: 320px;
     object-fit: contain;
-    border-radius: 6px;
+    border-radius: 8px;
     margin: 0 auto;
 }
 
-/* --- Caixa de Busca Direta DSGOV --- */
+/* --- Caixa de Busca Direta DSGOV (Superfície Branca Sem Borda Rígida) --- */
 .dsgov-search-box {
     background-color: #FFFFFF;
-    border: 1px solid var(--dsgov-border);
-    border-radius: 6px;
-    padding: 0.65rem;
+    border: none !important;
+    border-radius: 10px;
+    padding: 0.75rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
 }
 
 .dsgov-search-select {
-    border: 1px solid var(--dsgov-border);
-    border-radius: 4px;
-    font-size: 0.98rem;
-    font-weight: 500;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.02rem;
+    font-weight: 600;
     color: var(--dsgov-navy);
-    background-color: #F8F9FA;
-    min-height: 48px;
-    padding: 0.6rem 2rem 0.6rem 0.85rem;
+    background-color: #F0F2F5;
+    min-height: 50px;
+    padding: 0.65rem 2rem 0.65rem 0.95rem;
 }
 
 .dsgov-search-input {
-    border: 1px solid var(--dsgov-border);
-    border-radius: 4px;
-    font-size: 1rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.05rem;
     font-weight: 400;
     color: var(--dsgov-text);
-    min-height: 48px;
-    padding: 0.6rem 1rem;
+    background-color: #F8F9FA;
+    min-height: 50px;
+    padding: 0.65rem 1rem;
 }
 
 .dsgov-search-input:focus,
 .dsgov-search-select:focus {
-    border-color: var(--dsgov-blue);
-    box-shadow: 0 0 0 2px rgba(19, 81, 180, 0.2);
+    background-color: #FFFFFF;
+    box-shadow: 0 0 0 2px var(--dsgov-blue);
     outline: none;
 }
 
 .dsgov-search-btn {
-    min-height: 48px;
-    font-size: 1rem;
+    min-height: 50px;
+    font-size: 1.05rem;
     font-weight: 600;
+    border-radius: 8px;
 }
 
-/* --- Seção de Impacto Cidadão (Faixa de Credibilidade Pública) --- */
+/* --- Seção de Impacto Cidadão (Cards Brancos Sem Bordas estilo Gov.br) --- */
 .dsgov-impact-strip {
-    background-color: #FFFFFF;
-    border-bottom: 1px solid var(--dsgov-border);
-    padding: 2rem 0;
+    background-color: #F8F9FA;
+    padding: 2.5rem 0 1.5rem;
 }
 
 .dsgov-impact-item {
     display: flex;
     align-items: flex-start;
-    gap: 0.9rem;
-    padding: 0.95rem 1.1rem;
-    background-color: #F8F9FA;
-    border: 1px solid var(--dsgov-border);
-    border-left: 4px solid var(--dsgov-blue);
-    border-radius: 6px;
+    gap: 1rem;
+    padding: 1.35rem 1.4rem;
+    background-color: #FFFFFF;
+    border: none !important;
+    border-radius: 10px;
+    box-shadow: var(--dsgov-shadow-card);
     height: 100%;
     position: relative;
     overflow: hidden;
     z-index: 1;
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.dsgov-impact-item:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--dsgov-shadow-hover);
 }
 
 .dsgov-impact-icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 6px;
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
     background-color: var(--dsgov-blue-soft);
     color: var(--dsgov-blue);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.3rem;
+    font-size: 1.45rem;
     flex-shrink: 0;
 }
 
 .dsgov-impact-title {
-    font-size: 1.08rem;
-    font-weight: 600;
-    color: var(--dsgov-navy);
-    line-height: 1.35;
-    margin-bottom: 0.2rem;
-}
-
-.dsgov-impact-text {
-    font-size: 0.95rem;
-    font-weight: 400;
-    color: #333333;
-    line-height: 1.5;
-    margin-bottom: 0;
-}
-
-/* --- Títulos de Seção Padrão Governo --- */
-.dsgov-section-header {
-    border-bottom: 2px solid var(--dsgov-border);
-    padding-bottom: 0.85rem;
-    margin-bottom: 2.25rem;
-}
-
-.dsgov-section-kicker {
-    display: block;
-    font-size: 0.8rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--dsgov-blue);
-    margin-bottom: 0.3rem;
-}
-
-.dsgov-section-title {
-    font-size: clamp(1.5rem, 2.3vw, 1.85rem);
+    font-size: 1.25rem;
     font-weight: 700;
     color: var(--dsgov-navy);
     line-height: 1.3;
-    letter-spacing: normal;
+    margin-bottom: 0.25rem;
+}
+
+.dsgov-impact-text {
+    font-size: 1.05rem;
+    font-weight: 400;
+    color: #333333;
+    line-height: 1.55;
     margin-bottom: 0;
 }
 
-/* --- Cartões de Serviço — Mosaico Editorial Assimétrico com Contenção Estrita --- */
+/* --- Títulos de Seção Expandidos (32px a 42px) e Destaques em Caixa Alta --- */
+.dsgov-section-header {
+    margin-bottom: 2.5rem;
+}
+
+.dsgov-section-kicker {
+    display: inline-block;
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--dsgov-blue);
+    margin-bottom: 0.45rem;
+}
+
+.dsgov-section-title {
+    font-size: clamp(2rem, 3.2vw, 2.625rem);
+    font-weight: 700;
+    color: var(--dsgov-navy);
+    line-height: 1.22;
+    letter-spacing: normal;
+    margin-bottom: 0.5rem;
+}
+
+.dsgov-section-lead {
+    font-size: 1.125rem;
+    font-weight: 400;
+    color: #3B4656;
+    line-height: 1.6;
+    margin-bottom: 0;
+}
+
+/* --- Abas Interativas "Navegue por Categoria" (Padrão Gov.br) --- */
+.dsgov-cat-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin-bottom: 2rem;
+}
+
+.dsgov-cat-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: #FFFFFF;
+    border: none !important;
+    border-radius: 10px;
+    padding: 0.75rem 1.35rem;
+    font-size: 1.02rem;
+    font-weight: 600;
+    color: var(--dsgov-navy);
+    box-shadow: var(--dsgov-shadow-card);
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dsgov-cat-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--dsgov-shadow-hover);
+    color: var(--dsgov-blue);
+}
+
+.dsgov-cat-btn.ativo,
+.dsgov-cat-btn[aria-selected="true"] {
+    background-color: var(--dsgov-blue);
+    color: #FFFFFF;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(19, 81, 180, 0.24);
+}
+
+/* --- Cartões de Serviço Sem Bordas (Superfície Limpa Gov.br com Elevação Suave) --- */
 .dsgov-mosaic-featured {
     background-color: #FFFFFF;
-    border: 1px solid #E0E0E0;
-    border-left: 6px solid var(--dsgov-blue);
-    border-radius: 8px;
+    border: none !important;
+    border-radius: 12px;
+    box-shadow: var(--dsgov-shadow-card);
     position: relative;
     overflow: hidden;
     z-index: 1;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .dsgov-mosaic-featured:hover {
-    border-color: var(--dsgov-blue);
-    box-shadow: 0 6px 20px rgba(7, 29, 65, 0.06);
+    transform: translateY(-4px);
+    box-shadow: var(--dsgov-shadow-hover);
 }
 
 .dsgov-mosaic-featured-illo {
-    background-color: #F4F7FA;
-    border-left: 1px solid #E2E8F0;
-    padding: 1.75rem;
+    background-color: #F8FAFC;
+    border: none !important;
+    padding: 2rem;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1117,65 +1199,50 @@ h1, h2, h3, h4, h5, h6 {
     position: relative;
     overflow: hidden;
     z-index: 1;
-}
-
-@media (max-width: 991.98px) {
-    .dsgov-mosaic-featured-illo {
-        border-left: none;
-        border-top: 1px solid #E2E8F0;
-    }
 }
 
 .dsgov-mosaic-featured-illo img,
 .dsgov-mosaic-featured-illo svg {
     display: block;
     max-width: 100%;
-    max-height: 220px;
+    max-height: 250px;
     width: auto;
     height: auto;
     object-fit: contain;
+    border-radius: 10px;
     margin: 0 auto;
 }
 
 .dsgov-mosaic-card {
     background-color: #FFFFFF;
-    border: 1px solid #E0E0E0;
-    border-radius: 8px;
-    padding: 1.75rem;
+    border: none !important;
+    border-radius: 12px;
+    padding: 2rem;
     height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    box-shadow: var(--dsgov-shadow-card);
     position: relative;
     overflow: hidden;
     z-index: 1;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .dsgov-mosaic-card:hover {
-    border-color: var(--dsgov-blue);
-    box-shadow: 0 6px 20px rgba(7, 29, 65, 0.06);
+    transform: translateY(-4px);
+    box-shadow: var(--dsgov-shadow-hover);
 }
 
-.dsgov-mosaic-card.accent-red,
-.dsgov-mosaic-card.mosaic-red {
-    border-left: 5px solid var(--dsgov-red);
-}
-
-.dsgov-mosaic-card.accent-green,
-.dsgov-mosaic-card.mosaic-green {
-    border-left: 5px solid var(--dsgov-green);
-}
-
-/* Cabeçalho ilustrado dedicado dentro de cada card de serviço (sem risco de sobrepor texto) */
+/* Cabeçalho ilustrado dedicado dentro de cada card de serviço (sem borda rígida) */
 .dsgov-card-illo-banner {
     width: 100%;
-    height: 124px;
-    border-radius: 6px;
+    height: 165px;
+    border-radius: 10px;
     background-color: #F8FAFC;
-    border: 1px solid #E2E8F0;
+    border: none !important;
     padding: 0.75rem 1rem;
-    margin-bottom: 1.25rem;
+    margin-bottom: 1.35rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1185,34 +1252,33 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .dsgov-card-illo-banner.banner-red {
-    background-color: #FFF8F6;
-    border-color: #F5D0C8;
+    background-color: #FFF9F8;
 }
 
 .dsgov-card-illo-banner.banner-green {
-    background-color: #F3FAF5;
-    border-color: #C6E6CE;
+    background-color: #F6FBF7;
 }
 
 .dsgov-card-illo-banner svg,
 .dsgov-card-illo-banner img {
     display: block;
-    max-height: 100px;
+    max-height: 145px;
     max-width: 100%;
     width: auto;
     height: auto;
     object-fit: contain;
+    border-radius: 8px;
 }
 
-/* Contêiner de miniatura controlada (48px a 64px máx.) para impedir qualquer vazamento */
+/* Contêiner de miniatura controlada (48px a 64px máx.) */
 .dsgov-mosaic-thumb {
     width: 56px;
     height: 56px;
     max-width: 56px;
     max-height: 56px;
-    border-radius: 8px;
+    border-radius: 10px;
     background-color: #F8F9FA;
-    border: 1px solid #E2E8F0;
+    border: none !important;
     padding: 0.45rem;
     display: inline-flex;
     align-items: center;
@@ -1234,142 +1300,192 @@ h1, h2, h3, h4, h5, h6 {
 
 .dsgov-mosaic-protocol-bar {
     background-color: #FFFFFF;
-    border: 1px solid #E0E0E0;
-    border-left: 6px solid var(--dsgov-navy);
-    border-radius: 8px;
-    padding: 1.65rem 2rem;
+    border: none !important;
+    border-radius: 12px;
+    padding: 1.85rem 2.2rem;
+    box-shadow: var(--dsgov-shadow-card);
     position: relative;
     overflow: hidden;
     z-index: 1;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.dsgov-mosaic-protocol-bar:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--dsgov-shadow-hover);
 }
 
 .dsgov-service-title {
-    font-size: 1.35rem;
+    font-size: clamp(1.3rem, 1.8vw, 1.5rem);
     font-weight: 700;
     color: var(--dsgov-navy);
     line-height: 1.3;
     letter-spacing: normal;
-    margin-bottom: 0.55rem;
+    margin-bottom: 0.65rem;
 }
 
 .dsgov-service-desc {
-    font-size: 1.02rem;
+    font-size: 1.08rem;
     font-weight: 400;
     color: #333333;
     line-height: 1.6;
     letter-spacing: normal;
-    margin-bottom: 1.25rem;
+    margin-bottom: 1.35rem;
 }
 
 .dsgov-card-cta {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
-    min-height: 46px;
-    font-size: 0.98rem;
+    gap: 0.55rem;
+    min-height: 48px;
+    font-size: 1.05rem;
     font-weight: 600;
     line-height: 1.4;
     letter-spacing: normal;
-    border-radius: 6px;
-    padding: 0.6rem 1.3rem;
+    border-radius: 8px;
+    padding: 0.65rem 1.45rem;
+    border: none !important;
     text-decoration: none;
-    transition: background-color 0.15s ease, border-color 0.15s ease;
+    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dsgov-card-cta:hover {
+    transform: translateY(-2px);
 }
 
 .dsgov-card-cta.cta-blue {
     background-color: var(--dsgov-blue);
-    border: 1px solid var(--dsgov-blue);
     color: #FFFFFF !important;
 }
-.dsgov-card-cta.cta-blue:hover { background-color: var(--dsgov-blue-hover); }
+.dsgov-card-cta.cta-blue:hover {
+    background-color: var(--dsgov-blue-hover);
+    box-shadow: 0 6px 16px rgba(19, 81, 180, 0.22);
+}
 
 .dsgov-card-cta.cta-red {
     background-color: var(--dsgov-red);
-    border: 1px solid var(--dsgov-red);
     color: #FFFFFF !important;
 }
-.dsgov-card-cta.cta-red:hover { background-color: #B81B05; }
+.dsgov-card-cta.cta-red:hover {
+    background-color: #B81B05;
+    box-shadow: 0 6px 16px rgba(229, 34, 7, 0.22);
+}
 
 .dsgov-card-cta.cta-green {
     background-color: var(--dsgov-green);
-    border: 1px solid var(--dsgov-green);
     color: #FFFFFF !important;
 }
-.dsgov-card-cta.cta-green:hover { background-color: #116819; }
+.dsgov-card-cta.cta-green:hover {
+    background-color: #116819;
+    box-shadow: 0 6px 16px rgba(22, 136, 33, 0.22);
+}
 
 .dsgov-card-cta.cta-navy {
     background-color: var(--dsgov-navy);
-    border: 1px solid var(--dsgov-navy);
     color: #FFFFFF !important;
 }
-.dsgov-card-cta.cta-navy:hover { background-color: var(--dsgov-navy-mid); }
+.dsgov-card-cta.cta-navy:hover {
+    background-color: var(--dsgov-navy-mid);
+    box-shadow: 0 6px 16px rgba(7, 29, 65, 0.22);
+}
 
-/* --- Seções Editoriais Cívicas, Molduras de Ilustração Line Art e Citações --- */
+/* --- Carrossel Interativo DSGOV (Destaques e Passo a Passo Dinâmico) --- */
+.dsgov-carousel-box {
+    background-color: #FFFFFF;
+    border: none !important;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: var(--dsgov-shadow-card);
+    position: relative;
+    overflow: hidden;
+}
+
+.dsgov-carousel-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    justify-content: center;
+    margin-top: 1.5rem;
+}
+
+.dsgov-carousel-pill {
+    background-color: #E2E8F0;
+    border: none;
+    border-radius: 999px;
+    padding: 0.45rem 1.1rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--dsgov-navy);
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.dsgov-carousel-pill:hover {
+    background-color: #CBD5E1;
+}
+
+.dsgov-carousel-pill.active {
+    background-color: var(--dsgov-blue);
+    color: #FFFFFF;
+    transform: translateY(-2px);
+}
+
+/* --- Seções Editoriais Cívicas, Molduras de Ilustração Line Art e Citações Sem Borda --- */
 .dsgov-editorial-text {
-    font-size: 1.05rem;
+    font-size: 1.125rem;
     font-weight: 400;
     color: #2D3748;
     line-height: 1.65;
     letter-spacing: normal;
-    margin-bottom: 1.15rem;
+    margin-bottom: 1.2rem;
 }
 
 .dsgov-editorial-quote {
     background-color: #FFFFFF;
-    border: 1px solid #E0E0E0;
-    border-left: 5px solid var(--dsgov-blue);
-    border-radius: 8px;
-    padding: 1.25rem 1.5rem;
-    margin: 1.5rem 0;
-    font-size: 1.05rem;
+    border: none !important;
+    border-radius: 10px;
+    padding: 1.45rem 1.75rem;
+    margin: 1.6rem 0;
+    font-size: 1.125rem;
     font-style: italic;
-    font-weight: 500;
+    font-weight: 600;
     color: var(--dsgov-navy);
     line-height: 1.6;
     letter-spacing: normal;
+    box-shadow: var(--dsgov-shadow-card);
 }
 
 .dsgov-editorial-quote.quote-red {
-    border-left-color: var(--dsgov-red);
-    background-color: #FFFDFB;
+    background-color: #FFF9F8;
 }
 
 .dsgov-editorial-quote.quote-green {
-    border-left-color: var(--dsgov-green);
-    background-color: #F9FDFB;
+    background-color: #F6FBF7;
 }
 
 .dsgov-lineart-frame {
     background-color: #FFFFFF;
-    border: 1px solid #E0E0E0;
-    border-radius: 10px;
-    padding: 1.35rem;
+    border: none !important;
+    border-radius: 12px;
+    padding: 1.65rem;
     text-align: center;
+    box-shadow: var(--dsgov-shadow-card);
     position: relative;
     overflow: hidden;
     z-index: 1;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
-.dsgov-lineart-frame.frame-blue {
-    background-color: #EAF2FF;
-    border-color: #C9DDFB;
-}
-
-.dsgov-lineart-frame.frame-green {
-    background-color: #E8F7EE;
-    border-color: #BFE8CE;
-}
-
-.dsgov-lineart-frame.frame-warm {
-    background-color: #FFF5EC;
-    border-color: #F6D8BE;
+.dsgov-lineart-frame:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--dsgov-shadow-hover);
 }
 
 .dsgov-lineart-img {
     width: 100%;
-    max-width: 460px;
-    max-height: 340px;
+    max-width: 480px;
+    max-height: 350px;
     height: auto;
     object-fit: contain;
     border-radius: 8px;
@@ -1380,96 +1496,112 @@ h1, h2, h3, h4, h5, h6 {
 .dsgov-pillar-chip {
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
-    background-color: #FFFFFF;
-    border: 1px solid #DCDCDC;
-    border-radius: 6px;
-    padding: 0.4rem 0.8rem;
-    font-size: 0.9rem;
+    gap: 0.45rem;
+    background-color: #F0F2F5;
+    border: none !important;
+    border-radius: 8px;
+    padding: 0.5rem 0.95rem;
+    font-size: 0.98rem;
     font-weight: 600;
     line-height: 1.4;
     color: var(--dsgov-navy);
+    transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
-/* --- Badges Sólidos Semânticos DSGOV --- */
+.dsgov-pillar-chip:hover {
+    background-color: var(--dsgov-blue-soft);
+    transform: translateY(-2px);
+}
+
+/* --- Badges Sólidos Semânticos DSGOV (Caixa Alta Moderada) --- */
 .dsgov-badge {
     display: inline-flex;
     align-items: center;
-    gap: 0.3rem;
-    font-size: 0.82rem;
+    gap: 0.35rem;
+    font-size: 0.84rem;
     font-weight: 600;
-    padding: 0.28rem 0.65rem;
-    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.35rem 0.75rem;
+    border-radius: 6px;
     line-height: 1.3;
-    letter-spacing: normal;
 }
 
 .dsgov-badge-blue { background-color: var(--dsgov-blue); color: #FFFFFF; }
 .dsgov-badge-green { background-color: var(--dsgov-green); color: #FFFFFF; }
 .dsgov-badge-yellow { background-color: var(--dsgov-yellow); color: #1B1B1B; }
 .dsgov-badge-red { background-color: var(--dsgov-red); color: #FFFFFF; }
-.dsgov-badge-neutral { background-color: #E9ECEF; color: #333333; border: 1px solid #CED4DA; }
+.dsgov-badge-neutral { background-color: #E9ECEF; color: #333333; }
 
-/* --- Tabela Institucional Espaçada e Legível --- */
+/* --- Tabela Institucional Espaçada e Legível (Sem Bordas Externas Rígidas) --- */
 .dsgov-table-box {
     background-color: #FFFFFF;
-    border: 1px solid var(--dsgov-border);
-    border-radius: 6px;
+    border: none !important;
+    border-radius: 12px;
+    box-shadow: var(--dsgov-shadow-card);
     overflow: hidden;
 }
 
 .dsgov-table {
     margin-bottom: 0;
-    font-size: 0.98rem;
-    line-height: 1.5;
+    font-size: 1.05rem;
+    line-height: 1.55;
 }
 
 .dsgov-table thead th {
-    background-color: #F1F3F5;
+    background-color: #F8F9FA;
     color: var(--dsgov-navy);
     font-weight: 600;
-    font-size: 0.9rem;
-    border-bottom: 2px solid var(--dsgov-border);
-    padding: 0.9rem 1.15rem;
+    font-size: 0.92rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-bottom: 1px solid #EAECEF;
+    padding: 1rem 1.25rem;
 }
 
 .dsgov-table tbody td {
-    padding: 0.95rem 1.15rem;
+    padding: 1.05rem 1.25rem;
     vertical-align: middle;
-    border-bottom: 1px solid #EAECEF;
+    border-bottom: 1px solid #F1F3F5;
     font-weight: 400;
 }
 
-/* --- Seção Como a Sua Participação Funciona (Passo a Passo Ilustrado) --- */
+/* --- Seção Como a Sua Participação Funciona (Cards Sem Borda com Sombra Suave) --- */
 .dsgov-step-card {
     background-color: #FFFFFF;
-    border: 1px solid var(--dsgov-border);
-    border-top: 4px solid var(--dsgov-blue);
-    border-radius: 6px;
-    padding: 1.65rem;
+    border: none !important;
+    border-radius: 12px;
+    padding: 1.85rem;
     height: 100%;
+    box-shadow: var(--dsgov-shadow-card);
     position: relative;
     overflow: hidden;
     z-index: 1;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.dsgov-step-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--dsgov-shadow-hover);
 }
 
 .dsgov-step-illo {
-    height: 112px;
-    background-color: #F8F9FA;
-    border: 1px solid #EAECEF;
-    border-radius: 6px;
+    height: 120px;
+    background-color: #F8FAFC;
+    border: none !important;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 1.2rem;
-    padding: 0.65rem;
+    margin-bottom: 1.3rem;
+    padding: 0.75rem;
     position: relative;
     overflow: hidden;
 }
 
 .dsgov-step-illo svg,
 .dsgov-step-illo img {
-    max-height: 92px;
+    max-height: 98px;
     max-width: 100%;
     width: auto;
     height: auto;
@@ -1481,73 +1613,79 @@ h1, h2, h3, h4, h5, h6 {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 34px;
-    height: 34px;
-    border-radius: 4px;
-    background-color: var(--dsgov-navy);
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    background-color: var(--dsgov-blue);
     color: #FFFFFF;
-    font-weight: 600;
-    font-size: 0.95rem;
-    margin-right: 0.6rem;
+    font-weight: 700;
+    font-size: 1.05rem;
+    margin-right: 0.7rem;
     flex-shrink: 0;
 }
 
 .dsgov-step-title {
-    font-size: 1.18rem;
-    font-weight: 600;
+    font-size: 1.3rem;
+    font-weight: 700;
     color: var(--dsgov-navy);
     line-height: 1.35;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.55rem;
 }
 
 .dsgov-step-desc {
-    font-size: 0.98rem;
+    font-size: 1.0625rem;
     font-weight: 400;
     color: #333333;
     line-height: 1.6;
     margin-bottom: 0;
 }
 
-/* --- Seção FAQ do Cidadão (Accordion Padrão DSGOV) --- */
+/* --- Seção FAQ do Cidadão (Accordion Sem Bordas com Sombra Sutil) --- */
 .dsgov-faq-accordion .accordion-item {
-    border: 1px solid var(--dsgov-border);
-    border-radius: 6px !important;
-    margin-bottom: 0.85rem;
+    border: none !important;
+    border-radius: 10px !important;
+    margin-bottom: 1rem;
     background-color: #FFFFFF;
+    box-shadow: var(--dsgov-shadow-card);
     overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dsgov-faq-accordion .accordion-item:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--dsgov-shadow-hover);
 }
 
 .dsgov-faq-accordion .accordion-button {
-    font-size: 1.06rem;
+    font-size: 1.15rem;
     font-weight: 600;
     line-height: 1.45;
     color: var(--dsgov-navy);
     background-color: #FFFFFF;
-    padding: 1.1rem 1.35rem;
+    padding: 1.25rem 1.5rem;
     box-shadow: none !important;
 }
 
 .dsgov-faq-accordion .accordion-button:not(.collapsed) {
     color: var(--dsgov-blue);
     background-color: #F4F8FF;
-    border-bottom: 1px solid var(--dsgov-border);
 }
 
 .dsgov-faq-accordion .accordion-body {
-    font-size: 1rem;
+    font-size: 1.08rem;
     font-weight: 400;
     color: #2B2B2B;
-    line-height: 1.6;
-    padding: 1.2rem 1.35rem;
+    line-height: 1.65;
+    padding: 1.35rem 1.5rem;
 }
 
-/* --- Faixa Limpa de Emergência (190 e 181) --- */
+/* --- Faixa Limpa de Emergência (190 e 181 Sem Borda com Sombra Sutil) --- */
 .dsgov-emergency-bar {
     background-color: #FFFFFF;
-    border: 1px solid var(--dsgov-border);
-    border-left: 5px solid var(--dsgov-red);
-    border-radius: 6px;
-    padding: 1.35rem 1.5rem;
+    border: none !important;
+    border-radius: 12px;
+    padding: 1.6rem 1.85rem;
+    box-shadow: var(--dsgov-shadow-card);
     position: relative;
     overflow: hidden;
     z-index: 1;
@@ -1557,12 +1695,11 @@ h1, h2, h3, h4, h5, h6 {
 .dsgov-footer {
     background-color: var(--dsgov-navy);
     color: #FFFFFF;
-    border-top: 4px solid var(--dsgov-blue);
 }
 
 .dsgov-footer-kicker {
     display: block;
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.05em;
     color: var(--dsgov-yellow);
@@ -1570,7 +1707,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .dsgov-footer-heading {
-    font-size: 0.84rem;
+    font-size: 0.9rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.04em;
@@ -1581,18 +1718,19 @@ h1, h2, h3, h4, h5, h6 {
 .dsgov-footer-text {
     color: #CFD8E3;
     font-weight: 400;
-    line-height: 1.55;
+    font-size: 1rem;
+    line-height: 1.6;
 }
 
 .dsgov-footer-list li {
-    margin-bottom: 0.45rem;
+    margin-bottom: 0.5rem;
 }
 
 .dsgov-footer-list a,
 .dsgov-footer-link {
     color: #CFD8E3;
     text-decoration: none;
-    font-size: 0.88rem;
+    font-size: 0.95rem;
     font-weight: 400;
     transition: color 0.15s ease;
 }
@@ -1608,7 +1746,7 @@ h1, h2, h3, h4, h5, h6 {
     border: 1px solid #FFFFFF;
     color: #FFFFFF !important;
     font-weight: 600;
-    border-radius: 4px;
+    border-radius: 8px;
 }
 
 .dsgov-btn-footer:hover {
@@ -1655,7 +1793,7 @@ body.dsgov-alto-contraste .dsgov-footer,
 body.dsgov-alto-contraste .card {
     background-color: #000000 !important;
     color: #FFFFFF !important;
-    border-color: #FFFF00 !important;
+    outline: 1px solid #FFFF00 !important;
 }
 
 body.dsgov-alto-contraste a,
